@@ -1,0 +1,52 @@
+{
+  "name": "bibliotheque-app",
+  "version": "1.0.0",
+  "description": "Application de gestion de bibliothèque",
+  "main": "dist/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "concurrently \"npm run build:watch\" \"wait-on dist/main.js && electron .\"",
+    "build": "tsc && webpack --mode production",
+    "build:watch": "concurrently \"tsc --watch\" \"webpack --mode development --watch\"",
+    "package": "electron-builder"
+  },
+  "devDependencies": {
+    "@types/estree": "^1.0.8",
+    "@types/http-cache-semantics": "^4.0.4",
+    "@types/json-schema": "^7.0.15",
+    "@types/ms": "^0.7.34",
+    "@types/node": "^20.0.0",
+    "@types/prop-types": "^15.7.15",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/sqlite3": "^3.1.8",
+    "concurrently": "^8.2.0",
+    "css-loader": "^6.8.1",
+    "electron": "^25.0.0",
+    "electron-builder": "^24.6.3",
+    "html-webpack-plugin": "^5.5.3",
+    "style-loader": "^3.3.3",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.1.6",
+    "wait-on": "^7.0.1",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "lucide-react": "^0.263.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "sqlite3": "^5.1.6"
+  },
+  "build": {
+    "appId": "com.bibliotheque.app",
+    "productName": "Bibliothèque",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "node_modules/**/*"
+    ]
+  }
+}
