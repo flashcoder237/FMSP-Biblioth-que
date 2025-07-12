@@ -9,7 +9,8 @@ import {
   Link,
   ArrowLeft,
   Save,
-  X
+  X,
+  AlertCircle
 } from 'lucide-react';
 import { Book as BookType, Author, Category } from '../../preload';
 
@@ -50,6 +51,8 @@ export const AddBook: React.FC<AddBookProps> = ({
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string>('');
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -63,8 +66,8 @@ export const AddBook: React.FC<AddBookProps> = ({
     if (!formData.category.trim()) {
       newErrors.category = 'La catégorie est requise';
     }
-    if (formData.isbn && !isValidISBN(formData.isbn)) {
-      newErrors.isbn = 'Format ISBN invalide';
+    if (formData.isbn && formData.isbn.trim() && !isValidISBN(formData.isbn)) {
+      newErrors.isbn = 'Format ISBN invalide (ex: 978-2-123456-78-9)';
     }
 
     setErrors(newErrors);
@@ -76,24 +79,70 @@ export const AddBook: React.FC<AddBookProps> = ({
     return /^(978|979)\d{10}$/.test(cleanISBN) || /^\d{10}$/.test(cleanISBN);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError('');
     
-    if (validateForm()) {
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
       const bookData: Omit<BookType, 'id'> = {
         ...formData,
+        isbn: formData.isbn.trim() || '', // ISBN vide si non renseigné
         isBorrowed: false,
         createdAt: new Date().toISOString()
       };
       
-      onAddBook(bookData);
+      await onAddBook(bookData);
+    } catch (error: any) {
+      console.error('Erreur lors de l\'ajout du livre:', error);
+      
+      // Gestion spécifique de l'erreur d'ISBN dupliqué
+      if (error.message && error.message.includes('ISBN existe déjà')) {
+        setErrors({ isbn: 'Un livre avec cet ISBN existe déjà' });
+      } else {
+        setSubmitError('Erreur lors de l\'ajout du livre. Veuillez réessayer.');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    setSubmitError('');
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const handleAddNewAuthor = async () => {
+    if (!newAuthor.name.trim()) return;
+
+    try {
+      await window.electronAPI.addAuthor(newAuthor);
+      setFormData(prev => ({ ...prev, author: newAuthor.name }));
+      setNewAuthor({ name: '', biography: '', nationality: '' });
+      setShowNewAuthor(false);
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout de l\'auteur:', error);
+    }
+  };
+
+  const handleAddNewCategory = async () => {
+    if (!newCategory.name.trim()) return;
+
+    try {
+      await window.electronAPI.addCategory(newCategory);
+      setFormData(prev => ({ ...prev, category: newCategory.name }));
+      setNewCategory({ name: '', description: '', color: '#22c55e' });
+      setShowNewCategory(false);
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout de la catégorie:', error);
     }
   };
 
@@ -121,6 +170,13 @@ export const AddBook: React.FC<AddBookProps> = ({
 
       <div className="form-container">
         <form onSubmit={handleSubmit} className="book-form">
+          {submitError && (
+            <div className="error-banner">
+              <AlertCircle size={16} />
+              <span>{submitError}</span>
+            </div>
+          )}
+
           <div className="form-grid">
             {/* Informations principales */}
             <div className="form-section">
@@ -138,6 +194,7 @@ export const AddBook: React.FC<AddBookProps> = ({
                   onChange={(e) => handleInputChange('title', e.target.value)}
                   className={`form-input ${errors.title ? 'error' : ''}`}
                   placeholder="Entrez le titre du livre"
+                  disabled={isLoading}
                 />
                 {errors.title && <span className="error-message">{errors.title}</span>}
               </div>
@@ -153,6 +210,7 @@ export const AddBook: React.FC<AddBookProps> = ({
                     value={formData.author}
                     onChange={(e) => handleInputChange('author', e.target.value)}
                     className={`form-input ${errors.author ? 'error' : ''}`}
+                    disabled={isLoading}
                   >
                     <option value="">Sélectionner un auteur</option>
                     {authors.map((author) => (
@@ -165,6 +223,7 @@ export const AddBook: React.FC<AddBookProps> = ({
                     type="button"
                     className="action-link"
                     onClick={() => setShowNewAuthor(true)}
+                    disabled={isLoading}
                   >
                     Nouvel auteur
                   </button>
@@ -183,6 +242,7 @@ export const AddBook: React.FC<AddBookProps> = ({
                     value={formData.category}
                     onChange={(e) => handleInputChange('category', e.target.value)}
                     className={`form-input ${errors.category ? 'error' : ''}`}
+                    disabled={isLoading}
                   >
                     <option value="">Sélectionner une catégorie</option>
                     {categories.map((category) => (
@@ -195,6 +255,7 @@ export const AddBook: React.FC<AddBookProps> = ({
                     type="button"
                     className="action-link"
                     onClick={() => setShowNewCategory(true)}
+                    disabled={isLoading}
                   >
                     Nouvelle catégorie
                   </button>
@@ -209,7 +270,7 @@ export const AddBook: React.FC<AddBookProps> = ({
 
               <div className="form-group">
                 <label htmlFor="isbn" className="form-label">
-                  ISBN
+                  ISBN (optionnel)
                 </label>
                 <input
                   id="isbn"
@@ -218,8 +279,12 @@ export const AddBook: React.FC<AddBookProps> = ({
                   onChange={(e) => handleInputChange('isbn', e.target.value)}
                   className={`form-input ${errors.isbn ? 'error' : ''}`}
                   placeholder="978-2-123456-78-9"
+                  disabled={isLoading}
                 />
                 {errors.isbn && <span className="error-message">{errors.isbn}</span>}
+                <small className="form-hint">
+                  Laissez vide si vous ne connaissez pas l'ISBN
+                </small>
               </div>
 
               <div className="form-group">
@@ -234,6 +299,7 @@ export const AddBook: React.FC<AddBookProps> = ({
                   onChange={(e) => handleInputChange('publishedDate', e.target.value)}
                   className="form-input"
                   placeholder="2023 ou 01/01/2023"
+                  disabled={isLoading}
                 />
               </div>
 
@@ -249,6 +315,7 @@ export const AddBook: React.FC<AddBookProps> = ({
                   onChange={(e) => handleInputChange('coverUrl', e.target.value)}
                   className="form-input"
                   placeholder="https://exemple.com/couverture.jpg"
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -267,17 +334,27 @@ export const AddBook: React.FC<AddBookProps> = ({
               className="form-textarea"
               placeholder="Résumé ou description du livre..."
               rows={4}
+              disabled={isLoading}
             />
           </div>
 
           {/* Actions */}
           <div className="form-actions">
-            <button type="button" className="btn-secondary" onClick={onCancel}>
+            <button 
+              type="button" 
+              className="btn-secondary" 
+              onClick={onCancel}
+              disabled={isLoading}
+            >
               Annuler
             </button>
-            <button type="submit" className="btn-primary">
+            <button 
+              type="submit" 
+              className="btn-primary"
+              disabled={isLoading}
+            >
               <Save size={16} />
-              Ajouter le livre
+              {isLoading ? 'Ajout en cours...' : 'Ajouter le livre'}
             </button>
           </div>
         </form>
@@ -341,18 +418,7 @@ export const AddBook: React.FC<AddBookProps> = ({
               </button>
               <button
                 className="btn-primary"
-                onClick={async () => {
-                  if (newAuthor.name.trim()) {
-                    try {
-                      await window.electronAPI.addAuthor(newAuthor);
-                      setFormData(prev => ({ ...prev, author: newAuthor.name }));
-                      setNewAuthor({ name: '', biography: '', nationality: '' });
-                      setShowNewAuthor(false);
-                    } catch (error) {
-                      console.error('Erreur lors de l\'ajout de l\'auteur:', error);
-                    }
-                  }
-                }}
+                onClick={handleAddNewAuthor}
                 disabled={!newAuthor.name.trim()}
               >
                 Ajouter
@@ -424,18 +490,7 @@ export const AddBook: React.FC<AddBookProps> = ({
               </button>
               <button
                 className="btn-primary"
-                onClick={async () => {
-                  if (newCategory.name.trim()) {
-                    try {
-                      await window.electronAPI.addCategory(newCategory);
-                      setFormData(prev => ({ ...prev, category: newCategory.name }));
-                      setNewCategory({ name: '', description: '', color: '#22c55e' });
-                      setShowNewCategory(false);
-                    } catch (error) {
-                      console.error('Erreur lors de l\'ajout de la catégorie:', error);
-                    }
-                  }
-                }}
+                onClick={handleAddNewCategory}
                 disabled={!newCategory.name.trim()}
               >
                 Ajouter
@@ -483,6 +538,12 @@ export const AddBook: React.FC<AddBookProps> = ({
           transform: translateX(-2px);
         }
         
+        .back-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+        
         .header-title-section {
           display: flex;
           align-items: center;
@@ -518,6 +579,19 @@ export const AddBook: React.FC<AddBookProps> = ({
           border-radius: 16px;
           padding: 32px;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .error-banner {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          background: #fef2f2;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+          border-radius: 8px;
+          margin-bottom: 24px;
+          font-size: 14px;
         }
         
         .form-grid {
@@ -584,9 +658,20 @@ export const AddBook: React.FC<AddBookProps> = ({
           background: #fef2f2;
         }
         
+        .form-input:disabled, .form-textarea:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        
         .form-textarea {
           resize: vertical;
           min-height: 100px;
+        }
+        
+        .form-hint {
+          font-size: 12px;
+          color: #6b7280;
+          font-style: italic;
         }
         
         .input-with-action {
@@ -611,8 +696,13 @@ export const AddBook: React.FC<AddBookProps> = ({
           transition: color 0.2s ease;
         }
         
-        .action-link:hover {
+        .action-link:hover:not(:disabled) {
           color: #16a34a;
+        }
+        
+        .action-link:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
         
         .error-message {
@@ -647,7 +737,7 @@ export const AddBook: React.FC<AddBookProps> = ({
           color: #374151;
         }
         
-        .btn-secondary:hover {
+        .btn-secondary:hover:not(:disabled) {
           background: #e5e7eb;
         }
         
@@ -656,13 +746,14 @@ export const AddBook: React.FC<AddBookProps> = ({
           color: white;
         }
         
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
           background: #16a34a;
           transform: translateY(-1px);
         }
         
+        .btn-secondary:disabled,
         .btn-primary:disabled {
-          background: #d1d5db;
+          opacity: 0.6;
           cursor: not-allowed;
           transform: none;
         }

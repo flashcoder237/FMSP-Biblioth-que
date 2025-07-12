@@ -97,7 +97,7 @@ const App = () => {
     const renderCurrentView = () => {
         switch (currentView) {
             case 'dashboard':
-                return (0, jsx_runtime_1.jsx)(Dashboard_1.Dashboard, { stats: stats, onNavigate: setCurrentView });
+                return ((0, jsx_runtime_1.jsx)(Dashboard_1.Dashboard, { stats: stats, onNavigate: setCurrentView, books: books, categories: categories }));
             case 'books':
                 return ((0, jsx_runtime_1.jsx)(BookList_1.BookList, { books: books, onBorrow: handleBorrowBook, onDelete: handleDeleteBook, onSearch: handleSearch, searchQuery: searchQuery }));
             case 'borrowed':
@@ -105,7 +105,7 @@ const App = () => {
             case 'add-book':
                 return ((0, jsx_runtime_1.jsx)(AddBook_1.AddBook, { authors: authors, categories: categories, onAddBook: handleAddBook, onCancel: () => setCurrentView('books') }));
             default:
-                return (0, jsx_runtime_1.jsx)(Dashboard_1.Dashboard, { stats: stats, onNavigate: setCurrentView });
+                return ((0, jsx_runtime_1.jsx)(Dashboard_1.Dashboard, { stats: stats, onNavigate: setCurrentView, books: books, categories: categories }));
         }
     };
     return ((0, jsx_runtime_1.jsxs)("div", { className: "app", children: [(0, jsx_runtime_1.jsx)(TitleBar_1.TitleBar, {}), (0, jsx_runtime_1.jsxs)("div", { className: "app-content", children: [(0, jsx_runtime_1.jsx)(Sidebar_1.Sidebar, { currentView: currentView, onNavigate: setCurrentView, stats: stats }), (0, jsx_runtime_1.jsx)("main", { className: "main-content", children: renderCurrentView() })] }), (0, jsx_runtime_1.jsx)("style", { children: `

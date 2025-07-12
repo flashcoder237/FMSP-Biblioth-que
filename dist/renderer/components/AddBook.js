@@ -27,6 +27,8 @@ const AddBook = ({ authors, categories, onAddBook, onCancel }) => {
         color: '#22c55e'
     });
     const [errors, setErrors] = (0, react_1.useState)({});
+    const [isLoading, setIsLoading] = (0, react_1.useState)(false);
+    const [submitError, setSubmitError] = (0, react_1.useState)('');
     const validateForm = () => {
         const newErrors = {};
         if (!formData.title.trim()) {
@@ -38,8 +40,8 @@ const AddBook = ({ authors, categories, onAddBook, onCancel }) => {
         if (!formData.category.trim()) {
             newErrors.category = 'La catégorie est requise';
         }
-        if (formData.isbn && !isValidISBN(formData.isbn)) {
-            newErrors.isbn = 'Format ISBN invalide';
+        if (formData.isbn && formData.isbn.trim() && !isValidISBN(formData.isbn)) {
+            newErrors.isbn = 'Format ISBN invalide (ex: 978-2-123456-78-9)';
         }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -48,52 +50,74 @@ const AddBook = ({ authors, categories, onAddBook, onCancel }) => {
         const cleanISBN = isbn.replace(/[-\s]/g, '');
         return /^(978|979)\d{10}$/.test(cleanISBN) || /^\d{10}$/.test(cleanISBN);
     };
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (validateForm()) {
+        setSubmitError('');
+        if (!validateForm()) {
+            return;
+        }
+        setIsLoading(true);
+        try {
             const bookData = {
                 ...formData,
+                isbn: formData.isbn.trim() || '', // ISBN vide si non renseigné
                 isBorrowed: false,
                 createdAt: new Date().toISOString()
             };
-            onAddBook(bookData);
+            await onAddBook(bookData);
+        }
+        catch (error) {
+            console.error('Erreur lors de l\'ajout du livre:', error);
+            // Gestion spécifique de l'erreur d'ISBN dupliqué
+            if (error.message && error.message.includes('ISBN existe déjà')) {
+                setErrors({ isbn: 'Un livre avec cet ISBN existe déjà' });
+            }
+            else {
+                setSubmitError('Erreur lors de l\'ajout du livre. Veuillez réessayer.');
+            }
+        }
+        finally {
+            setIsLoading(false);
         }
     };
     const handleInputChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
+        setSubmitError('');
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: '' }));
+        }
+    };
+    const handleAddNewAuthor = async () => {
+        if (!newAuthor.name.trim())
+            return;
+        try {
+            await window.electronAPI.addAuthor(newAuthor);
+            setFormData(prev => ({ ...prev, author: newAuthor.name }));
+            setNewAuthor({ name: '', biography: '', nationality: '' });
+            setShowNewAuthor(false);
+        }
+        catch (error) {
+            console.error('Erreur lors de l\'ajout de l\'auteur:', error);
+        }
+    };
+    const handleAddNewCategory = async () => {
+        if (!newCategory.name.trim())
+            return;
+        try {
+            await window.electronAPI.addCategory(newCategory);
+            setFormData(prev => ({ ...prev, category: newCategory.name }));
+            setNewCategory({ name: '', description: '', color: '#22c55e' });
+            setShowNewCategory(false);
+        }
+        catch (error) {
+            console.error('Erreur lors de l\'ajout de la catégorie:', error);
         }
     };
     const predefinedColors = [
         '#22c55e', '#3b82f6', '#f59e0b', '#ef4444',
         '#8b5cf6', '#06b6d4', '#f97316', '#84cc16'
     ];
-    return ((0, jsx_runtime_1.jsxs)("div", { className: "add-book", children: [(0, jsx_runtime_1.jsx)("div", { className: "page-header", children: (0, jsx_runtime_1.jsxs)("div", { className: "header-content", children: [(0, jsx_runtime_1.jsx)("button", { className: "back-button", onClick: onCancel, children: (0, jsx_runtime_1.jsx)(lucide_react_1.ArrowLeft, { size: 20 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "header-title-section", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Plus, { className: "header-icon", size: 28 }), (0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)("h1", { className: "page-title", children: "Ajouter un livre" }), (0, jsx_runtime_1.jsx)("p", { className: "page-subtitle", children: "Enrichissez votre collection" })] })] })] }) }), (0, jsx_runtime_1.jsx)("div", { className: "form-container", children: (0, jsx_runtime_1.jsxs)("form", { onSubmit: handleSubmit, className: "book-form", children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-grid", children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("h3", { className: "section-title", children: "Informations principales" }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsxs)("label", { htmlFor: "title", className: "form-label", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Book, { size: 16 }), "Titre du livre *"] }), (0, jsx_runtime_1.jsx)("input", { id: "title", type: "text", value: formData.title, onChange: (e) => handleInputChange('title', e.target.value), className: `form-input ${errors.title ? 'error' : ''}`, placeholder: "Entrez le titre du livre" }), errors.title && (0, jsx_runtime_1.jsx)("span", { className: "error-message", children: errors.title })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsxs)("label", { htmlFor: "author", className: "form-label", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.User, { size: 16 }), "Auteur *"] }), (0, jsx_runtime_1.jsxs)("div", { className: "input-with-action", children: [(0, jsx_runtime_1.jsxs)("select", { id: "author", value: formData.author, onChange: (e) => handleInputChange('author', e.target.value), className: `form-input ${errors.author ? 'error' : ''}`, children: [(0, jsx_runtime_1.jsx)("option", { value: "", children: "S\u00E9lectionner un auteur" }), authors.map((author) => ((0, jsx_runtime_1.jsx)("option", { value: author.name, children: author.name }, author.id)))] }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "action-link", onClick: () => setShowNewAuthor(true), children: "Nouvel auteur" })] }), errors.author && (0, jsx_runtime_1.jsx)("span", { className: "error-message", children: errors.author })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsxs)("label", { htmlFor: "category", className: "form-label", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Tag, { size: 16 }), "Cat\u00E9gorie *"] }), (0, jsx_runtime_1.jsxs)("div", { className: "input-with-action", children: [(0, jsx_runtime_1.jsxs)("select", { id: "category", value: formData.category, onChange: (e) => handleInputChange('category', e.target.value), className: `form-input ${errors.category ? 'error' : ''}`, children: [(0, jsx_runtime_1.jsx)("option", { value: "", children: "S\u00E9lectionner une cat\u00E9gorie" }), categories.map((category) => ((0, jsx_runtime_1.jsx)("option", { value: category.name, children: category.name }, category.id)))] }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "action-link", onClick: () => setShowNewCategory(true), children: "Nouvelle cat\u00E9gorie" })] }), errors.category && (0, jsx_runtime_1.jsx)("span", { className: "error-message", children: errors.category })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("h3", { className: "section-title", children: "D\u00E9tails suppl\u00E9mentaires" }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { htmlFor: "isbn", className: "form-label", children: "ISBN" }), (0, jsx_runtime_1.jsx)("input", { id: "isbn", type: "text", value: formData.isbn, onChange: (e) => handleInputChange('isbn', e.target.value), className: `form-input ${errors.isbn ? 'error' : ''}`, placeholder: "978-2-123456-78-9" }), errors.isbn && (0, jsx_runtime_1.jsx)("span", { className: "error-message", children: errors.isbn })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsxs)("label", { htmlFor: "publishedDate", className: "form-label", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Calendar, { size: 16 }), "Date de publication"] }), (0, jsx_runtime_1.jsx)("input", { id: "publishedDate", type: "text", value: formData.publishedDate, onChange: (e) => handleInputChange('publishedDate', e.target.value), className: "form-input", placeholder: "2023 ou 01/01/2023" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsxs)("label", { htmlFor: "coverUrl", className: "form-label", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Link, { size: 16 }), "URL de la couverture"] }), (0, jsx_runtime_1.jsx)("input", { id: "coverUrl", type: "url", value: formData.coverUrl, onChange: (e) => handleInputChange('coverUrl', e.target.value), className: "form-input", placeholder: "https://exemple.com/couverture.jpg" })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section full-width", children: [(0, jsx_runtime_1.jsxs)("label", { htmlFor: "description", className: "form-label", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.FileText, { size: 16 }), "Description"] }), (0, jsx_runtime_1.jsx)("textarea", { id: "description", value: formData.description, onChange: (e) => handleInputChange('description', e.target.value), className: "form-textarea", placeholder: "R\u00E9sum\u00E9 ou description du livre...", rows: 4 })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-actions", children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "btn-secondary", onClick: onCancel, children: "Annuler" }), (0, jsx_runtime_1.jsxs)("button", { type: "submit", className: "btn-primary", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Save, { size: 16 }), "Ajouter le livre"] })] })] }) }), showNewAuthor && ((0, jsx_runtime_1.jsx)("div", { className: "modal-overlay", onClick: () => setShowNewAuthor(false), children: (0, jsx_runtime_1.jsxs)("div", { className: "modal", onClick: (e) => e.stopPropagation(), children: [(0, jsx_runtime_1.jsxs)("div", { className: "modal-header", children: [(0, jsx_runtime_1.jsx)("h3", { children: "Ajouter un nouvel auteur" }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close", onClick: () => setShowNewAuthor(false), children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 20 }) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "modal-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Nom de l'auteur *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: newAuthor.name, onChange: (e) => setNewAuthor(prev => ({ ...prev, name: e.target.value })), className: "form-input", placeholder: "Nom complet de l'auteur" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Biographie" }), (0, jsx_runtime_1.jsx)("textarea", { value: newAuthor.biography, onChange: (e) => setNewAuthor(prev => ({ ...prev, biography: e.target.value })), className: "form-textarea", placeholder: "Courte biographie...", rows: 3 })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Nationalit\u00E9" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: newAuthor.nationality, onChange: (e) => setNewAuthor(prev => ({ ...prev, nationality: e.target.value })), className: "form-input", placeholder: "Nationalit\u00E9 de l'auteur" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "modal-footer", children: [(0, jsx_runtime_1.jsx)("button", { className: "btn-secondary", onClick: () => setShowNewAuthor(false), children: "Annuler" }), (0, jsx_runtime_1.jsx)("button", { className: "btn-primary", onClick: async () => {
-                                        if (newAuthor.name.trim()) {
-                                            try {
-                                                await window.electronAPI.addAuthor(newAuthor);
-                                                setFormData(prev => ({ ...prev, author: newAuthor.name }));
-                                                setNewAuthor({ name: '', biography: '', nationality: '' });
-                                                setShowNewAuthor(false);
-                                            }
-                                            catch (error) {
-                                                console.error('Erreur lors de l\'ajout de l\'auteur:', error);
-                                            }
-                                        }
-                                    }, disabled: !newAuthor.name.trim(), children: "Ajouter" })] })] }) })), showNewCategory && ((0, jsx_runtime_1.jsx)("div", { className: "modal-overlay", onClick: () => setShowNewCategory(false), children: (0, jsx_runtime_1.jsxs)("div", { className: "modal", onClick: (e) => e.stopPropagation(), children: [(0, jsx_runtime_1.jsxs)("div", { className: "modal-header", children: [(0, jsx_runtime_1.jsx)("h3", { children: "Ajouter une nouvelle cat\u00E9gorie" }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close", onClick: () => setShowNewCategory(false), children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 20 }) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "modal-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Nom de la cat\u00E9gorie *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: newCategory.name, onChange: (e) => setNewCategory(prev => ({ ...prev, name: e.target.value })), className: "form-input", placeholder: "Nom de la cat\u00E9gorie" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Description" }), (0, jsx_runtime_1.jsx)("textarea", { value: newCategory.description, onChange: (e) => setNewCategory(prev => ({ ...prev, description: e.target.value })), className: "form-textarea", placeholder: "Description de la cat\u00E9gorie...", rows: 2 })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Couleur" }), (0, jsx_runtime_1.jsx)("div", { className: "color-picker", children: predefinedColors.map((color) => ((0, jsx_runtime_1.jsx)("button", { type: "button", className: `color-option ${newCategory.color === color ? 'selected' : ''}`, style: { backgroundColor: color }, onClick: () => setNewCategory(prev => ({ ...prev, color })) }, color))) })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "modal-footer", children: [(0, jsx_runtime_1.jsx)("button", { className: "btn-secondary", onClick: () => setShowNewCategory(false), children: "Annuler" }), (0, jsx_runtime_1.jsx)("button", { className: "btn-primary", onClick: async () => {
-                                        if (newCategory.name.trim()) {
-                                            try {
-                                                await window.electronAPI.addCategory(newCategory);
-                                                setFormData(prev => ({ ...prev, category: newCategory.name }));
-                                                setNewCategory({ name: '', description: '', color: '#22c55e' });
-                                                setShowNewCategory(false);
-                                            }
-                                            catch (error) {
-                                                console.error('Erreur lors de l\'ajout de la catégorie:', error);
-                                            }
-                                        }
-                                    }, disabled: !newCategory.name.trim(), children: "Ajouter" })] })] }) })), (0, jsx_runtime_1.jsx)("style", { children: `
+    return ((0, jsx_runtime_1.jsxs)("div", { className: "add-book", children: [(0, jsx_runtime_1.jsx)("div", { className: "page-header", children: (0, jsx_runtime_1.jsxs)("div", { className: "header-content", children: [(0, jsx_runtime_1.jsx)("button", { className: "back-button", onClick: onCancel, children: (0, jsx_runtime_1.jsx)(lucide_react_1.ArrowLeft, { size: 20 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "header-title-section", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Plus, { className: "header-icon", size: 28 }), (0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)("h1", { className: "page-title", children: "Ajouter un livre" }), (0, jsx_runtime_1.jsx)("p", { className: "page-subtitle", children: "Enrichissez votre collection" })] })] })] }) }), (0, jsx_runtime_1.jsx)("div", { className: "form-container", children: (0, jsx_runtime_1.jsxs)("form", { onSubmit: handleSubmit, className: "book-form", children: [submitError && ((0, jsx_runtime_1.jsxs)("div", { className: "error-banner", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.AlertCircle, { size: 16 }), (0, jsx_runtime_1.jsx)("span", { children: submitError })] })), (0, jsx_runtime_1.jsxs)("div", { className: "form-grid", children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("h3", { className: "section-title", children: "Informations principales" }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsxs)("label", { htmlFor: "title", className: "form-label", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Book, { size: 16 }), "Titre du livre *"] }), (0, jsx_runtime_1.jsx)("input", { id: "title", type: "text", value: formData.title, onChange: (e) => handleInputChange('title', e.target.value), className: `form-input ${errors.title ? 'error' : ''}`, placeholder: "Entrez le titre du livre", disabled: isLoading }), errors.title && (0, jsx_runtime_1.jsx)("span", { className: "error-message", children: errors.title })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsxs)("label", { htmlFor: "author", className: "form-label", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.User, { size: 16 }), "Auteur *"] }), (0, jsx_runtime_1.jsxs)("div", { className: "input-with-action", children: [(0, jsx_runtime_1.jsxs)("select", { id: "author", value: formData.author, onChange: (e) => handleInputChange('author', e.target.value), className: `form-input ${errors.author ? 'error' : ''}`, disabled: isLoading, children: [(0, jsx_runtime_1.jsx)("option", { value: "", children: "S\u00E9lectionner un auteur" }), authors.map((author) => ((0, jsx_runtime_1.jsx)("option", { value: author.name, children: author.name }, author.id)))] }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "action-link", onClick: () => setShowNewAuthor(true), disabled: isLoading, children: "Nouvel auteur" })] }), errors.author && (0, jsx_runtime_1.jsx)("span", { className: "error-message", children: errors.author })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsxs)("label", { htmlFor: "category", className: "form-label", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Tag, { size: 16 }), "Cat\u00E9gorie *"] }), (0, jsx_runtime_1.jsxs)("div", { className: "input-with-action", children: [(0, jsx_runtime_1.jsxs)("select", { id: "category", value: formData.category, onChange: (e) => handleInputChange('category', e.target.value), className: `form-input ${errors.category ? 'error' : ''}`, disabled: isLoading, children: [(0, jsx_runtime_1.jsx)("option", { value: "", children: "S\u00E9lectionner une cat\u00E9gorie" }), categories.map((category) => ((0, jsx_runtime_1.jsx)("option", { value: category.name, children: category.name }, category.id)))] }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "action-link", onClick: () => setShowNewCategory(true), disabled: isLoading, children: "Nouvelle cat\u00E9gorie" })] }), errors.category && (0, jsx_runtime_1.jsx)("span", { className: "error-message", children: errors.category })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("h3", { className: "section-title", children: "D\u00E9tails suppl\u00E9mentaires" }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { htmlFor: "isbn", className: "form-label", children: "ISBN (optionnel)" }), (0, jsx_runtime_1.jsx)("input", { id: "isbn", type: "text", value: formData.isbn, onChange: (e) => handleInputChange('isbn', e.target.value), className: `form-input ${errors.isbn ? 'error' : ''}`, placeholder: "978-2-123456-78-9", disabled: isLoading }), errors.isbn && (0, jsx_runtime_1.jsx)("span", { className: "error-message", children: errors.isbn }), (0, jsx_runtime_1.jsx)("small", { className: "form-hint", children: "Laissez vide si vous ne connaissez pas l'ISBN" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsxs)("label", { htmlFor: "publishedDate", className: "form-label", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Calendar, { size: 16 }), "Date de publication"] }), (0, jsx_runtime_1.jsx)("input", { id: "publishedDate", type: "text", value: formData.publishedDate, onChange: (e) => handleInputChange('publishedDate', e.target.value), className: "form-input", placeholder: "2023 ou 01/01/2023", disabled: isLoading })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsxs)("label", { htmlFor: "coverUrl", className: "form-label", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Link, { size: 16 }), "URL de la couverture"] }), (0, jsx_runtime_1.jsx)("input", { id: "coverUrl", type: "url", value: formData.coverUrl, onChange: (e) => handleInputChange('coverUrl', e.target.value), className: "form-input", placeholder: "https://exemple.com/couverture.jpg", disabled: isLoading })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section full-width", children: [(0, jsx_runtime_1.jsxs)("label", { htmlFor: "description", className: "form-label", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.FileText, { size: 16 }), "Description"] }), (0, jsx_runtime_1.jsx)("textarea", { id: "description", value: formData.description, onChange: (e) => handleInputChange('description', e.target.value), className: "form-textarea", placeholder: "R\u00E9sum\u00E9 ou description du livre...", rows: 4, disabled: isLoading })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-actions", children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "btn-secondary", onClick: onCancel, disabled: isLoading, children: "Annuler" }), (0, jsx_runtime_1.jsxs)("button", { type: "submit", className: "btn-primary", disabled: isLoading, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Save, { size: 16 }), isLoading ? 'Ajout en cours...' : 'Ajouter le livre'] })] })] }) }), showNewAuthor && ((0, jsx_runtime_1.jsx)("div", { className: "modal-overlay", onClick: () => setShowNewAuthor(false), children: (0, jsx_runtime_1.jsxs)("div", { className: "modal", onClick: (e) => e.stopPropagation(), children: [(0, jsx_runtime_1.jsxs)("div", { className: "modal-header", children: [(0, jsx_runtime_1.jsx)("h3", { children: "Ajouter un nouvel auteur" }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close", onClick: () => setShowNewAuthor(false), children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 20 }) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "modal-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Nom de l'auteur *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: newAuthor.name, onChange: (e) => setNewAuthor(prev => ({ ...prev, name: e.target.value })), className: "form-input", placeholder: "Nom complet de l'auteur" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Biographie" }), (0, jsx_runtime_1.jsx)("textarea", { value: newAuthor.biography, onChange: (e) => setNewAuthor(prev => ({ ...prev, biography: e.target.value })), className: "form-textarea", placeholder: "Courte biographie...", rows: 3 })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Nationalit\u00E9" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: newAuthor.nationality, onChange: (e) => setNewAuthor(prev => ({ ...prev, nationality: e.target.value })), className: "form-input", placeholder: "Nationalit\u00E9 de l'auteur" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "modal-footer", children: [(0, jsx_runtime_1.jsx)("button", { className: "btn-secondary", onClick: () => setShowNewAuthor(false), children: "Annuler" }), (0, jsx_runtime_1.jsx)("button", { className: "btn-primary", onClick: handleAddNewAuthor, disabled: !newAuthor.name.trim(), children: "Ajouter" })] })] }) })), showNewCategory && ((0, jsx_runtime_1.jsx)("div", { className: "modal-overlay", onClick: () => setShowNewCategory(false), children: (0, jsx_runtime_1.jsxs)("div", { className: "modal", onClick: (e) => e.stopPropagation(), children: [(0, jsx_runtime_1.jsxs)("div", { className: "modal-header", children: [(0, jsx_runtime_1.jsx)("h3", { children: "Ajouter une nouvelle cat\u00E9gorie" }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close", onClick: () => setShowNewCategory(false), children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 20 }) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "modal-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Nom de la cat\u00E9gorie *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: newCategory.name, onChange: (e) => setNewCategory(prev => ({ ...prev, name: e.target.value })), className: "form-input", placeholder: "Nom de la cat\u00E9gorie" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Description" }), (0, jsx_runtime_1.jsx)("textarea", { value: newCategory.description, onChange: (e) => setNewCategory(prev => ({ ...prev, description: e.target.value })), className: "form-textarea", placeholder: "Description de la cat\u00E9gorie...", rows: 2 })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Couleur" }), (0, jsx_runtime_1.jsx)("div", { className: "color-picker", children: predefinedColors.map((color) => ((0, jsx_runtime_1.jsx)("button", { type: "button", className: `color-option ${newCategory.color === color ? 'selected' : ''}`, style: { backgroundColor: color }, onClick: () => setNewCategory(prev => ({ ...prev, color })) }, color))) })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "modal-footer", children: [(0, jsx_runtime_1.jsx)("button", { className: "btn-secondary", onClick: () => setShowNewCategory(false), children: "Annuler" }), (0, jsx_runtime_1.jsx)("button", { className: "btn-primary", onClick: handleAddNewCategory, disabled: !newCategory.name.trim(), children: "Ajouter" })] })] }) })), (0, jsx_runtime_1.jsx)("style", { children: `
         .add-book {
           height: 100%;
           overflow-y: auto;
@@ -131,6 +155,12 @@ const AddBook = ({ authors, categories, onAddBook, onCancel }) => {
           transform: translateX(-2px);
         }
         
+        .back-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+        
         .header-title-section {
           display: flex;
           align-items: center;
@@ -166,6 +196,19 @@ const AddBook = ({ authors, categories, onAddBook, onCancel }) => {
           border-radius: 16px;
           padding: 32px;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .error-banner {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          background: #fef2f2;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+          border-radius: 8px;
+          margin-bottom: 24px;
+          font-size: 14px;
         }
         
         .form-grid {
@@ -232,9 +275,20 @@ const AddBook = ({ authors, categories, onAddBook, onCancel }) => {
           background: #fef2f2;
         }
         
+        .form-input:disabled, .form-textarea:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        
         .form-textarea {
           resize: vertical;
           min-height: 100px;
+        }
+        
+        .form-hint {
+          font-size: 12px;
+          color: #6b7280;
+          font-style: italic;
         }
         
         .input-with-action {
@@ -259,8 +313,13 @@ const AddBook = ({ authors, categories, onAddBook, onCancel }) => {
           transition: color 0.2s ease;
         }
         
-        .action-link:hover {
+        .action-link:hover:not(:disabled) {
           color: #16a34a;
+        }
+        
+        .action-link:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
         
         .error-message {
@@ -295,7 +354,7 @@ const AddBook = ({ authors, categories, onAddBook, onCancel }) => {
           color: #374151;
         }
         
-        .btn-secondary:hover {
+        .btn-secondary:hover:not(:disabled) {
           background: #e5e7eb;
         }
         
@@ -304,13 +363,14 @@ const AddBook = ({ authors, categories, onAddBook, onCancel }) => {
           color: white;
         }
         
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
           background: #16a34a;
           transform: translateY(-1px);
         }
         
+        .btn-secondary:disabled,
         .btn-primary:disabled {
-          background: #d1d5db;
+          opacity: 0.6;
           cursor: not-allowed;
           transform: none;
         }

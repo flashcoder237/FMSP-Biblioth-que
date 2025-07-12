@@ -99,7 +99,14 @@ export const App: React.FC = () => {
   const renderCurrentView = () => {
     switch (currentView) {
       case 'dashboard':
-        return <Dashboard stats={stats} onNavigate={setCurrentView} />;
+        return (
+          <Dashboard 
+            stats={stats} 
+            onNavigate={setCurrentView}
+            books={books}
+            categories={categories}
+          />
+        );
       case 'books':
         return (
           <BookList
@@ -127,7 +134,14 @@ export const App: React.FC = () => {
           />
         );
       default:
-        return <Dashboard stats={stats} onNavigate={setCurrentView} />;
+        return (
+          <Dashboard 
+            stats={stats} 
+            onNavigate={setCurrentView}
+            books={books}
+            categories={categories}
+          />
+        );
     }
   };
 

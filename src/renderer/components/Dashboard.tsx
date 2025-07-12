@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Book, 
   BookOpen, 
@@ -7,16 +7,27 @@ import {
   TrendingUp, 
   Clock,
   Plus,
-  Search
+  Search,
+  Printer
 } from 'lucide-react';
 import { Stats } from '../../preload';
+import { PrintManager } from './PrintManager';
 
 interface DashboardProps {
   stats: Stats;
   onNavigate: (view: 'dashboard' | 'books' | 'borrowed' | 'add-book') => void;
+  books?: any[];
+  categories?: any[];
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ stats, onNavigate }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ 
+  stats, 
+  onNavigate, 
+  books = [], 
+  categories = [] 
+}) => {
+  const [showPrintManager, setShowPrintManager] = useState(false);
+
   const quickActions = [
     {
       title: 'Ajouter un livre',
@@ -38,6 +49,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ stats, onNavigate }) => {
       icon: BookOpen,
       action: () => onNavigate('borrowed'),
       color: 'bg-orange-500'
+    },
+    {
+      title: 'Imprimer & Exporter',
+      description: 'Rapports et inventaires',
+      icon: Printer,
+      action: () => setShowPrintManager(true),
+      color: 'bg-purple-500'
     }
   ];
 
@@ -162,6 +180,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ stats, onNavigate }) => {
           </div>
         </div>
       </div>
+
+      {showPrintManager && (
+        <PrintManager
+          books={books}
+          stats={stats}
+          categories={categories}
+          onClose={() => setShowPrintManager(false)}
+        />
+      )}
 
       <style>{`
         .dashboard {
@@ -425,6 +452,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ stats, onNavigate }) => {
         .bg-green-500 { background-color: #22c55e; }
         .bg-blue-500 { background-color: #3b82f6; }
         .bg-orange-500 { background-color: #f97316; }
+        .bg-purple-500 { background-color: #8b5cf6; }
         .bg-blue-50 { background-color: #eff6ff; }
         .bg-green-50 { background-color: #f0fdf4; }
         .bg-orange-50 { background-color: #fff7ed; }
