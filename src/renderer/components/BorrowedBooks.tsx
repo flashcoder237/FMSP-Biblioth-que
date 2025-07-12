@@ -16,8 +16,8 @@ import {
 import { Book as BookType } from '../../preload';
 
 interface BorrowedBooksProps {
-  books: BookType[];
-  onReturn: (bookId: number) => void;
+  books: BookType[]; // Array of books (already filtered to borrowed ones)
+  onReturn: (bookId: number) => void; // Simplified callback
 }
 
 export const BorrowedBooks: React.FC<BorrowedBooksProps> = ({ books, onReturn }) => {
@@ -68,7 +68,10 @@ export const BorrowedBooks: React.FC<BorrowedBooksProps> = ({ books, onReturn })
     }
   };
 
-  const filteredBooks = books.filter(book => {
+  // ✅ Filter only borrowed books and apply search/status filters
+  const borrowedBooks = books.filter(book => book.isBorrowed);
+  
+  const filteredBooks = borrowedBooks.filter(book => {
     // Filtre par recherche
     const matchesSearch = !searchQuery || 
       book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -100,14 +103,17 @@ export const BorrowedBooks: React.FC<BorrowedBooksProps> = ({ books, onReturn })
 
   const getStatusCounts = () => {
     const counts = { normal: 0, warning: 0, overdue: 0 };
-    books.forEach(book => {
-      const status = getStatusInfo(book.borrowDate!).status;
-      if (status in counts) counts[status as keyof typeof counts]++;
+    borrowedBooks.forEach(book => {
+      if (book.borrowDate) {
+        const status = getStatusInfo(book.borrowDate).status;
+        if (status in counts) counts[status as keyof typeof counts]++;
+      }
     });
     return counts;
   };
 
   const statusCounts = getStatusCounts();
+ 
 
   return (
     <div className="borrowed-books">

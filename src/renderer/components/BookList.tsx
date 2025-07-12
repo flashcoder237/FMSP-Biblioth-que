@@ -20,7 +20,7 @@ import { Book as BookType } from '../../preload';
 
 interface BookListProps {
   books: BookType[];
-  onBorrow: (bookId: number, borrowerName: string) => void;
+  onBorrow: (book: BookType, borrowerName: string) => void; // Updated to accept borrowerName
   onDelete: (bookId: number) => void;
   onSearch: (query: string) => void;
   searchQuery: string;
@@ -35,18 +35,18 @@ export const BookList: React.FC<BookListProps> = ({
 }) => {
   const [selectedBook, setSelectedBook] = useState<BookType | null>(null);
   const [showBorrowModal, setShowBorrowModal] = useState(false);
-  const [borrowerName, setBorrowerName] = useState('');
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'title' | 'author' | 'date'>('title');
   const [filterStatus, setFilterStatus] = useState<'all' | 'available' | 'borrowed'>('all');
+  const [borrowerName, setBorrowerName] = useState(''); // Added borrowerName state
 
   const handleBorrow = () => {
     if (selectedBook && borrowerName.trim()) {
-      onBorrow(selectedBook.id!, borrowerName);
+      onBorrow(selectedBook, borrowerName); // Pass borrowerName as second argument
       setShowBorrowModal(false);
-      setBorrowerName('');
       setSelectedBook(null);
+      setBorrowerName(''); // Clear borrowerName after borrow
     }
   };
 
@@ -54,6 +54,13 @@ export const BookList: React.FC<BookListProps> = ({
     setSelectedBook(book);
     setShowBorrowModal(true);
     setActiveDropdown(null);
+    setBorrowerName(''); // Clear borrowerName when opening modal
+  };
+
+  const closeBorrowModal = () => {
+    setShowBorrowModal(false);
+    setSelectedBook(null);
+    setBorrowerName(''); // Clear borrowerName when closing modal
   };
 
   const handleDelete = (book: BookType) => {
@@ -389,13 +396,13 @@ export const BookList: React.FC<BookListProps> = ({
 
       {/* Borrow Modal */}
       {showBorrowModal && selectedBook && (
-        <div className="modal-overlay" onClick={() => setShowBorrowModal(false)}>
+        <div className="modal-overlay" onClick={closeBorrowModal}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Emprunter un livre</h3>
               <button
                 className="modal-close"
-                onClick={() => setShowBorrowModal(false)}
+                onClick={closeBorrowModal}
               >
                 <X size={20} />
               </button>
@@ -415,17 +422,17 @@ export const BookList: React.FC<BookListProps> = ({
                   <div className="book-info-author">par {selectedBook.author}</div>
                 </div>
               </div>
-              
+
+              {/* Borrower Name Input */}
               <div className="form-group">
-                <label htmlFor="borrower-name">Nom de l'emprunteur</label>
+                <label htmlFor="borrowerName">Nom de l'emprunteur</label>
                 <input
-                  id="borrower-name"
                   type="text"
+                  id="borrowerName"
                   value={borrowerName}
                   onChange={(e) => setBorrowerName(e.target.value)}
-                  placeholder="Entrez le nom de la personne"
-                  className="input"
-                  autoFocus
+                  placeholder="Entrez le nom de l'emprunteur"
+                  className="form-control"
                 />
               </div>
             </div>
@@ -433,7 +440,7 @@ export const BookList: React.FC<BookListProps> = ({
             <div className="modal-footer">
               <button
                 className="btn-secondary"
-                onClick={() => setShowBorrowModal(false)}
+                onClick={closeBorrowModal}
               >
                 Annuler
               </button>
@@ -442,7 +449,7 @@ export const BookList: React.FC<BookListProps> = ({
                 onClick={handleBorrow}
                 disabled={!borrowerName.trim()}
               >
-                Confirmer l'emprunt
+                Continuer vers l'emprunt
               </button>
             </div>
           </div>
@@ -1180,24 +1187,6 @@ export const BookList: React.FC<BookListProps> = ({
           
           .filter-select {
             flex: 1;
-          }
-          
-          .book-item {
-            border-radius: 12px;
-          }
-          
-          .book-content {
-            padding: 16px;
-          }
-          
-          .dropdown-menu {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            border-radius: 16px 16px 0 0;
-            max-width: none;
-            width: auto;
           }
         }
       `}</style>

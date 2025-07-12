@@ -50,7 +50,9 @@ const BorrowedBooks = ({ books, onReturn }) => {
             };
         }
     };
-    const filteredBooks = books.filter(book => {
+    // ✅ Filter only borrowed books and apply search/status filters
+    const borrowedBooks = books.filter(book => book.isBorrowed);
+    const filteredBooks = borrowedBooks.filter(book => {
         // Filtre par recherche
         const matchesSearch = !searchQuery ||
             book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -79,10 +81,12 @@ const BorrowedBooks = ({ books, onReturn }) => {
     });
     const getStatusCounts = () => {
         const counts = { normal: 0, warning: 0, overdue: 0 };
-        books.forEach(book => {
-            const status = getStatusInfo(book.borrowDate).status;
-            if (status in counts)
-                counts[status]++;
+        borrowedBooks.forEach(book => {
+            if (book.borrowDate) {
+                const status = getStatusInfo(book.borrowDate).status;
+                if (status in counts)
+                    counts[status]++;
+            }
         });
         return counts;
     };

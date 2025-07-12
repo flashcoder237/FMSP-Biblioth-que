@@ -14,6 +14,7 @@ export interface Book {
   borrowDate?: string;
   expectedReturnDate?: string;
   returnDate?: string;
+  borrowerName?: string; // Add this line
   createdAt?: string;
 }
 

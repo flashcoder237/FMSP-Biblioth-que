@@ -156,9 +156,20 @@ const App = () => {
             case 'dashboard':
                 return ((0, jsx_runtime_1.jsx)(Dashboard_1.Dashboard, { stats: stats, onNavigate: setCurrentView, books: books, categories: categories }));
             case 'books':
-                return ((0, jsx_runtime_1.jsx)(BookList_1.BookList, { books: books, onBorrow: openBorrowModal, onDelete: handleDeleteBook, onSearch: handleSearch, searchQuery: searchQuery }));
+                return ((0, jsx_runtime_1.jsx)(BookList_1.BookList, { books: books, onBorrow: (book) => openBorrowModal(book), onDelete: handleDeleteBook, onSearch: handleSearch, searchQuery: searchQuery }));
             case 'borrowed':
-                return ((0, jsx_runtime_1.jsx)(BorrowedBooks_1.BorrowedBooks, { borrowHistory: borrowedBooks, onReturn: handleReturnBook }));
+                return ((0, jsx_runtime_1.jsx)(BorrowedBooks_1.BorrowedBooks, { books: borrowedBooks.map(bh => ({
+                        ...bh.book,
+                        isBorrowed: true,
+                        borrowerId: bh.borrowerId,
+                        borrowDate: bh.borrowDate,
+                        borrowerName: `${bh.borrower?.firstName} ${bh.borrower?.lastName}`
+                    })), onReturn: (bookId) => {
+                        const borrowHistory = borrowedBooks.find(bh => bh.bookId === bookId);
+                        if (borrowHistory) {
+                            handleReturnBook(borrowHistory.id, undefined);
+                        }
+                    } }));
             case 'add-book':
                 return ((0, jsx_runtime_1.jsx)(AddBook_1.AddBook, { authors: authors, categories: categories, onAddBook: handleAddBook, onCancel: () => setCurrentView('books') }));
             case 'borrowers':
@@ -383,7 +394,7 @@ const BorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
                                             year: 'numeric',
                                             month: 'long',
                                             day: 'numeric'
-                                        }) })] })] })] })), (0, jsx_runtime_1.jsxs)("div", { className: "form-actions", children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "btn-secondary", onClick: onCancel, disabled: isLoading, children: "Annuler" }), (0, jsx_runtime_1.jsx)("button", { type: "submit", className: "btn-primary", disabled: !selectedBorrower || !expectedReturnDate || isLoading, children: isLoading ? 'Emprunt en cours...' : 'Confirmer l\'emprunt' })] }), (0, jsx_runtime_1.jsx)("style", { jsx: true, children: `
+                                        }) })] })] })] })), (0, jsx_runtime_1.jsxs)("div", { className: "form-actions", children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "btn-secondary", onClick: onCancel, disabled: isLoading, children: "Annuler" }), (0, jsx_runtime_1.jsx)("button", { type: "submit", className: "btn-primary", disabled: !selectedBorrower || !expectedReturnDate || isLoading, children: isLoading ? 'Emprunt en cours...' : 'Confirmer l\'emprunt' })] }), (0, jsx_runtime_1.jsx)("style", { children: `
         .borrow-form {
           padding: 32px;
         }

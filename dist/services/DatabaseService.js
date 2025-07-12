@@ -457,36 +457,36 @@ class DatabaseService {
     async borrowBook(bookId, borrowerId, expectedReturnDate) {
         return new Promise((resolve, reject) => {
             const borrowDate = new Date().toISOString();
+            const db = this.db; // capture this.db
             this.db.serialize(() => {
-                this.db.run('BEGIN TRANSACTION');
-                // Créer l'entrée dans l'historique
-                const stmt1 = this.db.prepare(`
-          INSERT INTO borrow_history (bookId, borrowerId, borrowDate, expectedReturnDate, status)
-          VALUES (?, ?, ?, ?, 'active')
-        `);
+                db.run('BEGIN TRANSACTION');
+                // Use function expression for callback to access stmt1.lastID
+                const stmt1 = db.prepare(`
+        INSERT INTO borrow_history (bookId, borrowerId, borrowDate, expectedReturnDate, status)
+        VALUES (?, ?, ?, ?, 'active')
+      `);
                 stmt1.run([bookId, borrowerId, borrowDate, expectedReturnDate], function (err) {
                     if (err) {
-                        this.db.run('ROLLBACK');
+                        db.run('ROLLBACK'); // use captured db
                         reject(err);
                         return;
                     }
-                    const historyId = this.lastID;
-                    // Mettre à jour le livre
-                    const stmt2 = this.db.prepare(`
-            UPDATE books SET 
-              isBorrowed = 1, 
-              borrowerId = ?, 
-              borrowDate = ?, 
-              expectedReturnDate = ?
-            WHERE id = ?
-          `);
-                    stmt2.run([borrowerId, borrowDate, expectedReturnDate, bookId], function (err) {
+                    const historyId = this.lastID; // this refers to Statement
+                    const stmt2 = db.prepare(`
+          UPDATE books SET 
+            isBorrowed = 1, 
+            borrowerId = ?, 
+            borrowDate = ?, 
+            expectedReturnDate = ?
+          WHERE id = ?
+        `);
+                    stmt2.run([borrowerId, borrowDate, expectedReturnDate, bookId], (err) => {
                         if (err) {
-                            this.db.run('ROLLBACK');
+                            db.run('ROLLBACK');
                             reject(err);
                         }
                         else {
-                            this.db.run('COMMIT');
+                            db.run('COMMIT');
                             resolve(historyId);
                         }
                     });
@@ -499,23 +499,24 @@ class DatabaseService {
     async returnBook(borrowHistoryId, notes) {
         return new Promise((resolve, reject) => {
             const returnDate = new Date().toISOString();
-            this.db.serialize(() => {
-                this.db.run('BEGIN TRANSACTION');
+            const db = this.db; // capture this.db
+            db.serialize(() => {
+                db.run('BEGIN TRANSACTION');
                 // Récupérer les infos de l'emprunt
-                this.db.get('SELECT bookId FROM borrow_history WHERE id = ?', [borrowHistoryId], (err, row) => {
+                db.get('SELECT bookId FROM borrow_history WHERE id = ?', [borrowHistoryId], (err, row) => {
                     if (err) {
-                        this.db.run('ROLLBACK');
+                        db.run('ROLLBACK');
                         reject(err);
                         return;
                     }
                     if (!row) {
-                        this.db.run('ROLLBACK');
+                        db.run('ROLLBACK');
                         reject(new Error('Emprunt non trouvé'));
                         return;
                     }
                     const bookId = row.bookId;
                     // Mettre à jour l'historique
-                    const stmt1 = this.db.prepare(`
+                    const stmt1 = db.prepare(`
             UPDATE borrow_history SET 
               actualReturnDate = ?, 
               status = 'returned',
@@ -524,27 +525,27 @@ class DatabaseService {
           `);
                     stmt1.run([returnDate, notes || null, borrowHistoryId], function (err) {
                         if (err) {
-                            this.db.run('ROLLBACK');
+                            db.run('ROLLBACK');
                             reject(err);
                             return;
                         }
                         // Mettre à jour le livre
-                        const stmt2 = this.db.prepare(`
-              UPDATE books SET 
-                isBorrowed = 0, 
-                borrowerId = NULL, 
-                borrowDate = NULL,
-                expectedReturnDate = NULL,
-                returnDate = ?
-              WHERE id = ?
-            `);
+                        const stmt2 = db.prepare(`
+                UPDATE books SET 
+                  isBorrowed = 0, 
+                  borrowerId = NULL, 
+                  borrowDate = NULL,
+                  expectedReturnDate = NULL,
+                  returnDate = ?
+                WHERE id = ?
+              `);
                         stmt2.run([returnDate, bookId], function (err) {
                             if (err) {
-                                this.db.run('ROLLBACK');
+                                db.run('ROLLBACK');
                                 reject(err);
                             }
                             else {
-                                this.db.run('COMMIT');
+                                db.run('COMMIT');
                                 resolve(this.changes > 0);
                             }
                         });
@@ -560,7 +561,7 @@ class DatabaseService {
             this.db.all(`
         SELECT 
           bh.*,
-          b.title, b.author, b.category, b.coverUrl,
+          b.title, b.author, b.category, b.coverUrl, b.isbn, b.publishedDate, b.description, b.isBorrowed,
           br.firstName, br.lastName, br.type, br.matricule, br.classe, br.position
         FROM borrow_history bh
         JOIN books b ON bh.bookId = b.id
@@ -587,7 +588,11 @@ class DatabaseService {
                             title: row.title,
                             author: row.author,
                             category: row.category,
-                            coverUrl: row.coverUrl
+                            coverUrl: row.coverUrl,
+                            isbn: row.isbn,
+                            publishedDate: row.publishedDate,
+                            description: row.description,
+                            isBorrowed: row.isBorrowed
                         },
                         borrower: {
                             id: row.borrowerId,
@@ -609,7 +614,7 @@ class DatabaseService {
             let query = `
         SELECT 
           bh.*,
-          b.title, b.author, b.category, b.coverUrl,
+          b.title, b.author, b.category, b.coverUrl, b.isbn, b.publishedDate, b.description, b.isBorrowed,
           br.firstName, br.lastName, br.type, br.matricule, br.classe, br.position
         FROM borrow_history bh
         JOIN books b ON bh.bookId = b.id
@@ -667,7 +672,11 @@ class DatabaseService {
                             title: row.title,
                             author: row.author,
                             category: row.category,
-                            coverUrl: row.coverUrl
+                            coverUrl: row.coverUrl,
+                            isbn: row.isbn,
+                            publishedDate: row.publishedDate,
+                            description: row.description,
+                            isBorrowed: row.isBorrowed
                         },
                         borrower: {
                             id: row.borrowerId,

@@ -7,23 +7,29 @@ const lucide_react_1 = require("lucide-react");
 const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
     const [selectedBook, setSelectedBook] = (0, react_1.useState)(null);
     const [showBorrowModal, setShowBorrowModal] = (0, react_1.useState)(false);
-    const [borrowerName, setBorrowerName] = (0, react_1.useState)('');
     const [activeDropdown, setActiveDropdown] = (0, react_1.useState)(null);
     const [viewMode, setViewMode] = (0, react_1.useState)('grid');
     const [sortBy, setSortBy] = (0, react_1.useState)('title');
     const [filterStatus, setFilterStatus] = (0, react_1.useState)('all');
+    const [borrowerName, setBorrowerName] = (0, react_1.useState)(''); // Added borrowerName state
     const handleBorrow = () => {
         if (selectedBook && borrowerName.trim()) {
-            onBorrow(selectedBook.id, borrowerName);
+            onBorrow(selectedBook, borrowerName); // Pass borrowerName as second argument
             setShowBorrowModal(false);
-            setBorrowerName('');
             setSelectedBook(null);
+            setBorrowerName(''); // Clear borrowerName after borrow
         }
     };
     const openBorrowModal = (book) => {
         setSelectedBook(book);
         setShowBorrowModal(true);
         setActiveDropdown(null);
+        setBorrowerName(''); // Clear borrowerName when opening modal
+    };
+    const closeBorrowModal = () => {
+        setShowBorrowModal(false);
+        setSelectedBook(null);
+        setBorrowerName(''); // Clear borrowerName when closing modal
     };
     const handleDelete = (book) => {
         if (window.confirm(`Êtes-vous sûr de vouloir supprimer "${book.title}" ?`)) {
@@ -67,7 +73,7 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
                                 ? `Aucun résultat pour "${searchQuery}"`
                                 : filterStatus !== 'all'
                                     ? `Aucun livre ${filterStatus === 'available' ? 'disponible' : 'emprunté'} pour le moment`
-                                    : 'Commencez par ajouter des livres à votre collection' }), searchQuery && ((0, jsx_runtime_1.jsx)("button", { className: "btn-secondary", onClick: () => onSearch(''), children: "Effacer la recherche" }))] })) }), showBorrowModal && selectedBook && ((0, jsx_runtime_1.jsx)("div", { className: "modal-overlay", onClick: () => setShowBorrowModal(false), children: (0, jsx_runtime_1.jsxs)("div", { className: "modal", onClick: (e) => e.stopPropagation(), children: [(0, jsx_runtime_1.jsxs)("div", { className: "modal-header", children: [(0, jsx_runtime_1.jsx)("h3", { children: "Emprunter un livre" }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close", onClick: () => setShowBorrowModal(false), children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 20 }) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "modal-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-info-card", children: [(0, jsx_runtime_1.jsx)("div", { className: "book-info-cover", children: selectedBook.coverUrl ? ((0, jsx_runtime_1.jsx)("img", { src: selectedBook.coverUrl, alt: selectedBook.title })) : ((0, jsx_runtime_1.jsx)(lucide_react_1.Book, { size: 24 })) }), (0, jsx_runtime_1.jsxs)("div", { className: "book-info-details", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-info-title", children: ["\"", selectedBook.title, "\""] }), (0, jsx_runtime_1.jsxs)("div", { className: "book-info-author", children: ["par ", selectedBook.author] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { htmlFor: "borrower-name", children: "Nom de l'emprunteur" }), (0, jsx_runtime_1.jsx)("input", { id: "borrower-name", type: "text", value: borrowerName, onChange: (e) => setBorrowerName(e.target.value), placeholder: "Entrez le nom de la personne", className: "input", autoFocus: true })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "modal-footer", children: [(0, jsx_runtime_1.jsx)("button", { className: "btn-secondary", onClick: () => setShowBorrowModal(false), children: "Annuler" }), (0, jsx_runtime_1.jsx)("button", { className: "btn-primary", onClick: handleBorrow, disabled: !borrowerName.trim(), children: "Confirmer l'emprunt" })] })] }) })), (0, jsx_runtime_1.jsx)("style", { children: `
+                                    : 'Commencez par ajouter des livres à votre collection' }), searchQuery && ((0, jsx_runtime_1.jsx)("button", { className: "btn-secondary", onClick: () => onSearch(''), children: "Effacer la recherche" }))] })) }), showBorrowModal && selectedBook && ((0, jsx_runtime_1.jsx)("div", { className: "modal-overlay", onClick: closeBorrowModal, children: (0, jsx_runtime_1.jsxs)("div", { className: "modal", onClick: (e) => e.stopPropagation(), children: [(0, jsx_runtime_1.jsxs)("div", { className: "modal-header", children: [(0, jsx_runtime_1.jsx)("h3", { children: "Emprunter un livre" }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close", onClick: closeBorrowModal, children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 20 }) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "modal-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-info-card", children: [(0, jsx_runtime_1.jsx)("div", { className: "book-info-cover", children: selectedBook.coverUrl ? ((0, jsx_runtime_1.jsx)("img", { src: selectedBook.coverUrl, alt: selectedBook.title })) : ((0, jsx_runtime_1.jsx)(lucide_react_1.Book, { size: 24 })) }), (0, jsx_runtime_1.jsxs)("div", { className: "book-info-details", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-info-title", children: ["\"", selectedBook.title, "\""] }), (0, jsx_runtime_1.jsxs)("div", { className: "book-info-author", children: ["par ", selectedBook.author] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { htmlFor: "borrowerName", children: "Nom de l'emprunteur" }), (0, jsx_runtime_1.jsx)("input", { type: "text", id: "borrowerName", value: borrowerName, onChange: (e) => setBorrowerName(e.target.value), placeholder: "Entrez le nom de l'emprunteur", className: "form-control" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "modal-footer", children: [(0, jsx_runtime_1.jsx)("button", { className: "btn-secondary", onClick: closeBorrowModal, children: "Annuler" }), (0, jsx_runtime_1.jsx)("button", { className: "btn-primary", onClick: handleBorrow, disabled: !borrowerName.trim(), children: "Continuer vers l'emprunt" })] })] }) })), (0, jsx_runtime_1.jsx)("style", { children: `
         .book-list {
           height: 100%;
           display: flex;
@@ -798,24 +804,6 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
           
           .filter-select {
             flex: 1;
-          }
-          
-          .book-item {
-            border-radius: 12px;
-          }
-          
-          .book-content {
-            padding: 16px;
-          }
-          
-          .dropdown-menu {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            border-radius: 16px 16px 0 0;
-            max-width: none;
-            width: auto;
           }
         }
       ` })] }));

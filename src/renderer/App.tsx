@@ -143,7 +143,7 @@ export const App: React.FC = () => {
         return (
           <BookList
             books={books}
-            onBorrow={openBorrowModal}
+            onBorrow={(book) => openBorrowModal(book)}
             onDelete={handleDeleteBook}
             onSearch={handleSearch}
             searchQuery={searchQuery}
@@ -152,9 +152,20 @@ export const App: React.FC = () => {
       case 'borrowed':
         return (
           <BorrowedBooks
-            borrowHistory={borrowedBooks}
-            onReturn={handleReturnBook}
-          />
+            books={borrowedBooks.map(bh => ({
+                ...bh.book,
+                isBorrowed: true,
+                borrowerId: bh.borrowerId,
+                borrowDate: bh.borrowDate,
+                borrowerName: `${bh.borrower?.firstName} ${bh.borrower?.lastName}`
+            }))}
+            onReturn={(bookId) => {
+                const borrowHistory = borrowedBooks.find(bh => bh.bookId === bookId);
+                if (borrowHistory) {
+                handleReturnBook(borrowHistory.id!, undefined);
+                }
+            }}
+            />
         );
       case 'add-book':
         return (
@@ -590,7 +601,7 @@ const BorrowForm: React.FC<BorrowFormProps> = ({ book, borrowers, onSubmit, onCa
         </button>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .borrow-form {
           padding: 32px;
         }

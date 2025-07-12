@@ -248,7 +248,7 @@ export class DatabaseService {
         borrower.position || null,
         borrower.email || null,
         borrower.phone || null
-      ], function(err: SQLiteError | null) {
+      ], function(this: sqlite3.Statement & { lastID?: number }, err: SQLiteError | null) {
         if (err) {
           if (err.code === 'SQLITE_CONSTRAINT' && err.message && err.message.includes('UNIQUE constraint failed: borrowers.matricule')) {
             reject(new Error('Un emprunteur avec ce matricule existe déjà'));
@@ -370,7 +370,7 @@ export class DatabaseService {
         book.description,
         book.coverUrl,
         book.isBorrowed ? 1 : 0
-      ], function(err: SQLiteError | null) {
+      ], function(this: sqlite3.Statement & { lastID?: number }, err: SQLiteError | null) {
         if (err) {
           if (err.code === 'SQLITE_CONSTRAINT' && err.message && err.message.includes('UNIQUE constraint failed: books.isbn')) {
             reject(new Error('Un livre avec cet ISBN existe déjà'));
@@ -412,7 +412,7 @@ export class DatabaseService {
         book.expectedReturnDate,
         book.returnDate,
         book.id
-      ], function(err: SQLiteError | null) {
+      ], function(this: sqlite3.Statement & { changes?: number }, err: SQLiteError | null) {
         if (err) {
           if (err.code === 'SQLITE_CONSTRAINT' && err.message && err.message.includes('UNIQUE constraint failed: books.isbn')) {
             reject(new Error('Un autre livre avec cet ISBN existe déjà'));
@@ -456,72 +456,73 @@ export class DatabaseService {
 
   // Gestion des emprunts
   async borrowBook(bookId: number, borrowerId: number, expectedReturnDate: string): Promise<number> {
-    return new Promise((resolve, reject) => {
-      const borrowDate = new Date().toISOString();
+  return new Promise((resolve, reject) => {
+    const borrowDate = new Date().toISOString();
+    const db = this.db; // capture this.db
+    
+    this.db.serialize(() => {
+      db.run('BEGIN TRANSACTION');
       
-      this.db.serialize(() => {
-        this.db.run('BEGIN TRANSACTION');
+      // Use function expression for callback to access stmt1.lastID
+      const stmt1 = db.prepare(`
+        INSERT INTO borrow_history (bookId, borrowerId, borrowDate, expectedReturnDate, status)
+        VALUES (?, ?, ?, ?, 'active')
+      `);
+      
+      stmt1.run([bookId, borrowerId, borrowDate, expectedReturnDate], function(err) {
+        if (err) {
+          db.run('ROLLBACK'); // use captured db
+          reject(err);
+          return;
+        }
         
-        // Créer l'entrée dans l'historique
-        const stmt1 = this.db.prepare(`
-          INSERT INTO borrow_history (bookId, borrowerId, borrowDate, expectedReturnDate, status)
-          VALUES (?, ?, ?, ?, 'active')
+        const historyId = this.lastID; // this refers to Statement
+        
+        const stmt2 = db.prepare(`
+          UPDATE books SET 
+            isBorrowed = 1, 
+            borrowerId = ?, 
+            borrowDate = ?, 
+            expectedReturnDate = ?
+          WHERE id = ?
         `);
         
-        stmt1.run([bookId, borrowerId, borrowDate, expectedReturnDate], function(err: any) {
+        stmt2.run([borrowerId, borrowDate, expectedReturnDate, bookId], (err) => {
           if (err) {
-            this.db.run('ROLLBACK');
+            db.run('ROLLBACK');
             reject(err);
-            return;
+          } else {
+            db.run('COMMIT');
+            resolve(historyId);
           }
-          
-          const historyId = this.lastID;
-          
-          // Mettre à jour le livre
-          const stmt2 = this.db.prepare(`
-            UPDATE books SET 
-              isBorrowed = 1, 
-              borrowerId = ?, 
-              borrowDate = ?, 
-              expectedReturnDate = ?
-            WHERE id = ?
-          `);
-          
-          stmt2.run([borrowerId, borrowDate, expectedReturnDate, bookId], function(err: any) {
-            if (err) {
-              this.db.run('ROLLBACK');
-              reject(err);
-            } else {
-              this.db.run('COMMIT');
-              resolve(historyId);
-            }
-          });
-          
-          stmt2.finalize();
         });
         
-        stmt1.finalize();
+        stmt2.finalize();
       });
+      
+      stmt1.finalize();
     });
-  }
+  });
+}
 
   async returnBook(borrowHistoryId: number, notes?: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       const returnDate = new Date().toISOString();
+      const db = this.db; // capture this.db
       
-      this.db.serialize(() => {
-        this.db.run('BEGIN TRANSACTION');
+      db.serialize(() => {
+        db.run('BEGIN TRANSACTION');
         
         // Récupérer les infos de l'emprunt
-        this.db.get('SELECT bookId FROM borrow_history WHERE id = ?', [borrowHistoryId], (err: any, row: any) => {
+        db.get('SELECT bookId FROM borrow_history WHERE id = ?', [borrowHistoryId], (err: any, row: any) => {
           if (err) {
-            this.db.run('ROLLBACK');
+            db.run('ROLLBACK');
             reject(err);
             return;
           }
           
           if (!row) {
-            this.db.run('ROLLBACK');
+            db.run('ROLLBACK');
             reject(new Error('Emprunt non trouvé'));
             return;
           }
@@ -529,7 +530,7 @@ export class DatabaseService {
           const bookId = row.bookId;
           
           // Mettre à jour l'historique
-          const stmt1 = this.db.prepare(`
+          const stmt1 = db.prepare(`
             UPDATE borrow_history SET 
               actualReturnDate = ?, 
               status = 'returned',
@@ -537,36 +538,36 @@ export class DatabaseService {
             WHERE id = ?
           `);
           
-          stmt1.run([returnDate, notes || null, borrowHistoryId], function(err: any) {
-            if (err) {
-              this.db.run('ROLLBACK');
-              reject(err);
-              return;
-            }
-            
-            // Mettre à jour le livre
-            const stmt2 = this.db.prepare(`
-              UPDATE books SET 
-                isBorrowed = 0, 
-                borrowerId = NULL, 
-                borrowDate = NULL,
-                expectedReturnDate = NULL,
-                returnDate = ?
-              WHERE id = ?
-            `);
-            
-            stmt2.run([returnDate, bookId], function(err: any) {
+            stmt1.run([returnDate, notes || null, borrowHistoryId], function(this: sqlite3.Statement & { changes?: number }, err: any) {
               if (err) {
-                this.db.run('ROLLBACK');
+                db.run('ROLLBACK');
                 reject(err);
-              } else {
-                this.db.run('COMMIT');
-                resolve(this.changes > 0);
+                return;
               }
+              
+              // Mettre à jour le livre
+              const stmt2 = db.prepare(`
+                UPDATE books SET 
+                  isBorrowed = 0, 
+                  borrowerId = NULL, 
+                  borrowDate = NULL,
+                  expectedReturnDate = NULL,
+                  returnDate = ?
+                WHERE id = ?
+              `);
+              
+              stmt2.run([returnDate, bookId], function(this: sqlite3.Statement & { changes?: number }, err: any) {
+                if (err) {
+                  db.run('ROLLBACK');
+                  reject(err);
+                } else {
+                  db.run('COMMIT');
+                  resolve(this.changes > 0);
+                }
+              });
+              
+              stmt2.finalize();
             });
-            
-            stmt2.finalize();
-          });
           
           stmt1.finalize();
         });
@@ -579,7 +580,7 @@ export class DatabaseService {
       this.db.all(`
         SELECT 
           bh.*,
-          b.title, b.author, b.category, b.coverUrl,
+          b.title, b.author, b.category, b.coverUrl, b.isbn, b.publishedDate, b.description, b.isBorrowed,
           br.firstName, br.lastName, br.type, br.matricule, br.classe, br.position
         FROM borrow_history bh
         JOIN books b ON bh.bookId = b.id
@@ -605,7 +606,11 @@ export class DatabaseService {
               title: row.title,
               author: row.author,
               category: row.category,
-              coverUrl: row.coverUrl
+              coverUrl: row.coverUrl,
+              isbn: row.isbn,
+              publishedDate: row.publishedDate,
+              description: row.description,
+              isBorrowed: row.isBorrowed
             },
             borrower: {
               id: row.borrowerId,
@@ -628,7 +633,7 @@ export class DatabaseService {
       let query = `
         SELECT 
           bh.*,
-          b.title, b.author, b.category, b.coverUrl,
+          b.title, b.author, b.category, b.coverUrl, b.isbn, b.publishedDate, b.description, b.isBorrowed,
           br.firstName, br.lastName, br.type, br.matricule, br.classe, br.position
         FROM borrow_history bh
         JOIN books b ON bh.bookId = b.id
@@ -695,7 +700,11 @@ export class DatabaseService {
               title: row.title,
               author: row.author,
               category: row.category,
-              coverUrl: row.coverUrl
+              coverUrl: row.coverUrl,
+              isbn: row.isbn,
+              publishedDate: row.publishedDate,
+              description: row.description,
+              isBorrowed: row.isBorrowed
             },
             borrower: {
               id: row.borrowerId,
