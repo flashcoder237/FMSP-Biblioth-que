@@ -16,13 +16,23 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     getCategories: () => electron_1.ipcRenderer.invoke('db:getCategories'),
     addCategory: (category) => electron_1.ipcRenderer.invoke('db:addCategory', category),
     searchBooks: (query) => electron_1.ipcRenderer.invoke('db:searchBooks', query),
+    // Borrowers
+    getBorrowers: () => electron_1.ipcRenderer.invoke('db:getBorrowers'),
+    addBorrower: (borrower) => electron_1.ipcRenderer.invoke('db:addBorrower', borrower),
+    updateBorrower: (borrower) => electron_1.ipcRenderer.invoke('db:updateBorrower', borrower),
+    deleteBorrower: (id) => electron_1.ipcRenderer.invoke('db:deleteBorrower', id),
+    searchBorrowers: (query) => electron_1.ipcRenderer.invoke('db:searchBorrowers', query),
+    // Borrow operations
     getBorrowedBooks: () => electron_1.ipcRenderer.invoke('db:getBorrowedBooks'),
-    borrowBook: (bookId, borrowerName) => electron_1.ipcRenderer.invoke('db:borrowBook', bookId, borrowerName),
-    returnBook: (bookId) => electron_1.ipcRenderer.invoke('db:returnBook', bookId),
+    borrowBook: (bookId, borrowerId, expectedReturnDate) => electron_1.ipcRenderer.invoke('db:borrowBook', bookId, borrowerId, expectedReturnDate),
+    returnBook: (borrowHistoryId, notes) => electron_1.ipcRenderer.invoke('db:returnBook', borrowHistoryId, notes),
+    // History
+    getBorrowHistory: (filter) => electron_1.ipcRenderer.invoke('db:getBorrowHistory', filter),
     getStats: () => electron_1.ipcRenderer.invoke('db:getStats'),
     // Print operations
     printInventory: (data) => electron_1.ipcRenderer.invoke('print:inventory', data),
     printAvailableBooks: (data) => electron_1.ipcRenderer.invoke('print:available-books', data),
     printBorrowedBooks: (data) => electron_1.ipcRenderer.invoke('print:borrowed-books', data),
+    printBorrowHistory: (data) => electron_1.ipcRenderer.invoke('print:borrow-history', data),
     exportCSV: (data) => electron_1.ipcRenderer.invoke('export:csv', data),
 });

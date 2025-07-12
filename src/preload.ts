@@ -10,8 +10,9 @@ export interface Book {
   description: string;
   coverUrl?: string;
   isBorrowed: boolean;
-  borrowerName?: string;
+  borrowerId?: number;
   borrowDate?: string;
+  expectedReturnDate?: string;
   returnDate?: string;
   createdAt?: string;
 }
@@ -31,12 +32,56 @@ export interface Category {
   color?: string;
 }
 
+export interface Borrower {
+  id?: number;
+  type: 'student' | 'staff';
+  firstName: string;
+  lastName: string;
+  matricule: string;
+  // Spécifique aux étudiants
+  classe?: string;
+  // Spécifique au personnel
+  cniNumber?: string;
+  position?: string;
+  email?: string;
+  phone?: string;
+  createdAt?: string;
+}
+
+export interface BorrowHistory {
+  id?: number;
+  bookId: number;
+  borrowerId: number;
+  borrowDate: string;
+  expectedReturnDate: string;
+  actualReturnDate?: string;
+  status: 'active' | 'returned' | 'overdue';
+  notes?: string;
+  createdAt?: string;
+  // Relations
+  book?: Book;
+  borrower?: Borrower;
+}
+
 export interface Stats {
   totalBooks: number;
   borrowedBooks: number;
   availableBooks: number;
   totalAuthors: number;
   totalCategories: number;
+  totalBorrowers: number;
+  totalStudents: number;
+  totalStaff: number;
+  overdueBooks: number;
+}
+
+export interface HistoryFilter {
+  startDate?: string;
+  endDate?: string;
+  borrowerType?: 'all' | 'student' | 'staff';
+  status?: 'all' | 'active' | 'returned' | 'overdue';
+  borrowerId?: number;
+  bookId?: number;
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -59,9 +104,23 @@ contextBridge.exposeInMainWorld('electronAPI', {
   
   searchBooks: (query: string): Promise<Book[]> => ipcRenderer.invoke('db:searchBooks', query),
   
-  getBorrowedBooks: (): Promise<Book[]> => ipcRenderer.invoke('db:getBorrowedBooks'),
-  borrowBook: (bookId: number, borrowerName: string): Promise<boolean> => ipcRenderer.invoke('db:borrowBook', bookId, borrowerName),
-  returnBook: (bookId: number): Promise<boolean> => ipcRenderer.invoke('db:returnBook', bookId),
+  // Borrowers
+  getBorrowers: (): Promise<Borrower[]> => ipcRenderer.invoke('db:getBorrowers'),
+  addBorrower: (borrower: Omit<Borrower, 'id'>): Promise<number> => ipcRenderer.invoke('db:addBorrower', borrower),
+  updateBorrower: (borrower: Borrower): Promise<boolean> => ipcRenderer.invoke('db:updateBorrower', borrower),
+  deleteBorrower: (id: number): Promise<boolean> => ipcRenderer.invoke('db:deleteBorrower', id),
+  searchBorrowers: (query: string): Promise<Borrower[]> => ipcRenderer.invoke('db:searchBorrowers', query),
+  
+  // Borrow operations
+  getBorrowedBooks: (): Promise<BorrowHistory[]> => ipcRenderer.invoke('db:getBorrowedBooks'),
+  borrowBook: (bookId: number, borrowerId: number, expectedReturnDate: string): Promise<number> => 
+    ipcRenderer.invoke('db:borrowBook', bookId, borrowerId, expectedReturnDate),
+  returnBook: (borrowHistoryId: number, notes?: string): Promise<boolean> => 
+    ipcRenderer.invoke('db:returnBook', borrowHistoryId, notes),
+  
+  // History
+  getBorrowHistory: (filter?: HistoryFilter): Promise<BorrowHistory[]> => 
+    ipcRenderer.invoke('db:getBorrowHistory', filter),
   
   getStats: (): Promise<Stats> => ipcRenderer.invoke('db:getStats'),
   
@@ -69,6 +128,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   printInventory: (data: any): Promise<boolean> => ipcRenderer.invoke('print:inventory', data),
   printAvailableBooks: (data: any): Promise<boolean> => ipcRenderer.invoke('print:available-books', data),
   printBorrowedBooks: (data: any): Promise<boolean> => ipcRenderer.invoke('print:borrowed-books', data),
+  printBorrowHistory: (data: any): Promise<boolean> => ipcRenderer.invoke('print:borrow-history', data),
   exportCSV: (data: any): Promise<string | null> => ipcRenderer.invoke('export:csv', data),
 });
 
@@ -87,13 +147,20 @@ declare global {
       getCategories: () => Promise<Category[]>;
       addCategory: (category: Omit<Category, 'id'>) => Promise<number>;
       searchBooks: (query: string) => Promise<Book[]>;
-      getBorrowedBooks: () => Promise<Book[]>;
-      borrowBook: (bookId: number, borrowerName: string) => Promise<boolean>;
-      returnBook: (bookId: number) => Promise<boolean>;
+      getBorrowers: () => Promise<Borrower[]>;
+      addBorrower: (borrower: Omit<Borrower, 'id'>) => Promise<number>;
+      updateBorrower: (borrower: Borrower) => Promise<boolean>;
+      deleteBorrower: (id: number) => Promise<boolean>;
+      searchBorrowers: (query: string) => Promise<Borrower[]>;
+      getBorrowedBooks: () => Promise<BorrowHistory[]>;
+      borrowBook: (bookId: number, borrowerId: number, expectedReturnDate: string) => Promise<number>;
+      returnBook: (borrowHistoryId: number, notes?: string) => Promise<boolean>;
+      getBorrowHistory: (filter?: HistoryFilter) => Promise<BorrowHistory[]>;
       getStats: () => Promise<Stats>;
       printInventory: (data: any) => Promise<boolean>;
       printAvailableBooks: (data: any) => Promise<boolean>;
       printBorrowedBooks: (data: any) => Promise<boolean>;
+      printBorrowHistory: (data: any) => Promise<boolean>;
       exportCSV: (data: any) => Promise<string | null>;
     };
   }

@@ -8,7 +8,12 @@ import {
   Clock,
   Plus,
   Search,
-  Printer
+  Printer,
+  ArrowRight,
+  Star,
+  Activity,
+  Calendar,
+  Eye
 } from 'lucide-react';
 import { Stats } from '../../preload';
 import { PrintManager } from './PrintManager';
@@ -28,34 +33,45 @@ export const Dashboard: React.FC<DashboardProps> = ({
 }) => {
   const [showPrintManager, setShowPrintManager] = useState(false);
 
-  const quickActions = [
+  const heroActions = [
     {
       title: 'Ajouter un livre',
-      description: 'Enrichir la collection',
+      description: 'Enrichissez votre collection',
       icon: Plus,
       action: () => onNavigate('add-book'),
-      color: 'bg-green-500'
+      primary: true
     },
     {
-      title: 'Voir tous les livres',
-      description: 'Parcourir la collection',
+      title: 'Parcourir la collection',
+      description: 'Explorer tous les livres',
+      icon: Search,
+      action: () => onNavigate('books'),
+      primary: false
+    }
+  ];
+
+  const quickActions = [
+    {
+      title: 'Collection complète',
+      description: `${stats.totalBooks} livres disponibles`,
       icon: Book,
       action: () => onNavigate('books'),
-      color: 'bg-blue-500'
+      color: '#3E5C49'
     },
     {
-      title: 'Livres empruntés',
-      description: 'Gérer les emprunts',
+      title: 'Gérer les emprunts',
+      description: `${stats.borrowedBooks} livre(s) emprunté(s)`,
       icon: BookOpen,
       action: () => onNavigate('borrowed'),
-      color: 'bg-orange-500'
+      color: '#C2571B',
+      badge: stats.borrowedBooks > 0
     },
     {
-      title: 'Imprimer & Exporter',
-      description: 'Rapports et inventaires',
+      title: 'Rapports & Export',
+      description: 'Imprimer les inventaires',
       icon: Printer,
       action: () => setShowPrintManager(true),
-      color: 'bg-purple-500'
+      color: '#6E6E6E'
     }
   ];
 
@@ -64,29 +80,53 @@ export const Dashboard: React.FC<DashboardProps> = ({
       title: 'Total des livres',
       value: stats.totalBooks,
       icon: Book,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50'
+      color: '#3E5C49',
+      trend: '+2 ce mois'
     },
     {
-      title: 'Livres disponibles',
+      title: 'Disponibles',
       value: stats.availableBooks,
       icon: BookOpen,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50'
+      color: '#3E5C49',
+      percentage: stats.totalBooks > 0 ? ((stats.availableBooks / stats.totalBooks) * 100).toFixed(0) : 0
     },
     {
-      title: 'Livres empruntés',
+      title: 'Empruntés',
       value: stats.borrowedBooks,
       icon: Clock,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50'
+      color: '#C2571B',
+      percentage: stats.totalBooks > 0 ? ((stats.borrowedBooks / stats.totalBooks) * 100).toFixed(0) : 0
     },
     {
       title: 'Auteurs',
       value: stats.totalAuthors,
       icon: Users,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50'
+      color: '#6E6E6E',
+      trend: 'Actifs'
+    }
+  ];
+
+  const recentActivity = [
+    {
+      type: 'add',
+      title: 'Nouveau livre ajouté',
+      description: 'Les Misérables par Victor Hugo',
+      time: 'Il y a 2 heures',
+      icon: Plus
+    },
+    {
+      type: 'borrow',
+      title: 'Livre emprunté',
+      description: 'Fondation par Isaac Asimov',
+      time: 'Il y a 1 jour',
+      icon: BookOpen
+    },
+    {
+      type: 'return',
+      title: 'Livre rendu',
+      description: 'L\'Étranger par Albert Camus',
+      time: 'Il y a 2 jours',
+      icon: Activity
     }
   ];
 
@@ -94,26 +134,69 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="dashboard">
-      <div className="dashboard-header">
-        <div className="header-content">
-          <h1 className="dashboard-title">Tableau de bord</h1>
-          <p className="dashboard-subtitle">
-            Bienvenue dans votre système de gestion de bibliothèque
-          </p>
-        </div>
-        <div className="header-decoration">
-          <div className="decoration-circle"></div>
-          <div className="decoration-circle small"></div>
+      {/* Hero Section */}
+      <div className="hero-section">
+        <div className="hero-content">
+          <div className="hero-text">
+            <h1 className="hero-title">Bienvenue dans votre bibliothèque</h1>
+            <p className="hero-subtitle">
+              Gérez votre collection de {stats.totalBooks} livres avec facilité et élégance
+            </p>
+            <div className="hero-actions">
+              {heroActions.map((action, index) => (
+                <button
+                  key={index}
+                  className={`hero-button ${action.primary ? 'primary' : 'secondary'}`}
+                  onClick={action.action}
+                >
+                  <action.icon size={18} />
+                  <span>{action.title}</span>
+                  <ArrowRight size={16} />
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <div className="hero-visual">
+            <div className="floating-card">
+              <div className="card-header">
+                <BookOpen size={24} />
+                <span>Collection</span>
+              </div>
+              <div className="card-stats">
+                <div className="stat">
+                  <span className="stat-number">{stats.totalBooks}</span>
+                  <span className="stat-label">Livres</span>
+                </div>
+                <div className="stat">
+                  <span className="stat-number">{stats.borrowedBooks}</span>
+                  <span className="stat-label">Empruntés</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       <div className="dashboard-content">
+        {/* Main Stats Grid */}
         <div className="stats-section">
+          <div className="section-header">
+            <h2 className="section-title">Vue d'ensemble</h2>
+            <div className="section-subtitle">Statistiques de votre bibliothèque</div>
+          </div>
+          
           <div className="stats-grid">
             {mainStats.map((stat, index) => (
-              <div key={index} className="stat-card">
-                <div className={`stat-icon ${stat.bgColor}`}>
-                  <stat.icon className={stat.color} size={24} />
+              <div key={index} className="stat-card card-elevated">
+                <div className="stat-header">
+                  <div className="stat-icon" style={{ color: stat.color }}>
+                    <stat.icon size={24} />
+                  </div>
+                  <div className="stat-meta">
+                    {stat.trend && <span className="stat-trend">{stat.trend}</span>}
+                    {stat.percentage && <span className="stat-percentage">{stat.percentage}%</span>}
+                  </div>
                 </div>
                 <div className="stat-content">
                   <div className="stat-value">{stat.value}</div>
@@ -124,16 +207,44 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
 
-        <div className="overview-section">
-          <div className="overview-card">
-            <div className="overview-header">
-              <h3 className="overview-title">Aperçu de la collection</h3>
-              <TrendingUp className="text-green-500" size={20} />
+        <div className="dashboard-grid">
+          {/* Quick Actions */}
+          <div className="quick-actions-section">
+            <div className="section-header">
+              <h3 className="section-title">Actions rapides</h3>
             </div>
-            <div className="overview-content">
+            
+            <div className="actions-grid">
+              {quickActions.map((action, index) => (
+                <button
+                  key={index}
+                  className="action-card card-elevated"
+                  onClick={action.action}
+                >
+                  <div className="action-icon" style={{ backgroundColor: action.color }}>
+                    <action.icon size={20} />
+                    {action.badge && <div className="action-badge"></div>}
+                  </div>
+                  <div className="action-content">
+                    <div className="action-title">{action.title}</div>
+                    <div className="action-description">{action.description}</div>
+                  </div>
+                  <ArrowRight size={16} className="action-arrow" />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Progress Overview */}
+          <div className="progress-section">
+            <div className="section-header">
+              <h3 className="section-title">Utilisation</h3>
+            </div>
+            
+            <div className="progress-card card">
               <div className="progress-item">
-                <div className="progress-label">
-                  <span>Taux d'emprunt</span>
+                <div className="progress-header">
+                  <span className="progress-label">Taux d'emprunt</span>
                   <span className="progress-value">{borrowRate}%</span>
                 </div>
                 <div className="progress-bar">
@@ -143,40 +254,44 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   ></div>
                 </div>
               </div>
-              <div className="overview-stats">
-                <div className="overview-stat">
-                  <div className="overview-stat-label">Disponibilité</div>
-                  <div className="overview-stat-value">
-                    {stats.totalBooks > 0 ? ((stats.availableBooks / stats.totalBooks) * 100).toFixed(1) : 0}%
-                  </div>
+              
+              <div className="progress-metrics">
+                <div className="metric">
+                  <TrendingUp size={16} />
+                  <span>Tendance stable</span>
                 </div>
-                <div className="overview-stat">
-                  <div className="overview-stat-label">Catégories</div>
-                  <div className="overview-stat-value">{stats.totalCategories}</div>
+                <div className="metric">
+                  <Calendar size={16} />
+                  <span>Mis à jour maintenant</span>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="actions-card">
-            <h3 className="actions-title">Actions rapides</h3>
-            <div className="actions-grid">
-              {quickActions.map((action, index) => (
-                <button
-                  key={index}
-                  className="action-button"
-                  onClick={action.action}
-                >
-                  <div className={`action-icon ${action.color}`}>
-                    <action.icon size={20} />
-                  </div>
-                  <div className="action-content">
-                    <div className="action-title">{action.title}</div>
-                    <div className="action-description">{action.description}</div>
-                  </div>
-                </button>
-              ))}
-            </div>
+        {/* Recent Activity */}
+        <div className="activity-section">
+          <div className="section-header">
+            <h3 className="section-title">Activité récente</h3>
+            <button className="view-all-button">
+              <Eye size={16} />
+              Voir tout
+            </button>
+          </div>
+          
+          <div className="activity-list card">
+            {recentActivity.map((activity, index) => (
+              <div key={index} className="activity-item">
+                <div className="activity-icon">
+                  <activity.icon size={16} />
+                </div>
+                <div className="activity-content">
+                  <div className="activity-title">{activity.title}</div>
+                  <div className="activity-description">{activity.description}</div>
+                </div>
+                <div className="activity-time">{activity.time}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -194,290 +309,510 @@ export const Dashboard: React.FC<DashboardProps> = ({
         .dashboard {
           height: 100%;
           overflow-y: auto;
-          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+          background: #FAF9F6;
         }
         
-        .dashboard-header {
+        .hero-section {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+          padding: 48px 32px;
           position: relative;
-          background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-          color: white;
-          padding: 40px 32px;
-          margin-bottom: 24px;
           overflow: hidden;
         }
         
-        .header-content {
-          position: relative;
-          z-index: 2;
-        }
-        
-        .dashboard-title {
-          font-size: 32px;
-          font-weight: 700;
-          margin: 0 0 8px 0;
-          line-height: 1.2;
-        }
-        
-        .dashboard-subtitle {
-          font-size: 16px;
-          opacity: 0.9;
-          margin: 0;
-          line-height: 1.4;
-        }
-        
-        .header-decoration {
+        .hero-section::before {
+          content: '';
           position: absolute;
           top: 0;
           right: 0;
-          width: 200px;
+          width: 50%;
           height: 100%;
-          pointer-events: none;
+          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="%23F3EED9" opacity="0.05"/><circle cx="60" cy="40" r="1" fill="%23F3EED9" opacity="0.03"/><circle cx="80" cy="80" r="1" fill="%23F3EED9" opacity="0.04"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+          opacity: 0.3;
         }
         
-        .decoration-circle {
-          position: absolute;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.1);
-          width: 120px;
-          height: 120px;
-          top: -20px;
-          right: -20px;
+        .hero-content {
+          display: grid;
+          grid-template-columns: 1fr 300px;
+          gap: 48px;
+          align-items: center;
+          max-width: 1200px;
+          margin: 0 auto;
+          position: relative;
+          z-index: 1;
         }
         
-        .decoration-circle.small {
-          width: 60px;
-          height: 60px;
-          top: 60px;
-          right: 40px;
-          background: rgba(255, 255, 255, 0.05);
+        .hero-title {
+          font-size: 36px;
+          font-weight: 800;
+          margin: 0 0 16px 0;
+          line-height: 1.2;
+          letter-spacing: -0.5px;
+        }
+        
+        .hero-subtitle {
+          font-size: 18px;
+          opacity: 0.9;
+          margin: 0 0 32px 0;
+          line-height: 1.5;
+        }
+        
+        .hero-actions {
+          display: flex;
+          gap: 16px;
+          flex-wrap: wrap;
+        }
+        
+        .hero-button {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 16px 24px;
+          border: none;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .hero-button.primary {
+          background: #C2571B;
+          color: #F3EED9;
+        }
+        
+        .hero-button.primary:hover {
+          background: #A8481A;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
+        }
+        
+        .hero-button.secondary {
+          background: rgba(243, 238, 217, 0.15);
+          color: #F3EED9;
+          border: 1px solid rgba(243, 238, 217, 0.3);
+        }
+        
+        .hero-button.secondary:hover {
+          background: rgba(243, 238, 217, 0.25);
+          transform: translateY(-2px);
+        }
+        
+        .hero-visual {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        
+        .floating-card {
+          background: rgba(243, 238, 217, 0.1);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(243, 238, 217, 0.2);
+          border-radius: 16px;
+          padding: 24px;
+          width: 100%;
+          animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+        
+        .card-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 20px;
+          font-weight: 600;
+          font-size: 16px;
+        }
+        
+        .card-stats {
+          display: flex;
+          justify-content: space-between;
+        }
+        
+        .stat {
+          text-align: center;
+        }
+        
+        .stat-number {
+          display: block;
+          font-size: 28px;
+          font-weight: 800;
+          line-height: 1;
+          margin-bottom: 4px;
+        }
+        
+        .stat-label {
+          font-size: 12px;
+          opacity: 0.8;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
         
         .dashboard-content {
-          padding: 0 32px 32px;
+          padding: 32px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        
+        .section-header {
+          margin-bottom: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        
+        .section-title {
+          font-size: 24px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0;
+          letter-spacing: -0.3px;
+        }
+        
+        .section-subtitle {
+          font-size: 14px;
+          color: #6E6E6E;
+          margin-top: 4px;
         }
         
         .stats-section {
-          margin-bottom: 32px;
+          margin-bottom: 48px;
         }
         
         .stats-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
           gap: 24px;
         }
         
         .stat-card {
-          background: white;
-          border-radius: 16px;
           padding: 24px;
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-          transition: all 0.3s ease;
+          border-radius: 16px;
+          background: #FFFFFF;
         }
         
-        .stat-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        .stat-header {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          margin-bottom: 16px;
         }
         
         .stat-icon {
+          padding: 12px;
+          background: rgba(62, 92, 73, 0.1);
+          border-radius: 12px;
+        }
+        
+        .stat-meta {
+          text-align: right;
+          font-size: 12px;
+        }
+        
+        .stat-trend {
+          color: #3E5C49;
+          font-weight: 600;
+        }
+        
+        .stat-percentage {
+          color: #6E6E6E;
+          font-weight: 600;
+        }
+        
+        .stat-value {
+          font-size: 32px;
+          font-weight: 800;
+          color: #2E2E2E;
+          line-height: 1;
+          margin-bottom: 8px;
+        }
+        
+        .stat-title {
+          font-size: 14px;
+          color: #6E6E6E;
+          font-weight: 500;
+        }
+        
+        .dashboard-grid {
+          display: grid;
+          grid-template-columns: 2fr 1fr;
+          gap: 32px;
+          margin-bottom: 48px;
+        }
+        
+        .actions-grid {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        
+        .action-card {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          padding: 20px;
+          background: #FFFFFF;
+          border: none;
+          border-radius: 16px;
+          cursor: pointer;
+          text-align: left;
+          transition: all 0.3s ease;
+          position: relative;
+        }
+        
+        .action-card:hover {
+          transform: translateX(4px);
+        }
+        
+        .action-icon {
           width: 48px;
           height: 48px;
           border-radius: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
+          color: #FFFFFF;
           flex-shrink: 0;
+          position: relative;
         }
         
-        .stat-content {
+        .action-badge {
+          position: absolute;
+          top: -4px;
+          right: -4px;
+          width: 12px;
+          height: 12px;
+          background: #C2571B;
+          border-radius: 50%;
+          border: 2px solid #FFFFFF;
+          animation: pulse 2s infinite;
+        }
+        
+        .action-content {
           flex: 1;
         }
         
-        .stat-value {
-          font-size: 28px;
-          font-weight: 700;
-          line-height: 1.2;
-          color: #1f2937;
+        .action-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #2E2E2E;
           margin-bottom: 4px;
         }
         
-        .stat-title {
+        .action-description {
           font-size: 14px;
-          color: #6b7280;
-          font-weight: 500;
+          color: #6E6E6E;
         }
         
-        .overview-section {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 24px;
+        .action-arrow {
+          color: #6E6E6E;
+          transition: transform 0.2s ease;
         }
         
-        .overview-card, .actions-card {
-          background: white;
-          border-radius: 16px;
+        .action-card:hover .action-arrow {
+          transform: translateX(4px);
+        }
+        
+        .progress-card {
           padding: 24px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        
-        .overview-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 24px;
-        }
-        
-        .overview-title, .actions-title {
-          font-size: 18px;
-          font-weight: 600;
-          color: #1f2937;
-          margin: 0;
-        }
-        
-        .actions-title {
-          margin-bottom: 20px;
+          background: #FFFFFF;
+          border-radius: 16px;
         }
         
         .progress-item {
-          margin-bottom: 24px;
+          margin-bottom: 20px;
+        }
+        
+        .progress-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
         }
         
         .progress-label {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 8px;
           font-size: 14px;
           font-weight: 500;
-          color: #374151;
+          color: #2E2E2E;
         }
         
         .progress-value {
-          color: #22c55e;
-          font-weight: 600;
+          font-size: 18px;
+          font-weight: 700;
+          color: #3E5C49;
         }
         
         .progress-bar {
           width: 100%;
           height: 8px;
-          background: #f3f4f6;
+          background: #F3EED9;
           border-radius: 4px;
           overflow: hidden;
         }
         
         .progress-fill {
           height: 100%;
-          background: linear-gradient(90deg, #22c55e, #16a34a);
-          transition: width 0.3s ease;
+          background: linear-gradient(90deg, #3E5C49, #C2571B);
+          transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         
-        .overview-stats {
-          display: flex;
-          gap: 32px;
-        }
-        
-        .overview-stat {
-          flex: 1;
-        }
-        
-        .overview-stat-label {
-          font-size: 12px;
-          color: #6b7280;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          margin-bottom: 4px;
-        }
-        
-        .overview-stat-value {
-          font-size: 20px;
-          font-weight: 700;
-          color: #1f2937;
-        }
-        
-        .actions-grid {
+        .progress-metrics {
           display: flex;
           flex-direction: column;
           gap: 12px;
         }
         
-        .action-button {
+        .metric {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 12px;
+          color: #6E6E6E;
+        }
+        
+        .activity-list {
+          background: #FFFFFF;
+          border-radius: 16px;
+          overflow: hidden;
+        }
+        
+        .activity-item {
           display: flex;
           align-items: center;
           gap: 16px;
-          padding: 16px;
-          background: #f9fafb;
-          border: 1px solid #e5e7eb;
-          border-radius: 12px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          width: 100%;
+          padding: 20px;
+          border-bottom: 1px solid #F3EED9;
         }
         
-        .action-button:hover {
-          background: #f3f4f6;
-          border-color: #d1d5db;
-          transform: translateY(-2px);
+        .activity-item:last-child {
+          border-bottom: none;
         }
         
-        .action-icon {
+        .activity-icon {
           width: 40px;
           height: 40px;
+          background: #F3EED9;
           border-radius: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #3E5C49;
           flex-shrink: 0;
         }
         
-        .action-content {
+        .activity-content {
           flex: 1;
-          text-align: left;
         }
         
-        .action-title {
+        .activity-title {
           font-size: 14px;
           font-weight: 600;
-          color: #1f2937;
-          margin-bottom: 2px;
+          color: #2E2E2E;
+          margin-bottom: 4px;
         }
         
-        .action-description {
+        .activity-description {
+          font-size: 13px;
+          color: #6E6E6E;
+        }
+        
+        .activity-time {
           font-size: 12px;
-          color: #6b7280;
+          color: #6E6E6E;
+          text-align: right;
         }
         
-        .bg-green-500 { background-color: #22c55e; }
-        .bg-blue-500 { background-color: #3b82f6; }
-        .bg-orange-500 { background-color: #f97316; }
-        .bg-purple-500 { background-color: #8b5cf6; }
-        .bg-blue-50 { background-color: #eff6ff; }
-        .bg-green-50 { background-color: #f0fdf4; }
-        .bg-orange-50 { background-color: #fff7ed; }
-        .bg-purple-50 { background-color: #faf5ff; }
-        .text-blue-600 { color: #2563eb; }
-        .text-green-600 { color: #16a34a; }
-        .text-orange-600 { color: #ea580c; }
-        .text-purple-600 { color: #9333ea; }
-        .text-green-500 { color: #22c55e; }
+        .view-all-button {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 16px;
+          background: #F3EED9;
+          border: none;
+          border-radius: 8px;
+          color: #3E5C49;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .view-all-button:hover {
+          background: #EAEADC;
+          transform: translateY(-1px);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+          .hero-content {
+            grid-template-columns: 1fr;
+            gap: 32px;
+            text-align: center;
+          }
+          
+          .dashboard-grid {
+            grid-template-columns: 1fr;
+            gap: 24px;
+          }
+        }
         
         @media (max-width: 768px) {
-          .overview-section {
-            grid-template-columns: 1fr;
+          .hero-section {
+            padding: 32px 16px;
+          }
+          
+          .hero-title {
+            font-size: 28px;
+          }
+          
+          .hero-subtitle {
+            font-size: 16px;
+          }
+          
+          .hero-actions {
+            justify-content: center;
+          }
+          
+          .dashboard-content {
+            padding: 16px;
           }
           
           .stats-grid {
             grid-template-columns: 1fr;
+            gap: 16px;
           }
           
-          .dashboard-content {
-            padding: 0 16px 16px;
+          .section-title {
+            font-size: 20px;
           }
           
-          .dashboard-header {
-            padding: 24px 16px;
+          .floating-card {
+            padding: 16px;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .hero-button {
+            width: 100%;
+            justify-content: center;
+          }
+          
+          .action-card {
+            padding: 16px;
+          }
+          
+          .activity-item {
+            padding: 16px;
+          }
+          
+          .stat-card {
+            padding: 16px;
           }
         }
       `}</style>

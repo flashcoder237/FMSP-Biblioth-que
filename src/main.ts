@@ -70,7 +70,7 @@ ipcMain.handle('window-controls:close', () => {
   mainWindow.close();
 });
 
-// Database Operations
+// Database Operations - Books
 ipcMain.handle('db:getBooks', async () => {
   return await dbService.getBooks();
 });
@@ -87,6 +87,11 @@ ipcMain.handle('db:deleteBook', async (_, id) => {
   return await dbService.deleteBook(id);
 });
 
+ipcMain.handle('db:searchBooks', async (_, query) => {
+  return await dbService.searchBooks(query);
+});
+
+// Database Operations - Authors
 ipcMain.handle('db:getAuthors', async () => {
   return await dbService.getAuthors();
 });
@@ -95,6 +100,7 @@ ipcMain.handle('db:addAuthor', async (_, author) => {
   return await dbService.addAuthor(author);
 });
 
+// Database Operations - Categories
 ipcMain.handle('db:getCategories', async () => {
   return await dbService.getCategories();
 });
@@ -103,20 +109,42 @@ ipcMain.handle('db:addCategory', async (_, category) => {
   return await dbService.addCategory(category);
 });
 
-ipcMain.handle('db:searchBooks', async (_, query) => {
-  return await dbService.searchBooks(query);
+// Database Operations - Borrowers
+ipcMain.handle('db:getBorrowers', async () => {
+  return await dbService.getBorrowers();
 });
 
+ipcMain.handle('db:addBorrower', async (_, borrower) => {
+  return await dbService.addBorrower(borrower);
+});
+
+ipcMain.handle('db:updateBorrower', async (_, borrower) => {
+  return await dbService.updateBorrower(borrower);
+});
+
+ipcMain.handle('db:deleteBorrower', async (_, id) => {
+  return await dbService.deleteBorrower(id);
+});
+
+ipcMain.handle('db:searchBorrowers', async (_, query) => {
+  return await dbService.searchBorrowers(query);
+});
+
+// Database Operations - Borrow Management
 ipcMain.handle('db:getBorrowedBooks', async () => {
   return await dbService.getBorrowedBooks();
 });
 
-ipcMain.handle('db:borrowBook', async (_, bookId, borrowerName) => {
-  return await dbService.borrowBook(bookId, borrowerName);
+ipcMain.handle('db:borrowBook', async (_, bookId, borrowerId, expectedReturnDate) => {
+  return await dbService.borrowBook(bookId, borrowerId, expectedReturnDate);
 });
 
-ipcMain.handle('db:returnBook', async (_, bookId) => {
-  return await dbService.returnBook(bookId);
+ipcMain.handle('db:returnBook', async (_, borrowHistoryId, notes) => {
+  return await dbService.returnBook(borrowHistoryId, notes);
+});
+
+ipcMain.handle('db:getBorrowHistory', async (_, filter) => {
+  return await dbService.getBorrowHistory(filter);
 });
 
 ipcMain.handle('db:getStats', async () => {
@@ -134,6 +162,10 @@ ipcMain.handle('print:available-books', async (_, data) => {
 
 ipcMain.handle('print:borrowed-books', async (_, data) => {
   return await createPrintWindow(data, 'borrowed');
+});
+
+ipcMain.handle('print:borrow-history', async (_, data) => {
+  return await createPrintWindow(data, 'history');
 });
 
 ipcMain.handle('export:csv', async (_, data) => {
@@ -199,6 +231,10 @@ function generatePrintHTML(data: any, type: string): string {
       title = 'Liste des Livres Empruntés';
       content = generateBorrowedBooksContent(data);
       break;
+    case 'history':
+      title = 'Historique des Emprunts';
+      content = generateHistoryContent(data);
+      break;
   }
 
   return `
@@ -216,34 +252,34 @@ function generatePrintHTML(data: any, type: string): string {
           font-family: 'Segoe UI', Arial, sans-serif;
           margin: 0; 
           padding: 0; 
-          color: #333; 
+          color: #2E2E2E; 
           line-height: 1.4;
           font-size: 12px;
         }
         .header {
-          border-bottom: 3px solid #22c55e;
+          border-bottom: 3px solid #3E5C49;
           padding-bottom: 20px; 
           margin-bottom: 30px;
         }
         .header h1 {
-          color: #22c55e; 
+          color: #3E5C49; 
           margin: 0 0 10px 0;
           font-size: 24px; 
           font-weight: 700;
         }
         .header .subtitle { 
-          color: #666; 
+          color: #6E6E6E; 
           font-size: 14px; 
           margin: 5px 0; 
         }
         .header .date { 
-          color: #888; 
+          color: #6E6E6E; 
           font-size: 11px; 
           margin-top: 10px; 
         }
         .stats-summary {
-          background: #f8fafc; 
-          border: 1px solid #e2e8f0;
+          background: #F3EED9; 
+          border: 1px solid #E5DCC2;
           border-radius: 8px; 
           padding: 15px; 
           margin-bottom: 25px;
@@ -257,39 +293,39 @@ function generatePrintHTML(data: any, type: string): string {
         .stat-value {
           font-size: 20px; 
           font-weight: 700;
-          color: #22c55e; 
+          color: #3E5C49; 
           margin-bottom: 5px;
         }
         .stat-label {
           font-size: 10px; 
-          color: #666;
+          color: #6E6E6E;
           text-transform: uppercase; 
           letter-spacing: 0.5px;
         }
-        .books-table {
+        .content-table {
           width: 100%; 
           border-collapse: collapse;
           margin-bottom: 20px; 
           font-size: 10px;
         }
-        .books-table th, .books-table td {
+        .content-table th, .content-table td {
           padding: 8px 6px; 
           text-align: left; 
-          border-bottom: 1px solid #e5e7eb;
+          border-bottom: 1px solid #E5DCC2;
           word-wrap: break-word;
         }
-        .books-table th {
-          background: #f9fafb; 
+        .content-table th {
+          background: #F3EED9; 
           font-weight: 600;
-          color: #374151; 
-          border-bottom: 2px solid #d1d5db;
+          color: #2E2E2E; 
+          border-bottom: 2px solid #E5DCC2;
           font-size: 9px;
         }
-        .books-table tr:nth-child(even) { 
-          background: #f9fafb; 
+        .content-table tr:nth-child(even) { 
+          background: #FAF9F6; 
         }
         .category-tag {
-          background: #22c55e; 
+          background: #3E5C49; 
           color: white;
           padding: 1px 6px; 
           border-radius: 10px;
@@ -297,12 +333,26 @@ function generatePrintHTML(data: any, type: string): string {
           font-weight: 500;
         }
         .status-available { 
-          color: #22c55e; 
+          color: #3E5C49; 
           font-weight: 600; 
         }
         .status-borrowed { 
-          color: #ef4444; 
+          color: #C2571B; 
           font-weight: 600; 
+        }
+        .status-returned { 
+          color: #3E5C49; 
+          font-weight: 600; 
+        }
+        .status-overdue { 
+          color: #DC2626; 
+          font-weight: 600; 
+        }
+        .borrower-type {
+          font-size: 8px;
+          text-transform: uppercase;
+          font-weight: 600;
+          color: #6E6E6E;
         }
         .page-break {
           page-break-before: always;
@@ -318,7 +368,7 @@ function generatePrintHTML(data: any, type: string): string {
       ${content}
     </body>
     </html>
-  `;
+    `;
 }
 
 function generateInventoryContent(data: any): string {
@@ -344,7 +394,7 @@ function generateInventoryContent(data: any): string {
       </div>
     </div>
     
-    <table class="books-table">
+    <table class="content-table">
       <thead>
         <tr>
           <th style="width: 25%;">Titre</th>
@@ -370,7 +420,7 @@ function generateInventoryContent(data: any): string {
               </span>
             </td>
             <td>
-              ${book.borrowerName || '-'}<br/>
+              ${book.borrowerId ? `${book.borrower?.firstName || ''} ${book.borrower?.lastName || ''}<br/>` : '-'}
               ${book.borrowDate ? new Date(book.borrowDate).toLocaleDateString('fr-FR') : ''}
             </td>
           </tr>
@@ -400,7 +450,7 @@ function generateAvailableBooksContent(data: any): string {
       </div>
     </div>
     
-    <table class="books-table">
+    <table class="content-table">
       <thead>
         <tr>
           <th style="width: 30%;">Titre</th>
@@ -426,53 +476,67 @@ function generateAvailableBooksContent(data: any): string {
 }
 
 function generateBorrowedBooksContent(data: any): string {
-  const { books, stats } = data;
-  const borrowedBooks = books.filter((book: any) => book.isBorrowed);
+  const { history } = data;
   
   return `
     <div class="stats-summary">
       <div class="stat-item">
-        <div class="stat-value">${borrowedBooks.length}</div>
+        <div class="stat-value">${history.length}</div>
         <div class="stat-label">Livres Empruntés</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${stats.totalBooks}</div>
-        <div class="stat-label">Total Livres</div>
+        <div class="stat-value">${history.filter((h: any) => h.status === 'overdue').length}</div>
+        <div class="stat-label">En Retard</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${((borrowedBooks.length / (stats.totalBooks || 1)) * 100).toFixed(1)}%</div>
-        <div class="stat-label">Taux Emprunt</div>
+        <div class="stat-value">${history.filter((h: any) => h.borrower?.type === 'student').length}</div>
+        <div class="stat-label">Étudiants</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">${history.filter((h: any) => h.borrower?.type === 'staff').length}</div>
+        <div class="stat-label">Personnel</div>
       </div>
     </div>
     
-    <table class="books-table">
+    <table class="content-table">
       <thead>
         <tr>
-          <th style="width: 25%;">Titre</th>
-          <th style="width: 20%;">Auteur</th>
-          <th style="width: 15%;">Catégorie</th>
-          <th style="width: 20%;">Emprunteur</th>
+          <th style="width: 20%;">Livre</th>
+          <th style="width: 15%;">Auteur</th>
+          <th style="width: 15%;">Emprunteur</th>
+          <th style="width: 10%;">Type</th>
+          <th style="width: 12%;">Matricule/Classe</th>
           <th style="width: 10%;">Date Emprunt</th>
-          <th style="width: 10%;">Statut</th>
+          <th style="width: 10%;">Retour Prévu</th>
+          <th style="width: 8%;">Statut</th>
         </tr>
       </thead>
       <tbody>
-        ${borrowedBooks.map((book: any) => {
-          const borrowDate = new Date(book.borrowDate);
+        ${history.map((item: any) => {
+          const borrowDate = new Date(item.borrowDate);
+          const expectedDate = new Date(item.expectedReturnDate);
           const today = new Date();
-          const daysBorrowed = Math.ceil((today.getTime() - borrowDate.getTime()) / (1000 * 60 * 60 * 24));
-          const status = daysBorrowed > 30 ? 'En retard' : daysBorrowed > 14 ? 'Bientôt en retard' : 'Normal';
+          const isOverdue = today > expectedDate && item.status === 'active';
           
           return `
             <tr>
-              <td><strong>${book.title}</strong></td>
-              <td>${book.author}</td>
-              <td><span class="category-tag">${book.category}</span></td>
-              <td><strong>${book.borrowerName}</strong></td>
-              <td>${borrowDate.toLocaleDateString('fr-FR')}<br/><small>${daysBorrowed} jour(s)</small></td>
+              <td><strong>${item.book?.title}</strong></td>
+              <td>${item.book?.author}</td>
+              <td><strong>${item.borrower?.firstName} ${item.borrower?.lastName}</strong></td>
               <td>
-                <span class="${status === 'En retard' ? 'status-borrowed' : 'status-available'}">
-                  ${status}
+                <span class="borrower-type">
+                  ${item.borrower?.type === 'student' ? 'Étudiant' : 'Personnel'}
+                </span>
+              </td>
+              <td>
+                ${item.borrower?.matricule}<br/>
+                <small>${item.borrower?.type === 'student' ? item.borrower?.classe || '' : item.borrower?.position || ''}</small>
+              </td>
+              <td>${borrowDate.toLocaleDateString('fr-FR')}</td>
+              <td>${expectedDate.toLocaleDateString('fr-FR')}</td>
+              <td>
+                <span class="${isOverdue ? 'status-overdue' : item.status === 'returned' ? 'status-returned' : 'status-borrowed'}">
+                  ${isOverdue ? 'En retard' : item.status === 'returned' ? 'Rendu' : 'En cours'}
                 </span>
               </td>
             </tr>
@@ -480,6 +544,142 @@ function generateBorrowedBooksContent(data: any): string {
         }).join('')}
       </tbody>
     </table>
+  `;
+}
+
+function generateHistoryContent(data: any): string {
+  const { history, filters, stats } = data;
+  
+  const filterInfo = [];
+  if (filters.startDate) filterInfo.push(`Du ${new Date(filters.startDate).toLocaleDateString('fr-FR')}`);
+  if (filters.endDate) filterInfo.push(`Au ${new Date(filters.endDate).toLocaleDateString('fr-FR')}`);
+  if (filters.borrowerType && filters.borrowerType !== 'all') {
+    filterInfo.push(`Type: ${filters.borrowerType === 'student' ? 'Étudiants' : 'Personnel'}`);
+  }
+  if (filters.status && filters.status !== 'all') {
+    const statusLabels = {
+      active: 'En cours',
+      returned: 'Rendus',
+      overdue: 'En retard'
+    };
+    filterInfo.push(`Statut: ${statusLabels[filters.status as keyof typeof statusLabels]}`);
+  }
+  
+  return `
+    ${filterInfo.length > 0 ? `
+      <div style="background: #F3EED9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #E5DCC2;">
+        <strong>Filtres appliqués:</strong> ${filterInfo.join(' • ')}
+      </div>
+    ` : ''}
+    
+    <div class="stats-summary">
+      <div class="stat-item">
+        <div class="stat-value">${stats.total}</div>
+        <div class="stat-label">Total Emprunts</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">${stats.active}</div>
+        <div class="stat-label">En Cours</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">${stats.returned}</div>
+        <div class="stat-label">Rendus</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">${stats.overdue}</div>
+        <div class="stat-label">En Retard</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">${stats.students}</div>
+        <div class="stat-label">Étudiants</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">${stats.staff}</div>
+        <div class="stat-label">Personnel</div>
+      </div>
+    </div>
+    
+    <table class="content-table">
+      <thead>
+        <tr>
+          <th style="width: 18%;">Livre</th>
+          <th style="width: 12%;">Auteur</th>
+          <th style="width: 15%;">Emprunteur</th>
+          <th style="width: 8%;">Type</th>
+          <th style="width: 10%;">Matricule</th>
+          <th style="width: 10%;">Date Emprunt</th>
+          <th style="width: 10%;">Retour Prévu</th>
+          <th style="width: 10%;">Retour Effectué</th>
+          <th style="width: 7%;">Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${history.map((item: any) => {
+          const borrowDate = new Date(item.borrowDate);
+          const expectedDate = new Date(item.expectedReturnDate);
+          const actualDate = item.actualReturnDate ? new Date(item.actualReturnDate) : null;
+          
+          return `
+            <tr>
+              <td><strong>${item.book?.title}</strong></td>
+              <td>${item.book?.author}</td>
+              <td><strong>${item.borrower?.firstName} ${item.borrower?.lastName}</strong></td>
+              <td>
+                <span class="borrower-type">
+                  ${item.borrower?.type === 'student' ? 'ÉTU' : 'PERS'}
+                </span>
+              </td>
+              <td>
+                ${item.borrower?.matricule}<br/>
+                <small>${item.borrower?.type === 'student' ? item.borrower?.classe || '' : item.borrower?.position || ''}</small>
+              </td>
+              <td>
+                ${borrowDate.toLocaleDateString('fr-FR')}<br/>
+                <small>${borrowDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</small>
+              </td>
+              <td>${expectedDate.toLocaleDateString('fr-FR')}</td>
+              <td>
+                ${actualDate ? `
+                  ${actualDate.toLocaleDateString('fr-FR')}<br/>
+                  <small>${actualDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</small>
+                ` : '-'}
+              </td>
+              <td>
+                <span class="status-${item.status}">
+                  ${item.status === 'active' ? 'En cours' : 
+                    item.status === 'returned' ? 'Rendu' : 'En retard'}
+                </span>
+              </td>
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>
+    
+    ${history.some((item: any) => item.notes) ? `
+      <div class="page-break"></div>
+      <h2 style="color: #3E5C49; margin-top: 30px;">Notes et Observations</h2>
+      <table class="content-table">
+        <thead>
+          <tr>
+            <th style="width: 25%;">Livre</th>
+            <th style="width: 20%;">Emprunteur</th>
+            <th style="width: 15%;">Date Retour</th>
+            <th style="width: 40%;">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${history.filter((item: any) => item.notes).map((item: any) => `
+            <tr>
+              <td><strong>${item.book?.title}</strong></td>
+              <td>${item.borrower?.firstName} ${item.borrower?.lastName}</td>
+              <td>${item.actualReturnDate ? new Date(item.actualReturnDate).toLocaleDateString('fr-FR') : '-'}</td>
+              <td>${item.notes}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    ` : ''}
   `;
 }
 
@@ -496,32 +696,96 @@ async function exportToCSV(data: any): Promise<string | null> {
 
     if (!result.filePath) return null;
 
-    const { books } = data;
-    const csvHeaders = [
-      'Titre',
-      'Auteur', 
-      'Catégorie',
-      'ISBN',
-      'Année Publication',
-      'Description',
-      'Statut',
-      'Emprunteur',
-      'Date Emprunt'
-    ];
+    let csvContent = '';
+    
+    // Déterminer le type de données à exporter
+    if (data.history) {
+      // Export historique
+      const csvHeaders = [
+        'Date Emprunt',
+        'Heure Emprunt',
+        'Livre',
+        'Auteur',
+        'Catégorie',
+        'ISBN',
+        'Emprunteur',
+        'Type Emprunteur',
+        'Matricule',
+        'Classe/Poste',
+        'Date Retour Prévue',
+        'Date Retour Effective',
+        'Heure Retour',
+        'Statut',
+        'Durée (jours)',
+        'Retard (jours)',
+        'Notes'
+      ];
 
-    const csvRows = books.map((book: any) => [
-      `"${(book.title || '').replace(/"/g, '""')}"`,
-      `"${(book.author || '').replace(/"/g, '""')}"`,
-      `"${(book.category || '').replace(/"/g, '""')}"`,
-      `"${(book.isbn || '').replace(/"/g, '""')}"`,
-      `"${(book.publishedDate || '').replace(/"/g, '""')}"`,
-      `"${(book.description || '').replace(/"/g, '""')}"`,
-      `"${book.isBorrowed ? 'Emprunté' : 'Disponible'}"`,
-      `"${(book.borrowerName || '').replace(/"/g, '""')}"`,
-      `"${book.borrowDate ? new Date(book.borrowDate).toLocaleDateString('fr-FR') : ''}"`
-    ]);
+      const csvRows = data.history.map((item: any) => {
+        const borrowDate = new Date(item.borrowDate);
+        const expectedDate = new Date(item.expectedReturnDate);
+        const actualDate = item.actualReturnDate ? new Date(item.actualReturnDate) : null;
+        
+        const duration = actualDate ? 
+          Math.ceil((actualDate.getTime() - borrowDate.getTime()) / (1000 * 60 * 60 * 24)) : 
+          Math.ceil((new Date().getTime() - borrowDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        const overdue = item.status === 'overdue' || (item.status === 'active' && new Date() > expectedDate) ?
+          Math.ceil((new Date().getTime() - expectedDate.getTime()) / (1000 * 60 * 60 * 24)) : 0;
 
-    const csvContent = [csvHeaders.join(','), ...csvRows.map(row => row.join(','))].join('\n');
+        return [
+          `"${borrowDate.toLocaleDateString('fr-FR')}"`,
+          `"${borrowDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}"`,
+          `"${(item.book?.title || '').replace(/"/g, '""')}"`,
+          `"${(item.book?.author || '').replace(/"/g, '""')}"`,
+          `"${(item.book?.category || '').replace(/"/g, '""')}"`,
+          `"${(item.book?.isbn || '').replace(/"/g, '""')}"`,
+          `"${(item.borrower?.firstName || '')} ${(item.borrower?.lastName || '')}"`,
+          `"${item.borrower?.type === 'student' ? 'Étudiant' : 'Personnel'}"`,
+          `"${(item.borrower?.matricule || '').replace(/"/g, '""')}"`,
+          `"${item.borrower?.type === 'student' ? (item.borrower?.classe || '') : (item.borrower?.position || '')}"`,
+          `"${expectedDate.toLocaleDateString('fr-FR')}"`,
+          `"${actualDate ? actualDate.toLocaleDateString('fr-FR') : ''}"`,
+          `"${actualDate ? actualDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}"`,
+          `"${item.status === 'active' ? 'En cours' : item.status === 'returned' ? 'Rendu' : 'En retard'}"`,
+          `"${duration}"`,
+          `"${overdue > 0 ? overdue : ''}"`,
+          `"${(item.notes || '').replace(/"/g, '""')}"`
+        ];
+      });
+
+      csvContent = [csvHeaders.join(','), ...csvRows.map(row => row.join(','))].join('\n');
+    } else {
+      // Export livres
+      const { books } = data;
+      const csvHeaders = [
+        'Titre',
+        'Auteur', 
+        'Catégorie',
+        'ISBN',
+        'Année Publication',
+        'Description',
+        'Statut',
+        'Emprunteur',
+        'Date Emprunt',
+        'Date Retour Prévue'
+      ];
+
+      const csvRows = books.map((book: any) => [
+        `"${(book.title || '').replace(/"/g, '""')}"`,
+        `"${(book.author || '').replace(/"/g, '""')}"`,
+        `"${(book.category || '').replace(/"/g, '""')}"`,
+        `"${(book.isbn || '').replace(/"/g, '""')}"`,
+        `"${(book.publishedDate || '').replace(/"/g, '""')}"`,
+        `"${(book.description || '').replace(/"/g, '""')}"`,
+        `"${book.isBorrowed ? 'Emprunté' : 'Disponible'}"`,
+        `"${book.borrower ? `${book.borrower.firstName} ${book.borrower.lastName}` : ''}"`,
+        `"${book.borrowDate ? new Date(book.borrowDate).toLocaleDateString('fr-FR') : ''}"`,
+        `"${book.expectedReturnDate ? new Date(book.expectedReturnDate).toLocaleDateString('fr-FR') : ''}"`
+      ]);
+
+      csvContent = [csvHeaders.join(','), ...csvRows.map(row => row.join(','))].join('\n');
+    }
     
     fs.writeFileSync(result.filePath, '\ufeff' + csvContent, 'utf8');
     

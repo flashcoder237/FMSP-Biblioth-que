@@ -2,10 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BorrowedBooks = void 0;
 const jsx_runtime_1 = require("react/jsx-runtime");
+const react_1 = require("react");
 const lucide_react_1 = require("lucide-react");
 const BorrowedBooks = ({ books, onReturn }) => {
+    const [searchQuery, setSearchQuery] = (0, react_1.useState)('');
+    const [sortBy, setSortBy] = (0, react_1.useState)('date');
+    const [filterStatus, setFilterStatus] = (0, react_1.useState)('all');
     const handleReturn = (book) => {
-        if (window.confirm(`Confirmer le retour de "${book.title}" ?`)) {
+        if (window.confirm(`Confirmer le retour de "${book.title}" emprunté par ${book.borrowerName} ?`)) {
             onReturn(book.id);
         }
     };
@@ -19,103 +23,369 @@ const BorrowedBooks = ({ books, onReturn }) => {
     const getStatusInfo = (borrowDate) => {
         const days = getDaysOverdue(borrowDate);
         if (days <= 14) {
-            return { status: 'ok', color: '#22c55e', text: `${days} jour(s)` };
+            return {
+                status: 'normal',
+                color: '#3E5C49',
+                bgColor: 'rgba(62, 92, 73, 0.1)',
+                text: `${days} jour(s)`,
+                priority: 1
+            };
         }
         else if (days <= 30) {
-            return { status: 'warning', color: '#f59e0b', text: `${days} jour(s) - Bientôt en retard` };
+            return {
+                status: 'warning',
+                color: '#C2571B',
+                bgColor: 'rgba(194, 87, 27, 0.1)',
+                text: `${days} jour(s) - À surveiller`,
+                priority: 2
+            };
         }
         else {
-            return { status: 'overdue', color: '#ef4444', text: `${days} jour(s) - En retard` };
+            return {
+                status: 'overdue',
+                color: '#DC2626',
+                bgColor: 'rgba(220, 38, 38, 0.1)',
+                text: `${days} jour(s) - En retard`,
+                priority: 3
+            };
         }
     };
-    return ((0, jsx_runtime_1.jsxs)("div", { className: "borrowed-books", children: [(0, jsx_runtime_1.jsx)("div", { className: "page-header", children: (0, jsx_runtime_1.jsx)("div", { className: "header-content", children: (0, jsx_runtime_1.jsxs)("div", { className: "header-title-section", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Clock, { className: "header-icon", size: 28 }), (0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)("h1", { className: "page-title", children: "Livres emprunt\u00E9s" }), (0, jsx_runtime_1.jsxs)("p", { className: "page-subtitle", children: [books.length, " livre(s) actuellement emprunt\u00E9(s)"] })] })] }) }) }), (0, jsx_runtime_1.jsx)("div", { className: "borrowed-content", children: books.length > 0 ? ((0, jsx_runtime_1.jsx)("div", { className: "borrowed-list", children: books.map((book) => {
+    const filteredBooks = books.filter(book => {
+        // Filtre par recherche
+        const matchesSearch = !searchQuery ||
+            book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            book.borrowerName?.toLowerCase().includes(searchQuery.toLowerCase());
+        // Filtre par statut
+        if (filterStatus === 'all')
+            return matchesSearch;
+        const statusInfo = getStatusInfo(book.borrowDate);
+        return matchesSearch && statusInfo.status === filterStatus;
+    });
+    const sortedBooks = [...filteredBooks].sort((a, b) => {
+        switch (sortBy) {
+            case 'borrower':
+                return (a.borrowerName || '').localeCompare(b.borrowerName || '');
+            case 'title':
+                return a.title.localeCompare(b.title);
+            case 'status':
+                const statusA = getStatusInfo(a.borrowDate);
+                const statusB = getStatusInfo(b.borrowDate);
+                return statusB.priority - statusA.priority;
+            case 'date':
+            default:
+                return new Date(b.borrowDate).getTime() - new Date(a.borrowDate).getTime();
+        }
+    });
+    const getStatusCounts = () => {
+        const counts = { normal: 0, warning: 0, overdue: 0 };
+        books.forEach(book => {
+            const status = getStatusInfo(book.borrowDate).status;
+            if (status in counts)
+                counts[status]++;
+        });
+        return counts;
+    };
+    const statusCounts = getStatusCounts();
+    return ((0, jsx_runtime_1.jsxs)("div", { className: "borrowed-books", children: [(0, jsx_runtime_1.jsxs)("div", { className: "page-header", children: [(0, jsx_runtime_1.jsx)("div", { className: "header-background", children: (0, jsx_runtime_1.jsx)("div", { className: "background-pattern" }) }), (0, jsx_runtime_1.jsxs)("div", { className: "header-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "header-main", children: [(0, jsx_runtime_1.jsx)("div", { className: "header-icon", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Clock, { size: 36 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "header-text", children: [(0, jsx_runtime_1.jsx)("h1", { className: "page-title", children: "Livres emprunt\u00E9s" }), (0, jsx_runtime_1.jsxs)("p", { className: "page-subtitle", children: [books.length, " livre(s) actuellement en circulation"] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "status-overview", children: [(0, jsx_runtime_1.jsxs)("div", { className: "status-card normal", children: [(0, jsx_runtime_1.jsx)("div", { className: "status-icon", children: (0, jsx_runtime_1.jsx)(lucide_react_1.CheckCircle, { size: 20 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "status-info", children: [(0, jsx_runtime_1.jsx)("span", { className: "status-count", children: statusCounts.normal }), (0, jsx_runtime_1.jsx)("span", { className: "status-label", children: "Normal" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "status-card warning", children: [(0, jsx_runtime_1.jsx)("div", { className: "status-icon", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Clock, { size: 20 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "status-info", children: [(0, jsx_runtime_1.jsx)("span", { className: "status-count", children: statusCounts.warning }), (0, jsx_runtime_1.jsx)("span", { className: "status-label", children: "\u00C0 surveiller" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "status-card overdue", children: [(0, jsx_runtime_1.jsx)("div", { className: "status-icon", children: (0, jsx_runtime_1.jsx)(lucide_react_1.AlertTriangle, { size: 20 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "status-info", children: [(0, jsx_runtime_1.jsx)("span", { className: "status-count", children: statusCounts.overdue }), (0, jsx_runtime_1.jsx)("span", { className: "status-label", children: "En retard" })] })] })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "controls-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "search-container", children: (0, jsx_runtime_1.jsxs)("div", { className: "search-input-wrapper", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Search, { className: "search-icon", size: 20 }), (0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "Rechercher par titre, auteur ou emprunteur...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }), searchQuery && ((0, jsx_runtime_1.jsx)("button", { className: "clear-search", onClick: () => setSearchQuery(''), children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 16 }) }))] }) }), (0, jsx_runtime_1.jsxs)("div", { className: "filters-container", children: [(0, jsx_runtime_1.jsxs)("div", { className: "filter-group", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Filter, { size: 16 }), (0, jsx_runtime_1.jsxs)("select", { value: filterStatus, onChange: (e) => setFilterStatus(e.target.value), className: "filter-select", children: [(0, jsx_runtime_1.jsx)("option", { value: "all", children: "Tous les statuts" }), (0, jsx_runtime_1.jsx)("option", { value: "normal", children: "Normal (\u226414 jours)" }), (0, jsx_runtime_1.jsx)("option", { value: "warning", children: "\u00C0 surveiller (15-30 jours)" }), (0, jsx_runtime_1.jsx)("option", { value: "overdue", children: "En retard (>30 jours)" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "filter-group", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.ArrowUpDown, { size: 16 }), (0, jsx_runtime_1.jsxs)("select", { value: sortBy, onChange: (e) => setSortBy(e.target.value), className: "filter-select", children: [(0, jsx_runtime_1.jsx)("option", { value: "date", children: "Trier par date d'emprunt" }), (0, jsx_runtime_1.jsx)("option", { value: "borrower", children: "Trier par emprunteur" }), (0, jsx_runtime_1.jsx)("option", { value: "title", children: "Trier par titre" }), (0, jsx_runtime_1.jsx)("option", { value: "status", children: "Trier par statut" })] })] })] })] }), (0, jsx_runtime_1.jsx)("div", { className: "books-content", children: sortedBooks.length > 0 ? ((0, jsx_runtime_1.jsx)("div", { className: "borrowed-list", children: sortedBooks.map((book) => {
                         const statusInfo = getStatusInfo(book.borrowDate);
-                        return ((0, jsx_runtime_1.jsx)("div", { className: "borrowed-card", children: (0, jsx_runtime_1.jsxs)("div", { className: "card-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-info", children: [(0, jsx_runtime_1.jsx)("div", { className: "book-cover-small", children: book.coverUrl ? ((0, jsx_runtime_1.jsx)("img", { src: book.coverUrl, alt: book.title })) : ((0, jsx_runtime_1.jsx)(lucide_react_1.Book, { size: 24 })) }), (0, jsx_runtime_1.jsxs)("div", { className: "book-details", children: [(0, jsx_runtime_1.jsx)("h3", { className: "book-title", children: book.title }), (0, jsx_runtime_1.jsx)("p", { className: "book-author", children: book.author }), (0, jsx_runtime_1.jsxs)("div", { className: "borrow-meta", children: [(0, jsx_runtime_1.jsxs)("div", { className: "meta-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.User, { size: 14 }), (0, jsx_runtime_1.jsxs)("span", { children: ["Emprunt\u00E9 par: ", (0, jsx_runtime_1.jsx)("strong", { children: book.borrowerName })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "meta-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Calendar, { size: 14 }), (0, jsx_runtime_1.jsxs)("span", { children: ["Le ", new Date(book.borrowDate).toLocaleDateString('fr-FR')] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "meta-item status", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Clock, { size: 14 }), (0, jsx_runtime_1.jsx)("span", { className: "status-text", style: { color: statusInfo.color }, children: statusInfo.text })] })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "card-actions", children: [(0, jsx_runtime_1.jsx)("div", { className: "status-indicator", style: { backgroundColor: statusInfo.color } }), (0, jsx_runtime_1.jsxs)("button", { className: "return-button", onClick: () => handleReturn(book), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.CheckCircle, { size: 18 }), "Marquer comme rendu"] })] })] }) }, book.id));
-                    }) })) : ((0, jsx_runtime_1.jsxs)("div", { className: "empty-state", children: [(0, jsx_runtime_1.jsx)("div", { className: "empty-icon", children: (0, jsx_runtime_1.jsx)(lucide_react_1.CheckCircle, { size: 64 }) }), (0, jsx_runtime_1.jsx)("h3", { className: "empty-title", children: "Aucun livre emprunt\u00E9" }), (0, jsx_runtime_1.jsx)("p", { className: "empty-description", children: "Tous les livres sont actuellement disponibles dans la biblioth\u00E8que." })] })) }), (0, jsx_runtime_1.jsx)("style", { children: `
+                        return ((0, jsx_runtime_1.jsx)("div", { className: `borrowed-card ${statusInfo.status}`, children: (0, jsx_runtime_1.jsxs)("div", { className: "card-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-info", children: [(0, jsx_runtime_1.jsx)("div", { className: "book-cover", children: book.coverUrl ? ((0, jsx_runtime_1.jsx)("img", { src: book.coverUrl, alt: book.title })) : ((0, jsx_runtime_1.jsx)("div", { className: "book-cover-placeholder", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Book, { size: 24 }) })) }), (0, jsx_runtime_1.jsxs)("div", { className: "book-details", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-main", children: [(0, jsx_runtime_1.jsx)("h3", { className: "book-title", children: book.title }), (0, jsx_runtime_1.jsxs)("p", { className: "book-author", children: ["par ", book.author] }), (0, jsx_runtime_1.jsx)("div", { className: "book-category", children: (0, jsx_runtime_1.jsx)("span", { className: "category-badge", children: book.category }) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "borrow-details", children: [(0, jsx_runtime_1.jsxs)("div", { className: "detail-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.User, { size: 16 }), (0, jsx_runtime_1.jsx)("span", { className: "borrower-name", children: book.borrowerName })] }), (0, jsx_runtime_1.jsxs)("div", { className: "detail-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Calendar, { size: 16 }), (0, jsx_runtime_1.jsxs)("span", { children: ["Emprunt\u00E9 le ", new Date(book.borrowDate).toLocaleDateString('fr-FR')] })] })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "status-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "status-indicator", style: {
+                                                    backgroundColor: statusInfo.bgColor,
+                                                    color: statusInfo.color
+                                                }, children: [(0, jsx_runtime_1.jsx)("div", { className: "status-dot", style: { backgroundColor: statusInfo.color } }), (0, jsx_runtime_1.jsx)("span", { className: "status-text", children: statusInfo.text })] }), (0, jsx_runtime_1.jsxs)("div", { className: "card-actions", children: [(0, jsx_runtime_1.jsx)("button", { className: "action-button view", title: "Voir d\u00E9tails", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Eye, { size: 18 }) }), (0, jsx_runtime_1.jsxs)("button", { className: "action-button return", onClick: () => handleReturn(book), title: "Marquer comme rendu", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.RotateCcw, { size: 18 }), (0, jsx_runtime_1.jsx)("span", { children: "Retour" })] })] })] })] }) }, book.id));
+                    }) })) : ((0, jsx_runtime_1.jsxs)("div", { className: "empty-state", children: [(0, jsx_runtime_1.jsx)("div", { className: "empty-illustration", children: books.length === 0 ? ((0, jsx_runtime_1.jsx)(lucide_react_1.CheckCircle, { size: 80 })) : ((0, jsx_runtime_1.jsx)(lucide_react_1.Search, { size: 80 })) }), (0, jsx_runtime_1.jsx)("h3", { className: "empty-title", children: books.length === 0 ? 'Aucun livre emprunté' : 'Aucun résultat' }), (0, jsx_runtime_1.jsx)("p", { className: "empty-description", children: books.length === 0
+                                ? 'Tous les livres sont actuellement disponibles dans la bibliothèque.'
+                                : searchQuery
+                                    ? `Aucun résultat pour "${searchQuery}"`
+                                    : 'Aucun livre ne correspond aux filtres sélectionnés.' }), (searchQuery || filterStatus !== 'all') && ((0, jsx_runtime_1.jsx)("button", { className: "btn-secondary", onClick: () => {
+                                setSearchQuery('');
+                                setFilterStatus('all');
+                            }, children: "Effacer les filtres" }))] })) }), (0, jsx_runtime_1.jsx)("style", { children: `
         .borrowed-books {
           height: 100%;
-          overflow-y: auto;
-          background: #f8fafc;
+          display: flex;
+          flex-direction: column;
+          background: #FAF9F6;
         }
         
         .page-header {
-          background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-          color: white;
-          padding: 40px 32px;
           position: relative;
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
+          color: #F3EED9;
+          padding: 40px 32px;
           overflow: hidden;
         }
         
-        .page-header::before {
-          content: '';
+        .header-background {
           position: absolute;
-          top: 0;
-          right: 0;
-          width: 200px;
-          height: 100%;
-          background: rgba(255, 255, 255, 0.1);
-          transform: skewX(-15deg);
-          transform-origin: top;
+          inset: 0;
+          overflow: hidden;
+        }
+        
+        .background-pattern {
+          position: absolute;
+          inset: 0;
+          background-image: 
+            radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(243, 238, 217, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(243, 238, 217, 0.05) 0%, transparent 50%);
+          animation: float 15s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(30px, -30px) scale(1.05); }
+          66% { transform: translate(-20px, 20px) scale(0.95); }
         }
         
         .header-content {
           position: relative;
-          z-index: 2;
+          z-index: 1;
+          max-width: 1200px;
+          margin: 0 auto;
         }
         
-        .header-title-section {
+        .header-main {
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 24px;
+          margin-bottom: 32px;
         }
         
         .header-icon {
-          opacity: 0.9;
+          width: 72px;
+          height: 72px;
+          background: rgba(243, 238, 217, 0.2);
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          backdrop-filter: blur(10px);
         }
         
         .page-title {
-          font-size: 28px;
-          font-weight: 700;
-          margin: 0 0 4px 0;
+          font-size: 36px;
+          font-weight: 800;
+          margin: 0 0 8px 0;
           line-height: 1.2;
+          letter-spacing: -0.5px;
         }
         
         .page-subtitle {
-          font-size: 16px;
+          font-size: 18px;
           opacity: 0.9;
           margin: 0;
           line-height: 1.4;
         }
         
-        .borrowed-content {
+        .status-overview {
+          display: flex;
+          gap: 20px;
+        }
+        
+        .status-card {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          background: rgba(243, 238, 217, 0.15);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(243, 238, 217, 0.3);
+          border-radius: 16px;
+          padding: 20px 24px;
+          transition: all 0.3s ease;
+        }
+        
+        .status-card:hover {
+          background: rgba(243, 238, 217, 0.25);
+          transform: translateY(-2px);
+        }
+        
+        .status-icon {
+          width: 40px;
+          height: 40px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #F3EED9;
+        }
+        
+        .status-card.normal .status-icon {
+          background: rgba(62, 92, 73, 0.3);
+        }
+        
+        .status-card.warning .status-icon {
+          background: rgba(194, 87, 27, 0.3);
+        }
+        
+        .status-card.overdue .status-icon {
+          background: rgba(220, 38, 38, 0.3);
+        }
+        
+        .status-count {
+          font-size: 24px;
+          font-weight: 800;
+          line-height: 1;
+          margin-bottom: 4px;
+          display: block;
+        }
+        
+        .status-label {
+          font-size: 12px;
+          opacity: 0.9;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        
+        .controls-section {
+          background: #FFFFFF;
+          padding: 24px 32px;
+          border-bottom: 1px solid #E5DCC2;
+          display: flex;
+          gap: 24px;
+          align-items: center;
+          box-shadow: 0 2px 8px rgba(62, 92, 73, 0.04);
+        }
+        
+        .search-container {
+          flex: 1;
+          max-width: 500px;
+        }
+        
+        .search-input-wrapper {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+        
+        .search-icon {
+          position: absolute;
+          left: 16px;
+          color: #6E6E6E;
+          z-index: 2;
+        }
+        
+        .search-input {
+          width: 100%;
+          height: 48px;
+          padding: 0 48px 0 48px;
+          border: 2px solid #E5DCC2;
+          border-radius: 12px;
+          font-size: 16px;
+          background: #FFFFFF;
+          color: #2E2E2E;
+          transition: all 0.2s ease;
+        }
+        
+        .search-input:focus {
+          outline: none;
+          border-color: #C2571B;
+          box-shadow: 0 0 0 3px rgba(194, 87, 27, 0.1);
+        }
+        
+        .search-input::placeholder {
+          color: #6E6E6E;
+        }
+        
+        .clear-search {
+          position: absolute;
+          right: 16px;
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: #6E6E6E;
+          padding: 4px;
+          border-radius: 4px;
+          transition: all 0.2s ease;
+        }
+        
+        .clear-search:hover {
+          color: #2E2E2E;
+          background: #F3EED9;
+        }
+        
+        .filters-container {
+          display: flex;
+          gap: 16px;
+        }
+        
+        .filter-group {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #6E6E6E;
+        }
+        
+        .filter-select {
+          border: 2px solid #E5DCC2;
+          border-radius: 8px;
+          padding: 8px 12px;
+          background: #FFFFFF;
+          color: #2E2E2E;
+          font-size: 14px;
+          cursor: pointer;
+          transition: border-color 0.2s ease;
+        }
+        
+        .filter-select:focus {
+          outline: none;
+          border-color: #C2571B;
+        }
+        
+        .books-content {
+          flex: 1;
+          overflow-y: auto;
           padding: 32px;
         }
         
         .borrowed-list {
           display: flex;
           flex-direction: column;
-          gap: 16px;
+          gap: 20px;
+          max-width: 1200px;
+          margin: 0 auto;
         }
         
         .borrowed-card {
-          background: white;
-          border-radius: 16px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-          transition: all 0.3s ease;
-          border: 1px solid #f1f5f9;
+          background: #FFFFFF;
+          border-radius: 20px;
+          overflow: hidden;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          border: 1px solid #E5DCC2;
+          position: relative;
+        }
+        
+        .borrowed-card::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 4px;
+          background: #3E5C49;
+          transition: background 0.3s ease;
+        }
+        
+        .borrowed-card.warning::before {
+          background: #C2571B;
+        }
+        
+        .borrowed-card.overdue::before {
+          background: #DC2626;
         }
         
         .borrowed-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-          border-color: #e2e8f0;
+          transform: translateY(-4px);
+          box-shadow: 
+            0 12px 32px rgba(62, 92, 73, 0.12),
+            0 4px 16px rgba(62, 92, 73, 0.08);
         }
         
         .card-content {
-          padding: 24px;
           display: flex;
           align-items: center;
           justify-content: space-between;
+          padding: 24px;
           gap: 24px;
         }
         
@@ -124,25 +394,32 @@ const BorrowedBooks = ({ books, onReturn }) => {
           align-items: center;
           gap: 20px;
           flex: 1;
+          min-width: 0;
         }
         
-        .book-cover-small {
-          width: 60px;
-          height: 80px;
-          background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #9ca3af;
+        .book-cover {
+          width: 64px;
+          height: 88px;
+          border-radius: 12px;
           overflow: hidden;
           flex-shrink: 0;
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.2);
         }
         
-        .book-cover-small img {
+        .book-cover img {
           width: 100%;
           height: 100%;
           object-fit: cover;
+        }
+        
+        .book-cover-placeholder {
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(135deg, #F3EED9 0%, #E5DCC2 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #6E6E6E;
         }
         
         .book-details {
@@ -150,73 +427,119 @@ const BorrowedBooks = ({ books, onReturn }) => {
           min-width: 0;
         }
         
+        .book-main {
+          margin-bottom: 16px;
+        }
+        
         .book-title {
-          font-size: 18px;
-          font-weight: 600;
-          color: #1f2937;
+          font-size: 20px;
+          font-weight: 700;
+          color: #2E2E2E;
           margin: 0 0 4px 0;
           line-height: 1.3;
         }
         
         .book-author {
           font-size: 14px;
-          color: #6b7280;
-          margin: 0 0 16px 0;
+          color: #6E6E6E;
+          margin: 0 0 8px 0;
         }
         
-        .borrow-meta {
+        .category-badge {
+          background: #3E5C49;
+          color: #F3EED9;
+          padding: 4px 12px;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: 600;
+        }
+        
+        .borrow-details {
           display: flex;
           flex-direction: column;
           gap: 8px;
         }
         
-        .meta-item {
+        .detail-item {
           display: flex;
           align-items: center;
           gap: 8px;
           font-size: 14px;
-          color: #6b7280;
+          color: #6E6E6E;
         }
         
-        .meta-item.status .status-text {
-          font-weight: 500;
+        .borrower-name {
+          font-weight: 600;
+          color: #2E2E2E;
         }
         
-        .card-actions {
+        .status-section {
           display: flex;
-          align-items: center;
+          flex-direction: column;
+          align-items: flex-end;
           gap: 16px;
           flex-shrink: 0;
         }
         
         .status-indicator {
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          flex-shrink: 0;
-        }
-        
-        .return-button {
           display: flex;
           align-items: center;
           gap: 8px;
-          padding: 12px 20px;
-          background: #22c55e;
-          color: white;
-          border: none;
-          border-radius: 8px;
+          padding: 8px 16px;
+          border-radius: 20px;
           font-size: 14px;
-          font-weight: 500;
+          font-weight: 600;
+          border: 1px solid currentColor;
+        }
+        
+        .status-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          animation: pulse 2s infinite;
+        }
+        
+        .card-actions {
+          display: flex;
+          gap: 8px;
+        }
+        
+        .action-button {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          border: none;
+          border-radius: 12px;
           cursor: pointer;
+          font-size: 14px;
+          font-weight: 600;
           transition: all 0.2s ease;
-          white-space: nowrap;
         }
         
-        .return-button:hover {
-          background: #16a34a;
+        .action-button.view {
+          background: #F3EED9;
+          color: #6E6E6E;
+          padding: 12px;
+        }
+        
+        .action-button.view:hover {
+          background: #EAEADC;
+          color: #2E2E2E;
+        }
+        
+        .action-button.return {
+          background: #3E5C49;
+          color: #F3EED9;
+        }
+        
+        .action-button.return:hover {
+          background: #2E453A;
           transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
         }
         
+        /* Empty State */
         .empty-state {
           display: flex;
           flex-direction: column;
@@ -224,36 +547,119 @@ const BorrowedBooks = ({ books, onReturn }) => {
           justify-content: center;
           padding: 80px 32px;
           text-align: center;
+          max-width: 600px;
+          margin: 0 auto;
         }
         
-        .empty-icon {
-          color: #22c55e;
-          margin-bottom: 24px;
-          opacity: 0.8;
+        .empty-illustration {
+          color: #C2571B;
+          margin-bottom: 32px;
+          opacity: 0.6;
         }
         
         .empty-title {
-          font-size: 24px;
-          font-weight: 600;
-          color: #1f2937;
-          margin: 0 0 12px 0;
+          font-size: 28px;
+          font-weight: 700;
+          margin: 0 0 16px 0;
+          color: #2E2E2E;
         }
         
         .empty-description {
+          margin: 0 0 32px 0;
           font-size: 16px;
-          color: #6b7280;
-          margin: 0;
-          max-width: 400px;
-          line-height: 1.5;
+          line-height: 1.6;
+          color: #6E6E6E;
+        }
+        
+        .btn-secondary {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 24px;
+          background: #F3EED9;
+          color: #6E6E6E;
+          border: 2px solid #E5DCC2;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .btn-secondary:hover {
+          background: #EAEADC;
+          color: #2E2E2E;
+          transform: translateY(-1px);
+        }
+        
+        /* Animations */
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.7;
+            transform: scale(1.1);
+          }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+          .status-overview {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+          }
+          
+          .controls-section {
+            flex-direction: column;
+            gap: 16px;
+            align-items: stretch;
+          }
+          
+          .search-container {
+            max-width: none;
+          }
+          
+          .filters-container {
+            justify-content: space-between;
+          }
         }
         
         @media (max-width: 768px) {
-          .borrowed-content {
+          .page-header {
+            padding: 24px 16px;
+          }
+          
+          .header-main {
+            flex-direction: column;
+            text-align: center;
+            gap: 16px;
+          }
+          
+          .page-title {
+            font-size: 28px;
+          }
+          
+          .page-subtitle {
+            font-size: 16px;
+          }
+          
+          .status-overview {
+            justify-content: center;
+            flex-wrap: wrap;
+          }
+          
+          .status-card {
+            padding: 16px 20px;
+          }
+          
+          .controls-section {
             padding: 16px;
           }
           
-          .page-header {
-            padding: 24px 16px;
+          .books-content {
+            padding: 16px;
           }
           
           .card-content {
@@ -264,34 +670,76 @@ const BorrowedBooks = ({ books, onReturn }) => {
           
           .book-info {
             flex-direction: column;
-            align-items: center;
             text-align: center;
-            gap: 16px;
           }
           
-          .card-actions {
-            justify-content: center;
+          .status-section {
+            align-items: center;
+            flex-direction: row;
+            justify-content: space-between;
           }
           
-          .borrow-meta {
+          .borrow-details {
             align-items: center;
           }
         }
         
         @media (max-width: 480px) {
-          .header-title-section {
+          .header-icon {
+            width: 56px;
+            height: 56px;
+          }
+          
+          .status-overview {
             flex-direction: column;
-            align-items: center;
-            text-align: center;
             gap: 12px;
           }
           
-          .book-info {
+          .status-card {
+            padding: 12px 16px;
+          }
+          
+          .status-count {
+            font-size: 20px;
+          }
+          
+          .filters-container {
+            flex-direction: column;
             gap: 12px;
           }
           
-          .return-button {
+          .filter-group {
+            flex: 1;
+          }
+          
+          .filter-select {
+            flex: 1;
+          }
+          
+          .borrowed-card {
+            border-radius: 16px;
+          }
+          
+          .card-content {
+            padding: 20px 16px;
+          }
+          
+          .book-cover {
+            width: 56px;
+            height: 76px;
+          }
+          
+          .book-title {
+            font-size: 18px;
+          }
+          
+          .card-actions {
             width: 100%;
+            justify-content: space-between;
+          }
+          
+          .action-button.return {
+            flex: 1;
             justify-content: center;
           }
         }
