@@ -5,20 +5,25 @@ import {
   BookOpen, 
   Plus, 
   BarChart3,
-  Users,
-  Tag,
   ChevronLeft,
   ChevronRight,
-  History,
+  Clock,
   GraduationCap,
   Briefcase,
-  Clock
+  TrendingUp,
+  Star,
+  Zap,
+  Heart,
+  Info,
+  Users,
+  History,
+  Settings
 } from 'lucide-react';
 import { Stats } from '../../preload';
 
 interface SidebarProps {
   currentView: string;
-  onNavigate: (view: 'dashboard' | 'books' | 'borrowed' | 'add-book' | 'borrowers' | 'history') => void;
+  onNavigate: (view: 'dashboard' | 'books' | 'borrowed' | 'add-book' | 'borrowers' | 'history' | 'donation' | 'about') => void;
   stats: Stats;
 }
 
@@ -28,79 +33,112 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
   const menuItems = [
     { 
       id: 'dashboard', 
-      label: 'Accueil', 
+      label: 'Tableau de bord', 
       icon: Home,
-      description: 'Vue d\'ensemble'
+      description: 'Vue d\'ensemble et statistiques',
+      gradient: 'linear-gradient(135deg, #3E5C49 0%, #2E453A 100%)'
     },
     { 
       id: 'books', 
-      label: 'Collection', 
+      label: 'Ma Collection', 
       icon: Book,
-      description: 'Tous les livres',
-      count: stats.totalBooks
+      description: 'Parcourir tous les livres',
+      count: stats.totalBooks,
+      gradient: 'linear-gradient(135deg, #3E5C49 0%, #4A6B57 100%)'
     },
     { 
       id: 'borrowed', 
-      label: 'Emprunts', 
+      label: 'Emprunts Actifs', 
       icon: BookOpen,
-      description: 'Livres empruntés',
+      description: 'Livres actuellement empruntés',
       count: stats.borrowedBooks,
       badge: stats.borrowedBooks > 0,
-      urgent: stats.overdueBooks > 0
-    },
-    { 
-      id: 'add-book', 
-      label: 'Ajouter', 
-      icon: Plus,
-      description: 'Nouveau livre',
-      accent: true
+      urgent: stats.overdueBooks > 0,
+      gradient: 'linear-gradient(135deg, #C2571B 0%, #A8481A 100%)'
     }
   ];
 
-  const managementItems = [
-    {
-      id: 'borrowers',
-      label: 'Emprunteurs',
+  const actionItems = [
+    { 
+      id: 'add-book', 
+      label: 'Nouveau Livre', 
+      icon: Plus,
+      description: 'Ajouter à la collection',
+      accent: true,
+      gradient: 'linear-gradient(135deg, #C2571B 0%, #E65100 100%)',
+      highlight: true
+    },
+    { 
+      id: 'borrowers', 
+      label: 'Gestion Emprunteurs', 
       icon: Users,
-      description: 'Gestion des emprunteurs',
-      count: stats.totalBorrowers
+      description: 'Gérer les utilisateurs',
+      count: stats.totalBorrowers,
+      badge: stats.totalBorrowers > 0,
+      gradient: 'linear-gradient(135deg, #6E6E6E 0%, #5A5A5A 100%)'
+    }
+  ];
+
+  const reportItems = [
+    { 
+      id: 'history', 
+      label: 'Historique Complet', 
+      icon: History,
+      description: 'Tous les emprunts et retours',
+      gradient: 'linear-gradient(135deg, #607D8B 0%, #455A64 100%)'
+    }
+  ];
+
+  const supportItems = [
+    {
+      id: 'donation',
+      label: 'Soutenir le projet',
+      icon: Heart,
+      description: 'Faire une donation',
+      gradient: 'linear-gradient(135deg, #E91E63 0%, #C2185B 100%)',
+      support: true
     },
     {
-      id: 'history',
-      label: 'Historique',
-      icon: History,
-      description: 'Historique des emprunts'
+      id: 'about',
+      label: 'À propos',
+      icon: Info,
+      description: 'Développeur & crédits',
+      gradient: 'linear-gradient(135deg, #607D8B 0%, #455A64 100%)'
     }
   ];
 
   const quickStats = [
     {
-      label: 'Total',
+      label: 'Collection',
       value: stats.totalBooks,
       icon: Book,
-      color: '#3E5C49'
+      color: '#3E5C49',
+      trend: '+2 ce mois'
     },
     {
       label: 'Disponibles',
       value: stats.availableBooks,
       icon: BookOpen,
-      color: '#3E5C49'
+      color: '#3E5C49',
+      percentage: stats.totalBooks > 0 ? Math.round((stats.availableBooks / stats.totalBooks) * 100) : 0
     },
     {
       label: 'Empruntés',
       value: stats.borrowedBooks,
       icon: BarChart3,
-      color: '#C2571B'
+      color: '#C2571B',
+      percentage: stats.totalBooks > 0 ? Math.round((stats.borrowedBooks / stats.totalBooks) * 100) : 0
     },
     {
       label: 'En retard',
       value: stats.overdueBooks,
       icon: Clock,
-      color: '#DC2626'
+      color: '#DC2626',
+      urgent: stats.overdueBooks > 0
     }
   ];
 
-  const borrowerStats = [
+  const userStats = [
     {
       label: 'Étudiants',
       value: stats.totalStudents,
@@ -115,39 +153,53 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
     }
   ];
 
+  const getPopularityScore = () => {
+    if (stats.totalBooks === 0) return 0;
+    return Math.round((stats.borrowedBooks / stats.totalBooks) * 100);
+  };
+
   return (
     <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+      {/* Enhanced Header */}
       <div className="sidebar-header">
         <div className="sidebar-toggle">
           <button 
             className="toggle-button"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            title={isCollapsed ? 'Développer' : 'Réduire'}
+            title={isCollapsed ? 'Développer le menu' : 'Réduire le menu'}
           >
-            {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+            {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           </button>
         </div>
         
         {!isCollapsed && (
           <div className="sidebar-brand">
-            <h2 className="brand-title">Navigation</h2>
-            <p className="brand-subtitle">Gérez votre bibliothèque</p>
+            <div className="brand-logo">
+              <Book size={24} />
+            </div>
+            <div className="brand-text">
+              <h2 className="brand-title">Bibliothèque</h2>
+              <p className="brand-subtitle">Système de gestion moderne</p>
+            </div>
           </div>
         )}
       </div>
 
       <div className="sidebar-content">
+        {/* Main Navigation */}
         <nav className="sidebar-nav">
-          {/* Menu Principal */}
           <div className="nav-section">
-            {!isCollapsed && <h3 className="nav-title">Menu principal</h3>}
+            {!isCollapsed && <h3 className="nav-title">Principal</h3>}
             <ul className="nav-list">
               {menuItems.map((item) => (
                 <li key={item.id} className="nav-item">
                   <button
-                    className={`nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.urgent ? 'urgent' : ''}`}
+                    className={`nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.urgent ? 'urgent' : ''} ${item.highlight ? 'highlight' : ''}`}
                     onClick={() => onNavigate(item.id as any)}
                     title={isCollapsed ? item.label : ''}
+                    style={{
+                      '--item-gradient': item.gradient
+                    } as React.CSSProperties}
                   >
                     <div className="nav-icon">
                       <item.icon size={20} />
@@ -165,6 +217,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
                             {item.count}
                           </div>
                         )}
+                        
+                        {item.highlight && (
+                          <div className="nav-highlight">
+                            <Zap size={14} />
+                          </div>
+                        )}
                       </>
                     )}
                     
@@ -177,16 +235,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
             </ul>
           </div>
 
-          {/* Menu Gestion */}
+          {/* Actions Section */}
           <div className="nav-section">
-            {!isCollapsed && <h3 className="nav-title">Gestion</h3>}
+            {!isCollapsed && <h3 className="nav-title">Actions</h3>}
             <ul className="nav-list">
-              {managementItems.map((item) => (
+              {actionItems.map((item) => (
                 <li key={item.id} className="nav-item">
                   <button
-                    className={`nav-button ${currentView === item.id ? 'active' : ''}`}
+                    className={`nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.highlight ? 'highlight' : ''}`}
                     onClick={() => onNavigate(item.id as any)}
                     title={isCollapsed ? item.label : ''}
+                    style={{
+                      '--item-gradient': item.gradient
+                    } as React.CSSProperties}
                   >
                     <div className="nav-icon">
                       <item.icon size={20} />
@@ -200,11 +261,77 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
                         </div>
                         
                         {item.count !== undefined && item.count > 0 && (
-                          <div className="nav-count">
+                          <div className={`nav-count ${item.badge ? 'badge' : ''}`}>
                             {item.count}
                           </div>
                         )}
+                        
+                        {item.highlight && (
+                          <div className="nav-highlight">
+                            <Zap size={14} />
+                          </div>
+                        )}
                       </>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Reports Section */}
+          <div className="nav-section">
+            {!isCollapsed && <h3 className="nav-title">Rapports</h3>}
+            <ul className="nav-list">
+              {reportItems.map((item) => (
+                <li key={item.id} className="nav-item">
+                  <button
+                    className={`nav-button ${currentView === item.id ? 'active' : ''}`}
+                    onClick={() => onNavigate(item.id as any)}
+                    title={isCollapsed ? item.label : ''}
+                    style={{
+                      '--item-gradient': item.gradient
+                    } as React.CSSProperties}
+                  >
+                    <div className="nav-icon">
+                      <item.icon size={20} />
+                    </div>
+                    
+                    {!isCollapsed && (
+                      <div className="nav-content">
+                        <span className="nav-label">{item.label}</span>
+                        <span className="nav-description">{item.description}</span>
+                      </div>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Support Section */}
+          <div className="nav-section">
+            {!isCollapsed && <h3 className="nav-title">Communauté</h3>}
+            <ul className="nav-list">
+              {supportItems.map((item) => (
+                <li key={item.id} className="nav-item">
+                  <button
+                    className={`nav-button ${currentView === item.id ? 'active' : ''} ${item.support ? 'support' : ''}`}
+                    onClick={() => onNavigate(item.id as any)}
+                    title={isCollapsed ? item.label : ''}
+                    style={{
+                      '--item-gradient': item.gradient
+                    } as React.CSSProperties}
+                  >
+                    <div className="nav-icon">
+                      <item.icon size={20} />
+                    </div>
+                    
+                    {!isCollapsed && (
+                      <div className="nav-content">
+                        <span className="nav-label">{item.label}</span>
+                        <span className="nav-description">{item.description}</span>
+                      </div>
                     )}
                   </button>
                 </li>
@@ -215,39 +342,80 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
         
         {!isCollapsed && (
           <>
-            {/* Statistiques Livres */}
+            {/* Collection Statistics */}
             <div className="stats-section">
-              <h3 className="stats-title">Statistiques Livres</h3>
+              <div className="stats-header">
+                <h3 className="stats-title">Statistiques de collection</h3>
+                <div className="popularity-score">
+                  <TrendingUp size={14} />
+                  <span>{getPopularityScore()}% popularité</span>
+                </div>
+              </div>
               <div className="stats-grid">
                 {quickStats.map((stat, index) => (
-                  <div key={index} className="stat-card">
+                  <div key={index} className={`stat-card ${stat.urgent ? 'urgent' : ''}`}>
                     <div className="stat-icon" style={{ color: stat.color }}>
                       <stat.icon size={16} />
                     </div>
                     <div className="stat-content">
                       <div className="stat-value">{stat.value}</div>
                       <div className="stat-label">{stat.label}</div>
+                      {stat.trend && (
+                        <div className="stat-trend">{stat.trend}</div>
+                      )}
+                      {stat.percentage !== undefined && (
+                        <div className="stat-percentage">{stat.percentage}%</div>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Statistiques Emprunteurs */}
+            {/* Users Overview */}
             <div className="stats-section">
-              <h3 className="stats-title">Emprunteurs</h3>
-              <div className="stats-grid">
-                {borrowerStats.map((stat, index) => (
-                  <div key={index} className="stat-card">
-                    <div className="stat-icon" style={{ color: stat.color }}>
-                      <stat.icon size={16} />
+              <h3 className="stats-title">Utilisateurs</h3>
+              <div className="users-stats">
+                {userStats.map((stat, index) => (
+                  <div key={index} className="user-stat">
+                    <div className="user-stat-icon" style={{ color: stat.color }}>
+                      <stat.icon size={18} />
                     </div>
-                    <div className="stat-content">
-                      <div className="stat-value">{stat.value}</div>
-                      <div className="stat-label">{stat.label}</div>
+                    <div className="user-stat-content">
+                      <div className="user-stat-value">{stat.value}</div>
+                      <div className="user-stat-label">{stat.label}</div>
                     </div>
                   </div>
                 ))}
+              </div>
+              
+              <div className="total-users">
+                <span className="total-label">Total des utilisateurs</span>
+                <span className="total-value">{stats.totalBorrowers}</span>
+              </div>
+            </div>
+
+            {/* Activity Indicator */}
+            <div className="activity-section">
+              <div className="activity-header">
+                <h3 className="stats-title">Activité récente</h3>
+                <div className="activity-pulse"></div>
+              </div>
+              <div className="activity-summary">
+                <div className="activity-item">
+                  <div className="activity-dot available"></div>
+                  <span>{stats.availableBooks} livres prêts à emprunter</span>
+                </div>
+                <div className="activity-item">
+                  <div className="activity-dot borrowed"></div>
+                  <span>{stats.borrowedBooks} emprunts en cours</span>
+                </div>
+                {stats.overdueBooks > 0 && (
+                  <div className="activity-item urgent">
+                    <div className="activity-dot overdue"></div>
+                    <span>{stats.overdueBooks} livre(s) en retard</span>
+                  </div>
+                )}
               </div>
             </div>
           </>
@@ -256,17 +424,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
       
       <style>{`
         .sidebar {
-          width: 280px;
+          width: 300px;
           background: linear-gradient(180deg, #3E5C49 0%, #2E453A 100%);
           display: flex;
           flex-direction: column;
           position: relative;
           transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           border-right: 1px solid rgba(46, 69, 58, 0.3);
+          box-shadow: 4px 0 16px rgba(62, 92, 73, 0.1);
         }
         
         .sidebar.collapsed {
-          width: 64px;
+          width: 72px;
         }
         
         .sidebar::before {
@@ -276,13 +445,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(243, 238, 217, 0.02);
-          backdrop-filter: blur(1px);
+          background: 
+            radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.03) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(194, 87, 27, 0.02) 0%, transparent 50%);
           pointer-events: none;
         }
         
         .sidebar-header {
-          padding: 16px;
+          padding: 24px 20px;
           border-bottom: 1px solid rgba(243, 238, 217, 0.1);
           position: relative;
           z-index: 1;
@@ -291,21 +461,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
         .sidebar-toggle {
           display: flex;
           justify-content: flex-end;
-          margin-bottom: 12px;
+          margin-bottom: 16px;
         }
         
         .toggle-button {
-          width: 32px;
-          height: 32px;
+          width: 40px;
+          height: 40px;
           border: none;
           background: rgba(243, 238, 217, 0.1);
           color: #F3EED9;
-          border-radius: 8px;
+          border-radius: 12px;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
           transition: all 0.2s ease;
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(243, 238, 217, 0.2);
         }
         
         .toggle-button:hover {
@@ -314,6 +486,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
         }
         
         .sidebar-brand {
+          display: flex;
+          align-items: center;
+          gap: 16px;
           opacity: 1;
           transition: opacity 0.2s ease;
         }
@@ -323,16 +498,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           pointer-events: none;
         }
         
+        .brand-logo {
+          width: 48px;
+          height: 48px;
+          background: rgba(243, 238, 217, 0.15);
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #F3EED9;
+          border: 1px solid rgba(243, 238, 217, 0.2);
+        }
+        
         .brand-title {
-          font-size: 16px;
-          font-weight: 700;
+          font-size: 20px;
+          font-weight: 800;
           color: #F3EED9;
           margin: 0 0 4px 0;
-          letter-spacing: -0.2px;
+          letter-spacing: -0.3px;
         }
         
         .brand-subtitle {
-          font-size: 12px;
+          font-size: 13px;
           color: rgba(243, 238, 217, 0.7);
           margin: 0;
           line-height: 1.3;
@@ -341,26 +528,26 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
         .sidebar-content {
           flex: 1;
           overflow-y: auto;
-          padding: 8px 16px 16px;
+          padding: 8px 20px 20px;
           position: relative;
           z-index: 1;
         }
         
         .collapsed .sidebar-content {
-          padding: 8px 8px 16px;
+          padding: 8px 12px 20px;
         }
         
         .nav-section {
-          margin-bottom: 24px;
+          margin-bottom: 32px;
         }
         
         .nav-title {
           font-size: 11px;
-          font-weight: 600;
+          font-weight: 700;
           text-transform: uppercase;
-          letter-spacing: 0.8px;
+          letter-spacing: 1px;
           color: rgba(243, 238, 217, 0.6);
-          margin-bottom: 12px;
+          margin-bottom: 16px;
           margin-top: 0;
           padding: 0 4px;
         }
@@ -371,7 +558,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           margin: 0;
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          gap: 8px;
         }
         
         .nav-item {
@@ -382,23 +569,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           width: 100%;
           display: flex;
           align-items: center;
-          gap: 12px;
-          padding: 12px;
+          gap: 16px;
+          padding: 16px;
           border: none;
           background: transparent;
           color: #F3EED9;
           cursor: pointer;
-          border-radius: 12px;
-          transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          border-radius: 16px;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           font-size: 14px;
           position: relative;
           text-align: left;
           overflow: hidden;
+          border: 1px solid transparent;
         }
         
         .collapsed .nav-button {
           justify-content: center;
-          padding: 12px 8px;
+          padding: 16px 12px;
         }
         
         .nav-button::before {
@@ -409,7 +597,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           right: 0;
           bottom: 0;
           background: rgba(243, 238, 217, 0.08);
-          border-radius: 12px;
+          border-radius: 16px;
           transform: scaleX(0);
           transform-origin: left;
           transition: transform 0.3s ease;
@@ -422,6 +610,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
         .nav-button:hover {
           color: #FFFFFF;
           transform: translateX(4px);
+          border-color: rgba(243, 238, 217, 0.2);
         }
         
         .collapsed .nav-button:hover {
@@ -429,9 +618,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
         }
         
         .nav-button.active {
-          background: rgba(243, 238, 217, 0.15);
+          background: var(--item-gradient, rgba(243, 238, 217, 0.15));
           color: #FFFFFF;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          box-shadow: 
+            0 8px 24px rgba(0, 0, 0, 0.15),
+            0 4px 12px rgba(62, 92, 73, 0.2);
+          border-color: rgba(243, 238, 217, 0.3);
         }
         
         .nav-button.active::before {
@@ -439,13 +631,49 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           background: rgba(243, 238, 217, 0.1);
         }
         
-        .nav-button.accent {
-          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
+        .nav-button.highlight {
+          background: var(--item-gradient);
+          animation: pulse-highlight 3s ease-in-out infinite;
         }
         
-        .nav-button.accent:hover {
-          background: linear-gradient(135deg, #A8481A 0%, #8B3A15 100%);
-          transform: translateX(4px) translateY(-1px);
+        .nav-button.highlight:hover {
+          background: linear-gradient(135deg, #A8481A 0%, #D84315 100%);
+          transform: translateX(4px) translateY(-2px);
+          box-shadow: 0 12px 32px rgba(194, 87, 27, 0.4);
+        }
+        
+        .nav-button.support {
+          position: relative;
+        }
+        
+        .nav-button.support::after {
+          content: '♥';
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          font-size: 12px;
+          color: #E91E63;
+          animation: heartbeat 2s ease-in-out infinite;
+        }
+        
+        @keyframes heartbeat {
+          0%, 100% {
+            transform: scale(1);
+            opacity: 0.8;
+          }
+          50% {
+            transform: scale(1.2);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes pulse-highlight {
+          0%, 100% {
+            box-shadow: 0 4px 16px rgba(194, 87, 27, 0.3);
+          }
+          50% {
+            box-shadow: 0 8px 24px rgba(194, 87, 27, 0.5);
+          }
         }
         
         .nav-button.urgent {
@@ -455,21 +683,32 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
         .nav-button.urgent::after {
           content: '';
           position: absolute;
-          top: 8px;
-          right: 8px;
+          top: 12px;
+          right: 12px;
           width: 8px;
           height: 8px;
           background: #DC2626;
           border-radius: 50%;
-          animation: pulse 2s infinite;
+          animation: pulse-urgent 2s infinite;
+        }
+        
+        @keyframes pulse-urgent {
+          0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.7;
+            transform: scale(1.2);
+          }
         }
         
         .nav-icon {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 20px;
-          height: 20px;
+          width: 24px;
+          height: 24px;
           flex-shrink: 0;
           position: relative;
           z-index: 1;
@@ -485,13 +724,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
         }
         
         .nav-label {
-          font-weight: 600;
+          font-weight: 700;
           line-height: 1.2;
-          margin-bottom: 2px;
+          margin-bottom: 3px;
+          font-size: 15px;
         }
         
         .nav-description {
-          font-size: 11px;
+          font-size: 12px;
           opacity: 0.8;
           line-height: 1.2;
         }
@@ -499,94 +739,148 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
         .nav-count {
           background: rgba(243, 238, 217, 0.2);
           color: #F3EED9;
-          font-size: 11px;
-          font-weight: 600;
-          padding: 2px 6px;
-          border-radius: 8px;
-          min-width: 18px;
+          font-size: 12px;
+          font-weight: 700;
+          padding: 4px 8px;
+          border-radius: 10px;
+          min-width: 20px;
           text-align: center;
           flex-shrink: 0;
           position: relative;
           z-index: 1;
+          border: 1px solid rgba(243, 238, 217, 0.3);
         }
         
         .nav-count.badge {
           background: #C2571B;
           color: #FFFFFF;
-          animation: pulse 2s infinite;
+          animation: pulse-badge 2s infinite;
+          border-color: rgba(255, 255, 255, 0.3);
         }
         
         .nav-count.urgent {
           background: #DC2626;
           color: #FFFFFF;
-          animation: pulse 1.5s infinite;
+          animation: pulse-urgent 1.5s infinite;
+          border-color: rgba(255, 255, 255, 0.3);
         }
         
-        .nav-indicator {
-          width: 8px;
-          height: 8px;
-          background: #C2571B;
-          border-radius: 50%;
-          position: absolute;
-          top: 8px;
-          right: 8px;
-          animation: pulse 2s infinite;
-        }
-        
-        .nav-indicator.urgent {
-          background: #DC2626;
-          animation: pulse 1.5s infinite;
-        }
-        
-        @keyframes pulse {
+        @keyframes pulse-badge {
           0%, 100% {
             opacity: 1;
             transform: scale(1);
           }
           50% {
-            opacity: 0.7;
-            transform: scale(1.1);
+            opacity: 0.8;
+            transform: scale(1.05);
           }
         }
         
-        .stats-section {
-          margin-top: auto;
-          padding-top: 16px;
-          border-top: 1px solid rgba(243, 238, 217, 0.1);
-          margin-bottom: 16px;
+        .nav-highlight {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 28px;
+          height: 28px;
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 50%;
+          color: #F3EED9;
+          animation: sparkle 2s ease-in-out infinite;
         }
         
-        .stats-section:last-child {
-          margin-bottom: 0;
+        @keyframes sparkle {
+          0%, 100% {
+            opacity: 0.7;
+            transform: rotate(0deg) scale(1);
+          }
+          50% {
+            opacity: 1;
+            transform: rotate(180deg) scale(1.1);
+          }
+        }
+        
+        .nav-indicator {
+          width: 10px;
+          height: 10px;
+          background: #C2571B;
+          border-radius: 50%;
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          animation: pulse-badge 2s infinite;
+          border: 2px solid rgba(243, 238, 217, 0.3);
+        }
+        
+        .nav-indicator.urgent {
+          background: #DC2626;
+          animation: pulse-urgent 1.5s infinite;
+        }
+        
+        .stats-section {
+          margin-bottom: 24px;
+          padding-top: 20px;
+          border-top: 1px solid rgba(243, 238, 217, 0.1);
+        }
+        
+        .stats-section:first-of-type {
+          border-top: none;
+          padding-top: 0;
+        }
+        
+        .stats-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 16px;
         }
         
         .stats-title {
           font-size: 11px;
-          font-weight: 600;
+          font-weight: 700;
           text-transform: uppercase;
-          letter-spacing: 0.8px;
+          letter-spacing: 1px;
           color: rgba(243, 238, 217, 0.6);
-          margin-bottom: 12px;
-          margin-top: 0;
-          padding: 0 4px;
+          margin: 0;
+        }
+        
+        .popularity-score {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 10px;
+          color: rgba(243, 238, 217, 0.8);
+          font-weight: 600;
         }
         
         .stats-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 8px;
+          gap: 12px;
         }
         
         .stat-card {
           background: rgba(243, 238, 217, 0.08);
-          border-radius: 8px;
-          padding: 12px 8px;
+          border-radius: 12px;
+          padding: 14px 12px;
           display: flex;
-          flex-direction: column;
           align-items: center;
-          gap: 6px;
+          gap: 12px;
           transition: all 0.2s ease;
           border: 1px solid rgba(243, 238, 217, 0.1);
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .stat-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, rgba(243, 238, 217, 0.05) 0%, transparent 100%);
+          opacity: 0;
+          transition: opacity 0.2s ease;
         }
         
         .stat-card:hover {
@@ -594,17 +888,38 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           transform: translateY(-1px);
         }
         
+        .stat-card:hover::before {
+          opacity: 1;
+        }
+        
+        .stat-card.urgent {
+          background: rgba(220, 38, 38, 0.15);
+          border-color: rgba(220, 38, 38, 0.3);
+          animation: pulse-card 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-card {
+          0%, 100% {
+            background: rgba(220, 38, 38, 0.15);
+          }
+          50% {
+            background: rgba(220, 38, 38, 0.2);
+          }
+        }
+        
         .stat-icon {
           opacity: 0.9;
+          flex-shrink: 0;
         }
         
         .stat-content {
-          text-align: center;
+          flex: 1;
+          min-width: 0;
         }
         
         .stat-value {
-          font-size: 16px;
-          font-weight: 700;
+          font-size: 18px;
+          font-weight: 800;
           line-height: 1.2;
           color: #F3EED9;
           margin-bottom: 2px;
@@ -615,50 +930,173 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           color: rgba(243, 238, 217, 0.7);
           line-height: 1.2;
           text-transform: uppercase;
-          letter-spacing: 0.3px;
-        }
-        
-        /* Alerte pour les retards */
-        .overdue-alert {
-          background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
-          color: #FFFFFF;
-          padding: 12px;
-          border-radius: 8px;
-          margin: 16px 0;
-          font-size: 12px;
-          font-weight: 600;
-          text-align: center;
-          animation: pulse 3s infinite;
-        }
-        
-        /* États spéciaux */
-        .urgent-section {
-          background: rgba(220, 38, 38, 0.1);
-          border: 1px solid rgba(220, 38, 38, 0.2);
-          border-radius: 8px;
-          padding: 12px;
-          margin: 16px 0;
-        }
-        
-        .urgent-title {
-          font-size: 11px;
-          font-weight: 700;
-          color: #DC2626;
-          text-transform: uppercase;
           letter-spacing: 0.5px;
-          margin-bottom: 8px;
+          font-weight: 600;
+        }
+        
+        .stat-trend {
+          font-size: 9px;
+          color: #4CAF50;
+          font-weight: 600;
+          margin-top: 2px;
+        }
+        
+        .stat-percentage {
+          font-size: 9px;
+          color: rgba(243, 238, 217, 0.8);
+          font-weight: 600;
+          margin-top: 2px;
+        }
+        
+        .users-stats {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-bottom: 16px;
+        }
+        
+        .user-stat {
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 12px;
+          background: rgba(243, 238, 217, 0.06);
+          border-radius: 10px;
+          padding: 12px;
+          border: 1px solid rgba(243, 238, 217, 0.1);
         }
         
-        .urgent-content {
+        .user-stat-icon {
+          opacity: 0.9;
+        }
+        
+        .user-stat-content {
+          flex: 1;
+        }
+        
+        .user-stat-value {
+          font-size: 16px;
+          font-weight: 700;
+          color: #F3EED9;
+          line-height: 1.2;
+        }
+        
+        .user-stat-label {
+          font-size: 11px;
+          color: rgba(243, 238, 217, 0.7);
+          font-weight: 500;
+        }
+        
+        .total-users {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 16px;
+          background: rgba(243, 238, 217, 0.1);
+          border-radius: 12px;
+          border: 1px solid rgba(243, 238, 217, 0.2);
+        }
+        
+        .total-label {
           font-size: 12px;
-          color: #FFFFFF;
+          color: rgba(243, 238, 217, 0.8);
+          font-weight: 600;
+        }
+        
+        .total-value {
+          font-size: 16px;
+          font-weight: 800;
+          color: #F3EED9;
+        }
+        
+        .activity-section {
+          margin-top: auto;
+        }
+        
+        .activity-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 16px;
+        }
+        
+        .activity-pulse {
+          width: 8px;
+          height: 8px;
+          background: #4CAF50;
+          border-radius: 50%;
+          animation: pulse-activity 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-activity {
+          0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.6;
+            transform: scale(1.3);
+          }
+        }
+        
+        .activity-summary {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .activity-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 11px;
+          color: rgba(243, 238, 217, 0.8);
           line-height: 1.3;
         }
         
-        /* Responsive */
+        .activity-item.urgent {
+          color: #FFCDD2;
+        }
+        
+        .activity-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+        
+        .activity-dot.available {
+          background: #4CAF50;
+        }
+        
+        .activity-dot.borrowed {
+          background: #FF9800;
+        }
+        
+        .activity-dot.overdue {
+          background: #F44336;
+          animation: pulse-urgent 1.5s infinite;
+        }
+        
+        /* Enhanced scrollbar */
+        .sidebar-content::-webkit-scrollbar {
+          width: 4px;
+        }
+        
+        .sidebar-content::-webkit-scrollbar-track {
+          background: rgba(243, 238, 217, 0.1);
+          border-radius: 2px;
+        }
+        
+        .sidebar-content::-webkit-scrollbar-thumb {
+          background: rgba(243, 238, 217, 0.3);
+          border-radius: 2px;
+        }
+        
+        .sidebar-content::-webkit-scrollbar-thumb:hover {
+          background: rgba(243, 238, 217, 0.5);
+        }
+        
+        /* Responsive Design */
         @media (max-width: 768px) {
           .sidebar {
             width: 100%;
@@ -667,6 +1105,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
             border-right: none;
             border-bottom: 1px solid rgba(46, 69, 58, 0.3);
             overflow-x: auto;
+            background: linear-gradient(90deg, #3E5C49 0%, #2E453A 100%);
           }
           
           .sidebar.collapsed {
@@ -679,10 +1118,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           
           .sidebar-content {
             flex: 1;
-            padding: 8px 16px;
+            padding: 16px 20px;
             overflow-x: auto;
             display: flex;
-            gap: 16px;
+            gap: 20px;
+            overflow-y: visible;
           }
           
           .nav-section {
@@ -692,51 +1132,59 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           
           .nav-list {
             flex-direction: row;
-            gap: 8px;
+            gap: 12px;
           }
           
           .nav-button {
             flex-direction: column;
-            gap: 4px;
-            padding: 8px 12px;
-            min-width: 64px;
+            gap: 6px;
+            padding: 12px 16px;
+            min-width: 80px;
             white-space: nowrap;
+            border-radius: 12px;
           }
           
           .nav-content {
             align-items: center;
+            text-align: center;
           }
           
           .nav-label {
-            font-size: 11px;
+            font-size: 12px;
           }
           
           .nav-description {
             display: none;
           }
           
-          .stats-section {
-            display: none;
+          .nav-count {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 10px;
+            padding: 2px 6px;
+            min-width: 16px;
           }
           
-          .urgent-section {
+          .stats-section,
+          .activity-section {
             display: none;
           }
         }
         
         @media (max-width: 480px) {
           .sidebar-content {
-            padding: 8px;
-            gap: 8px;
+            padding: 12px 16px;
+            gap: 16px;
           }
           
           .nav-button {
-            min-width: 56px;
-            padding: 6px 8px;
+            min-width: 70px;
+            padding: 10px 12px;
           }
           
           .nav-label {
-            font-size: 10px;
+            font-size: 11px;
           }
           
           .nav-count {
@@ -744,20 +1192,117 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
             padding: 1px 4px;
           }
         }
+        
+        /* Performance optimizations */
+        .nav-button {
+          contain: layout style paint;
+        }
+        
+        .stat-card {
+          contain: layout style paint;
+        }
+        
+        /* Accessibility improvements */
+        @media (prefers-reduced-motion: reduce) {
+          .nav-button,
+          .stat-card,
+          .toggle-button,
+          .activity-pulse,
+          .nav-highlight {
+            transition: none;
+            animation: none;
+          }
+          
+          .nav-button:hover {
+            transform: none;
+          }
+        }
+        
+        /* High contrast mode */
+        @media (prefers-contrast: high) {
+          .nav-button {
+            border: 2px solid rgba(243, 238, 217, 0.5);
+          }
+          
+          .nav-button.active {
+            border-color: #F3EED9;
+          }
+          
+          .stat-card {
+            border-width: 2px;
+          }
+        }
       `}</style>
       
-      {/* Alerte pour les livres en retard */}
+      {/* Emergency Alert for Overdue Books */}
       {!isCollapsed && stats.overdueBooks > 0 && (
-        <div className="urgent-section">
-          <div className="urgent-title">
-            <Clock size={12} />
-            Attention
+        <div className="emergency-alert">
+          <div className="alert-icon">
+            <Clock size={16} />
           </div>
-          <div className="urgent-content">
-            {stats.overdueBooks} livre(s) en retard
+          <div className="alert-content">
+            <div className="alert-title">Action requise</div>
+            <div className="alert-message">
+              {stats.overdueBooks} livre(s) en retard
+            </div>
           </div>
         </div>
       )}
+      
+      <style>{`
+        .emergency-alert {
+          margin: 16px 20px;
+          background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+          color: #FFFFFF;
+          padding: 16px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          animation: pulse-alert 3s ease-in-out infinite;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
+        }
+        
+        @keyframes pulse-alert {
+          0%, 100% {
+            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
+          }
+          50% {
+            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.5);
+          }
+        }
+        
+        .alert-icon {
+          width: 32px;
+          height: 32px;
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        
+        .alert-content {
+          flex: 1;
+        }
+        
+        .alert-title {
+          font-size: 12px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 2px;
+          opacity: 0.9;
+        }
+        
+        .alert-message {
+          font-size: 13px;
+          font-weight: 600;
+          line-height: 1.3;
+        }
+      `}</style>
     </div>
   );
 };

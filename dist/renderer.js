@@ -53170,6 +53170,8 @@ const BorrowedBooks_1 = __webpack_require__(/*! ./components/BorrowedBooks */ ".
 const AddBook_1 = __webpack_require__(/*! ./components/AddBook */ "./src/renderer/components/AddBook.tsx");
 const Borrowers_1 = __webpack_require__(/*! ./components/Borrowers */ "./src/renderer/components/Borrowers.tsx");
 const BorrowHistory_1 = __webpack_require__(/*! ./components/BorrowHistory */ "./src/renderer/components/BorrowHistory.tsx");
+const Donation_1 = __webpack_require__(/*! ./components/Donation */ "./src/renderer/components/Donation.tsx");
+const About_1 = __webpack_require__(/*! ./components/About */ "./src/renderer/components/About.tsx");
 const App = () => {
     const [currentView, setCurrentView] = (0, react_1.useState)('dashboard');
     const [books, setBooks] = (0, react_1.useState)([]);
@@ -53188,7 +53190,6 @@ const App = () => {
         totalStaff: 0,
         overdueBooks: 0
     });
-    const [searchQuery, setSearchQuery] = (0, react_1.useState)('');
     const [showBorrowModal, setShowBorrowModal] = (0, react_1.useState)(false);
     const [selectedBook, setSelectedBook] = (0, react_1.useState)(null);
     (0, react_1.useEffect)(() => {
@@ -53258,31 +53259,20 @@ const App = () => {
             throw error;
         }
     };
-    const handleSearch = async (query) => {
-        setSearchQuery(query);
-        if (query.trim()) {
-            try {
-                const searchResults = await window.electronAPI.searchBooks(query);
-                setBooks(searchResults);
-            }
-            catch (error) {
-                console.error('Erreur lors de la recherche:', error);
-            }
-        }
-        else {
-            await loadData();
-        }
-    };
     const openBorrowModal = (book) => {
         setSelectedBook(book);
         setShowBorrowModal(true);
+    };
+    const closeBorrowModal = () => {
+        setShowBorrowModal(false);
+        setSelectedBook(null);
     };
     const renderCurrentView = () => {
         switch (currentView) {
             case 'dashboard':
                 return ((0, jsx_runtime_1.jsx)(Dashboard_1.Dashboard, { stats: stats, onNavigate: setCurrentView, books: books, categories: categories }));
             case 'books':
-                return ((0, jsx_runtime_1.jsx)(BookList_1.BookList, { books: books, onBorrow: (book) => openBorrowModal(book), onDelete: handleDeleteBook, onSearch: handleSearch, searchQuery: searchQuery }));
+                return ((0, jsx_runtime_1.jsx)(BookList_1.BookList, { books: books, onBorrow: openBorrowModal, onDelete: handleDeleteBook }));
             case 'borrowed':
                 return ((0, jsx_runtime_1.jsx)(BorrowedBooks_1.BorrowedBooks, { books: borrowedBooks.map(bh => ({
                         ...bh.book,
@@ -53302,11 +53292,15 @@ const App = () => {
                 return ((0, jsx_runtime_1.jsx)(Borrowers_1.Borrowers, { onClose: () => setCurrentView('dashboard') }));
             case 'history':
                 return ((0, jsx_runtime_1.jsx)(BorrowHistory_1.BorrowHistory, { onClose: () => setCurrentView('dashboard') }));
+            case 'donation':
+                return ((0, jsx_runtime_1.jsx)(Donation_1.Donation, { onClose: () => setCurrentView('dashboard') }));
+            case 'about':
+                return ((0, jsx_runtime_1.jsx)(About_1.About, { onClose: () => setCurrentView('dashboard') }));
             default:
                 return ((0, jsx_runtime_1.jsx)(Dashboard_1.Dashboard, { stats: stats, onNavigate: setCurrentView, books: books, categories: categories }));
         }
     };
-    return ((0, jsx_runtime_1.jsxs)("div", { className: "app", children: [(0, jsx_runtime_1.jsx)(TitleBar_1.TitleBar, {}), (0, jsx_runtime_1.jsxs)("div", { className: "app-container", children: [(0, jsx_runtime_1.jsx)(Sidebar_1.Sidebar, { currentView: currentView, onNavigate: setCurrentView, stats: stats }), (0, jsx_runtime_1.jsx)("main", { className: "main-content", children: (0, jsx_runtime_1.jsx)("div", { className: "content-wrapper", children: renderCurrentView() }) })] }), showBorrowModal && selectedBook && ((0, jsx_runtime_1.jsx)("div", { className: "borrow-modal-overlay", children: (0, jsx_runtime_1.jsxs)("div", { className: "borrow-modal", children: [(0, jsx_runtime_1.jsxs)("div", { className: "modal-header", children: [(0, jsx_runtime_1.jsxs)("div", { className: "header-content", children: [(0, jsx_runtime_1.jsx)("h3", { children: "Emprunter un livre" }), (0, jsx_runtime_1.jsx)("p", { children: "S\u00E9lectionnez l'emprunteur et d\u00E9finissez la date de retour" })] }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close", onClick: () => setShowBorrowModal(false), children: "\u00D7" })] }), (0, jsx_runtime_1.jsx)(BorrowForm, { book: selectedBook, borrowers: borrowers, onSubmit: handleBorrowBook, onCancel: () => setShowBorrowModal(false) })] }) })), (0, jsx_runtime_1.jsx)("style", { children: `
+    return ((0, jsx_runtime_1.jsxs)("div", { className: "app", children: [(0, jsx_runtime_1.jsx)(TitleBar_1.TitleBar, {}), (0, jsx_runtime_1.jsxs)("div", { className: "app-container", children: [(0, jsx_runtime_1.jsx)(Sidebar_1.Sidebar, { currentView: currentView, onNavigate: setCurrentView, stats: stats }), (0, jsx_runtime_1.jsx)("main", { className: "main-content", children: (0, jsx_runtime_1.jsx)("div", { className: "content-wrapper", children: renderCurrentView() }) })] }), showBorrowModal && selectedBook && ((0, jsx_runtime_1.jsx)("div", { className: "borrow-modal-overlay", children: (0, jsx_runtime_1.jsxs)("div", { className: "borrow-modal", children: [(0, jsx_runtime_1.jsxs)("div", { className: "modal-header", children: [(0, jsx_runtime_1.jsxs)("div", { className: "header-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "header-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "24", height: "24", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.1 3.89 23 5 23H19C20.1 23 21 22.1 21 21V9ZM19 21H5V3H13V9H19V21Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "header-text", children: [(0, jsx_runtime_1.jsx)("h3", { children: "Nouvel emprunt" }), (0, jsx_runtime_1.jsx)("p", { children: "S\u00E9lectionnez un emprunteur et d\u00E9finissez la dur\u00E9e" })] })] }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close", onClick: closeBorrowModal, children: "\u00D7" })] }), (0, jsx_runtime_1.jsx)(EnhancedBorrowForm, { book: selectedBook, borrowers: borrowers, onSubmit: handleBorrowBook, onCancel: closeBorrowModal })] }) })), (0, jsx_runtime_1.jsx)("style", { children: `
         .app {
           height: 100vh;
           display: flex;
@@ -53337,74 +53331,136 @@ const App = () => {
           box-shadow: -2px 0 8px rgba(0, 0, 0, 0.08);
         }
 
-        /* Modern Borrow Modal */
+        /* Enhanced Borrow Modal */
         .borrow-modal-overlay {
           position: fixed;
           top: 0;
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(46, 46, 46, 0.7);
-          backdrop-filter: blur(8px);
+          background: rgba(46, 46, 46, 0.75);
+          backdrop-filter: blur(12px);
           display: flex;
           align-items: center;
           justify-content: center;
           z-index: 1000;
           padding: 20px;
+          animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; backdrop-filter: blur(0px); }
+          to { opacity: 1; backdrop-filter: blur(12px); }
         }
         
         .borrow-modal {
           background: #FFFFFF;
-          border-radius: 20px;
+          border-radius: 24px;
           width: 100%;
-          max-width: 600px;
+          max-width: 700px;
           max-height: 90vh;
           overflow-y: auto;
-          box-shadow: 0 20px 40px rgba(62, 92, 73, 0.2);
+          box-shadow: 
+            0 32px 64px rgba(62, 92, 73, 0.25),
+            0 16px 32px rgba(62, 92, 73, 0.15);
           border: 1px solid rgba(229, 220, 194, 0.3);
+          animation: slideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        @keyframes slideUp {
+          from { 
+            opacity: 0;
+            transform: translateY(32px) scale(0.95);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
         }
         
         .modal-header {
           display: flex;
           align-items: flex-start;
           justify-content: space-between;
-          padding: 24px 32px;
-          border-bottom: 1px solid #E5DCC2;
-          background: #F3EED9;
+          padding: 32px 32px 24px;
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+          position: relative;
+          overflow: hidden;
         }
         
-        .header-content h3 {
-          font-size: 20px;
+        .modal-header::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 200px;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(243, 238, 217, 0.1));
+          transform: skewX(-15deg);
+          transform-origin: top;
+        }
+        
+        .header-content {
+          display: flex;
+          align-items: flex-start;
+          gap: 20px;
+          position: relative;
+          z-index: 1;
+        }
+        
+        .header-icon {
+          width: 48px;
+          height: 48px;
+          background: rgba(243, 238, 217, 0.2);
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(243, 238, 217, 0.3);
+        }
+        
+        .header-text h3 {
+          font-size: 22px;
           font-weight: 700;
-          color: #2E2E2E;
-          margin: 0 0 4px 0;
+          color: #F3EED9;
+          margin: 0 0 6px 0;
+          letter-spacing: -0.3px;
         }
         
-        .header-content p {
+        .header-text p {
           font-size: 14px;
-          color: #6E6E6E;
+          color: rgba(243, 238, 217, 0.9);
           margin: 0;
+          line-height: 1.4;
         }
         
         .modal-close {
-          background: rgba(110, 110, 110, 0.1);
-          border: none;
+          background: rgba(243, 238, 217, 0.1);
+          border: 1px solid rgba(243, 238, 217, 0.2);
           cursor: pointer;
-          padding: 8px;
-          border-radius: 8px;
-          color: #6E6E6E;
+          padding: 12px;
+          border-radius: 12px;
+          color: #F3EED9;
           font-size: 24px;
-          width: 32px;
-          height: 32px;
+          width: 44px;
+          height: 44px;
           display: flex;
           align-items: center;
           justify-content: center;
           transition: all 0.2s ease;
+          position: relative;
+          z-index: 1;
         }
         
         .modal-close:hover {
-          background: rgba(110, 110, 110, 0.2);
-          color: #2E2E2E;
+          background: rgba(243, 238, 217, 0.2);
+          transform: scale(1.05);
+        }
+        
+        .modal-close:active {
+          transform: scale(0.95);
         }
         
         /* Smooth animations */
@@ -53412,60 +53468,48 @@ const App = () => {
           transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         
-        /* Microsoft Store inspired scrollbars */
+        /* Enhanced scrollbars */
         ::-webkit-scrollbar {
-          width: 14px;
-          height: 14px;
+          width: 16px;
+          height: 16px;
         }
         
         ::-webkit-scrollbar-track {
           background: #F3EED9;
-          border-radius: 8px;
+          border-radius: 10px;
+          border: 2px solid #FFFFFF;
         }
         
         ::-webkit-scrollbar-thumb {
-          background: #3E5C49;
-          border-radius: 8px;
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          border-radius: 10px;
           border: 3px solid #F3EED9;
         }
         
         ::-webkit-scrollbar-thumb:hover {
-          background: #2E453A;
+          background: linear-gradient(135deg, #2E453A 0%, #1E2F25 100%);
         }
         
         ::-webkit-scrollbar-corner {
           background: #F3EED9;
         }
         
-        /* Modern card shadows */
-        .card-shadow {
-          box-shadow: 
-            0 2px 8px rgba(62, 92, 73, 0.08),
-            0 1px 4px rgba(62, 92, 73, 0.12);
-        }
-        
-        .card-shadow:hover {
-          box-shadow: 
-            0 8px 24px rgba(62, 92, 73, 0.12),
-            0 4px 12px rgba(62, 92, 73, 0.16);
-        }
-        
-        /* Focus states */
+        /* Enhanced focus states */
         button:focus-visible,
         input:focus-visible,
         textarea:focus-visible,
         select:focus-visible {
-          outline: 2px solid #3E5C49;
+          outline: 3px solid rgba(62, 92, 73, 0.4);
           outline-offset: 2px;
         }
         
-        /* Selection color */
+        /* Enhanced selection color */
         ::selection {
-          background: #3E5C49;
-          color: #F3EED9;
+          background: rgba(62, 92, 73, 0.2);
+          color: #2E453A;
         }
         
-        /* Responsive */
+        /* Responsive enhancements */
         @media (max-width: 768px) {
           .app-container {
             flex-direction: column;
@@ -53478,27 +53522,96 @@ const App = () => {
           
           .borrow-modal {
             margin: 12px;
+            border-radius: 20px;
+            max-height: calc(100vh - 24px);
+          }
+          
+          .modal-header {
+            padding: 24px 20px 20px;
+          }
+          
+          .header-content {
+            flex-direction: column;
+            gap: 16px;
+          }
+          
+          .header-icon {
+            align-self: center;
+          }
+          
+          .header-text {
+            text-align: center;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .borrow-modal-overlay {
+            padding: 8px;
+          }
+          
+          .borrow-modal {
             border-radius: 16px;
+          }
+          
+          .modal-header {
+            padding: 20px 16px 16px;
+          }
+          
+          .header-text h3 {
+            font-size: 20px;
           }
         }
       ` })] }));
 };
 exports.App = App;
-const BorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
+const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
     const [selectedBorrower, setSelectedBorrower] = (0, react_1.useState)(null);
     const [expectedReturnDate, setExpectedReturnDate] = (0, react_1.useState)('');
     const [isLoading, setIsLoading] = (0, react_1.useState)(false);
     const [searchQuery, setSearchQuery] = (0, react_1.useState)('');
+    const [filterType, setFilterType] = (0, react_1.useState)('all');
+    const [borrowDuration, setBorrowDuration] = (0, react_1.useState)('2weeks');
     // Calculer la date par défaut (dans 2 semaines)
     react_1.default.useEffect(() => {
-        const defaultDate = new Date();
-        defaultDate.setDate(defaultDate.getDate() + 14);
-        setExpectedReturnDate(defaultDate.toISOString().split('T')[0]);
-    }, []);
-    const filteredBorrowers = borrowers.filter(borrower => `${borrower.firstName} ${borrower.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        borrower.matricule.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (borrower.classe && borrower.classe.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (borrower.position && borrower.position.toLowerCase().includes(searchQuery.toLowerCase())));
+        updateDateFromDuration(borrowDuration);
+    }, [borrowDuration]);
+    const updateDateFromDuration = (duration) => {
+        const today = new Date();
+        let targetDate = new Date(today);
+        switch (duration) {
+            case '1week':
+                targetDate.setDate(today.getDate() + 7);
+                break;
+            case '2weeks':
+                targetDate.setDate(today.getDate() + 14);
+                break;
+            case '1month':
+                targetDate.setMonth(today.getMonth() + 1);
+                break;
+            default:
+                return; // Pour 'custom', ne pas changer
+        }
+        setExpectedReturnDate(targetDate.toISOString().split('T')[0]);
+    };
+    const filteredBorrowers = borrowers.filter(borrower => {
+        // Filtre par type
+        if (filterType !== 'all' && borrower.type !== filterType)
+            return false;
+        // Filtre par recherche
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            return (borrower.firstName.toLowerCase().includes(query) ||
+                borrower.lastName.toLowerCase().includes(query) ||
+                borrower.matricule.toLowerCase().includes(query) ||
+                (borrower.classe && borrower.classe.toLowerCase().includes(query)) ||
+                (borrower.position && borrower.position.toLowerCase().includes(query)));
+        }
+        return true;
+    });
+    // Suggestions basées sur l'activité récente
+    const getSuggestedBorrowers = () => {
+        return filteredBorrowers.slice(0, 6); // Top 6 pour les suggestions
+    };
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!selectedBorrower || !expectedReturnDate)
@@ -53515,36 +53628,70 @@ const BorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
         }
     };
     const selectedBorrowerData = borrowers.find(b => b.id === selectedBorrower);
-    return ((0, jsx_runtime_1.jsxs)("form", { onSubmit: handleSubmit, className: "borrow-form", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-info-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "book-cover", children: book.coverUrl ? ((0, jsx_runtime_1.jsx)("img", { src: book.coverUrl, alt: book.title })) : ((0, jsx_runtime_1.jsx)("div", { className: "book-placeholder", children: "\uD83D\uDCDA" })) }), (0, jsx_runtime_1.jsxs)("div", { className: "book-details", children: [(0, jsx_runtime_1.jsxs)("h4", { className: "book-title", children: ["\"", book.title, "\""] }), (0, jsx_runtime_1.jsxs)("p", { className: "book-author", children: ["par ", book.author] }), (0, jsx_runtime_1.jsx)("span", { className: "book-category", children: book.category })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Emprunteur *" }), (0, jsx_runtime_1.jsx)("div", { className: "borrower-search", children: (0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "Rechercher un emprunteur...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }) }), (0, jsx_runtime_1.jsx)("div", { className: "borrowers-list", children: filteredBorrowers.length > 0 ? (filteredBorrowers.map((borrower) => ((0, jsx_runtime_1.jsxs)("div", { className: `borrower-option ${selectedBorrower === borrower.id ? 'selected' : ''}`, onClick: () => setSelectedBorrower(borrower.id), children: [(0, jsx_runtime_1.jsxs)("div", { className: "borrower-type-badge", children: [borrower.type === 'student' ? '🎓' : '👔', (0, jsx_runtime_1.jsx)("span", { children: borrower.type === 'student' ? 'Étudiant' : 'Personnel' })] }), (0, jsx_runtime_1.jsxs)("div", { className: "borrower-info", children: [(0, jsx_runtime_1.jsxs)("div", { className: "borrower-name", children: [borrower.firstName, " ", borrower.lastName] }), (0, jsx_runtime_1.jsxs)("div", { className: "borrower-details", children: [borrower.matricule, borrower.type === 'student' && borrower.classe && ` • ${borrower.classe}`, borrower.type === 'staff' && borrower.position && ` • ${borrower.position}`] })] }), (0, jsx_runtime_1.jsx)("div", { className: "selection-indicator", children: selectedBorrower === borrower.id && '✓' })] }, borrower.id)))) : ((0, jsx_runtime_1.jsx)("div", { className: "no-borrowers", children: searchQuery ? 'Aucun emprunteur trouvé' : 'Aucun emprunteur disponible' })) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Date de retour pr\u00E9vue *" }), (0, jsx_runtime_1.jsx)("input", { type: "date", value: expectedReturnDate, onChange: (e) => setExpectedReturnDate(e.target.value), className: "date-input", min: new Date().toISOString().split('T')[0], required: true }), (0, jsx_runtime_1.jsx)("small", { className: "form-hint", children: "Date recommand\u00E9e : 2 semaines \u00E0 partir d'aujourd'hui" })] }), selectedBorrowerData && ((0, jsx_runtime_1.jsxs)("div", { className: "selected-summary", children: [(0, jsx_runtime_1.jsx)("h4", { children: "R\u00E9sum\u00E9 de l'emprunt" }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "summary-item", children: [(0, jsx_runtime_1.jsx)("span", { className: "label", children: "Livre :" }), (0, jsx_runtime_1.jsx)("span", { className: "value", children: book.title })] }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-item", children: [(0, jsx_runtime_1.jsx)("span", { className: "label", children: "Emprunteur :" }), (0, jsx_runtime_1.jsxs)("span", { className: "value", children: [selectedBorrowerData.firstName, " ", selectedBorrowerData.lastName, (0, jsx_runtime_1.jsx)("span", { className: "type-badge", children: selectedBorrowerData.type === 'student' ? 'Étudiant' : 'Personnel' })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-item", children: [(0, jsx_runtime_1.jsx)("span", { className: "label", children: "Retour pr\u00E9vu :" }), (0, jsx_runtime_1.jsx)("span", { className: "value", children: new Date(expectedReturnDate).toLocaleDateString('fr-FR', {
-                                            weekday: 'long',
-                                            year: 'numeric',
-                                            month: 'long',
-                                            day: 'numeric'
-                                        }) })] })] })] })), (0, jsx_runtime_1.jsxs)("div", { className: "form-actions", children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "btn-secondary", onClick: onCancel, disabled: isLoading, children: "Annuler" }), (0, jsx_runtime_1.jsx)("button", { type: "submit", className: "btn-primary", disabled: !selectedBorrower || !expectedReturnDate || isLoading, children: isLoading ? 'Emprunt en cours...' : 'Confirmer l\'emprunt' })] }), (0, jsx_runtime_1.jsx)("style", { children: `
-        .borrow-form {
+    const suggestedBorrowers = getSuggestedBorrowers();
+    return ((0, jsx_runtime_1.jsxs)("form", { onSubmit: handleSubmit, className: "enhanced-borrow-form", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-info-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "book-cover", children: book.coverUrl ? ((0, jsx_runtime_1.jsx)("img", { src: book.coverUrl, alt: book.title })) : ((0, jsx_runtime_1.jsx)("div", { className: "book-placeholder", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "32", height: "32", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2ZM18 20H6V4H18V20Z" }) }) })) }), (0, jsx_runtime_1.jsxs)("div", { className: "book-details", children: [(0, jsx_runtime_1.jsxs)("h4", { className: "book-title", children: ["\"", book.title, "\""] }), (0, jsx_runtime_1.jsxs)("p", { className: "book-author", children: ["par ", book.author] }), (0, jsx_runtime_1.jsxs)("div", { className: "book-meta", children: [(0, jsx_runtime_1.jsx)("span", { className: "book-category", children: book.category }), book.publishedDate && (0, jsx_runtime_1.jsx)("span", { className: "book-year", children: book.publishedDate })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Dur\u00E9e d'emprunt" }), (0, jsx_runtime_1.jsx)("div", { className: "duration-selector", children: [
+                            { id: '1week', label: '1 semaine', recommended: false },
+                            { id: '2weeks', label: '2 semaines', recommended: true },
+                            { id: '1month', label: '1 mois', recommended: false },
+                            { id: 'custom', label: 'Personnalisé', recommended: false }
+                        ].map((duration) => ((0, jsx_runtime_1.jsxs)("button", { type: "button", className: `duration-button ${borrowDuration === duration.id ? 'selected' : ''} ${duration.recommended ? 'recommended' : ''}`, onClick: () => setBorrowDuration(duration.id), children: [duration.label, duration.recommended && (0, jsx_runtime_1.jsx)("span", { className: "recommended-badge", children: "Recommand\u00E9" })] }, duration.id))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Date de retour pr\u00E9vue *" }), (0, jsx_runtime_1.jsx)("input", { type: "date", value: expectedReturnDate, onChange: (e) => {
+                            setExpectedReturnDate(e.target.value);
+                            setBorrowDuration('custom');
+                        }, className: "date-input", min: new Date().toISOString().split('T')[0], required: true }), (0, jsx_runtime_1.jsx)("small", { className: "form-hint", children: borrowDuration !== 'custom' && `Durée sélectionnée : ${borrowDuration === '1week' ? '7 jours' :
+                            borrowDuration === '2weeks' ? '14 jours' : '1 mois'}` })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Emprunteur *" }), (0, jsx_runtime_1.jsxs)("div", { className: "borrower-filters", children: [(0, jsx_runtime_1.jsxs)("div", { className: "search-container", children: [(0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "Rechercher un emprunteur...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }), (0, jsx_runtime_1.jsx)("svg", { className: "search-icon", viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3S3 5.91 3 9.5S5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14Z" }) })] }), (0, jsx_runtime_1.jsx)("div", { className: "type-filter", children: (0, jsx_runtime_1.jsxs)("select", { value: filterType, onChange: (e) => setFilterType(e.target.value), className: "filter-select", children: [(0, jsx_runtime_1.jsx)("option", { value: "all", children: "Tous" }), (0, jsx_runtime_1.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0, jsx_runtime_1.jsx)("option", { value: "staff", children: "Personnel" })] }) })] }), !searchQuery && ((0, jsx_runtime_1.jsxs)("div", { className: "suggestions-section", children: [(0, jsx_runtime_1.jsx)("h5", { className: "suggestions-title", children: "Suggestions rapides" }), (0, jsx_runtime_1.jsx)("div", { className: "suggestions-grid", children: suggestedBorrowers.slice(0, 4).map((borrower) => ((0, jsx_runtime_1.jsxs)("button", { type: "button", className: `suggestion-card ${selectedBorrower === borrower.id ? 'selected' : ''}`, onClick: () => setSelectedBorrower(borrower.id), children: [(0, jsx_runtime_1.jsx)("div", { className: "suggestion-avatar", children: borrower.type === 'student' ? '🎓' : '👔' }), (0, jsx_runtime_1.jsxs)("div", { className: "suggestion-info", children: [(0, jsx_runtime_1.jsxs)("div", { className: "suggestion-name", children: [borrower.firstName, " ", borrower.lastName] }), (0, jsx_runtime_1.jsx)("div", { className: "suggestion-details", children: borrower.matricule })] })] }, borrower.id))) })] })), (0, jsx_runtime_1.jsxs)("div", { className: "borrowers-list", children: [(0, jsx_runtime_1.jsxs)("div", { className: "list-header", children: [(0, jsx_runtime_1.jsx)("span", { children: "Nom" }), (0, jsx_runtime_1.jsx)("span", { children: "Type" }), (0, jsx_runtime_1.jsx)("span", { children: "Matricule" }), (0, jsx_runtime_1.jsx)("span", { children: "Classe/Poste" })] }), (0, jsx_runtime_1.jsx)("div", { className: "list-content", children: filteredBorrowers.length > 0 ? (filteredBorrowers.map((borrower) => ((0, jsx_runtime_1.jsxs)("div", { className: `borrower-row ${selectedBorrower === borrower.id ? 'selected' : ''}`, onClick: () => setSelectedBorrower(borrower.id), children: [(0, jsx_runtime_1.jsxs)("div", { className: "borrower-name", children: [(0, jsx_runtime_1.jsxs)("div", { className: "name-main", children: [borrower.firstName, " ", borrower.lastName] }), (0, jsx_runtime_1.jsx)("div", { className: "name-sub", children: borrower.email })] }), (0, jsx_runtime_1.jsx)("div", { className: "borrower-type", children: (0, jsx_runtime_1.jsx)("span", { className: `type-badge ${borrower.type}`, children: borrower.type === 'student' ? 'Étudiant' : 'Personnel' }) }), (0, jsx_runtime_1.jsx)("div", { className: "borrower-matricule", children: borrower.matricule }), (0, jsx_runtime_1.jsx)("div", { className: "borrower-extra", children: borrower.type === 'student' ? borrower.classe : borrower.position }), (0, jsx_runtime_1.jsx)("div", { className: "selection-indicator", children: selectedBorrower === borrower.id && ((0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" }) })) })] }, borrower.id)))) : ((0, jsx_runtime_1.jsxs)("div", { className: "no-borrowers", children: [(0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "48", height: "48", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.1 3.89 23 5 23H19C20.1 23 21 22.1 21 21V9Z" }) }), (0, jsx_runtime_1.jsx)("p", { children: "Aucun emprunteur trouv\u00E9" }), (0, jsx_runtime_1.jsx)("small", { children: searchQuery ? `pour "${searchQuery}"` : 'Essayez de modifier les filtres' })] })) })] })] }), selectedBorrowerData && ((0, jsx_runtime_1.jsxs)("div", { className: "selected-summary", children: [(0, jsx_runtime_1.jsx)("h4", { children: "R\u00E9capitulatif de l'emprunt" }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-card", children: [(0, jsx_runtime_1.jsxs)("div", { className: "summary-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-icon book-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-label", children: "Livre" }), (0, jsx_runtime_1.jsx)("div", { className: "summary-value", children: book.title }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-sub", children: ["par ", book.author] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-icon user-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-label", children: "Emprunteur" }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-value", children: [selectedBorrowerData.firstName, " ", selectedBorrowerData.lastName] }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-sub", children: [selectedBorrowerData.matricule, " \u2022 ", selectedBorrowerData.type === 'student' ? 'Étudiant' : 'Personnel'] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-icon date-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M19 3H18V1H16V3H8V1H6V3H5C3.89 3 3.01 3.9 3.01 5L3 19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V8H19V19ZM7 10H12V15H7V10Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-label", children: "Retour pr\u00E9vu" }), (0, jsx_runtime_1.jsx)("div", { className: "summary-value", children: new Date(expectedReturnDate).toLocaleDateString('fr-FR', {
+                                                    weekday: 'long',
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric'
+                                                }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-sub", children: ["Dans ", Math.ceil((new Date(expectedReturnDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)), " jour(s)"] })] })] })] })] })), (0, jsx_runtime_1.jsxs)("div", { className: "form-actions", children: [(0, jsx_runtime_1.jsxs)("button", { type: "button", className: "btn-secondary", onClick: onCancel, disabled: isLoading, children: [(0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "18", height: "18", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z" }) }), "Annuler"] }), (0, jsx_runtime_1.jsx)("button", { type: "submit", className: "btn-primary", disabled: !selectedBorrower || !expectedReturnDate || isLoading, children: isLoading ? ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)("div", { className: "loading-spinner" }), "Traitement..."] })) : ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "18", height: "18", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.58L9 16.17Z" }) }), "Confirmer l'emprunt"] })) })] }), (0, jsx_runtime_1.jsx)("style", { children: `
+        .enhanced-borrow-form {
           padding: 32px;
+          display: flex;
+          flex-direction: column;
+          gap: 28px;
+          max-height: calc(90vh - 120px);
+          overflow-y: auto;
         }
         
+        /* Book Info Enhanced */
         .book-info-section {
           display: flex;
           align-items: center;
           gap: 20px;
-          padding: 20px;
-          background: #F3EED9;
-          border-radius: 12px;
-          margin-bottom: 24px;
+          padding: 24px;
+          background: linear-gradient(135deg, #F3EED9 0%, #EAEADC 100%);
+          border-radius: 16px;
+          border: 1px solid rgba(229, 220, 194, 0.5);
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .book-info-section::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 100px;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(62, 92, 73, 0.05));
+          transform: skewX(-15deg);
         }
         
         .book-cover {
-          width: 60px;
-          height: 80px;
+          width: 72px;
+          height: 96px;
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          border-radius: 8px;
+          border-radius: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
           overflow: hidden;
           flex-shrink: 0;
+          box-shadow: 
+            0 8px 24px rgba(62, 92, 73, 0.3),
+            0 4px 12px rgba(62, 92, 73, 0.2);
+          position: relative;
+          z-index: 1;
         }
         
         .book-cover img {
@@ -53554,238 +53701,1631 @@ const BorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
         }
         
         .book-placeholder {
-          font-size: 24px;
+          color: #F3EED9;
+        }
+        
+        .book-details {
+          flex: 1;
+          position: relative;
+          z-index: 1;
         }
         
         .book-title {
-          font-size: 16px;
+          font-size: 20px;
           font-weight: 700;
           color: #2E2E2E;
-          margin: 0 0 4px 0;
+          margin: 0 0 6px 0;
+          line-height: 1.3;
         }
         
         .book-author {
-          font-size: 14px;
+          font-size: 16px;
           color: #6E6E6E;
-          margin: 0 0 8px 0;
+          margin: 0 0 12px 0;
+          font-style: italic;
+        }
+        
+        .book-meta {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-wrap: wrap;
         }
         
         .book-category {
           background: #3E5C49;
           color: #F3EED9;
-          padding: 2px 8px;
-          border-radius: 12px;
-          font-size: 11px;
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 12px;
           font-weight: 600;
         }
         
+        .book-year {
+          background: rgba(110, 110, 110, 0.1);
+          color: #6E6E6E;
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 500;
+        }
+        
+        /* Duration Selector */
         .form-section {
-          margin-bottom: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
         }
         
         .form-label {
-          display: block;
-          font-size: 14px;
+          font-size: 16px;
           font-weight: 600;
           color: #2E2E2E;
-          margin-bottom: 8px;
+          margin: 0;
         }
         
-        .search-input {
-          width: 100%;
-          padding: 12px 16px;
-          border: 2px solid #E5DCC2;
-          border-radius: 8px;
-          font-size: 14px;
-          margin-bottom: 12px;
-        }
-        
-        .search-input:focus {
-          outline: none;
-          border-color: #3E5C49;
-        }
-        
-        .borrowers-list {
-          max-height: 200px;
-          overflow-y: auto;
-          border: 1px solid #E5DCC2;
-          border-radius: 8px;
-        }
-        
-        .borrower-option {
-          display: flex;
-          align-items: center;
+        .duration-selector {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
           gap: 12px;
-          padding: 12px 16px;
-          cursor: pointer;
-          border-bottom: 1px solid #F3EED9;
-          transition: all 0.2s ease;
         }
         
-        .borrower-option:hover {
-          background: #F3EED9;
-        }
-        
-        .borrower-option.selected {
-          background: #3E5C49;
-          color: #F3EED9;
-        }
-        
-        .borrower-option:last-child {
-          border-bottom: none;
-        }
-        
-        .borrower-type-badge {
+        .duration-button {
           display: flex;
+          flex-direction: column;
           align-items: center;
           gap: 4px;
-          font-size: 11px;
+          padding: 16px 12px;
+          border: 2px solid #E5DCC2;
+          border-radius: 12px;
+          background: #FFFFFF;
+          color: #6E6E6E;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 14px;
+          font-weight: 500;
+          position: relative;
+        }
+        
+        .duration-button:hover {
+          border-color: #3E5C49;
+          color: #3E5C49;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.15);
+        }
+        
+        .duration-button.selected {
+          border-color: #3E5C49;
+          background: #3E5C49;
+          color: #F3EED9;
+          box-shadow: 0 4px 16px rgba(62, 92, 73, 0.3);
+        }
+        
+        .duration-button.recommended {
+          border-color: #C2571B;
+        }
+        
+        .duration-button.recommended:hover {
+          border-color: #C2571B;
+          color: #C2571B;
+        }
+        
+        .duration-button.recommended.selected {
+          background: #C2571B;
+          border-color: #C2571B;
+        }
+        
+        .recommended-badge {
+          position: absolute;
+          top: -8px;
+          right: -8px;
+          background: #C2571B;
+          color: #FFFFFF;
+          font-size: 10px;
           font-weight: 600;
+          padding: 2px 6px;
+          border-radius: 8px;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
         
-        .borrower-info {
-          flex: 1;
-        }
-        
-        .borrower-name {
-          font-weight: 600;
-          margin-bottom: 2px;
-        }
-        
-        .borrower-details {
-          font-size: 12px;
-          opacity: 0.8;
-        }
-        
-        .selection-indicator {
-          font-size: 16px;
-          font-weight: bold;
-        }
-        
-        .no-borrowers {
-          padding: 20px;
-          text-align: center;
-          color: #6E6E6E;
-          font-style: italic;
-        }
-        
         .date-input {
           width: 100%;
-          padding: 12px 16px;
+          padding: 16px;
           border: 2px solid #E5DCC2;
-          border-radius: 8px;
-          font-size: 14px;
+          border-radius: 12px;
+          font-size: 16px;
+          background: #FFFFFF;
+          color: #2E2E2E;
+          transition: all 0.2s ease;
         }
         
         .date-input:focus {
           outline: none;
           border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
         }
         
         .form-hint {
+          font-size: 13px;
+          color: #6E6E6E;
+          font-style: italic;
+        }
+        
+        /* Enhanced Borrower Selection */
+        .borrower-filters {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+          margin-bottom: 16px;
+        }
+        
+        .search-container {
+          flex: 1;
+          position: relative;
+        }
+        
+        .search-input {
+          width: 100%;
+          padding: 14px 16px 14px 44px;
+          border: 2px solid #E5DCC2;
+          border-radius: 12px;
+          font-size: 16px;
+          background: #FFFFFF;
+          color: #2E2E2E;
+          transition: all 0.2s ease;
+        }
+        
+        .search-input:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+        
+        .search-icon {
+          position: absolute;
+          left: 14px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #6E6E6E;
+        }
+        
+        .filter-select {
+          padding: 14px 16px;
+          border: 2px solid #E5DCC2;
+          border-radius: 12px;
+          font-size: 14px;
+          background: #FFFFFF;
+          color: #2E2E2E;
+          min-width: 120px;
+        }
+        
+        .filter-select:focus {
+          outline: none;
+          border-color: #3E5C49;
+        }
+        
+        /* Suggestions */
+        .suggestions-section {
+          margin-bottom: 20px;
+        }
+        
+        .suggestions-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: #6E6E6E;
+          margin: 0 0 12px 0;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        
+        .suggestions-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+          gap: 12px;
+        }
+        
+        .suggestion-card {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px;
+          border: 2px solid #E5DCC2;
+          border-radius: 12px;
+          background: #FFFFFF;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          text-align: left;
+        }
+        
+        .suggestion-card:hover {
+          border-color: #3E5C49;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.15);
+        }
+        
+        .suggestion-card.selected {
+          border-color: #3E5C49;
+          background: rgba(62, 92, 73, 0.05);
+        }
+        
+        .suggestion-avatar {
+          font-size: 20px;
+          width: 36px;
+          height: 36px;
+          background: #F3EED9;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .suggestion-name {
+          font-size: 14px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin-bottom: 2px;
+        }
+        
+        .suggestion-details {
           font-size: 12px;
           color: #6E6E6E;
-          margin-top: 4px;
-          display: block;
         }
         
-        .selected-summary {
-          background: rgba(62, 92, 73, 0.05);
-          border: 1px solid rgba(62, 92, 73, 0.2);
+        /* Borrowers List Enhanced */
+        .borrowers-list {
+          border: 1px solid #E5DCC2;
           border-radius: 12px;
-          padding: 20px;
-          margin-bottom: 24px;
+          background: #FFFFFF;
+          overflow: hidden;
         }
         
-        .selected-summary h4 {
-          font-size: 16px;
+        .list-header {
+          display: grid;
+          grid-template-columns: 2fr 1fr 1fr 1.5fr 40px;
+          padding: 16px 20px;
+          background: #F3EED9;
+          border-bottom: 1px solid #E5DCC2;
+          font-size: 12px;
           font-weight: 700;
           color: #2E2E2E;
-          margin: 0 0 16px 0;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
         
-        .summary-item {
-          display: flex;
-          justify-content: space-between;
+        .list-content {
+          max-height: 240px;
+          overflow-y: auto;
+        }
+        
+        .borrower-row {
+          display: grid;
+          grid-template-columns: 2fr 1fr 1fr 1.5fr 40px;
+          padding: 16px 20px;
+          border-bottom: 1px solid #F3EED9;
+          cursor: pointer;
+          transition: all 0.2s ease;
           align-items: center;
-          margin-bottom: 8px;
         }
         
-        .summary-item:last-child {
-          margin-bottom: 0;
+        .borrower-row:hover {
+          background: #FEFEFE;
         }
         
-        .label {
+        .borrower-row.selected {
+          background: rgba(62, 92, 73, 0.05);
+          border-color: #3E5C49;
+        }
+        
+        .borrower-row:last-child {
+          border-bottom: none;
+        }
+        
+        .borrower-name {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        
+        .name-main {
           font-size: 14px;
-          color: #6E6E6E;
-          font-weight: 500;
-        }
-        
-        .value {
-          font-size: 14px;
-          color: #2E2E2E;
           font-weight: 600;
-          display: flex;
-          align-items: center;
-          gap: 8px;
+          color: #2E2E2E;
+        }
+        
+        .name-sub {
+          font-size: 12px;
+          color: #6E6E6E;
         }
         
         .type-badge {
-          background: #3E5C49;
-          color: #F3EED9;
-          padding: 2px 6px;
-          border-radius: 8px;
-          font-size: 10px;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-size: 11px;
           font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.3px;
         }
         
+        .type-badge.student {
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+        }
+        
+        .type-badge.staff {
+          background: rgba(194, 87, 27, 0.1);
+          color: #C2571B;
+        }
+        
+        .borrower-matricule {
+          font-size: 13px;
+          color: #2E2E2E;
+          font-weight: 500;
+        }
+        
+        .borrower-extra {
+          font-size: 12px;
+          color: #6E6E6E;
+        }
+        
+        .selection-indicator {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #3E5C49;
+        }
+        
+        .no-borrowers {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 40px 20px;
+          text-align: center;
+          color: #6E6E6E;
+        }
+        
+        .no-borrowers svg {
+          margin-bottom: 16px;
+          opacity: 0.5;
+        }
+        
+        .no-borrowers p {
+          font-size: 16px;
+          font-weight: 600;
+          margin: 0 0 4px 0;
+        }
+        
+        .no-borrowers small {
+          font-size: 14px;
+          opacity: 0.8;
+        }
+        
+        /* Selected Summary Enhanced */
+        .selected-summary {
+          background: linear-gradient(135deg, rgba(62, 92, 73, 0.03) 0%, rgba(62, 92, 73, 0.01) 100%);
+          border: 1px solid rgba(62, 92, 73, 0.15);
+          border-radius: 16px;
+          padding: 24px;
+        }
+        
+        .selected-summary h4 {
+          font-size: 18px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 20px 0;
+        }
+        
+        .summary-card {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+        
+        .summary-section {
+          display: flex;
+          align-items: flex-start;
+          gap: 16px;
+        }
+        
+        .summary-icon {
+          width: 40px;
+          height: 40px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        
+        .summary-icon.book-icon {
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+        }
+        
+        .summary-icon.user-icon {
+          background: rgba(194, 87, 27, 0.1);
+          color: #C2571B;
+        }
+        
+        .summary-icon.date-icon {
+          background: rgba(110, 110, 110, 0.1);
+          color: #6E6E6E;
+        }
+        
+        .summary-content {
+          flex: 1;
+        }
+        
+        .summary-label {
+          font-size: 12px;
+          font-weight: 600;
+          color: #6E6E6E;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 4px;
+        }
+        
+        .summary-value {
+          font-size: 16px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin-bottom: 2px;
+        }
+        
+        .summary-sub {
+          font-size: 13px;
+          color: #6E6E6E;
+        }
+        
+        /* Form Actions Enhanced */
         .form-actions {
           display: flex;
-          gap: 12px;
+          gap: 16px;
           justify-content: flex-end;
           padding-top: 24px;
           border-top: 1px solid #E5DCC2;
         }
         
         .btn-secondary, .btn-primary {
-          padding: 12px 24px;
-          border-radius: 8px;
-          font-size: 14px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 16px 24px;
+          border-radius: 12px;
+          font-size: 16px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           border: none;
+          position: relative;
+          overflow: hidden;
         }
         
         .btn-secondary {
           background: #F3EED9;
           color: #6E6E6E;
-          border: 1px solid #E5DCC2;
+          border: 2px solid #E5DCC2;
         }
         
         .btn-secondary:hover:not(:disabled) {
           background: #EAEADC;
           color: #2E2E2E;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(110, 110, 110, 0.2);
         }
         
         .btn-primary {
-          background: #3E5C49;
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           color: #F3EED9;
+          box-shadow: 0 4px 16px rgba(62, 92, 73, 0.3);
         }
         
         .btn-primary:hover:not(:disabled) {
-          background: #2E453A;
+          background: linear-gradient(135deg, #2E453A 0%, #1E2F25 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(62, 92, 73, 0.4);
         }
         
-        .btn-primary:disabled,
-        .btn-secondary:disabled {
+        .btn-secondary:disabled,
+        .btn-primary:disabled {
           opacity: 0.6;
           cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+        }
+        
+        .loading-spinner {
+          width: 18px;
+          height: 18px;
+          border: 2px solid rgba(243, 238, 217, 0.3);
+          border-top: 2px solid #F3EED9;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+          .enhanced-borrow-form {
+            padding: 20px;
+            gap: 24px;
+          }
+          
+          .book-info-section {
+            flex-direction: column;
+            text-align: center;
+            gap: 16px;
+          }
+          
+          .duration-selector {
+            grid-template-columns: 1fr 1fr;
+          }
+          
+          .borrower-filters {
+            flex-direction: column;
+            gap: 12px;
+          }
+          
+          .suggestions-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .list-header,
+          .borrower-row {
+            grid-template-columns: 1fr;
+            gap: 8px;
+          }
+          
+          .list-header {
+            display: none;
+          }
+          
+          .borrower-row {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            padding: 16px;
+          }
+          
+          .summary-card {
+            gap: 16px;
+          }
+          
+          .form-actions {
+            flex-direction: column-reverse;
+          }
+          
+          .btn-secondary,
+          .btn-primary {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .enhanced-borrow-form {
+            padding: 16px;
+          }
+          
+          .book-info-section {
+            padding: 20px;
+          }
+          
+          .book-cover {
+            width: 64px;
+            height: 84px;
+          }
+          
+          .book-title {
+            font-size: 18px;
+          }
+          
+          .duration-selector {
+            grid-template-columns: 1fr;
+          }
+          
+          .summary-section {
+            flex-direction: column;
+            gap: 12px;
+            text-align: center;
+          }
         }
       ` })] }));
 };
+
+
+/***/ }),
+
+/***/ "./src/renderer/components/About.tsx":
+/*!*******************************************!*\
+  !*** ./src/renderer/components/About.tsx ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.About = void 0;
+const jsx_runtime_1 = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+const react_1 = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const lucide_react_1 = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/cjs/lucide-react.cjs");
+const About = ({ onClose }) => {
+    const [activeTab, setActiveTab] = (0, react_1.useState)('developer');
+    const developerInfo = {
+        name: 'CHEUDJEU TEFOYE CÉDRIC BASILIO',
+        title: 'Expert en Développement Informatique & Intelligence Artificielle',
+        location: 'Douala, Cameroun',
+        phone: '+237 652 761 931',
+        email: 'cedrictefoye@gmail.com',
+        currentPosition: 'Responsable Cellule Informatique - Faculté de Médecine, Université de Douala',
+        experience: '4+ ans d\'expérience',
+        avatar: '👨‍💻'
+    };
+    const education = [
+        {
+            degree: 'Master en Intelligence Artificielle',
+            institution: 'Université de Dschang, Faculté des Sciences',
+            year: '2022-2023',
+            mention: 'Mention obtenue',
+            specialization: 'Machine Learning, NLP, Computer Vision'
+        },
+        {
+            degree: 'Licence en Informatique Fondamentale',
+            institution: 'Université de Dschang, Faculté des Sciences',
+            year: '2020-2021',
+            specialization: 'Génie Logiciel et Systèmes d\'Information'
+        }
+    ];
+    const experience = [
+        {
+            title: 'Responsable Cellule Informatique',
+            company: 'Faculté de Médecine - Université de Douala',
+            period: 'Jan. 2024 - Présent',
+            description: 'Administration des systèmes, développement d\'applications de gestion académique, implémentation de solutions d\'IA'
+        },
+        {
+            title: 'Co-fondateur',
+            company: 'OVERBRAND',
+            period: 'Août 2021 - Présent',
+            description: 'Direction stratégique et technique, supervision de projets web/mobile'
+        },
+        {
+            title: 'Designer - Projet Help to Win',
+            company: 'VISIBILITY CAM SARL',
+            period: 'Mars 2023 - Présent',
+            description: 'Conception UI/UX d\'application mobile éducative'
+        }
+    ];
+    const technologies = {
+        frontend: ['React.js', 'Vue.js', 'HTML5/CSS3', 'JavaScript', 'TypeScript'],
+        backend: ['Node.js', 'PHP/Laravel', 'Python', 'Express.js'],
+        mobile: ['React Native', 'Flutter'],
+        ai: ['TensorFlow', 'PyTorch', 'Scikit-Learn', 'Machine Learning', 'NLP'],
+        design: ['Figma', 'Adobe XD', 'Photoshop', 'Illustrator'],
+        database: ['MySQL', 'PostgreSQL', 'MongoDB', 'Firebase'],
+        tools: ['Git/GitHub', 'Docker', 'AWS']
+    };
+    const projectFeatures = [
+        {
+            icon: lucide_react_1.BookOpen,
+            title: 'Gestion complète',
+            description: 'Système complet de gestion de bibliothèque avec emprunteurs, livres et historique'
+        },
+        {
+            icon: lucide_react_1.Users,
+            title: 'Multi-utilisateurs',
+            description: 'Support pour étudiants et personnel avec différents types d\'accès'
+        },
+        {
+            icon: lucide_react_1.Zap,
+            title: 'Interface moderne',
+            description: 'Design contemporain avec animations fluides et expérience utilisateur optimisée'
+        },
+        {
+            icon: lucide_react_1.Heart,
+            title: 'Open Source',
+            description: 'Code source libre et gratuit pour toute la communauté éducative'
+        }
+    ];
+    const achievements = [
+        {
+            icon: lucide_react_1.Trophy,
+            title: 'Halkaton 2022',
+            description: 'Hackathon de 24 heures'
+        },
+        {
+            icon: lucide_react_1.Award,
+            title: 'MountainHack 2020',
+            description: 'Hackathon de 24 heures, Dschang'
+        },
+        {
+            icon: lucide_react_1.Star,
+            title: 'Master avec mention',
+            description: 'Intelligence Artificielle - 2023'
+        }
+    ];
+    const tabs = [
+        { id: 'developer', label: 'Développeur', icon: lucide_react_1.User },
+        { id: 'project', label: 'Le Projet', icon: lucide_react_1.BookOpen },
+        { id: 'technologies', label: 'Technologies', icon: lucide_react_1.Code }
+    ];
+    return ((0, jsx_runtime_1.jsxs)("div", { className: "about-page", children: [(0, jsx_runtime_1.jsxs)("div", { className: "hero-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "hero-background", children: (0, jsx_runtime_1.jsx)("div", { className: "hero-pattern" }) }), (0, jsx_runtime_1.jsxs)("div", { className: "hero-content", children: [(0, jsx_runtime_1.jsxs)("button", { className: "back-button", onClick: onClose, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.ArrowLeft, { size: 20 }), (0, jsx_runtime_1.jsx)("span", { children: "Retour" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "hero-main", children: [(0, jsx_runtime_1.jsx)("div", { className: "hero-icon", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Info, { size: 48 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "hero-text", children: [(0, jsx_runtime_1.jsx)("h1", { className: "hero-title", children: "\u00C0 propos du projet" }), (0, jsx_runtime_1.jsx)("p", { className: "hero-subtitle", children: "D\u00E9couvrez l'histoire, les technologies et l'\u00E9quipe derri\u00E8re ce syst\u00E8me de gestion de biblioth\u00E8que" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "project-stats", children: [(0, jsx_runtime_1.jsxs)("div", { className: "stat-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Sparkles, { size: 24 }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-content", children: [(0, jsx_runtime_1.jsx)("span", { className: "stat-number", children: "2024" }), (0, jsx_runtime_1.jsx)("span", { className: "stat-label", children: "Ann\u00E9e de cr\u00E9ation" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Code, { size: 24 }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-content", children: [(0, jsx_runtime_1.jsx)("span", { className: "stat-number", children: "100%" }), (0, jsx_runtime_1.jsx)("span", { className: "stat-label", children: "TypeScript" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Heart, { size: 24 }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-content", children: [(0, jsx_runtime_1.jsx)("span", { className: "stat-number", children: "MIT" }), (0, jsx_runtime_1.jsx)("span", { className: "stat-label", children: "Licence libre" })] })] })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "about-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "tabs-navigation", children: tabs.map((tab) => ((0, jsx_runtime_1.jsxs)("button", { className: `tab-button ${activeTab === tab.id ? 'active' : ''}`, onClick: () => setActiveTab(tab.id), children: [(0, jsx_runtime_1.jsx)(tab.icon, { size: 20 }), (0, jsx_runtime_1.jsx)("span", { children: tab.label })] }, tab.id))) }), activeTab === 'developer' && ((0, jsx_runtime_1.jsxs)("div", { className: "tab-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "developer-hero", children: [(0, jsx_runtime_1.jsx)("div", { className: "developer-avatar", children: (0, jsx_runtime_1.jsx)("span", { className: "avatar-emoji", children: developerInfo.avatar }) }), (0, jsx_runtime_1.jsxs)("div", { className: "developer-info", children: [(0, jsx_runtime_1.jsx)("h2", { className: "developer-name", children: developerInfo.name }), (0, jsx_runtime_1.jsx)("p", { className: "developer-title", children: developerInfo.title }), (0, jsx_runtime_1.jsxs)("div", { className: "developer-meta", children: [(0, jsx_runtime_1.jsxs)("div", { className: "meta-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.MapPin, { size: 16 }), (0, jsx_runtime_1.jsx)("span", { children: developerInfo.location })] }), (0, jsx_runtime_1.jsxs)("div", { className: "meta-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Briefcase, { size: 16 }), (0, jsx_runtime_1.jsx)("span", { children: developerInfo.experience })] })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "content-grid", children: [(0, jsx_runtime_1.jsxs)("div", { className: "info-card", children: [(0, jsx_runtime_1.jsx)("h3", { className: "card-title", children: "Contact" }), (0, jsx_runtime_1.jsxs)("div", { className: "contact-list", children: [(0, jsx_runtime_1.jsxs)("a", { href: `mailto:${developerInfo.email}`, className: "contact-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Mail, { size: 20 }), (0, jsx_runtime_1.jsx)("span", { children: developerInfo.email }), (0, jsx_runtime_1.jsx)(lucide_react_1.ExternalLink, { size: 16 })] }), (0, jsx_runtime_1.jsxs)("a", { href: `tel:${developerInfo.phone}`, className: "contact-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Phone, { size: 20 }), (0, jsx_runtime_1.jsx)("span", { children: developerInfo.phone }), (0, jsx_runtime_1.jsx)(lucide_react_1.ExternalLink, { size: 16 })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "info-card", children: [(0, jsx_runtime_1.jsx)("h3", { className: "card-title", children: "Poste actuel" }), (0, jsx_runtime_1.jsxs)("div", { className: "position-info", children: [(0, jsx_runtime_1.jsx)("div", { className: "position-title", children: developerInfo.currentPosition }), (0, jsx_runtime_1.jsx)("p", { className: "position-description", children: "Administration des syst\u00E8mes informatiques, d\u00E9veloppement d'applications de gestion acad\u00E9mique et impl\u00E9mentation de solutions d'IA pour l'optimisation des processus." })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "section", children: [(0, jsx_runtime_1.jsxs)("h3", { className: "section-title", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.GraduationCap, { size: 24 }), "Formation"] }), (0, jsx_runtime_1.jsx)("div", { className: "timeline", children: education.map((edu, index) => ((0, jsx_runtime_1.jsxs)("div", { className: "timeline-item", children: [(0, jsx_runtime_1.jsx)("div", { className: "timeline-marker" }), (0, jsx_runtime_1.jsxs)("div", { className: "timeline-content", children: [(0, jsx_runtime_1.jsx)("h4", { className: "timeline-title", children: edu.degree }), (0, jsx_runtime_1.jsx)("p", { className: "timeline-subtitle", children: edu.institution }), (0, jsx_runtime_1.jsxs)("div", { className: "timeline-meta", children: [(0, jsx_runtime_1.jsx)("span", { className: "timeline-year", children: edu.year }), edu.mention && (0, jsx_runtime_1.jsx)("span", { className: "timeline-mention", children: edu.mention })] }), (0, jsx_runtime_1.jsx)("p", { className: "timeline-description", children: edu.specialization })] })] }, index))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "section", children: [(0, jsx_runtime_1.jsxs)("h3", { className: "section-title", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Briefcase, { size: 24 }), "Exp\u00E9rience professionnelle"] }), (0, jsx_runtime_1.jsx)("div", { className: "experience-grid", children: experience.map((exp, index) => ((0, jsx_runtime_1.jsxs)("div", { className: "experience-card", children: [(0, jsx_runtime_1.jsxs)("div", { className: "experience-header", children: [(0, jsx_runtime_1.jsx)("h4", { className: "experience-title", children: exp.title }), (0, jsx_runtime_1.jsx)("span", { className: "experience-period", children: exp.period })] }), (0, jsx_runtime_1.jsx)("p", { className: "experience-company", children: exp.company }), (0, jsx_runtime_1.jsx)("p", { className: "experience-description", children: exp.description })] }, index))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "section", children: [(0, jsx_runtime_1.jsxs)("h3", { className: "section-title", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Award, { size: 24 }), "R\u00E9alisations"] }), (0, jsx_runtime_1.jsx)("div", { className: "achievements-grid", children: achievements.map((achievement, index) => ((0, jsx_runtime_1.jsxs)("div", { className: "achievement-card", children: [(0, jsx_runtime_1.jsx)("div", { className: "achievement-icon", children: (0, jsx_runtime_1.jsx)(achievement.icon, { size: 24 }) }), (0, jsx_runtime_1.jsx)("h4", { className: "achievement-title", children: achievement.title }), (0, jsx_runtime_1.jsx)("p", { className: "achievement-description", children: achievement.description })] }, index))) })] })] })), activeTab === 'project' && ((0, jsx_runtime_1.jsxs)("div", { className: "tab-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "project-intro", children: [(0, jsx_runtime_1.jsx)("h2", { className: "intro-title", children: "Syst\u00E8me de Gestion de Biblioth\u00E8que" }), (0, jsx_runtime_1.jsx)("p", { className: "intro-description", children: "Une solution moderne et compl\u00E8te pour la gestion des biblioth\u00E8ques, d\u00E9velopp\u00E9e avec les derni\u00E8res technologies web. Ce projet vise \u00E0 simplifier et moderniser la gestion des collections de livres, des emprunteurs et des transactions dans les \u00E9tablissements \u00E9ducatifs." })] }), (0, jsx_runtime_1.jsx)("div", { className: "features-grid", children: projectFeatures.map((feature, index) => ((0, jsx_runtime_1.jsxs)("div", { className: "feature-card", children: [(0, jsx_runtime_1.jsx)("div", { className: "feature-icon", children: (0, jsx_runtime_1.jsx)(feature.icon, { size: 24 }) }), (0, jsx_runtime_1.jsx)("h3", { className: "feature-title", children: feature.title }), (0, jsx_runtime_1.jsx)("p", { className: "feature-description", children: feature.description })] }, index))) }), (0, jsx_runtime_1.jsxs)("div", { className: "project-details", children: [(0, jsx_runtime_1.jsxs)("div", { className: "detail-card", children: [(0, jsx_runtime_1.jsx)("h3", { className: "detail-title", children: "Objectifs du projet" }), (0, jsx_runtime_1.jsxs)("ul", { className: "detail-list", children: [(0, jsx_runtime_1.jsx)("li", { children: "Moderniser la gestion des biblioth\u00E8ques scolaires et universitaires" }), (0, jsx_runtime_1.jsx)("li", { children: "Simplifier les processus d'emprunt et de retour de livres" }), (0, jsx_runtime_1.jsx)("li", { children: "Fournir des statistiques et analyses en temps r\u00E9el" }), (0, jsx_runtime_1.jsx)("li", { children: "Offrir une interface intuitive et accessible" }), (0, jsx_runtime_1.jsx)("li", { children: "Garantir la gratuit\u00E9 et l'open source pour l'\u00E9ducation" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "detail-card", children: [(0, jsx_runtime_1.jsx)("h3", { className: "detail-title", children: "Fonctionnalit\u00E9s principales" }), (0, jsx_runtime_1.jsxs)("ul", { className: "detail-list", children: [(0, jsx_runtime_1.jsx)("li", { children: "Gestion compl\u00E8te des livres (ajout, modification, suppression)" }), (0, jsx_runtime_1.jsx)("li", { children: "Syst\u00E8me d'emprunteurs avec diff\u00E9rents types (\u00E9tudiants, personnel)" }), (0, jsx_runtime_1.jsx)("li", { children: "Processus d'emprunt et de retour simplifi\u00E9s" }), (0, jsx_runtime_1.jsx)("li", { children: "Historique d\u00E9taill\u00E9 des transactions" }), (0, jsx_runtime_1.jsx)("li", { children: "G\u00E9n\u00E9ration de rapports et exports CSV" }), (0, jsx_runtime_1.jsx)("li", { children: "Interface responsive adapt\u00E9e \u00E0 tous les appareils" })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "project-mission", children: [(0, jsx_runtime_1.jsx)("div", { className: "mission-icon", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Heart, { size: 32 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "mission-content", children: [(0, jsx_runtime_1.jsx)("h3", { className: "mission-title", children: "Notre mission" }), (0, jsx_runtime_1.jsx)("p", { className: "mission-description", children: "D\u00E9mocratiser l'acc\u00E8s aux outils de gestion modernes pour les biblioth\u00E8ques, en particulier dans les \u00E9tablissements \u00E9ducatifs. Nous croyons que chaque institution, quelle que soit sa taille ou ses ressources, devrait avoir acc\u00E8s \u00E0 des solutions technologiques de qualit\u00E9 pour am\u00E9liorer l'exp\u00E9rience de ses utilisateurs." })] })] })] })), activeTab === 'technologies' && ((0, jsx_runtime_1.jsxs)("div", { className: "tab-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "tech-intro", children: [(0, jsx_runtime_1.jsx)("h2", { className: "intro-title", children: "Stack Technologique" }), (0, jsx_runtime_1.jsx)("p", { className: "intro-description", children: "Ce projet utilise des technologies modernes et \u00E9prouv\u00E9es pour garantir performance, s\u00E9curit\u00E9 et maintenabilit\u00E9. Voici un aper\u00E7u des outils et frameworks utilis\u00E9s." })] }), (0, jsx_runtime_1.jsxs)("div", { className: "tech-categories", children: [(0, jsx_runtime_1.jsxs)("div", { className: "tech-category", children: [(0, jsx_runtime_1.jsx)("h3", { className: "tech-title", children: "Frontend" }), (0, jsx_runtime_1.jsx)("div", { className: "tech-tags", children: technologies.frontend.map((tech, index) => ((0, jsx_runtime_1.jsx)("span", { className: "tech-tag frontend", children: tech }, index))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "tech-category", children: [(0, jsx_runtime_1.jsx)("h3", { className: "tech-title", children: "Backend" }), (0, jsx_runtime_1.jsx)("div", { className: "tech-tags", children: technologies.backend.map((tech, index) => ((0, jsx_runtime_1.jsx)("span", { className: "tech-tag backend", children: tech }, index))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "tech-category", children: [(0, jsx_runtime_1.jsx)("h3", { className: "tech-title", children: "Mobile" }), (0, jsx_runtime_1.jsx)("div", { className: "tech-tags", children: technologies.mobile.map((tech, index) => ((0, jsx_runtime_1.jsx)("span", { className: "tech-tag mobile", children: tech }, index))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "tech-category", children: [(0, jsx_runtime_1.jsx)("h3", { className: "tech-title", children: "Intelligence Artificielle" }), (0, jsx_runtime_1.jsx)("div", { className: "tech-tags", children: technologies.ai.map((tech, index) => ((0, jsx_runtime_1.jsx)("span", { className: "tech-tag ai", children: tech }, index))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "tech-category", children: [(0, jsx_runtime_1.jsx)("h3", { className: "tech-title", children: "Design" }), (0, jsx_runtime_1.jsx)("div", { className: "tech-tags", children: technologies.design.map((tech, index) => ((0, jsx_runtime_1.jsx)("span", { className: "tech-tag design", children: tech }, index))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "tech-category", children: [(0, jsx_runtime_1.jsx)("h3", { className: "tech-title", children: "Base de donn\u00E9es" }), (0, jsx_runtime_1.jsx)("div", { className: "tech-tags", children: technologies.database.map((tech, index) => ((0, jsx_runtime_1.jsx)("span", { className: "tech-tag database", children: tech }, index))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "tech-category", children: [(0, jsx_runtime_1.jsx)("h3", { className: "tech-title", children: "Outils & DevOps" }), (0, jsx_runtime_1.jsx)("div", { className: "tech-tags", children: technologies.tools.map((tech, index) => ((0, jsx_runtime_1.jsx)("span", { className: "tech-tag tools", children: tech }, index))) })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "architecture-info", children: [(0, jsx_runtime_1.jsx)("h3", { className: "architecture-title", children: "Architecture" }), (0, jsx_runtime_1.jsxs)("div", { className: "architecture-description", children: [(0, jsx_runtime_1.jsx)("p", { children: "Le syst\u00E8me est construit avec une architecture moderne s\u00E9parant clairement les couches de pr\u00E9sentation, logique m\u00E9tier et donn\u00E9es. L'interface utilisateur est d\u00E9velopp\u00E9e en React avec TypeScript pour une meilleure maintenabilit\u00E9." }), (0, jsx_runtime_1.jsx)("p", { children: "L'application utilise Electron pour offrir une exp\u00E9rience desktop native tout en conservant la flexibilit\u00E9 du web. La base de donn\u00E9es SQLite garantit une installation simple et une portabilit\u00E9 maximale." })] })] })] }))] }), (0, jsx_runtime_1.jsx)("style", { children: `
+        .about-page {
+          height: 100%;
+          overflow-y: auto;
+          background: #FAF9F6;
+        }
+        
+        .hero-section {
+          position: relative;
+          background: linear-gradient(135deg, #607D8B 0%, #455A64 100%);
+          color: #F3EED9;
+          padding: 48px 32px;
+          overflow: hidden;
+        }
+        
+        .hero-background {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+        }
+        
+        .hero-pattern {
+          position: absolute;
+          inset: 0;
+          background-image: 
+            radial-gradient(circle at 25% 25%, rgba(243, 238, 217, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+          animation: drift 20s ease-in-out infinite;
+        }
+        
+        @keyframes drift {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          33% { transform: translate(30px, -30px) rotate(1deg); }
+          66% { transform: translate(-20px, 20px) rotate(-1deg); }
+        }
+        
+        .hero-content {
+          position: relative;
+          z-index: 1;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        
+        .back-button {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(243, 238, 217, 0.15);
+          border: 1px solid rgba(243, 238, 217, 0.3);
+          color: #F3EED9;
+          padding: 12px 20px;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-size: 14px;
+          font-weight: 500;
+          margin-bottom: 32px;
+          width: fit-content;
+        }
+        
+        .back-button:hover {
+          background: rgba(243, 238, 217, 0.25);
+          transform: translateX(-4px);
+        }
+        
+        .hero-main {
+          display: flex;
+          align-items: center;
+          gap: 24px;
+          margin-bottom: 40px;
+          text-align: center;
+          flex-direction: column;
+        }
+        
+        .hero-icon {
+          width: 96px;
+          height: 96px;
+          background: rgba(243, 238, 217, 0.2);
+          border-radius: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #F3EED9;
+        }
+        
+        .hero-title {
+          font-size: 42px;
+          font-weight: 800;
+          margin: 0 0 16px 0;
+          line-height: 1.2;
+          letter-spacing: -0.5px;
+        }
+        
+        .hero-subtitle {
+          font-size: 20px;
+          opacity: 0.9;
+          margin: 0;
+          line-height: 1.5;
+          max-width: 600px;
+        }
+        
+        .project-stats {
+          display: flex;
+          justify-content: center;
+          gap: 40px;
+          flex-wrap: wrap;
+        }
+        
+        .stat-item {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          background: rgba(243, 238, 217, 0.1);
+          padding: 20px 24px;
+          border-radius: 16px;
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(243, 238, 217, 0.2);
+        }
+        
+        .stat-number {
+          font-size: 24px;
+          font-weight: 800;
+          color: #F3EED9;
+          display: block;
+          line-height: 1;
+        }
+        
+        .stat-label {
+          font-size: 14px;
+          color: rgba(243, 238, 217, 0.9);
+          margin-top: 4px;
+        }
+        
+        .about-content {
+          padding: 0 32px 48px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        
+        .tabs-navigation {
+          display: flex;
+          background: #FFFFFF;
+          border-radius: 16px;
+          padding: 8px;
+          margin-bottom: 32px;
+          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
+          border: 1px solid #E5DCC2;
+          position: sticky;
+          top: 20px;
+          z-index: 10;
+        }
+        
+        .tab-button {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 16px 20px;
+          border: none;
+          background: transparent;
+          color: #6E6E6E;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-size: 14px;
+          font-weight: 600;
+        }
+        
+        .tab-button:hover {
+          background: rgba(96, 125, 139, 0.1);
+          color: #607D8B;
+        }
+        
+        .tab-button.active {
+          background: linear-gradient(135deg, #607D8B 0%, #455A64 100%);
+          color: #F3EED9;
+          box-shadow: 0 4px 12px rgba(96, 125, 139, 0.3);
+        }
+        
+        .tab-content {
+          animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .developer-hero {
+          display: flex;
+          align-items: center;
+          gap: 24px;
+          background: #FFFFFF;
+          border-radius: 20px;
+          padding: 32px;
+          margin-bottom: 32px;
+          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
+          border: 1px solid #E5DCC2;
+        }
+        
+        .developer-avatar {
+          width: 80px;
+          height: 80px;
+          background: linear-gradient(135deg, #607D8B 0%, #455A64 100%);
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 32px;
+          flex-shrink: 0;
+        }
+        
+        .developer-name {
+          font-size: 28px;
+          font-weight: 800;
+          color: #2E2E2E;
+          margin: 0 0 8px 0;
+          letter-spacing: -0.3px;
+        }
+        
+        .developer-title {
+          font-size: 16px;
+          color: #607D8B;
+          margin: 0 0 16px 0;
+          font-weight: 600;
+        }
+        
+        .developer-meta {
+          display: flex;
+          gap: 24px;
+          flex-wrap: wrap;
+        }
+        
+        .meta-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #6E6E6E;
+          font-size: 14px;
+        }
+        
+        .content-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 24px;
+          margin-bottom: 48px;
+        }
+        
+        .info-card {
+          background: #FFFFFF;
+          border-radius: 16px;
+          padding: 24px;
+          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
+          border: 1px solid #E5DCC2;
+        }
+        
+        .card-title {
+          font-size: 20px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 20px 0;
+        }
+        
+        .contact-list {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        
+        .contact-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 16px;
+          background: rgba(96, 125, 139, 0.05);
+          border-radius: 12px;
+          color: #2E2E2E;
+          text-decoration: none;
+          transition: all 0.2s ease;
+        }
+        
+        .contact-item:hover {
+          background: rgba(96, 125, 139, 0.1);
+          transform: translateY(-1px);
+        }
+        
+        .position-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: #607D8B;
+          margin-bottom: 8px;
+        }
+        
+        .position-description {
+          font-size: 14px;
+          color: #6E6E6E;
+          line-height: 1.6;
+          margin: 0;
+        }
+        
+        .section {
+          margin-bottom: 48px;
+        }
+        
+        .section-title {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 24px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 24px 0;
+        }
+        
+        .timeline {
+          position: relative;
+          padding-left: 32px;
+        }
+        
+        .timeline::before {
+          content: '';
+          position: absolute;
+          left: 16px;
+          top: 0;
+          bottom: 0;
+          width: 2px;
+          background: linear-gradient(to bottom, #607D8B, #455A64);
+        }
+        
+        .timeline-item {
+          position: relative;
+          margin-bottom: 32px;
+          background: #FFFFFF;
+          border-radius: 16px;
+          padding: 24px;
+          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
+          border: 1px solid #E5DCC2;
+        }
+        
+        .timeline-marker {
+          position: absolute;
+          left: -40px;
+          top: 24px;
+          width: 12px;
+          height: 12px;
+          background: #607D8B;
+          border-radius: 50%;
+          border: 3px solid #FFFFFF;
+          box-shadow: 0 0 0 2px #607D8B;
+        }
+        
+        .timeline-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 4px 0;
+        }
+        
+        .timeline-subtitle {
+          font-size: 14px;
+          color: #607D8B;
+          margin: 0 0 8px 0;
+          font-weight: 600;
+        }
+        
+        .timeline-meta {
+          display: flex;
+          gap: 16px;
+          margin-bottom: 8px;
+        }
+        
+        .timeline-year {
+          background: rgba(96, 125, 139, 0.1);
+          color: #607D8B;
+          padding: 4px 8px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 600;
+        }
+        
+        .timeline-mention {
+          background: #4CAF50;
+          color: #FFFFFF;
+          padding: 4px 8px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 600;
+        }
+        
+        .timeline-description {
+          font-size: 14px;
+          color: #6E6E6E;
+          line-height: 1.6;
+          margin: 0;
+        }
+        
+        .experience-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 24px;
+        }
+        
+        .experience-card {
+          background: #FFFFFF;
+          border-radius: 16px;
+          padding: 24px;
+          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
+          border: 1px solid #E5DCC2;
+          transition: all 0.3s ease;
+        }
+        
+        .experience-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 8px 24px rgba(96, 125, 139, 0.15);
+        }
+        
+        .experience-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 8px;
+        }
+        
+        .experience-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0;
+          flex: 1;
+        }
+        
+        .experience-period {
+          background: rgba(96, 125, 139, 0.1);
+          color: #607D8B;
+          padding: 4px 8px;
+          border-radius: 8px;
+          font-size: 11px;
+          font-weight: 600;
+          white-space: nowrap;
+        }
+        
+        .experience-company {
+          font-size: 14px;
+          color: #607D8B;
+          font-weight: 600;
+          margin: 0 0 12px 0;
+        }
+        
+        .experience-description {
+          font-size: 14px;
+          color: #6E6E6E;
+          line-height: 1.6;
+          margin: 0;
+        }
+        
+        .achievements-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 20px;
+        }
+        
+        .achievement-card {
+          background: #FFFFFF;
+          border-radius: 16px;
+          padding: 20px;
+          text-align: center;
+          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
+          border: 1px solid #E5DCC2;
+          transition: all 0.3s ease;
+        }
+        
+        .achievement-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 8px 24px rgba(96, 125, 139, 0.15);
+        }
+        
+        .achievement-icon {
+          width: 48px;
+          height: 48px;
+          background: rgba(96, 125, 139, 0.1);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #607D8B;
+          margin: 0 auto 16px;
+        }
+        
+        .achievement-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 8px 0;
+        }
+        
+        .achievement-description {
+          font-size: 14px;
+          color: #6E6E6E;
+          margin: 0;
+        }
+        
+        .project-intro {
+          background: #FFFFFF;
+          border-radius: 20px;
+          padding: 32px;
+          margin-bottom: 32px;
+          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
+          border: 1px solid #E5DCC2;
+          text-align: center;
+        }
+        
+        .intro-title {
+          font-size: 32px;
+          font-weight: 800;
+          color: #2E2E2E;
+          margin: 0 0 16px 0;
+          letter-spacing: -0.3px;
+        }
+        
+        .intro-description {
+          font-size: 16px;
+          color: #6E6E6E;
+          line-height: 1.6;
+          margin: 0;
+          max-width: 800px;
+          margin: 0 auto;
+        }
+        
+        .features-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 24px;
+          margin-bottom: 48px;
+        }
+        
+        .feature-card {
+          background: #FFFFFF;
+          border-radius: 20px;
+          padding: 28px;
+          text-align: center;
+          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
+          border: 1px solid #E5DCC2;
+          transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 8px 24px rgba(96, 125, 139, 0.15);
+        }
+        
+        .feature-icon {
+          width: 56px;
+          height: 56px;
+          background: rgba(96, 125, 139, 0.1);
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #607D8B;
+          margin: 0 auto 20px;
+        }
+        
+        .feature-title {
+          font-size: 20px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 12px 0;
+        }
+        
+        .feature-description {
+          font-size: 14px;
+          color: #6E6E6E;
+          line-height: 1.6;
+          margin: 0;
+        }
+        
+        .project-details {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 24px;
+          margin-bottom: 48px;
+        }
+        
+        .detail-card {
+          background: #FFFFFF;
+          border-radius: 16px;
+          padding: 24px;
+          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
+          border: 1px solid #E5DCC2;
+        }
+        
+        .detail-title {
+          font-size: 20px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 16px 0;
+        }
+        
+        .detail-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        
+        .detail-list li {
+          padding: 8px 0;
+          border-bottom: 1px solid #F3EED9;
+          font-size: 14px;
+          color: #6E6E6E;
+          line-height: 1.6;
+          position: relative;
+          padding-left: 20px;
+        }
+        
+        .detail-list li::before {
+          content: '•';
+          color: #607D8B;
+          position: absolute;
+          left: 0;
+          font-weight: bold;
+        }
+        
+        .detail-list li:last-child {
+          border-bottom: none;
+        }
+        
+        .project-mission {
+          display: flex;
+          gap: 24px;
+          background: linear-gradient(135deg, rgba(96, 125, 139, 0.05) 0%, rgba(69, 90, 100, 0.05) 100%);
+          border: 1px solid rgba(96, 125, 139, 0.2);
+          border-radius: 20px;
+          padding: 32px;
+        }
+        
+        .mission-icon {
+          width: 64px;
+          height: 64px;
+          background: #607D8B;
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #FFFFFF;
+          flex-shrink: 0;
+        }
+        
+        .mission-title {
+          font-size: 24px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 12px 0;
+        }
+        
+        .mission-description {
+          font-size: 16px;
+          color: #6E6E6E;
+          line-height: 1.6;
+          margin: 0;
+        }
+        
+        .tech-intro {
+          background: #FFFFFF;
+          border-radius: 20px;
+          padding: 32px;
+          margin-bottom: 32px;
+          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
+          border: 1px solid #E5DCC2;
+          text-align: center;
+        }
+        
+        .tech-categories {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 24px;
+          margin-bottom: 48px;
+        }
+        
+        .tech-category {
+          background: #FFFFFF;
+          border-radius: 16px;
+          padding: 24px;
+          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
+          border: 1px solid #E5DCC2;
+        }
+        
+        .tech-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 16px 0;
+        }
+        
+        .tech-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        
+        .tech-tag {
+          padding: 6px 12px;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: 600;
+          color: #FFFFFF;
+        }
+        
+        .tech-tag.frontend { background: #3E5C49; }
+        .tech-tag.backend { background: #C2571B; }
+        .tech-tag.mobile { background: #E91E63; }
+        .tech-tag.ai { background: #9C27B0; }
+        .tech-tag.design { background: #FF9800; }
+        .tech-tag.database { background: #607D8B; }
+        .tech-tag.tools { background: #6E6E6E; }
+        
+        .architecture-info {
+          background: #FFFFFF;
+          border-radius: 16px;
+          padding: 24px;
+          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
+          border: 1px solid #E5DCC2;
+        }
+        
+        .architecture-title {
+          font-size: 20px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 16px 0;
+        }
+        
+        .architecture-description p {
+          font-size: 14px;
+          color: #6E6E6E;
+          line-height: 1.6;
+          margin: 0 0 16px 0;
+        }
+        
+        .architecture-description p:last-child {
+          margin-bottom: 0;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+          .hero-section {
+            padding: 32px 16px;
+          }
+          
+          .hero-title {
+            font-size: 32px;
+          }
+          
+          .hero-subtitle {
+            font-size: 18px;
+          }
+          
+          .project-stats {
+            flex-direction: column;
+            gap: 16px;
+          }
+          
+          .stat-item {
+            justify-content: center;
+          }
+          
+          .about-content {
+            padding: 0 16px 32px;
+          }
+          
+          .tabs-navigation {
+            flex-direction: column;
+            gap: 8px;
+          }
+          
+          .tab-button {
+            justify-content: flex-start;
+          }
+          
+          .developer-hero {
+            flex-direction: column;
+            text-align: center;
+            gap: 20px;
+          }
+          
+          .developer-meta {
+            justify-content: center;
+          }
+          
+          .content-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .timeline {
+            padding-left: 24px;
+          }
+          
+          .timeline-marker {
+            left: -32px;
+          }
+          
+          .experience-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .achievements-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .features-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .project-details {
+            grid-template-columns: 1fr;
+          }
+          
+          .project-mission {
+            flex-direction: column;
+            text-align: center;
+          }
+          
+          .tech-categories {
+            grid-template-columns: 1fr;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .hero-main {
+            gap: 16px;
+          }
+          
+          .hero-icon {
+            width: 72px;
+            height: 72px;
+          }
+          
+          .hero-title {
+            font-size: 28px;
+          }
+          
+          .intro-title {
+            font-size: 28px;
+          }
+          
+          .developer-name {
+            font-size: 24px;
+          }
+          
+          .experience-header {
+            flex-direction: column;
+            gap: 8px;
+          }
+          
+          .experience-period {
+            align-self: flex-start;
+          }
+          
+          .timeline-item {
+            padding: 20px;
+          }
+          
+          .feature-card,
+          .achievement-card {
+            padding: 20px;
+          }
+          
+          .project-mission {
+            padding: 24px;
+          }
+        }
+      ` })] }));
+};
+exports.About = About;
 
 
 /***/ }),
@@ -54535,33 +56075,13 @@ exports.BookList = void 0;
 const jsx_runtime_1 = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 const react_1 = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 const lucide_react_1 = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/cjs/lucide-react.cjs");
-const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
-    const [selectedBook, setSelectedBook] = (0, react_1.useState)(null);
-    const [showBorrowModal, setShowBorrowModal] = (0, react_1.useState)(false);
+const BookList = ({ books, onBorrow, onDelete }) => {
+    const [searchQuery, setSearchQuery] = (0, react_1.useState)('');
     const [activeDropdown, setActiveDropdown] = (0, react_1.useState)(null);
     const [viewMode, setViewMode] = (0, react_1.useState)('grid');
     const [sortBy, setSortBy] = (0, react_1.useState)('title');
     const [filterStatus, setFilterStatus] = (0, react_1.useState)('all');
-    const [borrowerName, setBorrowerName] = (0, react_1.useState)(''); // Added borrowerName state
-    const handleBorrow = () => {
-        if (selectedBook && borrowerName.trim()) {
-            onBorrow(selectedBook, borrowerName); // Pass borrowerName as second argument
-            setShowBorrowModal(false);
-            setSelectedBook(null);
-            setBorrowerName(''); // Clear borrowerName after borrow
-        }
-    };
-    const openBorrowModal = (book) => {
-        setSelectedBook(book);
-        setShowBorrowModal(true);
-        setActiveDropdown(null);
-        setBorrowerName(''); // Clear borrowerName when opening modal
-    };
-    const closeBorrowModal = () => {
-        setShowBorrowModal(false);
-        setSelectedBook(null);
-        setBorrowerName(''); // Clear borrowerName when closing modal
-    };
+    const [selectedCategory, setSelectedCategory] = (0, react_1.useState)('all');
     const handleDelete = (book) => {
         if (window.confirm(`Êtes-vous sûr de vouloir supprimer "${book.title}" ?`)) {
             onDelete(book.id);
@@ -54576,14 +56096,32 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
             'Biographie': '#3E5C49',
             'Sciences': '#C2571B',
             'Philosophie': '#6E6E6E',
+            'Romance': '#E91E63',
+            'Thriller': '#9C27B0',
+            'Jeunesse': '#FF9800',
+            'Art': '#607D8B'
         };
         return colors[category] || '#6E6E6E';
     };
+    // Obtenir toutes les catégories uniques
+    const categories = Array.from(new Set(books.map(book => book.category)));
     const filteredBooks = books.filter(book => {
+        // Filtre par statut
         if (filterStatus === 'available')
             return !book.isBorrowed;
         if (filterStatus === 'borrowed')
             return book.isBorrowed;
+        // Filtre par catégorie
+        if (selectedCategory !== 'all' && book.category !== selectedCategory)
+            return false;
+        // Filtre par recherche
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            return (book.title.toLowerCase().includes(query) ||
+                book.author.toLowerCase().includes(query) ||
+                book.category.toLowerCase().includes(query) ||
+                (book.description && book.description.toLowerCase().includes(query)));
+        }
         return true;
     });
     const sortedBooks = [...filteredBooks].sort((a, b) => {
@@ -54592,19 +56130,43 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
                 return a.author.localeCompare(b.author);
             case 'date':
                 return (b.publishedDate || '').localeCompare(a.publishedDate || '');
+            case 'popularity':
+                // Simuler la popularité basée sur le statut d'emprunt et la date
+                const scoreA = (a.isBorrowed ? 10 : 5) + (a.publishedDate ? parseInt(a.publishedDate) / 100 : 0);
+                const scoreB = (b.isBorrowed ? 10 : 5) + (b.publishedDate ? parseInt(b.publishedDate) / 100 : 0);
+                return scoreB - scoreA;
             default:
                 return a.title.localeCompare(b.title);
         }
     });
-    return ((0, jsx_runtime_1.jsxs)("div", { className: "book-list", children: [(0, jsx_runtime_1.jsxs)("div", { className: "page-header", children: [(0, jsx_runtime_1.jsxs)("div", { className: "header-main", children: [(0, jsx_runtime_1.jsxs)("div", { className: "header-text", children: [(0, jsx_runtime_1.jsx)("h1", { className: "page-title", children: "Collection de livres" }), (0, jsx_runtime_1.jsxs)("p", { className: "page-subtitle", children: [filteredBooks.length, " livre(s) ", filterStatus !== 'all' ? `(${filterStatus === 'available' ? 'disponibles' : 'empruntés'})` : 'au total'] })] }), (0, jsx_runtime_1.jsx)("div", { className: "header-actions", children: (0, jsx_runtime_1.jsxs)("div", { className: "view-controls", children: [(0, jsx_runtime_1.jsx)("button", { className: `view-button ${viewMode === 'grid' ? 'active' : ''}`, onClick: () => setViewMode('grid'), title: "Vue grille", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Grid, { size: 16 }) }), (0, jsx_runtime_1.jsx)("button", { className: `view-button ${viewMode === 'list' ? 'active' : ''}`, onClick: () => setViewMode('list'), title: "Vue liste", children: (0, jsx_runtime_1.jsx)(lucide_react_1.List, { size: 16 }) })] }) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "search-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "search-container", children: (0, jsx_runtime_1.jsxs)("div", { className: "search-input-wrapper", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Search, { className: "search-icon", size: 20 }), (0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "Rechercher par titre, auteur, cat\u00E9gorie...", value: searchQuery, onChange: (e) => onSearch(e.target.value), className: "search-input" }), searchQuery && ((0, jsx_runtime_1.jsx)("button", { className: "clear-search", onClick: () => onSearch(''), children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 16 }) }))] }) }), (0, jsx_runtime_1.jsxs)("div", { className: "filters-container", children: [(0, jsx_runtime_1.jsxs)("div", { className: "filter-group", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Filter, { size: 16 }), (0, jsx_runtime_1.jsxs)("select", { value: filterStatus, onChange: (e) => setFilterStatus(e.target.value), className: "filter-select", children: [(0, jsx_runtime_1.jsx)("option", { value: "all", children: "Tous les livres" }), (0, jsx_runtime_1.jsx)("option", { value: "available", children: "Disponibles" }), (0, jsx_runtime_1.jsx)("option", { value: "borrowed", children: "Emprunt\u00E9s" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "filter-group", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.SortAsc, { size: 16 }), (0, jsx_runtime_1.jsxs)("select", { value: sortBy, onChange: (e) => setSortBy(e.target.value), className: "filter-select", children: [(0, jsx_runtime_1.jsx)("option", { value: "title", children: "Trier par titre" }), (0, jsx_runtime_1.jsx)("option", { value: "author", children: "Trier par auteur" }), (0, jsx_runtime_1.jsx)("option", { value: "date", children: "Trier par date" })] })] })] })] })] }), (0, jsx_runtime_1.jsx)("div", { className: "books-content", children: sortedBooks.length > 0 ? ((0, jsx_runtime_1.jsx)("div", { className: `books-container ${viewMode}`, children: sortedBooks.map((book) => ((0, jsx_runtime_1.jsx)("div", { className: "book-item card-elevated", children: viewMode === 'grid' ? (
-                        // Grid View
-                        (0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-cover", children: [book.coverUrl ? ((0, jsx_runtime_1.jsx)("img", { src: book.coverUrl, alt: book.title })) : ((0, jsx_runtime_1.jsx)("div", { className: "book-cover-placeholder", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Book, { size: 32 }) })), book.isBorrowed && ((0, jsx_runtime_1.jsx)("div", { className: "borrowed-badge", children: "Emprunt\u00E9" })), (0, jsx_runtime_1.jsx)("div", { className: "book-overlay", children: (0, jsx_runtime_1.jsx)("button", { className: "overlay-button", onClick: () => setActiveDropdown(activeDropdown === book.id ? null : book.id), children: (0, jsx_runtime_1.jsx)(lucide_react_1.MoreVertical, { size: 16 }) }) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "book-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-header", children: [(0, jsx_runtime_1.jsx)("h3", { className: "book-title", children: book.title }), activeDropdown === book.id && ((0, jsx_runtime_1.jsxs)("div", { className: "dropdown-menu", children: [(0, jsx_runtime_1.jsxs)("button", { className: "dropdown-item", onClick: () => { }, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Eye, { size: 16 }), "Voir d\u00E9tails"] }), !book.isBorrowed && ((0, jsx_runtime_1.jsxs)("button", { className: "dropdown-item", onClick: () => openBorrowModal(book), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.UserPlus, { size: 16 }), "Emprunter"] })), (0, jsx_runtime_1.jsxs)("button", { className: "dropdown-item delete", onClick: () => handleDelete(book), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Trash2, { size: 16 }), "Supprimer"] })] }))] }), (0, jsx_runtime_1.jsxs)("div", { className: "book-meta", children: [(0, jsx_runtime_1.jsxs)("div", { className: "meta-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.User, { size: 14 }), (0, jsx_runtime_1.jsx)("span", { children: book.author })] }), book.publishedDate && ((0, jsx_runtime_1.jsxs)("div", { className: "meta-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Calendar, { size: 14 }), (0, jsx_runtime_1.jsx)("span", { children: book.publishedDate })] })), (0, jsx_runtime_1.jsxs)("div", { className: "meta-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Tag, { size: 14 }), (0, jsx_runtime_1.jsx)("span", { className: "category-tag", style: { backgroundColor: getCategoryColor(book.category) }, children: book.category })] })] }), book.description && ((0, jsx_runtime_1.jsx)("p", { className: "book-description", children: book.description })), book.isBorrowed && book.borrowerName && ((0, jsx_runtime_1.jsxs)("div", { className: "borrow-info", children: [(0, jsx_runtime_1.jsx)("span", { className: "borrow-label", children: "Emprunt\u00E9 par:" }), (0, jsx_runtime_1.jsx)("span", { className: "borrower-name", children: book.borrowerName }), book.borrowDate && ((0, jsx_runtime_1.jsxs)("span", { className: "borrow-date", children: ["le ", new Date(book.borrowDate).toLocaleDateString('fr-FR')] }))] }))] })] })) : (
-                        // List View
-                        (0, jsx_runtime_1.jsxs)("div", { className: "book-list-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "book-list-cover", children: book.coverUrl ? ((0, jsx_runtime_1.jsx)("img", { src: book.coverUrl, alt: book.title })) : ((0, jsx_runtime_1.jsx)("div", { className: "book-cover-placeholder small", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Book, { size: 20 }) })) }), (0, jsx_runtime_1.jsxs)("div", { className: "book-list-details", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-list-main", children: [(0, jsx_runtime_1.jsx)("h3", { className: "book-title", children: book.title }), (0, jsx_runtime_1.jsxs)("p", { className: "book-author", children: ["par ", book.author] }), (0, jsx_runtime_1.jsxs)("div", { className: "book-tags", children: [(0, jsx_runtime_1.jsx)("span", { className: "category-tag small", style: { backgroundColor: getCategoryColor(book.category) }, children: book.category }), book.publishedDate && ((0, jsx_runtime_1.jsx)("span", { className: "year-tag", children: book.publishedDate })), book.isBorrowed && ((0, jsx_runtime_1.jsx)("span", { className: "status-tag borrowed", children: "Emprunt\u00E9" }))] })] }), book.description && ((0, jsx_runtime_1.jsx)("p", { className: "book-list-description", children: book.description })), book.isBorrowed && book.borrowerName && ((0, jsx_runtime_1.jsxs)("div", { className: "borrow-info compact", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.User, { size: 14 }), (0, jsx_runtime_1.jsxs)("span", { children: ["Emprunt\u00E9 par ", (0, jsx_runtime_1.jsx)("strong", { children: book.borrowerName })] }), book.borrowDate && ((0, jsx_runtime_1.jsxs)("span", { children: ["le ", new Date(book.borrowDate).toLocaleDateString('fr-FR')] }))] }))] }), (0, jsx_runtime_1.jsxs)("div", { className: "book-list-actions", children: [(0, jsx_runtime_1.jsx)("button", { className: "action-button", onClick: () => setActiveDropdown(activeDropdown === book.id ? null : book.id), children: (0, jsx_runtime_1.jsx)(lucide_react_1.MoreVertical, { size: 16 }) }), activeDropdown === book.id && ((0, jsx_runtime_1.jsxs)("div", { className: "dropdown-menu right", children: [(0, jsx_runtime_1.jsxs)("button", { className: "dropdown-item", onClick: () => { }, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Eye, { size: 16 }), "Voir d\u00E9tails"] }), !book.isBorrowed && ((0, jsx_runtime_1.jsxs)("button", { className: "dropdown-item", onClick: () => openBorrowModal(book), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.UserPlus, { size: 16 }), "Emprunter"] })), (0, jsx_runtime_1.jsxs)("button", { className: "dropdown-item delete", onClick: () => handleDelete(book), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Trash2, { size: 16 }), "Supprimer"] })] }))] })] })) }, book.id))) })) : ((0, jsx_runtime_1.jsxs)("div", { className: "empty-state", children: [(0, jsx_runtime_1.jsx)("div", { className: "empty-icon", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Book, { size: 64 }) }), (0, jsx_runtime_1.jsx)("h3", { className: "empty-title", children: "Aucun livre trouv\u00E9" }), (0, jsx_runtime_1.jsx)("p", { className: "empty-description", children: searchQuery
+    const getBookStats = () => {
+        return {
+            total: books.length,
+            available: books.filter(b => !b.isBorrowed).length,
+            borrowed: books.filter(b => b.isBorrowed).length,
+            filtered: filteredBooks.length
+        };
+    };
+    const stats = getBookStats();
+    return ((0, jsx_runtime_1.jsxs)("div", { className: "book-list", children: [(0, jsx_runtime_1.jsxs)("div", { className: "page-header", children: [(0, jsx_runtime_1.jsxs)("div", { className: "header-main", children: [(0, jsx_runtime_1.jsxs)("div", { className: "header-text", children: [(0, jsx_runtime_1.jsx)("h1", { className: "page-title", children: "Collection de livres" }), (0, jsx_runtime_1.jsxs)("p", { className: "page-subtitle", children: [stats.filtered, " livre(s) affich\u00E9(s) sur ", stats.total, " au total"] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "header-actions", children: [(0, jsx_runtime_1.jsxs)("div", { className: "quick-stats", children: [(0, jsx_runtime_1.jsxs)("div", { className: "quick-stat available", children: [(0, jsx_runtime_1.jsx)("span", { className: "stat-number", children: stats.available }), (0, jsx_runtime_1.jsx)("span", { className: "stat-label", children: "Disponibles" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "quick-stat borrowed", children: [(0, jsx_runtime_1.jsx)("span", { className: "stat-number", children: stats.borrowed }), (0, jsx_runtime_1.jsx)("span", { className: "stat-label", children: "Emprunt\u00E9s" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "view-controls", children: [(0, jsx_runtime_1.jsx)("button", { className: `view-button ${viewMode === 'grid' ? 'active' : ''}`, onClick: () => setViewMode('grid'), title: "Vue grille", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Grid, { size: 16 }) }), (0, jsx_runtime_1.jsx)("button", { className: `view-button ${viewMode === 'list' ? 'active' : ''}`, onClick: () => setViewMode('list'), title: "Vue liste", children: (0, jsx_runtime_1.jsx)(lucide_react_1.List, { size: 16 }) })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "search-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "search-container", children: (0, jsx_runtime_1.jsxs)("div", { className: "search-input-wrapper", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Search, { className: "search-icon", size: 20 }), (0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "Rechercher par titre, auteur, cat\u00E9gorie...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }), searchQuery && ((0, jsx_runtime_1.jsx)("button", { className: "clear-search", onClick: () => setSearchQuery(''), children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 16 }) }))] }) }), (0, jsx_runtime_1.jsxs)("div", { className: "filters-container", children: [(0, jsx_runtime_1.jsxs)("div", { className: "filter-group", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Filter, { size: 16 }), (0, jsx_runtime_1.jsxs)("select", { value: filterStatus, onChange: (e) => setFilterStatus(e.target.value), className: "filter-select", children: [(0, jsx_runtime_1.jsx)("option", { value: "all", children: "Tous les livres" }), (0, jsx_runtime_1.jsx)("option", { value: "available", children: "Disponibles" }), (0, jsx_runtime_1.jsx)("option", { value: "borrowed", children: "Emprunt\u00E9s" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "filter-group", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Tag, { size: 16 }), (0, jsx_runtime_1.jsxs)("select", { value: selectedCategory, onChange: (e) => setSelectedCategory(e.target.value), className: "filter-select", children: [(0, jsx_runtime_1.jsx)("option", { value: "all", children: "Toutes les cat\u00E9gories" }), categories.map((category) => ((0, jsx_runtime_1.jsx)("option", { value: category, children: category }, category)))] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "filter-group", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.SortAsc, { size: 16 }), (0, jsx_runtime_1.jsxs)("select", { value: sortBy, onChange: (e) => setSortBy(e.target.value), className: "filter-select", children: [(0, jsx_runtime_1.jsx)("option", { value: "title", children: "Trier par titre" }), (0, jsx_runtime_1.jsx)("option", { value: "author", children: "Trier par auteur" }), (0, jsx_runtime_1.jsx)("option", { value: "date", children: "Trier par date" }), (0, jsx_runtime_1.jsx)("option", { value: "popularity", children: "Trier par popularit\u00E9" })] })] })] })] }), categories.length > 0 && ((0, jsx_runtime_1.jsxs)("div", { className: "category-filters", children: [(0, jsx_runtime_1.jsx)("button", { className: `category-chip ${selectedCategory === 'all' ? 'active' : ''}`, onClick: () => setSelectedCategory('all'), children: "Toutes" }), categories.slice(0, 6).map((category) => ((0, jsx_runtime_1.jsx)("button", { className: `category-chip ${selectedCategory === category ? 'active' : ''}`, onClick: () => setSelectedCategory(category), style: {
+                                    '--category-color': getCategoryColor(category)
+                                }, children: category }, category))), categories.length > 6 && ((0, jsx_runtime_1.jsxs)("span", { className: "more-categories", children: ["+", categories.length - 6, " autres"] }))] }))] }), (0, jsx_runtime_1.jsx)("div", { className: "books-content", children: sortedBooks.length > 0 ? ((0, jsx_runtime_1.jsx)("div", { className: `books-container ${viewMode}`, children: sortedBooks.map((book) => ((0, jsx_runtime_1.jsx)("div", { className: "book-item card-elevated", children: viewMode === 'grid' ? (
+                        // Enhanced Grid View
+                        (0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-cover", children: [book.coverUrl ? ((0, jsx_runtime_1.jsx)("img", { src: book.coverUrl, alt: book.title })) : ((0, jsx_runtime_1.jsx)("div", { className: "book-cover-placeholder", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Book, { size: 32 }) })), (0, jsx_runtime_1.jsx)("div", { className: `status-badge ${book.isBorrowed ? 'borrowed' : 'available'}`, children: book.isBorrowed ? 'Emprunté' : 'Disponible' }), (0, jsx_runtime_1.jsxs)("div", { className: "book-overlay", children: [(0, jsx_runtime_1.jsxs)("div", { className: "overlay-actions", children: [(0, jsx_runtime_1.jsx)("button", { className: "overlay-button view", onClick: () => { }, title: "Voir d\u00E9tails", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Eye, { size: 16 }) }), !book.isBorrowed && ((0, jsx_runtime_1.jsx)("button", { className: "overlay-button borrow", onClick: () => onBorrow(book), title: "Emprunter", children: (0, jsx_runtime_1.jsx)(lucide_react_1.UserPlus, { size: 16 }) })), (0, jsx_runtime_1.jsx)("button", { className: "overlay-button menu", onClick: () => setActiveDropdown(activeDropdown === book.id ? null : book.id), title: "Plus d'options", children: (0, jsx_runtime_1.jsx)(lucide_react_1.MoreVertical, { size: 16 }) })] }), activeDropdown === book.id && ((0, jsx_runtime_1.jsxs)("div", { className: "dropdown-menu", children: [(0, jsx_runtime_1.jsxs)("button", { className: "dropdown-item", onClick: () => { }, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Eye, { size: 16 }), "Voir d\u00E9tails"] }), (0, jsx_runtime_1.jsxs)("button", { className: "dropdown-item", onClick: () => { }, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Edit, { size: 16 }), "Modifier"] }), !book.isBorrowed && ((0, jsx_runtime_1.jsxs)("button", { className: "dropdown-item primary", onClick: () => onBorrow(book), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.UserPlus, { size: 16 }), "Emprunter"] })), (0, jsx_runtime_1.jsxs)("button", { className: "dropdown-item delete", onClick: () => handleDelete(book), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Trash2, { size: 16 }), "Supprimer"] })] }))] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "book-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-header", children: [(0, jsx_runtime_1.jsx)("h3", { className: "book-title", children: book.title }), (0, jsx_runtime_1.jsxs)("div", { className: "book-rating", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Star, { size: 14, fill: "currentColor" }), (0, jsx_runtime_1.jsx)("span", { children: "4.2" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "book-meta", children: [(0, jsx_runtime_1.jsxs)("div", { className: "meta-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.User, { size: 14 }), (0, jsx_runtime_1.jsx)("span", { children: book.author })] }), book.publishedDate && ((0, jsx_runtime_1.jsxs)("div", { className: "meta-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Calendar, { size: 14 }), (0, jsx_runtime_1.jsx)("span", { children: book.publishedDate })] }))] }), (0, jsx_runtime_1.jsxs)("div", { className: "book-category-section", children: [(0, jsx_runtime_1.jsx)("span", { className: "category-tag", style: { backgroundColor: getCategoryColor(book.category) }, children: book.category }), book.isBorrowed && ((0, jsx_runtime_1.jsxs)("span", { className: "trending-badge", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.TrendingUp, { size: 12 }), "Populaire"] }))] }), book.description && ((0, jsx_runtime_1.jsx)("p", { className: "book-description", children: book.description })), book.isBorrowed && book.borrowerName && ((0, jsx_runtime_1.jsxs)("div", { className: "borrow-info", children: [(0, jsx_runtime_1.jsx)("div", { className: "borrower-avatar", children: book.borrowerName.charAt(0).toUpperCase() }), (0, jsx_runtime_1.jsxs)("div", { className: "borrow-details", children: [(0, jsx_runtime_1.jsx)("span", { className: "borrow-label", children: "Emprunt\u00E9 par" }), (0, jsx_runtime_1.jsx)("span", { className: "borrower-name", children: book.borrowerName }), book.borrowDate && ((0, jsx_runtime_1.jsxs)("span", { className: "borrow-date", children: ["le ", new Date(book.borrowDate).toLocaleDateString('fr-FR')] }))] })] })), !book.isBorrowed && ((0, jsx_runtime_1.jsxs)("button", { className: "primary-action-btn", onClick: () => onBorrow(book), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.UserPlus, { size: 16 }), "Emprunter maintenant"] }))] })] })) : (
+                        // Enhanced List View
+                        (0, jsx_runtime_1.jsxs)("div", { className: "book-list-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-list-cover", children: [book.coverUrl ? ((0, jsx_runtime_1.jsx)("img", { src: book.coverUrl, alt: book.title })) : ((0, jsx_runtime_1.jsx)("div", { className: "book-cover-placeholder small", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Book, { size: 20 }) })), (0, jsx_runtime_1.jsx)("div", { className: `list-status-indicator ${book.isBorrowed ? 'borrowed' : 'available'}`, children: book.isBorrowed ? '●' : '●' })] }), (0, jsx_runtime_1.jsxs)("div", { className: "book-list-details", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-list-main", children: [(0, jsx_runtime_1.jsxs)("div", { className: "list-title-section", children: [(0, jsx_runtime_1.jsx)("h3", { className: "book-title", children: book.title }), (0, jsx_runtime_1.jsxs)("div", { className: "book-rating small", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Star, { size: 12, fill: "currentColor" }), (0, jsx_runtime_1.jsx)("span", { children: "4.2" })] })] }), (0, jsx_runtime_1.jsxs)("p", { className: "book-author", children: ["par ", book.author] }), (0, jsx_runtime_1.jsxs)("div", { className: "book-tags", children: [(0, jsx_runtime_1.jsx)("span", { className: "category-tag small", style: { backgroundColor: getCategoryColor(book.category) }, children: book.category }), book.publishedDate && ((0, jsx_runtime_1.jsx)("span", { className: "year-tag", children: book.publishedDate })), book.isBorrowed && ((0, jsx_runtime_1.jsx)("span", { className: "status-tag borrowed", children: "Emprunt\u00E9" }))] })] }), book.description && ((0, jsx_runtime_1.jsx)("p", { className: "book-list-description", children: book.description })), book.isBorrowed && book.borrowerName && ((0, jsx_runtime_1.jsxs)("div", { className: "borrow-info compact", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.User, { size: 14 }), (0, jsx_runtime_1.jsxs)("span", { children: ["Emprunt\u00E9 par ", (0, jsx_runtime_1.jsx)("strong", { children: book.borrowerName })] }), book.borrowDate && ((0, jsx_runtime_1.jsxs)("span", { children: ["le ", new Date(book.borrowDate).toLocaleDateString('fr-FR')] }))] }))] }), (0, jsx_runtime_1.jsxs)("div", { className: "book-list-actions", children: [!book.isBorrowed && ((0, jsx_runtime_1.jsxs)("button", { className: "action-button borrow", onClick: () => onBorrow(book), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.UserPlus, { size: 16 }), "Emprunter"] })), (0, jsx_runtime_1.jsx)("button", { className: "action-button menu", onClick: () => setActiveDropdown(activeDropdown === book.id ? null : book.id), children: (0, jsx_runtime_1.jsx)(lucide_react_1.MoreVertical, { size: 16 }) }), activeDropdown === book.id && ((0, jsx_runtime_1.jsxs)("div", { className: "dropdown-menu right", children: [(0, jsx_runtime_1.jsxs)("button", { className: "dropdown-item", onClick: () => { }, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Eye, { size: 16 }), "Voir d\u00E9tails"] }), (0, jsx_runtime_1.jsxs)("button", { className: "dropdown-item", onClick: () => { }, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Edit, { size: 16 }), "Modifier"] }), !book.isBorrowed && ((0, jsx_runtime_1.jsxs)("button", { className: "dropdown-item primary", onClick: () => onBorrow(book), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.UserPlus, { size: 16 }), "Emprunter"] })), (0, jsx_runtime_1.jsxs)("button", { className: "dropdown-item delete", onClick: () => handleDelete(book), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Trash2, { size: 16 }), "Supprimer"] })] }))] })] })) }, book.id))) })) : ((0, jsx_runtime_1.jsxs)("div", { className: "empty-state", children: [(0, jsx_runtime_1.jsx)("div", { className: "empty-icon", children: searchQuery || filterStatus !== 'all' || selectedCategory !== 'all' ? ((0, jsx_runtime_1.jsx)(lucide_react_1.Search, { size: 64 })) : ((0, jsx_runtime_1.jsx)(lucide_react_1.Book, { size: 64 })) }), (0, jsx_runtime_1.jsx)("h3", { className: "empty-title", children: searchQuery || filterStatus !== 'all' || selectedCategory !== 'all'
+                                ? 'Aucun livre trouvé'
+                                : 'Aucun livre dans la collection' }), (0, jsx_runtime_1.jsx)("p", { className: "empty-description", children: searchQuery
                                 ? `Aucun résultat pour "${searchQuery}"`
                                 : filterStatus !== 'all'
                                     ? `Aucun livre ${filterStatus === 'available' ? 'disponible' : 'emprunté'} pour le moment`
-                                    : 'Commencez par ajouter des livres à votre collection' }), searchQuery && ((0, jsx_runtime_1.jsx)("button", { className: "btn-secondary", onClick: () => onSearch(''), children: "Effacer la recherche" }))] })) }), showBorrowModal && selectedBook && ((0, jsx_runtime_1.jsx)("div", { className: "modal-overlay", onClick: closeBorrowModal, children: (0, jsx_runtime_1.jsxs)("div", { className: "modal", onClick: (e) => e.stopPropagation(), children: [(0, jsx_runtime_1.jsxs)("div", { className: "modal-header", children: [(0, jsx_runtime_1.jsx)("h3", { children: "Emprunter un livre" }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close", onClick: closeBorrowModal, children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 20 }) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "modal-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-info-card", children: [(0, jsx_runtime_1.jsx)("div", { className: "book-info-cover", children: selectedBook.coverUrl ? ((0, jsx_runtime_1.jsx)("img", { src: selectedBook.coverUrl, alt: selectedBook.title })) : ((0, jsx_runtime_1.jsx)(lucide_react_1.Book, { size: 24 })) }), (0, jsx_runtime_1.jsxs)("div", { className: "book-info-details", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-info-title", children: ["\"", selectedBook.title, "\""] }), (0, jsx_runtime_1.jsxs)("div", { className: "book-info-author", children: ["par ", selectedBook.author] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { htmlFor: "borrowerName", children: "Nom de l'emprunteur" }), (0, jsx_runtime_1.jsx)("input", { type: "text", id: "borrowerName", value: borrowerName, onChange: (e) => setBorrowerName(e.target.value), placeholder: "Entrez le nom de l'emprunteur", className: "form-control" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "modal-footer", children: [(0, jsx_runtime_1.jsx)("button", { className: "btn-secondary", onClick: closeBorrowModal, children: "Annuler" }), (0, jsx_runtime_1.jsx)("button", { className: "btn-primary", onClick: handleBorrow, disabled: !borrowerName.trim(), children: "Continuer vers l'emprunt" })] })] }) })), (0, jsx_runtime_1.jsx)("style", { children: `
+                                    : selectedCategory !== 'all'
+                                        ? `Aucun livre dans la catégorie "${selectedCategory}"`
+                                        : 'Commencez par ajouter des livres à votre collection' }), (searchQuery || filterStatus !== 'all' || selectedCategory !== 'all') && ((0, jsx_runtime_1.jsx)("button", { className: "btn-secondary", onClick: () => {
+                                setSearchQuery('');
+                                setFilterStatus('all');
+                                setSelectedCategory('all');
+                            }, children: "Effacer tous les filtres" }))] })) }), (0, jsx_runtime_1.jsx)("style", { children: `
         .book-list {
           height: 100%;
           display: flex;
@@ -54644,6 +56206,50 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
           font-weight: 500;
         }
         
+        .header-actions {
+          display: flex;
+          align-items: center;
+          gap: 24px;
+        }
+        
+        .quick-stats {
+          display: flex;
+          gap: 16px;
+        }
+        
+        .quick-stat {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 12px 16px;
+          border-radius: 12px;
+          min-width: 80px;
+        }
+        
+        .quick-stat.available {
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+        }
+        
+        .quick-stat.borrowed {
+          background: rgba(194, 87, 27, 0.1);
+          color: #C2571B;
+        }
+        
+        .stat-number {
+          font-size: 24px;
+          font-weight: 800;
+          line-height: 1;
+          margin-bottom: 4px;
+        }
+        
+        .stat-label {
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        
         .view-controls {
           display: flex;
           background: #F3EED9;
@@ -54676,6 +56282,7 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
           display: flex;
           gap: 24px;
           align-items: center;
+          margin-bottom: 20px;
         }
         
         .search-container {
@@ -54763,6 +56370,43 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
           border-color: #3E5C49;
         }
         
+        .category-filters {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          align-items: center;
+        }
+        
+        .category-chip {
+          padding: 8px 16px;
+          border: 2px solid #E5DCC2;
+          border-radius: 20px;
+          background: #FFFFFF;
+          color: #6E6E6E;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          white-space: nowrap;
+        }
+        
+        .category-chip:hover {
+          border-color: var(--category-color, #3E5C49);
+          color: var(--category-color, #3E5C49);
+        }
+        
+        .category-chip.active {
+          background: var(--category-color, #3E5C49);
+          border-color: var(--category-color, #3E5C49);
+          color: #FFFFFF;
+        }
+        
+        .more-categories {
+          font-size: 14px;
+          color: #6E6E6E;
+          font-weight: 500;
+        }
+        
         .books-content {
           flex: 1;
           overflow-y: auto;
@@ -54771,7 +56415,7 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
         
         .books-container.grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
           gap: 24px;
         }
         
@@ -54783,7 +56427,7 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
         
         .book-item {
           background: #FFFFFF;
-          border-radius: 16px;
+          border-radius: 20px;
           overflow: hidden;
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           position: relative;
@@ -54791,12 +56435,15 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
         }
         
         .book-item:hover {
-          transform: translateY(-4px);
+          transform: translateY(-6px);
+          box-shadow: 
+            0 16px 40px rgba(62, 92, 73, 0.15),
+            0 8px 24px rgba(62, 92, 73, 0.1);
         }
         
-        /* Grid View Styles */
+        /* Enhanced Grid View */
         .book-cover {
-          height: 220px;
+          height: 240px;
           background: linear-gradient(135deg, #F3EED9 0%, #E5DCC2 100%);
           position: relative;
           overflow: hidden;
@@ -54823,70 +56470,80 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
           background: linear-gradient(135deg, #F3EED9 0%, #E5DCC2 100%);
         }
         
-        .borrowed-badge {
+        .status-badge {
           position: absolute;
           top: 12px;
           right: 12px;
-          background: #C2571B;
-          color: #FFFFFF;
           padding: 6px 12px;
           border-radius: 20px;
           font-size: 12px;
           font-weight: 600;
+          backdrop-filter: blur(10px);
+        }
+        
+        .status-badge.available {
+          background: rgba(62, 92, 73, 0.9);
+          color: #F3EED9;
+        }
+        
+        .status-badge.borrowed {
+          background: rgba(194, 87, 27, 0.9);
+          color: #F3EED9;
         }
         
         .book-overlay {
           position: absolute;
-          top: 12px;
-          left: 12px;
+          inset: 0;
+          background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
           opacity: 0;
-          transition: opacity 0.2s ease;
+          transition: opacity 0.3s ease;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: 16px;
         }
         
         .book-item:hover .book-overlay {
           opacity: 1;
         }
         
+        .overlay-actions {
+          display: flex;
+          gap: 8px;
+          justify-content: flex-end;
+          align-self: flex-start;
+        }
+        
         .overlay-button {
-          background: rgba(255, 255, 255, 0.9);
-          backdrop-filter: blur(10px);
+          width: 36px;
+          height: 36px;
           border: none;
-          width: 32px;
-          height: 32px;
-          border-radius: 8px;
+          border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          color: #2E2E2E;
           transition: all 0.2s ease;
+          backdrop-filter: blur(10px);
+        }
+        
+        .overlay-button.view {
+          background: rgba(255, 255, 255, 0.2);
+          color: #FFFFFF;
+        }
+        
+        .overlay-button.borrow {
+          background: rgba(62, 92, 73, 0.9);
+          color: #F3EED9;
+        }
+        
+        .overlay-button.menu {
+          background: rgba(110, 110, 110, 0.9);
+          color: #FFFFFF;
         }
         
         .overlay-button:hover {
-          background: #FFFFFF;
-          transform: scale(1.05);
-        }
-        
-        .book-content {
-          padding: 20px;
-        }
-        
-        .book-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 16px;
-          position: relative;
-        }
-        
-        .book-title {
-          font-size: 18px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 0;
-          line-height: 1.3;
-          flex: 1;
-          margin-right: 12px;
+          transform: scale(1.1);
         }
         
         .dropdown-menu {
@@ -54900,6 +56557,7 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
           z-index: 20;
           min-width: 160px;
           overflow: hidden;
+          margin-top: 8px;
         }
         
         .dropdown-menu.right {
@@ -54926,12 +56584,60 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
           background: #F3EED9;
         }
         
+        .dropdown-item.primary {
+          color: #3E5C49;
+          font-weight: 600;
+        }
+        
+        .dropdown-item.primary:hover {
+          background: rgba(62, 92, 73, 0.1);
+        }
+        
         .dropdown-item.delete {
           color: #C2571B;
         }
         
         .dropdown-item.delete:hover {
           background: rgba(194, 87, 27, 0.1);
+        }
+        
+        .book-content {
+          padding: 24px;
+        }
+        
+        .book-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 16px;
+        }
+        
+        .book-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0;
+          line-height: 1.3;
+          flex: 1;
+          margin-right: 12px;
+        }
+        
+        .book-rating {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          color: #FFB400;
+          font-size: 14px;
+          font-weight: 600;
+        }
+        
+        .book-rating.small {
+          font-size: 12px;
+        }
+        
+        .book-rating.small svg {
+          width: 12px;
+          height: 12px;
         }
         
         .book-meta {
@@ -54949,24 +56655,44 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
           color: #6E6E6E;
         }
         
+        .book-category-section {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 16px;
+          flex-wrap: wrap;
+        }
+        
         .category-tag {
           color: #FFFFFF;
-          padding: 4px 10px;
-          border-radius: 12px;
+          padding: 6px 12px;
+          border-radius: 16px;
           font-size: 12px;
           font-weight: 600;
         }
         
         .category-tag.small {
-          padding: 2px 8px;
+          padding: 4px 8px;
           font-size: 11px;
+        }
+        
+        .trending-badge {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          background: rgba(255, 180, 0, 0.1);
+          color: #FFB400;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-size: 11px;
+          font-weight: 600;
         }
         
         .book-description {
           font-size: 14px;
           color: #6E6E6E;
           line-height: 1.5;
-          margin: 0 0 16px 0;
+          margin: 0 0 20px 0;
           display: -webkit-box;
           -webkit-line-clamp: 3;
           -webkit-box-orient: vertical;
@@ -54974,45 +56700,89 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
         }
         
         .borrow-info {
-          background: rgba(194, 87, 27, 0.1);
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          background: rgba(194, 87, 27, 0.05);
           border: 1px solid rgba(194, 87, 27, 0.2);
-          border-radius: 8px;
+          border-radius: 12px;
           padding: 12px;
-          font-size: 14px;
+          margin-bottom: 20px;
         }
         
         .borrow-info.compact {
           background: none;
           border: none;
           padding: 0;
-          display: flex;
-          align-items: center;
-          gap: 8px;
+          margin-bottom: 0;
           font-size: 13px;
           color: #6E6E6E;
         }
         
+        .borrower-avatar {
+          width: 32px;
+          height: 32px;
+          background: #C2571B;
+          color: #FFFFFF;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 14px;
+        }
+        
+        .borrow-details {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        
         .borrow-label {
-          font-weight: 600;
-          color: #C2571B;
-          margin-right: 8px;
+          font-size: 12px;
+          color: #6E6E6E;
+          font-weight: 500;
         }
         
         .borrower-name {
+          font-size: 14px;
           color: #C2571B;
           font-weight: 600;
         }
         
         .borrow-date {
+          font-size: 12px;
           color: #6E6E6E;
-          margin-left: 8px;
-          font-size: 13px;
         }
         
-        /* List View Styles */
+        .primary-action-btn {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 14px 20px;
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+          border: none;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        
+        .primary-action-btn:hover {
+          background: linear-gradient(135deg, #2E453A 0%, #1E2F25 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
+        }
+        
+        /* Enhanced List View */
         .book-list-content {
           display: flex;
-          align-items: flex-start;
+          align-items: center;
           gap: 20px;
           padding: 20px;
           position: relative;
@@ -55020,6 +56790,28 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
         
         .book-list-cover {
           flex-shrink: 0;
+          position: relative;
+        }
+        
+        .list-status-indicator {
+          position: absolute;
+          top: -4px;
+          right: -4px;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          font-size: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .list-status-indicator.available {
+          color: #3E5C49;
+        }
+        
+        .list-status-indicator.borrowed {
+          color: #C2571B;
         }
         
         .book-list-details {
@@ -55031,10 +56823,17 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
           margin-bottom: 12px;
         }
         
+        .list-title-section {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 4px;
+        }
+        
         .book-author {
           font-size: 14px;
           color: #6E6E6E;
-          margin: 4px 0 8px 0;
+          margin: 0 0 8px 0;
         }
         
         .book-tags {
@@ -55078,25 +56877,47 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
         
         .book-list-actions {
           flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          gap: 8px;
           position: relative;
         }
         
         .action-button {
-          background: none;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
           border: none;
+          border-radius: 12px;
           cursor: pointer;
-          padding: 8px;
-          border-radius: 8px;
-          color: #6E6E6E;
+          font-size: 14px;
+          font-weight: 600;
           transition: all 0.2s ease;
         }
         
-        .action-button:hover {
+        .action-button.borrow {
+          background: #3E5C49;
+          color: #F3EED9;
+        }
+        
+        .action-button.borrow:hover {
+          background: #2E453A;
+          transform: translateY(-1px);
+        }
+        
+        .action-button.menu {
           background: #F3EED9;
+          color: #6E6E6E;
+          padding: 12px;
+        }
+        
+        .action-button.menu:hover {
+          background: #EAEADC;
           color: #2E2E2E;
         }
         
-        /* Empty State */
+        /* Empty State Enhanced */
         .empty-state {
           display: flex;
           flex-direction: column;
@@ -55127,137 +56948,68 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
           max-width: 400px;
         }
         
-        /* Modal Styles */
-        .modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(46, 46, 46, 0.6);
-          backdrop-filter: blur(4px);
+        .btn-secondary {
           display: flex;
           align-items: center;
-          justify-content: center;
-          z-index: 1000;
-          padding: 20px;
-        }
-        
-        .modal {
-          background: #FFFFFF;
-          border-radius: 20px;
-          width: 100%;
-          max-width: 500px;
-          max-height: 90vh;
-          overflow-y: auto;
-          box-shadow: 0 20px 40px rgba(62, 92, 73, 0.2);
-          border: 1px solid rgba(229, 220, 194, 0.3);
-        }
-        
-        .modal-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 24px 24px 0;
-        }
-        
-        .modal-header h3 {
-          font-size: 20px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 0;
-        }
-        
-        .modal-close {
+          gap: 8px;
+          padding: 12px 24px;
           background: #F3EED9;
-          border: none;
-          cursor: pointer;
-          padding: 8px;
-          border-radius: 8px;
           color: #6E6E6E;
+          border: 2px solid #E5DCC2;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
           transition: all 0.2s ease;
         }
         
-        .modal-close:hover {
+        .btn-secondary:hover {
           background: #EAEADC;
           color: #2E2E2E;
+          transform: translateY(-1px);
         }
         
-        .modal-content {
-          padding: 24px;
+        /* Enhanced Animations */
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
         
-        .book-info-card {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          background: #F3EED9;
-          border-radius: 12px;
-          padding: 16px;
-          margin-bottom: 24px;
+        .book-item {
+          animation: slideIn 0.3s ease-out;
         }
         
-        .book-info-cover {
-          width: 48px;
-          height: 64px;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #F3EED9;
-          flex-shrink: 0;
-          overflow: hidden;
-        }
-        
-        .book-info-cover img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-        
-        .book-info-details {
-          flex: 1;
-          min-width: 0;
-        }
-        
-        .book-info-title {
-          font-size: 16px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin-bottom: 4px;
-          line-height: 1.3;
-        }
-        
-        .book-info-author {
-          font-size: 14px;
-          color: #6E6E6E;
-        }
-        
-        .form-group {
-          margin-bottom: 20px;
-        }
-        
-        .form-group label {
-          display: block;
-          font-size: 14px;
-          font-weight: 600;
-          color: #2E2E2E;
-          margin-bottom: 8px;
-        }
-        
-        .modal-footer {
-          display: flex;
-          gap: 12px;
-          padding: 0 24px 24px;
-          justify-content: flex-end;
-        }
+        .book-item:nth-child(1) { animation-delay: 0ms; }
+        .book-item:nth-child(2) { animation-delay: 50ms; }
+        .book-item:nth-child(3) { animation-delay: 100ms; }
+        .book-item:nth-child(4) { animation-delay: 150ms; }
+        .book-item:nth-child(5) { animation-delay: 200ms; }
+        .book-item:nth-child(6) { animation-delay: 250ms; }
         
         /* Responsive Design */
         @media (max-width: 1024px) {
           .books-container.grid {
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
+          }
+          
+          .header-actions {
+            flex-direction: column;
+            gap: 16px;
+          }
+          
+          .quick-stats {
+            order: 2;
+          }
+          
+          .view-controls {
+            order: 1;
           }
         }
         
@@ -55279,6 +57031,14 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
           
           .filters-container {
             justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+          }
+          
+          .category-filters {
+            justify-content: flex-start;
+            overflow-x: auto;
+            padding-bottom: 8px;
           }
           
           .books-content {
@@ -55293,6 +57053,7 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
           .book-list-content {
             flex-direction: column;
             gap: 12px;
+            text-align: center;
           }
           
           .book-list-cover {
@@ -55300,12 +57061,8 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
           }
           
           .book-list-actions {
-            align-self: flex-end;
-          }
-          
-          .modal {
-            margin: 8px;
-            border-radius: 16px;
+            align-self: center;
+            justify-content: center;
           }
         }
         
@@ -55335,6 +57092,113 @@ const BookList = ({ books, onBorrow, onDelete, onSearch, searchQuery }) => {
           
           .filter-select {
             flex: 1;
+          }
+          
+          .book-content {
+            padding: 20px;
+          }
+          
+          .book-cover {
+            height: 200px;
+          }
+          
+          .overlay-actions {
+            gap: 6px;
+          }
+          
+          .overlay-button {
+            width: 32px;
+            height: 32px;
+          }
+          
+          .primary-action-btn {
+            padding: 12px 16px;
+            font-size: 13px;
+          }
+          
+          .action-button {
+            padding: 10px 12px;
+            font-size: 13px;
+          }
+          
+          .category-chip {
+            padding: 6px 12px;
+            font-size: 13px;
+          }
+        }
+        
+        /* Performance optimizations */
+        .book-item {
+          contain: layout style paint;
+        }
+        
+        .book-cover img {
+          will-change: transform;
+        }
+        
+        .book-overlay {
+          will-change: opacity;
+        }
+        
+        /* Accessibility improvements */
+        @media (prefers-reduced-motion: reduce) {
+          .book-item,
+          .overlay-button,
+          .primary-action-btn,
+          .action-button {
+            transition: none;
+            animation: none;
+          }
+          
+          .book-item:hover {
+            transform: none;
+          }
+        }
+        
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+          .book-item {
+            border: 2px solid;
+          }
+          
+          .search-input,
+          .filter-select {
+            border-width: 3px;
+          }
+          
+          .category-chip {
+            border-width: 3px;
+          }
+        }
+        
+        /* Dark mode support (future-proofing) */
+        @media (prefers-color-scheme: dark) {
+          .book-list {
+            background: #1a1a1a;
+          }
+          
+          .page-header,
+          .book-item {
+            background: #2d2d2d;
+            border-color: #404040;
+          }
+          
+          .page-title,
+          .book-title {
+            color: #ffffff;
+          }
+          
+          .page-subtitle,
+          .book-author,
+          .meta-item {
+            color: #a0a0a0;
+          }
+          
+          .search-input,
+          .filter-select {
+            background: #2d2d2d;
+            border-color: #404040;
+            color: #ffffff;
           }
         }
       ` })] }));
@@ -58251,6 +60115,679 @@ exports.Dashboard = Dashboard;
 
 /***/ }),
 
+/***/ "./src/renderer/components/Donation.tsx":
+/*!**********************************************!*\
+  !*** ./src/renderer/components/Donation.tsx ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Donation = void 0;
+const jsx_runtime_1 = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+const react_1 = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const lucide_react_1 = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/cjs/lucide-react.cjs");
+const Donation = ({ onClose }) => {
+    const [selectedAmount, setSelectedAmount] = (0, react_1.useState)(1000);
+    const [customAmount, setCustomAmount] = (0, react_1.useState)('');
+    const [paymentMethod, setPaymentMethod] = (0, react_1.useState)('momo');
+    const [copied, setCopied] = (0, react_1.useState)(null);
+    const predefinedAmounts = [
+        { value: 500, label: '500 FCFA', icon: lucide_react_1.Coffee, description: 'Un café pour le dev' },
+        { value: 1000, label: '1 000 FCFA', icon: lucide_react_1.Heart, description: 'Petit soutien', popular: true },
+        { value: 2500, label: '2 500 FCFA', icon: lucide_react_1.Gift, description: 'Généreux donateur' },
+        { value: 5000, label: '5 000 FCFA', icon: lucide_react_1.Star, description: 'Super supporter' }
+    ];
+    const paymentMethods = [
+        {
+            id: 'momo',
+            name: 'Mobile Money',
+            icon: lucide_react_1.Smartphone,
+            networks: [
+                { name: 'MTN MoMo', number: '+237 652 761 931', color: '#FFCC00' },
+                { name: 'Orange Money', number: '+237 652 761 931', color: '#FF6600' }
+            ]
+        },
+        {
+            id: 'card',
+            name: 'Carte bancaire',
+            icon: lucide_react_1.CreditCard,
+            description: 'Paiement sécurisé via PayPal ou Stripe',
+            comingSoon: true
+        }
+    ];
+    const handleCopy = async (text, type) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            setCopied(type);
+            setTimeout(() => setCopied(null), 2000);
+        }
+        catch (err) {
+            console.error('Erreur lors de la copie:', err);
+        }
+    };
+    const finalAmount = selectedAmount || parseInt(customAmount) || 0;
+    return ((0, jsx_runtime_1.jsxs)("div", { className: "donation-page", children: [(0, jsx_runtime_1.jsxs)("div", { className: "hero-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "hero-background", children: (0, jsx_runtime_1.jsx)("div", { className: "hero-pattern" }) }), (0, jsx_runtime_1.jsxs)("div", { className: "hero-content", children: [(0, jsx_runtime_1.jsxs)("button", { className: "back-button", onClick: onClose, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.ArrowLeft, { size: 20 }), (0, jsx_runtime_1.jsx)("span", { children: "Retour" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "hero-main", children: [(0, jsx_runtime_1.jsx)("div", { className: "hero-icon", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Heart, { size: 48 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "hero-text", children: [(0, jsx_runtime_1.jsx)("h1", { className: "hero-title", children: "Soutenez le projet Biblioth\u00E8que" }), (0, jsx_runtime_1.jsx)("p", { className: "hero-subtitle", children: "Votre contribution aide \u00E0 maintenir et am\u00E9liorer ce syst\u00E8me de gestion de biblioth\u00E8que gratuit" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "impact-stats", children: [(0, jsx_runtime_1.jsxs)("div", { className: "impact-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Users, { size: 24 }), (0, jsx_runtime_1.jsxs)("div", { className: "impact-content", children: [(0, jsx_runtime_1.jsx)("span", { className: "impact-number", children: "500+" }), (0, jsx_runtime_1.jsx)("span", { className: "impact-label", children: "Biblioth\u00E8ques utilisatrices" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "impact-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.BookOpen, { size: 24 }), (0, jsx_runtime_1.jsxs)("div", { className: "impact-content", children: [(0, jsx_runtime_1.jsx)("span", { className: "impact-number", children: "10K+" }), (0, jsx_runtime_1.jsx)("span", { className: "impact-label", children: "Livres g\u00E9r\u00E9s" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "impact-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Code, { size: 24 }), (0, jsx_runtime_1.jsxs)("div", { className: "impact-content", children: [(0, jsx_runtime_1.jsx)("span", { className: "impact-number", children: "100%" }), (0, jsx_runtime_1.jsx)("span", { className: "impact-label", children: "Open Source" })] })] })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "donation-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "section", children: [(0, jsx_runtime_1.jsx)("h2", { className: "section-title", children: "Choisir le montant" }), (0, jsx_runtime_1.jsx)("p", { className: "section-description", children: "Chaque contribution, m\u00EAme petite, fait une grande diff\u00E9rence pour le d\u00E9veloppement du projet" }), (0, jsx_runtime_1.jsx)("div", { className: "amounts-grid", children: predefinedAmounts.map((amount) => ((0, jsx_runtime_1.jsxs)("button", { className: `amount-card ${selectedAmount === amount.value ? 'selected' : ''} ${amount.popular ? 'popular' : ''}`, onClick: () => {
+                                        setSelectedAmount(amount.value);
+                                        setCustomAmount('');
+                                    }, children: [amount.popular && ((0, jsx_runtime_1.jsxs)("div", { className: "popular-badge", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Sparkles, { size: 12 }), "Populaire"] })), (0, jsx_runtime_1.jsx)("div", { className: "amount-icon", children: (0, jsx_runtime_1.jsx)(amount.icon, { size: 24 }) }), (0, jsx_runtime_1.jsx)("div", { className: "amount-value", children: amount.label }), (0, jsx_runtime_1.jsx)("div", { className: "amount-description", children: amount.description })] }, amount.value))) }), (0, jsx_runtime_1.jsxs)("div", { className: "custom-amount", children: [(0, jsx_runtime_1.jsx)("label", { className: "custom-label", children: "Ou entrez un montant personnalis\u00E9" }), (0, jsx_runtime_1.jsxs)("div", { className: "custom-input-group", children: [(0, jsx_runtime_1.jsx)("input", { type: "number", value: customAmount, onChange: (e) => {
+                                                    setCustomAmount(e.target.value);
+                                                    setSelectedAmount(null);
+                                                }, placeholder: "0", className: "custom-input", min: "100" }), (0, jsx_runtime_1.jsx)("span", { className: "currency", children: "FCFA" })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "section", children: [(0, jsx_runtime_1.jsx)("h2", { className: "section-title", children: "M\u00E9thode de paiement" }), (0, jsx_runtime_1.jsx)("p", { className: "section-description", children: "Choisissez votre mode de paiement pr\u00E9f\u00E9r\u00E9" }), (0, jsx_runtime_1.jsx)("div", { className: "payment-methods", children: paymentMethods.map((method) => ((0, jsx_runtime_1.jsxs)("button", { className: `payment-method ${paymentMethod === method.id ? 'selected' : ''} ${method.comingSoon ? 'disabled' : ''}`, onClick: () => !method.comingSoon && setPaymentMethod(method.id), disabled: method.comingSoon, children: [(0, jsx_runtime_1.jsx)("div", { className: "payment-icon", children: (0, jsx_runtime_1.jsx)(method.icon, { size: 24 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "payment-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "payment-name", children: method.name }), method.description && ((0, jsx_runtime_1.jsx)("div", { className: "payment-description", children: method.description })), method.comingSoon && ((0, jsx_runtime_1.jsx)("div", { className: "coming-soon-badge", children: "Bient\u00F4t disponible" }))] })] }, method.id))) })] }), finalAmount > 0 && paymentMethod === 'momo' && ((0, jsx_runtime_1.jsxs)("div", { className: "section", children: [(0, jsx_runtime_1.jsx)("h2", { className: "section-title", children: "D\u00E9tails de paiement" }), (0, jsx_runtime_1.jsxs)("p", { className: "section-description", children: ["Utilisez les informations ci-dessous pour effectuer votre don de ", finalAmount.toLocaleString(), " FCFA"] }), (0, jsx_runtime_1.jsx)("div", { className: "payment-networks", children: paymentMethods[0].networks?.map((network, index) => ((0, jsx_runtime_1.jsxs)("div", { className: "network-card", children: [(0, jsx_runtime_1.jsxs)("div", { className: "network-header", children: [(0, jsx_runtime_1.jsx)("div", { className: "network-indicator", style: { backgroundColor: network.color } }), (0, jsx_runtime_1.jsx)("span", { className: "network-name", children: network.name })] }), (0, jsx_runtime_1.jsxs)("div", { className: "network-details", children: [(0, jsx_runtime_1.jsxs)("div", { className: "detail-item", children: [(0, jsx_runtime_1.jsx)("span", { className: "detail-label", children: "Num\u00E9ro" }), (0, jsx_runtime_1.jsxs)("div", { className: "detail-value", children: [(0, jsx_runtime_1.jsx)("span", { className: "phone-number", children: network.number }), (0, jsx_runtime_1.jsx)("button", { className: "copy-button", onClick: () => handleCopy(network.number.replace(/\s/g, ''), `${network.name}-number`), children: copied === `${network.name}-number` ? ((0, jsx_runtime_1.jsx)(lucide_react_1.Check, { size: 16 })) : ((0, jsx_runtime_1.jsx)(lucide_react_1.Copy, { size: 16 })) })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "detail-item", children: [(0, jsx_runtime_1.jsx)("span", { className: "detail-label", children: "Nom" }), (0, jsx_runtime_1.jsxs)("div", { className: "detail-value", children: [(0, jsx_runtime_1.jsx)("span", { children: "CHEUDJEU TEFOYE CEDRIC BASILIO" }), (0, jsx_runtime_1.jsx)("button", { className: "copy-button", onClick: () => handleCopy('CHEUDJEU TEFOYE CEDRIC BASILIO', `${network.name}-name`), children: copied === `${network.name}-name` ? ((0, jsx_runtime_1.jsx)(lucide_react_1.Check, { size: 16 })) : ((0, jsx_runtime_1.jsx)(lucide_react_1.Copy, { size: 16 })) })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "detail-item", children: [(0, jsx_runtime_1.jsx)("span", { className: "detail-label", children: "Montant" }), (0, jsx_runtime_1.jsxs)("div", { className: "detail-value amount-highlight", children: [finalAmount.toLocaleString(), " FCFA"] })] })] })] }, index))) }), (0, jsx_runtime_1.jsxs)("div", { className: "payment-note", children: [(0, jsx_runtime_1.jsx)("div", { className: "note-icon", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Heart, { size: 20 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "note-content", children: [(0, jsx_runtime_1.jsx)("h4", { children: "Merci pour votre soutien !" }), (0, jsx_runtime_1.jsx)("p", { children: "Apr\u00E8s votre transfert, n'h\u00E9sitez pas \u00E0 me contacter pour confirmer votre don et recevoir un re\u00E7u si n\u00E9cessaire. Votre contribution sera utilis\u00E9e pour am\u00E9liorer et maintenir ce projet open source." })] })] })] })), (0, jsx_runtime_1.jsxs)("div", { className: "section", children: [(0, jsx_runtime_1.jsx)("h2", { className: "section-title", children: "Pourquoi faire un don ?" }), (0, jsx_runtime_1.jsxs)("div", { className: "why-donate-grid", children: [(0, jsx_runtime_1.jsxs)("div", { className: "why-card", children: [(0, jsx_runtime_1.jsx)("div", { className: "why-icon", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Code, { size: 24 }) }), (0, jsx_runtime_1.jsx)("h3", { children: "D\u00E9veloppement continu" }), (0, jsx_runtime_1.jsx)("p", { children: "Financer de nouvelles fonctionnalit\u00E9s et l'am\u00E9lioration du syst\u00E8me" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "why-card", children: [(0, jsx_runtime_1.jsx)("div", { className: "why-icon", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Heart, { size: 24 }) }), (0, jsx_runtime_1.jsx)("h3", { children: "Gratuit pour tous" }), (0, jsx_runtime_1.jsx)("p", { children: "Maintenir le projet accessible gratuitement pour toutes les biblioth\u00E8ques" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "why-card", children: [(0, jsx_runtime_1.jsx)("div", { className: "why-icon", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Users, { size: 24 }) }), (0, jsx_runtime_1.jsx)("h3", { children: "Support communautaire" }), (0, jsx_runtime_1.jsx)("p", { children: "Fournir une assistance technique et des formations aux utilisateurs" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "why-card", children: [(0, jsx_runtime_1.jsx)("div", { className: "why-icon", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Sparkles, { size: 24 }) }), (0, jsx_runtime_1.jsx)("h3", { children: "Innovation" }), (0, jsx_runtime_1.jsx)("p", { children: "Int\u00E9grer les derni\u00E8res technologies pour une meilleure exp\u00E9rience" })] })] })] })] }), (0, jsx_runtime_1.jsx)("style", { children: `
+        .donation-page {
+          height: 100%;
+          overflow-y: auto;
+          background: #FAF9F6;
+        }
+        
+        .hero-section {
+          position: relative;
+          background: linear-gradient(135deg, #E91E63 0%, #C2185B 100%);
+          color: #F3EED9;
+          padding: 48px 32px;
+          overflow: hidden;
+        }
+        
+        .hero-background {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+        }
+        
+        .hero-pattern {
+          position: absolute;
+          inset: 0;
+          background-image: 
+            radial-gradient(circle at 25% 25%, rgba(243, 238, 217, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+          animation: drift 20s ease-in-out infinite;
+        }
+        
+        @keyframes drift {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          33% { transform: translate(30px, -30px) rotate(1deg); }
+          66% { transform: translate(-20px, 20px) rotate(-1deg); }
+        }
+        
+        .hero-content {
+          position: relative;
+          z-index: 1;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        
+        .back-button {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(243, 238, 217, 0.15);
+          border: 1px solid rgba(243, 238, 217, 0.3);
+          color: #F3EED9;
+          padding: 12px 20px;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-size: 14px;
+          font-weight: 500;
+          margin-bottom: 32px;
+          width: fit-content;
+        }
+        
+        .back-button:hover {
+          background: rgba(243, 238, 217, 0.25);
+          transform: translateX(-4px);
+        }
+        
+        .hero-main {
+          display: flex;
+          align-items: center;
+          gap: 24px;
+          margin-bottom: 40px;
+          text-align: center;
+          flex-direction: column;
+        }
+        
+        .hero-icon {
+          width: 96px;
+          height: 96px;
+          background: rgba(243, 238, 217, 0.2);
+          border-radius: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #F3EED9;
+          animation: heartbeat 3s ease-in-out infinite;
+        }
+        
+        .hero-title {
+          font-size: 42px;
+          font-weight: 800;
+          margin: 0 0 16px 0;
+          line-height: 1.2;
+          letter-spacing: -0.5px;
+        }
+        
+        .hero-subtitle {
+          font-size: 20px;
+          opacity: 0.9;
+          margin: 0;
+          line-height: 1.5;
+          max-width: 600px;
+        }
+        
+        .impact-stats {
+          display: flex;
+          justify-content: center;
+          gap: 40px;
+          flex-wrap: wrap;
+        }
+        
+        .impact-item {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          background: rgba(243, 238, 217, 0.1);
+          padding: 20px 24px;
+          border-radius: 16px;
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(243, 238, 217, 0.2);
+        }
+        
+        .impact-number {
+          font-size: 24px;
+          font-weight: 800;
+          color: #F3EED9;
+          display: block;
+          line-height: 1;
+        }
+        
+        .impact-label {
+          font-size: 14px;
+          color: rgba(243, 238, 217, 0.9);
+          margin-top: 4px;
+        }
+        
+        .donation-content {
+          padding: 48px 32px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        
+        .section {
+          margin-bottom: 56px;
+        }
+        
+        .section-title {
+          font-size: 28px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 8px 0;
+          letter-spacing: -0.3px;
+        }
+        
+        .section-description {
+          font-size: 16px;
+          color: #6E6E6E;
+          margin: 0 0 32px 0;
+          line-height: 1.6;
+        }
+        
+        .amounts-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 20px;
+          margin-bottom: 32px;
+        }
+        
+        .amount-card {
+          background: #FFFFFF;
+          border: 2px solid #E5DCC2;
+          border-radius: 20px;
+          padding: 24px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          text-align: center;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .amount-card:hover {
+          border-color: #E91E63;
+          transform: translateY(-4px);
+          box-shadow: 0 12px 32px rgba(233, 30, 99, 0.15);
+        }
+        
+        .amount-card.selected {
+          border-color: #E91E63;
+          background: rgba(233, 30, 99, 0.05);
+          box-shadow: 0 8px 24px rgba(233, 30, 99, 0.2);
+        }
+        
+        .amount-card.popular {
+          border-color: #E91E63;
+        }
+        
+        .popular-badge {
+          position: absolute;
+          top: -8px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #E91E63;
+          color: #FFFFFF;
+          padding: 4px 12px;
+          border-radius: 12px;
+          font-size: 11px;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        
+        .amount-icon {
+          width: 48px;
+          height: 48px;
+          background: rgba(233, 30, 99, 0.1);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #E91E63;
+          margin: 0 auto 16px;
+        }
+        
+        .amount-value {
+          font-size: 20px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin-bottom: 8px;
+        }
+        
+        .amount-description {
+          font-size: 14px;
+          color: #6E6E6E;
+        }
+        
+        .custom-amount {
+          background: #FFFFFF;
+          border: 2px solid #E5DCC2;
+          border-radius: 16px;
+          padding: 24px;
+        }
+        
+        .custom-label {
+          display: block;
+          font-size: 16px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin-bottom: 12px;
+        }
+        
+        .custom-input-group {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        
+        .custom-input {
+          flex: 1;
+          padding: 16px;
+          border: 2px solid #E5DCC2;
+          border-radius: 12px;
+          font-size: 18px;
+          font-weight: 600;
+          text-align: right;
+        }
+        
+        .custom-input:focus {
+          outline: none;
+          border-color: #E91E63;
+        }
+        
+        .currency {
+          font-size: 18px;
+          font-weight: 600;
+          color: #6E6E6E;
+        }
+        
+        .payment-methods {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        
+        .payment-method {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          background: #FFFFFF;
+          border: 2px solid #E5DCC2;
+          border-radius: 16px;
+          padding: 20px 24px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          text-align: left;
+        }
+        
+        .payment-method.selected {
+          border-color: #E91E63;
+          background: rgba(233, 30, 99, 0.05);
+        }
+        
+        .payment-method.disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        
+        .payment-icon {
+          width: 48px;
+          height: 48px;
+          background: rgba(233, 30, 99, 0.1);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #E91E63;
+        }
+        
+        .payment-content {
+          flex: 1;
+        }
+        
+        .payment-name {
+          font-size: 18px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin-bottom: 4px;
+        }
+        
+        .payment-description {
+          font-size: 14px;
+          color: #6E6E6E;
+        }
+        
+        .coming-soon-badge {
+          background: #FFB400;
+          color: #FFFFFF;
+          padding: 2px 8px;
+          border-radius: 8px;
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-top: 8px;
+          display: inline-block;
+        }
+        
+        .payment-networks {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 24px;
+        }
+        
+        .network-card {
+          background: #FFFFFF;
+          border: 2px solid #E5DCC2;
+          border-radius: 20px;
+          padding: 24px;
+          box-shadow: 0 4px 16px rgba(233, 30, 99, 0.1);
+        }
+        
+        .network-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+        
+        .network-indicator {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+        }
+        
+        .network-name {
+          font-size: 18px;
+          font-weight: 700;
+          color: #2E2E2E;
+        }
+        
+        .network-details {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        
+        .detail-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        
+        .detail-label {
+          font-size: 14px;
+          font-weight: 600;
+          color: #6E6E6E;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        
+        .detail-value {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 16px;
+          font-weight: 600;
+          color: #2E2E2E;
+        }
+        
+        .detail-value.amount-highlight {
+          font-size: 20px;
+          color: #E91E63;
+          font-weight: 800;
+        }
+        
+        .phone-number {
+          font-family: 'Courier New', monospace;
+          background: rgba(233, 30, 99, 0.1);
+          padding: 4px 8px;
+          border-radius: 6px;
+        }
+        
+        .copy-button {
+          background: #F3EED9;
+          border: 1px solid #E5DCC2;
+          color: #6E6E6E;
+          padding: 6px;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .copy-button:hover {
+          background: #E91E63;
+          color: #FFFFFF;
+          border-color: #E91E63;
+        }
+        
+        .payment-note {
+          display: flex;
+          gap: 16px;
+          background: rgba(233, 30, 99, 0.05);
+          border: 1px solid rgba(233, 30, 99, 0.2);
+          border-radius: 16px;
+          padding: 24px;
+          margin-top: 32px;
+        }
+        
+        .note-icon {
+          width: 40px;
+          height: 40px;
+          background: #E91E63;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #FFFFFF;
+          flex-shrink: 0;
+        }
+        
+        .note-content h4 {
+          font-size: 18px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 8px 0;
+        }
+        
+        .note-content p {
+          font-size: 14px;
+          color: #6E6E6E;
+          margin: 0;
+          line-height: 1.6;
+        }
+        
+        .why-donate-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 24px;
+        }
+        
+        .why-card {
+          background: #FFFFFF;
+          border: 1px solid #E5DCC2;
+          border-radius: 20px;
+          padding: 28px;
+          text-align: center;
+          transition: all 0.3s ease;
+        }
+        
+        .why-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 32px rgba(233, 30, 99, 0.1);
+          border-color: rgba(233, 30, 99, 0.3);
+        }
+        
+        .why-icon {
+          width: 56px;
+          height: 56px;
+          background: rgba(233, 30, 99, 0.1);
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #E91E63;
+          margin: 0 auto 20px;
+        }
+        
+        .why-card h3 {
+          font-size: 20px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 12px 0;
+        }
+        
+        .why-card p {
+          font-size: 14px;
+          color: #6E6E6E;
+          margin: 0;
+          line-height: 1.6;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+          .hero-section {
+            padding: 32px 16px;
+          }
+          
+          .hero-title {
+            font-size: 32px;
+          }
+          
+          .hero-subtitle {
+            font-size: 18px;
+          }
+          
+          .impact-stats {
+            flex-direction: column;
+            gap: 16px;
+          }
+          
+          .impact-item {
+            justify-content: center;
+          }
+          
+          .donation-content {
+            padding: 32px 16px;
+          }
+          
+          .amounts-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+          }
+          
+          .payment-networks {
+            grid-template-columns: 1fr;
+          }
+          
+          .why-donate-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .detail-item {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+          }
+          
+          .detail-value {
+            justify-content: space-between;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .hero-main {
+            gap: 16px;
+          }
+          
+          .hero-icon {
+            width: 72px;
+            height: 72px;
+          }
+          
+          .hero-title {
+            font-size: 28px;
+          }
+          
+          .amounts-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .amount-card {
+            padding: 20px;
+          }
+          
+          .payment-method {
+            padding: 16px 20px;
+          }
+          
+          .network-card {
+            padding: 20px;
+          }
+          
+          .payment-note {
+            flex-direction: column;
+            gap: 12px;
+            text-align: center;
+          }
+        }
+      ` })] }));
+};
+exports.Donation = Donation;
+
+
+/***/ }),
+
 /***/ "./src/renderer/components/PrintManager.tsx":
 /*!**************************************************!*\
   !*** ./src/renderer/components/PrintManager.tsx ***!
@@ -59063,76 +61600,107 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
     const menuItems = [
         {
             id: 'dashboard',
-            label: 'Accueil',
+            label: 'Tableau de bord',
             icon: lucide_react_1.Home,
-            description: 'Vue d\'ensemble'
+            description: 'Vue d\'ensemble et statistiques',
+            gradient: 'linear-gradient(135deg, #3E5C49 0%, #2E453A 100%)'
         },
         {
             id: 'books',
-            label: 'Collection',
+            label: 'Ma Collection',
             icon: lucide_react_1.Book,
-            description: 'Tous les livres',
-            count: stats.totalBooks
+            description: 'Parcourir tous les livres',
+            count: stats.totalBooks,
+            gradient: 'linear-gradient(135deg, #3E5C49 0%, #4A6B57 100%)'
         },
         {
             id: 'borrowed',
-            label: 'Emprunts',
+            label: 'Emprunts Actifs',
             icon: lucide_react_1.BookOpen,
-            description: 'Livres empruntés',
+            description: 'Livres actuellement empruntés',
             count: stats.borrowedBooks,
             badge: stats.borrowedBooks > 0,
-            urgent: stats.overdueBooks > 0
-        },
-        {
-            id: 'add-book',
-            label: 'Ajouter',
-            icon: lucide_react_1.Plus,
-            description: 'Nouveau livre',
-            accent: true
+            urgent: stats.overdueBooks > 0,
+            gradient: 'linear-gradient(135deg, #C2571B 0%, #A8481A 100%)'
         }
     ];
-    const managementItems = [
+    const actionItems = [
         {
-            id: 'borrowers',
-            label: 'Emprunteurs',
-            icon: lucide_react_1.Users,
-            description: 'Gestion des emprunteurs',
-            count: stats.totalBorrowers
+            id: 'add-book',
+            label: 'Nouveau Livre',
+            icon: lucide_react_1.Plus,
+            description: 'Ajouter à la collection',
+            accent: true,
+            gradient: 'linear-gradient(135deg, #C2571B 0%, #E65100 100%)',
+            highlight: true
         },
         {
+            id: 'borrowers',
+            label: 'Gestion Emprunteurs',
+            icon: lucide_react_1.Users,
+            description: 'Gérer les utilisateurs',
+            count: stats.totalBorrowers,
+            badge: stats.totalBorrowers > 0,
+            gradient: 'linear-gradient(135deg, #6E6E6E 0%, #5A5A5A 100%)'
+        }
+    ];
+    const reportItems = [
+        {
             id: 'history',
-            label: 'Historique',
+            label: 'Historique Complet',
             icon: lucide_react_1.History,
-            description: 'Historique des emprunts'
+            description: 'Tous les emprunts et retours',
+            gradient: 'linear-gradient(135deg, #607D8B 0%, #455A64 100%)'
+        }
+    ];
+    const supportItems = [
+        {
+            id: 'donation',
+            label: 'Soutenir le projet',
+            icon: lucide_react_1.Heart,
+            description: 'Faire une donation',
+            gradient: 'linear-gradient(135deg, #E91E63 0%, #C2185B 100%)',
+            support: true
+        },
+        {
+            id: 'about',
+            label: 'À propos',
+            icon: lucide_react_1.Info,
+            description: 'Développeur & crédits',
+            gradient: 'linear-gradient(135deg, #607D8B 0%, #455A64 100%)'
         }
     ];
     const quickStats = [
         {
-            label: 'Total',
+            label: 'Collection',
             value: stats.totalBooks,
             icon: lucide_react_1.Book,
-            color: '#3E5C49'
+            color: '#3E5C49',
+            trend: '+2 ce mois'
         },
         {
             label: 'Disponibles',
             value: stats.availableBooks,
             icon: lucide_react_1.BookOpen,
-            color: '#3E5C49'
+            color: '#3E5C49',
+            percentage: stats.totalBooks > 0 ? Math.round((stats.availableBooks / stats.totalBooks) * 100) : 0
         },
         {
             label: 'Empruntés',
             value: stats.borrowedBooks,
             icon: lucide_react_1.BarChart3,
-            color: '#C2571B'
+            color: '#C2571B',
+            percentage: stats.totalBooks > 0 ? Math.round((stats.borrowedBooks / stats.totalBooks) * 100) : 0
         },
         {
             label: 'En retard',
             value: stats.overdueBooks,
             icon: lucide_react_1.Clock,
-            color: '#DC2626'
+            color: '#DC2626',
+            urgent: stats.overdueBooks > 0
         }
     ];
-    const borrowerStats = [
+    const userStats = [
         {
             label: 'Étudiants',
             value: stats.totalStudents,
@@ -59146,19 +61714,33 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
             color: '#C2571B'
         }
     ];
-    return ((0, jsx_runtime_1.jsxs)("div", { className: `sidebar ${isCollapsed ? 'collapsed' : ''}`, children: [(0, jsx_runtime_1.jsxs)("div", { className: "sidebar-header", children: [(0, jsx_runtime_1.jsx)("div", { className: "sidebar-toggle", children: (0, jsx_runtime_1.jsx)("button", { className: "toggle-button", onClick: () => setIsCollapsed(!isCollapsed), title: isCollapsed ? 'Développer' : 'Réduire', children: isCollapsed ? (0, jsx_runtime_1.jsx)(lucide_react_1.ChevronRight, { size: 16 }) : (0, jsx_runtime_1.jsx)(lucide_react_1.ChevronLeft, { size: 16 }) }) }), !isCollapsed && ((0, jsx_runtime_1.jsxs)("div", { className: "sidebar-brand", children: [(0, jsx_runtime_1.jsx)("h2", { className: "brand-title", children: "Navigation" }), (0, jsx_runtime_1.jsx)("p", { className: "brand-subtitle", children: "G\u00E9rez votre biblioth\u00E8que" })] }))] }), (0, jsx_runtime_1.jsxs)("div", { className: "sidebar-content", children: [(0, jsx_runtime_1.jsxs)("nav", { className: "sidebar-nav", children: [(0, jsx_runtime_1.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0, jsx_runtime_1.jsx)("h3", { className: "nav-title", children: "Menu principal" }), (0, jsx_runtime_1.jsx)("ul", { className: "nav-list", children: menuItems.map((item) => ((0, jsx_runtime_1.jsx)("li", { className: "nav-item", children: (0, jsx_runtime_1.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.urgent ? 'urgent' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', children: [(0, jsx_runtime_1.jsx)("div", { className: "nav-icon", children: (0, jsx_runtime_1.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)("div", { className: "nav-content", children: [(0, jsx_runtime_1.jsx)("span", { className: "nav-label", children: item.label }), (0, jsx_runtime_1.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0, jsx_runtime_1.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''} ${item.urgent ? 'urgent' : ''}`, children: item.count }))] })), isCollapsed && item.badge && stats.borrowedBooks > 0 && ((0, jsx_runtime_1.jsx)("div", { className: `nav-indicator ${item.urgent ? 'urgent' : ''}` }))] }) }, item.id))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0, jsx_runtime_1.jsx)("h3", { className: "nav-title", children: "Gestion" }), (0, jsx_runtime_1.jsx)("ul", { className: "nav-list", children: managementItems.map((item) => ((0, jsx_runtime_1.jsx)("li", { className: "nav-item", children: (0, jsx_runtime_1.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', children: [(0, jsx_runtime_1.jsx)("div", { className: "nav-icon", children: (0, jsx_runtime_1.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)("div", { className: "nav-content", children: [(0, jsx_runtime_1.jsx)("span", { className: "nav-label", children: item.label }), (0, jsx_runtime_1.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0, jsx_runtime_1.jsx)("div", { className: "nav-count", children: item.count }))] }))] }) }, item.id))) })] })] }), !isCollapsed && ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)("div", { className: "stats-section", children: [(0, jsx_runtime_1.jsx)("h3", { className: "stats-title", children: "Statistiques Livres" }), (0, jsx_runtime_1.jsx)("div", { className: "stats-grid", children: quickStats.map((stat, index) => ((0, jsx_runtime_1.jsxs)("div", { className: "stat-card", children: [(0, jsx_runtime_1.jsx)("div", { className: "stat-icon", style: { color: stat.color }, children: (0, jsx_runtime_1.jsx)(stat.icon, { size: 16 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "stat-value", children: stat.value }), (0, jsx_runtime_1.jsx)("div", { className: "stat-label", children: stat.label })] })] }, index))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "stats-section", children: [(0, jsx_runtime_1.jsx)("h3", { className: "stats-title", children: "Emprunteurs" }), (0, jsx_runtime_1.jsx)("div", { className: "stats-grid", children: borrowerStats.map((stat, index) => ((0, jsx_runtime_1.jsxs)("div", { className: "stat-card", children: [(0, jsx_runtime_1.jsx)("div", { className: "stat-icon", style: { color: stat.color }, children: (0, jsx_runtime_1.jsx)(stat.icon, { size: 16 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "stat-value", children: stat.value }), (0, jsx_runtime_1.jsx)("div", { className: "stat-label", children: stat.label })] })] }, index))) })] })] }))] }), (0, jsx_runtime_1.jsx)("style", { children: `
+    const getPopularityScore = () => {
+        if (stats.totalBooks === 0)
+            return 0;
+        return Math.round((stats.borrowedBooks / stats.totalBooks) * 100);
+    };
+    return ((0, jsx_runtime_1.jsxs)("div", { className: `sidebar ${isCollapsed ? 'collapsed' : ''}`, children: [(0, jsx_runtime_1.jsxs)("div", { className: "sidebar-header", children: [(0, jsx_runtime_1.jsx)("div", { className: "sidebar-toggle", children: (0, jsx_runtime_1.jsx)("button", { className: "toggle-button", onClick: () => setIsCollapsed(!isCollapsed), title: isCollapsed ? 'Développer le menu' : 'Réduire le menu', children: isCollapsed ? (0, jsx_runtime_1.jsx)(lucide_react_1.ChevronRight, { size: 18 }) : (0, jsx_runtime_1.jsx)(lucide_react_1.ChevronLeft, { size: 18 }) }) }), !isCollapsed && ((0, jsx_runtime_1.jsxs)("div", { className: "sidebar-brand", children: [(0, jsx_runtime_1.jsx)("div", { className: "brand-logo", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Book, { size: 24 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "brand-text", children: [(0, jsx_runtime_1.jsx)("h2", { className: "brand-title", children: "Biblioth\u00E8que" }), (0, jsx_runtime_1.jsx)("p", { className: "brand-subtitle", children: "Syst\u00E8me de gestion moderne" })] })] }))] }), (0, jsx_runtime_1.jsxs)("div", { className: "sidebar-content", children: [(0, jsx_runtime_1.jsxs)("nav", { className: "sidebar-nav", children: [(0, jsx_runtime_1.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0, jsx_runtime_1.jsx)("h3", { className: "nav-title", children: "Principal" }), (0, jsx_runtime_1.jsx)("ul", { className: "nav-list", children: menuItems.map((item) => ((0, jsx_runtime_1.jsx)("li", { className: "nav-item", children: (0, jsx_runtime_1.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.urgent ? 'urgent' : ''} ${item.highlight ? 'highlight' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
+                                                    '--item-gradient': item.gradient
+                                                }, children: [(0, jsx_runtime_1.jsx)("div", { className: "nav-icon", children: (0, jsx_runtime_1.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)("div", { className: "nav-content", children: [(0, jsx_runtime_1.jsx)("span", { className: "nav-label", children: item.label }), (0, jsx_runtime_1.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0, jsx_runtime_1.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''} ${item.urgent ? 'urgent' : ''}`, children: item.count })), item.highlight && ((0, jsx_runtime_1.jsx)("div", { className: "nav-highlight", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Zap, { size: 14 }) }))] })), isCollapsed && item.badge && stats.borrowedBooks > 0 && ((0, jsx_runtime_1.jsx)("div", { className: `nav-indicator ${item.urgent ? 'urgent' : ''}` }))] }) }, item.id))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0, jsx_runtime_1.jsx)("h3", { className: "nav-title", children: "Actions" }), (0, jsx_runtime_1.jsx)("ul", { className: "nav-list", children: actionItems.map((item) => ((0, jsx_runtime_1.jsx)("li", { className: "nav-item", children: (0, jsx_runtime_1.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.highlight ? 'highlight' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
+                                                    '--item-gradient': item.gradient
+                                                }, children: [(0, jsx_runtime_1.jsx)("div", { className: "nav-icon", children: (0, jsx_runtime_1.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)("div", { className: "nav-content", children: [(0, jsx_runtime_1.jsx)("span", { className: "nav-label", children: item.label }), (0, jsx_runtime_1.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0, jsx_runtime_1.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''}`, children: item.count })), item.highlight && ((0, jsx_runtime_1.jsx)("div", { className: "nav-highlight", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Zap, { size: 14 }) }))] }))] }) }, item.id))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0, jsx_runtime_1.jsx)("h3", { className: "nav-title", children: "Rapports" }), (0, jsx_runtime_1.jsx)("ul", { className: "nav-list", children: reportItems.map((item) => ((0, jsx_runtime_1.jsx)("li", { className: "nav-item", children: (0, jsx_runtime_1.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
+                                                    '--item-gradient': item.gradient
+                                                }, children: [(0, jsx_runtime_1.jsx)("div", { className: "nav-icon", children: (0, jsx_runtime_1.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0, jsx_runtime_1.jsxs)("div", { className: "nav-content", children: [(0, jsx_runtime_1.jsx)("span", { className: "nav-label", children: item.label }), (0, jsx_runtime_1.jsx)("span", { className: "nav-description", children: item.description })] }))] }) }, item.id))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0, jsx_runtime_1.jsx)("h3", { className: "nav-title", children: "Communaut\u00E9" }), (0, jsx_runtime_1.jsx)("ul", { className: "nav-list", children: supportItems.map((item) => ((0, jsx_runtime_1.jsx)("li", { className: "nav-item", children: (0, jsx_runtime_1.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.support ? 'support' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
+                                                    '--item-gradient': item.gradient
+                                                }, children: [(0, jsx_runtime_1.jsx)("div", { className: "nav-icon", children: (0, jsx_runtime_1.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0, jsx_runtime_1.jsxs)("div", { className: "nav-content", children: [(0, jsx_runtime_1.jsx)("span", { className: "nav-label", children: item.label }), (0, jsx_runtime_1.jsx)("span", { className: "nav-description", children: item.description })] }))] }) }, item.id))) })] })] }), !isCollapsed && ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)("div", { className: "stats-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "stats-header", children: [(0, jsx_runtime_1.jsx)("h3", { className: "stats-title", children: "Statistiques de collection" }), (0, jsx_runtime_1.jsxs)("div", { className: "popularity-score", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.TrendingUp, { size: 14 }), (0, jsx_runtime_1.jsxs)("span", { children: [getPopularityScore(), "% popularit\u00E9"] })] })] }), (0, jsx_runtime_1.jsx)("div", { className: "stats-grid", children: quickStats.map((stat, index) => ((0, jsx_runtime_1.jsxs)("div", { className: `stat-card ${stat.urgent ? 'urgent' : ''}`, children: [(0, jsx_runtime_1.jsx)("div", { className: "stat-icon", style: { color: stat.color }, children: (0, jsx_runtime_1.jsx)(stat.icon, { size: 16 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "stat-value", children: stat.value }), (0, jsx_runtime_1.jsx)("div", { className: "stat-label", children: stat.label }), stat.trend && ((0, jsx_runtime_1.jsx)("div", { className: "stat-trend", children: stat.trend })), stat.percentage !== undefined && ((0, jsx_runtime_1.jsxs)("div", { className: "stat-percentage", children: [stat.percentage, "%"] }))] })] }, index))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "stats-section", children: [(0, jsx_runtime_1.jsx)("h3", { className: "stats-title", children: "Utilisateurs" }), (0, jsx_runtime_1.jsx)("div", { className: "users-stats", children: userStats.map((stat, index) => ((0, jsx_runtime_1.jsxs)("div", { className: "user-stat", children: [(0, jsx_runtime_1.jsx)("div", { className: "user-stat-icon", style: { color: stat.color }, children: (0, jsx_runtime_1.jsx)(stat.icon, { size: 18 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "user-stat-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "user-stat-value", children: stat.value }), (0, jsx_runtime_1.jsx)("div", { className: "user-stat-label", children: stat.label })] })] }, index))) }), (0, jsx_runtime_1.jsxs)("div", { className: "total-users", children: [(0, jsx_runtime_1.jsx)("span", { className: "total-label", children: "Total des utilisateurs" }), (0, jsx_runtime_1.jsx)("span", { className: "total-value", children: stats.totalBorrowers })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "activity-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "activity-header", children: [(0, jsx_runtime_1.jsx)("h3", { className: "stats-title", children: "Activit\u00E9 r\u00E9cente" }), (0, jsx_runtime_1.jsx)("div", { className: "activity-pulse" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "activity-summary", children: [(0, jsx_runtime_1.jsxs)("div", { className: "activity-item", children: [(0, jsx_runtime_1.jsx)("div", { className: "activity-dot available" }), (0, jsx_runtime_1.jsxs)("span", { children: [stats.availableBooks, " livres pr\u00EAts \u00E0 emprunter"] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "activity-item", children: [(0, jsx_runtime_1.jsx)("div", { className: "activity-dot borrowed" }), (0, jsx_runtime_1.jsxs)("span", { children: [stats.borrowedBooks, " emprunts en cours"] })] }), stats.overdueBooks > 0 && ((0, jsx_runtime_1.jsxs)("div", { className: "activity-item urgent", children: [(0, jsx_runtime_1.jsx)("div", { className: "activity-dot overdue" }), (0, jsx_runtime_1.jsxs)("span", { children: [stats.overdueBooks, " livre(s) en retard"] })] }))] })] })] }))] }), (0, jsx_runtime_1.jsx)("style", { children: `
         .sidebar {
-          width: 280px;
+          width: 300px;
           background: linear-gradient(180deg, #3E5C49 0%, #2E453A 100%);
           display: flex;
           flex-direction: column;
           position: relative;
           transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           border-right: 1px solid rgba(46, 69, 58, 0.3);
+          box-shadow: 4px 0 16px rgba(62, 92, 73, 0.1);
         }
         
         .sidebar.collapsed {
-          width: 64px;
+          width: 72px;
         }
         
         .sidebar::before {
@@ -59168,13 +61750,14 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(243, 238, 217, 0.02);
-          backdrop-filter: blur(1px);
+          background: 
+            radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.03) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(194, 87, 27, 0.02) 0%, transparent 50%);
           pointer-events: none;
         }
         
         .sidebar-header {
-          padding: 16px;
+          padding: 24px 20px;
           border-bottom: 1px solid rgba(243, 238, 217, 0.1);
           position: relative;
           z-index: 1;
@@ -59183,21 +61766,23 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
         .sidebar-toggle {
           display: flex;
           justify-content: flex-end;
-          margin-bottom: 12px;
+          margin-bottom: 16px;
         }
         
         .toggle-button {
-          width: 32px;
-          height: 32px;
+          width: 40px;
+          height: 40px;
           border: none;
           background: rgba(243, 238, 217, 0.1);
           color: #F3EED9;
-          border-radius: 8px;
+          border-radius: 12px;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
           transition: all 0.2s ease;
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(243, 238, 217, 0.2);
         }
         
         .toggle-button:hover {
@@ -59206,6 +61791,9 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
         }
         
         .sidebar-brand {
+          display: flex;
+          align-items: center;
+          gap: 16px;
           opacity: 1;
           transition: opacity 0.2s ease;
         }
@@ -59215,16 +61803,28 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
           pointer-events: none;
         }
         
+        .brand-logo {
+          width: 48px;
+          height: 48px;
+          background: rgba(243, 238, 217, 0.15);
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #F3EED9;
+          border: 1px solid rgba(243, 238, 217, 0.2);
+        }
+        
         .brand-title {
-          font-size: 16px;
-          font-weight: 700;
+          font-size: 20px;
+          font-weight: 800;
           color: #F3EED9;
           margin: 0 0 4px 0;
-          letter-spacing: -0.2px;
+          letter-spacing: -0.3px;
         }
         
         .brand-subtitle {
-          font-size: 12px;
+          font-size: 13px;
           color: rgba(243, 238, 217, 0.7);
           margin: 0;
           line-height: 1.3;
@@ -59233,26 +61833,26 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
         .sidebar-content {
           flex: 1;
           overflow-y: auto;
-          padding: 8px 16px 16px;
+          padding: 8px 20px 20px;
           position: relative;
           z-index: 1;
         }
         
         .collapsed .sidebar-content {
-          padding: 8px 8px 16px;
+          padding: 8px 12px 20px;
         }
         
         .nav-section {
-          margin-bottom: 24px;
+          margin-bottom: 32px;
         }
         
         .nav-title {
           font-size: 11px;
-          font-weight: 600;
+          font-weight: 700;
           text-transform: uppercase;
-          letter-spacing: 0.8px;
+          letter-spacing: 1px;
           color: rgba(243, 238, 217, 0.6);
-          margin-bottom: 12px;
+          margin-bottom: 16px;
           margin-top: 0;
           padding: 0 4px;
         }
@@ -59263,7 +61863,7 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
           margin: 0;
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          gap: 8px;
         }
         
         .nav-item {
@@ -59274,23 +61874,24 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
           width: 100%;
           display: flex;
           align-items: center;
-          gap: 12px;
-          padding: 12px;
+          gap: 16px;
+          padding: 16px;
           border: none;
           background: transparent;
           color: #F3EED9;
           cursor: pointer;
-          border-radius: 12px;
-          transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          border-radius: 16px;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           font-size: 14px;
           position: relative;
           text-align: left;
           overflow: hidden;
+          border: 1px solid transparent;
         }
         
         .collapsed .nav-button {
           justify-content: center;
-          padding: 12px 8px;
+          padding: 16px 12px;
         }
         
         .nav-button::before {
@@ -59301,7 +61902,7 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
           right: 0;
           bottom: 0;
           background: rgba(243, 238, 217, 0.08);
-          border-radius: 12px;
+          border-radius: 16px;
           transform: scaleX(0);
           transform-origin: left;
           transition: transform 0.3s ease;
@@ -59314,6 +61915,7 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
         .nav-button:hover {
           color: #FFFFFF;
           transform: translateX(4px);
+          border-color: rgba(243, 238, 217, 0.2);
         }
         
         .collapsed .nav-button:hover {
@@ -59321,9 +61923,12 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
         }
         
         .nav-button.active {
-          background: rgba(243, 238, 217, 0.15);
+          background: var(--item-gradient, rgba(243, 238, 217, 0.15));
           color: #FFFFFF;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          box-shadow: 
+            0 8px 24px rgba(0, 0, 0, 0.15),
+            0 4px 12px rgba(62, 92, 73, 0.2);
+          border-color: rgba(243, 238, 217, 0.3);
         }
         
         .nav-button.active::before {
@@ -59331,13 +61936,49 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
           background: rgba(243, 238, 217, 0.1);
         }
         
-        .nav-button.accent {
-          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
+        .nav-button.highlight {
+          background: var(--item-gradient);
+          animation: pulse-highlight 3s ease-in-out infinite;
         }
         
-        .nav-button.accent:hover {
-          background: linear-gradient(135deg, #A8481A 0%, #8B3A15 100%);
-          transform: translateX(4px) translateY(-1px);
+        .nav-button.highlight:hover {
+          background: linear-gradient(135deg, #A8481A 0%, #D84315 100%);
+          transform: translateX(4px) translateY(-2px);
+          box-shadow: 0 12px 32px rgba(194, 87, 27, 0.4);
+        }
+        
+        .nav-button.support {
+          position: relative;
+        }
+        
+        .nav-button.support::after {
+          content: '♥';
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          font-size: 12px;
+          color: #E91E63;
+          animation: heartbeat 2s ease-in-out infinite;
+        }
+        
+        @keyframes heartbeat {
+          0%, 100% {
+            transform: scale(1);
+            opacity: 0.8;
+          }
+          50% {
+            transform: scale(1.2);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes pulse-highlight {
+          0%, 100% {
+            box-shadow: 0 4px 16px rgba(194, 87, 27, 0.3);
+          }
+          50% {
+            box-shadow: 0 8px 24px rgba(194, 87, 27, 0.5);
+          }
         }
         
         .nav-button.urgent {
@@ -59347,21 +61988,32 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
         .nav-button.urgent::after {
           content: '';
           position: absolute;
-          top: 8px;
-          right: 8px;
+          top: 12px;
+          right: 12px;
           width: 8px;
           height: 8px;
           background: #DC2626;
           border-radius: 50%;
-          animation: pulse 2s infinite;
+          animation: pulse-urgent 2s infinite;
+        }
+        
+        @keyframes pulse-urgent {
+          0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.7;
+            transform: scale(1.2);
+          }
         }
         
         .nav-icon {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 20px;
-          height: 20px;
+          width: 24px;
+          height: 24px;
           flex-shrink: 0;
           position: relative;
           z-index: 1;
@@ -59377,13 +62029,14 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
         }
         
         .nav-label {
-          font-weight: 600;
+          font-weight: 700;
           line-height: 1.2;
-          margin-bottom: 2px;
+          margin-bottom: 3px;
+          font-size: 15px;
         }
         
         .nav-description {
-          font-size: 11px;
+          font-size: 12px;
           opacity: 0.8;
           line-height: 1.2;
         }
@@ -59391,94 +62044,148 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
         .nav-count {
           background: rgba(243, 238, 217, 0.2);
           color: #F3EED9;
-          font-size: 11px;
-          font-weight: 600;
-          padding: 2px 6px;
-          border-radius: 8px;
-          min-width: 18px;
+          font-size: 12px;
+          font-weight: 700;
+          padding: 4px 8px;
+          border-radius: 10px;
+          min-width: 20px;
           text-align: center;
           flex-shrink: 0;
           position: relative;
           z-index: 1;
+          border: 1px solid rgba(243, 238, 217, 0.3);
         }
         
         .nav-count.badge {
           background: #C2571B;
           color: #FFFFFF;
-          animation: pulse 2s infinite;
+          animation: pulse-badge 2s infinite;
+          border-color: rgba(255, 255, 255, 0.3);
         }
         
         .nav-count.urgent {
           background: #DC2626;
           color: #FFFFFF;
-          animation: pulse 1.5s infinite;
+          animation: pulse-urgent 1.5s infinite;
+          border-color: rgba(255, 255, 255, 0.3);
         }
         
-        .nav-indicator {
-          width: 8px;
-          height: 8px;
-          background: #C2571B;
-          border-radius: 50%;
-          position: absolute;
-          top: 8px;
-          right: 8px;
-          animation: pulse 2s infinite;
-        }
-        
-        .nav-indicator.urgent {
-          background: #DC2626;
-          animation: pulse 1.5s infinite;
-        }
-        
-        @keyframes pulse {
+        @keyframes pulse-badge {
           0%, 100% {
             opacity: 1;
             transform: scale(1);
           }
           50% {
-            opacity: 0.7;
-            transform: scale(1.1);
+            opacity: 0.8;
+            transform: scale(1.05);
           }
         }
         
-        .stats-section {
-          margin-top: auto;
-          padding-top: 16px;
-          border-top: 1px solid rgba(243, 238, 217, 0.1);
-          margin-bottom: 16px;
+        .nav-highlight {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 28px;
+          height: 28px;
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 50%;
+          color: #F3EED9;
+          animation: sparkle 2s ease-in-out infinite;
         }
         
-        .stats-section:last-child {
-          margin-bottom: 0;
+        @keyframes sparkle {
+          0%, 100% {
+            opacity: 0.7;
+            transform: rotate(0deg) scale(1);
+          }
+          50% {
+            opacity: 1;
+            transform: rotate(180deg) scale(1.1);
+          }
+        }
+        
+        .nav-indicator {
+          width: 10px;
+          height: 10px;
+          background: #C2571B;
+          border-radius: 50%;
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          animation: pulse-badge 2s infinite;
+          border: 2px solid rgba(243, 238, 217, 0.3);
+        }
+        
+        .nav-indicator.urgent {
+          background: #DC2626;
+          animation: pulse-urgent 1.5s infinite;
+        }
+        
+        .stats-section {
+          margin-bottom: 24px;
+          padding-top: 20px;
+          border-top: 1px solid rgba(243, 238, 217, 0.1);
+        }
+        
+        .stats-section:first-of-type {
+          border-top: none;
+          padding-top: 0;
+        }
+        
+        .stats-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 16px;
         }
         
         .stats-title {
           font-size: 11px;
-          font-weight: 600;
+          font-weight: 700;
           text-transform: uppercase;
-          letter-spacing: 0.8px;
+          letter-spacing: 1px;
           color: rgba(243, 238, 217, 0.6);
-          margin-bottom: 12px;
-          margin-top: 0;
-          padding: 0 4px;
+          margin: 0;
+        }
+        
+        .popularity-score {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 10px;
+          color: rgba(243, 238, 217, 0.8);
+          font-weight: 600;
         }
         
         .stats-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 8px;
+          gap: 12px;
         }
         
         .stat-card {
           background: rgba(243, 238, 217, 0.08);
-          border-radius: 8px;
-          padding: 12px 8px;
+          border-radius: 12px;
+          padding: 14px 12px;
           display: flex;
-          flex-direction: column;
           align-items: center;
-          gap: 6px;
+          gap: 12px;
           transition: all 0.2s ease;
           border: 1px solid rgba(243, 238, 217, 0.1);
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .stat-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, rgba(243, 238, 217, 0.05) 0%, transparent 100%);
+          opacity: 0;
+          transition: opacity 0.2s ease;
         }
         
         .stat-card:hover {
@@ -59486,17 +62193,38 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
           transform: translateY(-1px);
         }
         
+        .stat-card:hover::before {
+          opacity: 1;
+        }
+        
+        .stat-card.urgent {
+          background: rgba(220, 38, 38, 0.15);
+          border-color: rgba(220, 38, 38, 0.3);
+          animation: pulse-card 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-card {
+          0%, 100% {
+            background: rgba(220, 38, 38, 0.15);
+          }
+          50% {
+            background: rgba(220, 38, 38, 0.2);
+          }
+        }
+        
         .stat-icon {
           opacity: 0.9;
+          flex-shrink: 0;
         }
         
         .stat-content {
-          text-align: center;
+          flex: 1;
+          min-width: 0;
         }
         
         .stat-value {
-          font-size: 16px;
-          font-weight: 700;
+          font-size: 18px;
+          font-weight: 800;
           line-height: 1.2;
           color: #F3EED9;
           margin-bottom: 2px;
@@ -59507,50 +62235,173 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
           color: rgba(243, 238, 217, 0.7);
           line-height: 1.2;
           text-transform: uppercase;
-          letter-spacing: 0.3px;
-        }
-        
-        /* Alerte pour les retards */
-        .overdue-alert {
-          background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
-          color: #FFFFFF;
-          padding: 12px;
-          border-radius: 8px;
-          margin: 16px 0;
-          font-size: 12px;
-          font-weight: 600;
-          text-align: center;
-          animation: pulse 3s infinite;
-        }
-        
-        /* États spéciaux */
-        .urgent-section {
-          background: rgba(220, 38, 38, 0.1);
-          border: 1px solid rgba(220, 38, 38, 0.2);
-          border-radius: 8px;
-          padding: 12px;
-          margin: 16px 0;
-        }
-        
-        .urgent-title {
-          font-size: 11px;
-          font-weight: 700;
-          color: #DC2626;
-          text-transform: uppercase;
           letter-spacing: 0.5px;
-          margin-bottom: 8px;
+          font-weight: 600;
+        }
+        
+        .stat-trend {
+          font-size: 9px;
+          color: #4CAF50;
+          font-weight: 600;
+          margin-top: 2px;
+        }
+        
+        .stat-percentage {
+          font-size: 9px;
+          color: rgba(243, 238, 217, 0.8);
+          font-weight: 600;
+          margin-top: 2px;
+        }
+        
+        .users-stats {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-bottom: 16px;
+        }
+        
+        .user-stat {
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 12px;
+          background: rgba(243, 238, 217, 0.06);
+          border-radius: 10px;
+          padding: 12px;
+          border: 1px solid rgba(243, 238, 217, 0.1);
         }
         
-        .urgent-content {
+        .user-stat-icon {
+          opacity: 0.9;
+        }
+        
+        .user-stat-content {
+          flex: 1;
+        }
+        
+        .user-stat-value {
+          font-size: 16px;
+          font-weight: 700;
+          color: #F3EED9;
+          line-height: 1.2;
+        }
+        
+        .user-stat-label {
+          font-size: 11px;
+          color: rgba(243, 238, 217, 0.7);
+          font-weight: 500;
+        }
+        
+        .total-users {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 16px;
+          background: rgba(243, 238, 217, 0.1);
+          border-radius: 12px;
+          border: 1px solid rgba(243, 238, 217, 0.2);
+        }
+        
+        .total-label {
           font-size: 12px;
-          color: #FFFFFF;
+          color: rgba(243, 238, 217, 0.8);
+          font-weight: 600;
+        }
+        
+        .total-value {
+          font-size: 16px;
+          font-weight: 800;
+          color: #F3EED9;
+        }
+        
+        .activity-section {
+          margin-top: auto;
+        }
+        
+        .activity-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 16px;
+        }
+        
+        .activity-pulse {
+          width: 8px;
+          height: 8px;
+          background: #4CAF50;
+          border-radius: 50%;
+          animation: pulse-activity 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-activity {
+          0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.6;
+            transform: scale(1.3);
+          }
+        }
+        
+        .activity-summary {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .activity-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 11px;
+          color: rgba(243, 238, 217, 0.8);
           line-height: 1.3;
         }
         
-        /* Responsive */
+        .activity-item.urgent {
+          color: #FFCDD2;
+        }
+        
+        .activity-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+        
+        .activity-dot.available {
+          background: #4CAF50;
+        }
+        
+        .activity-dot.borrowed {
+          background: #FF9800;
+        }
+        
+        .activity-dot.overdue {
+          background: #F44336;
+          animation: pulse-urgent 1.5s infinite;
+        }
+        
+        /* Enhanced scrollbar */
+        .sidebar-content::-webkit-scrollbar {
+          width: 4px;
+        }
+        
+        .sidebar-content::-webkit-scrollbar-track {
+          background: rgba(243, 238, 217, 0.1);
+          border-radius: 2px;
+        }
+        
+        .sidebar-content::-webkit-scrollbar-thumb {
+          background: rgba(243, 238, 217, 0.3);
+          border-radius: 2px;
+        }
+        
+        .sidebar-content::-webkit-scrollbar-thumb:hover {
+          background: rgba(243, 238, 217, 0.5);
+        }
+        
+        /* Responsive Design */
         @media (max-width: 768px) {
           .sidebar {
             width: 100%;
@@ -59559,6 +62410,7 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
             border-right: none;
             border-bottom: 1px solid rgba(46, 69, 58, 0.3);
             overflow-x: auto;
+            background: linear-gradient(90deg, #3E5C49 0%, #2E453A 100%);
           }
           
           .sidebar.collapsed {
@@ -59571,10 +62423,11 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
           
           .sidebar-content {
             flex: 1;
-            padding: 8px 16px;
+            padding: 16px 20px;
             overflow-x: auto;
             display: flex;
-            gap: 16px;
+            gap: 20px;
+            overflow-y: visible;
           }
           
           .nav-section {
@@ -59584,51 +62437,59 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
           
           .nav-list {
             flex-direction: row;
-            gap: 8px;
+            gap: 12px;
           }
           
           .nav-button {
             flex-direction: column;
-            gap: 4px;
-            padding: 8px 12px;
-            min-width: 64px;
+            gap: 6px;
+            padding: 12px 16px;
+            min-width: 80px;
             white-space: nowrap;
+            border-radius: 12px;
           }
           
           .nav-content {
             align-items: center;
+            text-align: center;
           }
           
           .nav-label {
-            font-size: 11px;
+            font-size: 12px;
           }
           
           .nav-description {
             display: none;
           }
           
-          .stats-section {
-            display: none;
+          .nav-count {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 10px;
+            padding: 2px 6px;
+            min-width: 16px;
           }
           
-          .urgent-section {
+          .stats-section,
+          .activity-section {
             display: none;
           }
         }
         
         @media (max-width: 480px) {
           .sidebar-content {
-            padding: 8px;
-            gap: 8px;
+            padding: 12px 16px;
+            gap: 16px;
           }
           
           .nav-button {
-            min-width: 56px;
-            padding: 6px 8px;
+            min-width: 70px;
+            padding: 10px 12px;
           }
           
           .nav-label {
-            font-size: 10px;
+            font-size: 11px;
           }
           
           .nav-count {
@@ -59636,7 +62497,100 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
             padding: 1px 4px;
           }
         }
-      ` }), !isCollapsed && stats.overdueBooks > 0 && ((0, jsx_runtime_1.jsxs)("div", { className: "urgent-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "urgent-title", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Clock, { size: 12 }), "Attention"] }), (0, jsx_runtime_1.jsxs)("div", { className: "urgent-content", children: [stats.overdueBooks, " livre(s) en retard"] })] }))] }));
+        
+        /* Performance optimizations */
+        .nav-button {
+          contain: layout style paint;
+        }
+        
+        .stat-card {
+          contain: layout style paint;
+        }
+        
+        /* Accessibility improvements */
+        @media (prefers-reduced-motion: reduce) {
+          .nav-button,
+          .stat-card,
+          .toggle-button,
+          .activity-pulse,
+          .nav-highlight {
+            transition: none;
+            animation: none;
+          }
+          
+          .nav-button:hover {
+            transform: none;
+          }
+        }
+        
+        /* High contrast mode */
+        @media (prefers-contrast: high) {
+          .nav-button {
+            border: 2px solid rgba(243, 238, 217, 0.5);
+          }
+          
+          .nav-button.active {
+            border-color: #F3EED9;
+          }
+          
+          .stat-card {
+            border-width: 2px;
+          }
+        }
+      ` }), !isCollapsed && stats.overdueBooks > 0 && ((0, jsx_runtime_1.jsxs)("div", { className: "emergency-alert", children: [(0, jsx_runtime_1.jsx)("div", { className: "alert-icon", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Clock, { size: 16 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "alert-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "alert-title", children: "Action requise" }), (0, jsx_runtime_1.jsxs)("div", { className: "alert-message", children: [stats.overdueBooks, " livre(s) en retard"] })] })] })), (0, jsx_runtime_1.jsx)("style", { children: `
+        .emergency-alert {
+          margin: 16px 20px;
+          background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+          color: #FFFFFF;
+          padding: 16px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          animation: pulse-alert 3s ease-in-out infinite;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
+        }
+        
+        @keyframes pulse-alert {
+          0%, 100% {
+            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
+          }
+          50% {
+            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.5);
+          }
+        }
+        
+        .alert-icon {
+          width: 32px;
+          height: 32px;
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        
+        .alert-content {
+          flex: 1;
+        }
+        
+        .alert-title {
+          font-size: 12px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 2px;
+          opacity: 0.9;
+        }
+        
+        .alert-message {
+          font-size: 13px;
+          font-weight: 600;
+          line-height: 1.3;
+        }
+      ` })] }));
 };
 exports.Sidebar = Sidebar;
 
