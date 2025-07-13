@@ -59598,7 +59598,7 @@ const Dashboard = ({ stats, onNavigate, books = [], categories = [] }) => {
         }
     ];
     const borrowRate = stats.totalBooks > 0 ? (stats.borrowedBooks / stats.totalBooks * 100).toFixed(1) : 0;
-    return ((0, jsx_runtime_1.jsxs)("div", { className: "dashboard", children: [(0, jsx_runtime_1.jsx)("div", { className: "hero-section", children: (0, jsx_runtime_1.jsxs)("div", { className: "hero-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "hero-text", children: [(0, jsx_runtime_1.jsx)("h1", { className: "hero-title", children: "Bienvenue dans votre biblioth\u00E8que" }), (0, jsx_runtime_1.jsxs)("p", { className: "hero-subtitle", children: ["G\u00E9rez votre collection de ", stats.totalBooks, " livres avec facilit\u00E9 et \u00E9l\u00E9gance"] }), (0, jsx_runtime_1.jsx)("div", { className: "hero-actions", children: heroActions.map((action, index) => ((0, jsx_runtime_1.jsxs)("button", { className: `hero-button ${action.primary ? 'primary' : 'secondary'}`, onClick: action.action, children: [(0, jsx_runtime_1.jsx)(action.icon, { size: 18 }), (0, jsx_runtime_1.jsx)("span", { children: action.title }), (0, jsx_runtime_1.jsx)(lucide_react_1.ArrowRight, { size: 16 })] }, index))) })] }), (0, jsx_runtime_1.jsx)("div", { className: "hero-visual", children: (0, jsx_runtime_1.jsxs)("div", { className: "floating-card", children: [(0, jsx_runtime_1.jsxs)("div", { className: "card-header", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.BookOpen, { size: 24 }), (0, jsx_runtime_1.jsx)("span", { children: "Collection" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "card-stats", children: [(0, jsx_runtime_1.jsxs)("div", { className: "stat", children: [(0, jsx_runtime_1.jsx)("span", { className: "stat-number", children: stats.totalBooks }), (0, jsx_runtime_1.jsx)("span", { className: "stat-label", children: "Livres" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "stat", children: [(0, jsx_runtime_1.jsx)("span", { className: "stat-number", children: stats.borrowedBooks }), (0, jsx_runtime_1.jsx)("span", { className: "stat-label", children: "Emprunt\u00E9s" })] })] })] }) })] }) }), (0, jsx_runtime_1.jsxs)("div", { className: "dashboard-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "stats-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "section-header", children: [(0, jsx_runtime_1.jsx)("h2", { className: "section-title", children: "Vue d'ensemble" }), (0, jsx_runtime_1.jsx)("div", { className: "section-subtitle", children: "Statistiques de votre biblioth\u00E8que" })] }), (0, jsx_runtime_1.jsx)("div", { className: "stats-grid", children: mainStats.map((stat, index) => ((0, jsx_runtime_1.jsxs)("div", { className: "stat-card card-elevated", children: [(0, jsx_runtime_1.jsxs)("div", { className: "stat-header", children: [(0, jsx_runtime_1.jsx)("div", { className: "stat-icon", style: { color: stat.color }, children: (0, jsx_runtime_1.jsx)(stat.icon, { size: 24 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-meta", children: [stat.trend && (0, jsx_runtime_1.jsx)("span", { className: "stat-trend", children: stat.trend }), stat.percentage && (0, jsx_runtime_1.jsxs)("span", { className: "stat-percentage", children: [stat.percentage, "%"] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "stat-value", children: stat.value }), (0, jsx_runtime_1.jsx)("div", { className: "stat-title", children: stat.title })] })] }, index))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "dashboard-grid", children: [(0, jsx_runtime_1.jsxs)("div", { className: "quick-actions-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "section-header", children: (0, jsx_runtime_1.jsx)("h3", { className: "section-title", children: "Actions rapides" }) }), (0, jsx_runtime_1.jsx)("div", { className: "actions-grid", children: quickActions.map((action, index) => ((0, jsx_runtime_1.jsxs)("button", { className: "action-card card-elevated", onClick: action.action, children: [(0, jsx_runtime_1.jsxs)("div", { className: "action-icon", style: { backgroundColor: action.color }, children: [(0, jsx_runtime_1.jsx)(action.icon, { size: 20 }), action.badge && (0, jsx_runtime_1.jsx)("div", { className: "action-badge" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "action-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "action-title", children: action.title }), (0, jsx_runtime_1.jsx)("div", { className: "action-description", children: action.description })] }), (0, jsx_runtime_1.jsx)(lucide_react_1.ArrowRight, { size: 16, className: "action-arrow" })] }, index))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "progress-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "section-header", children: (0, jsx_runtime_1.jsx)("h3", { className: "section-title", children: "Utilisation" }) }), (0, jsx_runtime_1.jsxs)("div", { className: "progress-card card", children: [(0, jsx_runtime_1.jsxs)("div", { className: "progress-item", children: [(0, jsx_runtime_1.jsxs)("div", { className: "progress-header", children: [(0, jsx_runtime_1.jsx)("span", { className: "progress-label", children: "Taux d'emprunt" }), (0, jsx_runtime_1.jsxs)("span", { className: "progress-value", children: [borrowRate, "%"] })] }), (0, jsx_runtime_1.jsx)("div", { className: "progress-bar", children: (0, jsx_runtime_1.jsx)("div", { className: "progress-fill", style: { width: `${borrowRate}%` } }) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "progress-metrics", children: [(0, jsx_runtime_1.jsxs)("div", { className: "metric", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.TrendingUp, { size: 16 }), (0, jsx_runtime_1.jsx)("span", { children: "Tendance stable" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "metric", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Calendar, { size: 16 }), (0, jsx_runtime_1.jsx)("span", { children: "Mis \u00E0 jour maintenant" })] })] })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "activity-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "section-header", children: [(0, jsx_runtime_1.jsx)("h3", { className: "section-title", children: "Activit\u00E9 r\u00E9cente" }), (0, jsx_runtime_1.jsxs)("button", { className: "view-all-button", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Eye, { size: 16 }), "Voir tout"] })] }), (0, jsx_runtime_1.jsx)("div", { className: "activity-list card", children: recentActivity.map((activity, index) => ((0, jsx_runtime_1.jsxs)("div", { className: "activity-item", children: [(0, jsx_runtime_1.jsx)("div", { className: "activity-icon", children: (0, jsx_runtime_1.jsx)(activity.icon, { size: 16 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "activity-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "activity-title", children: activity.title }), (0, jsx_runtime_1.jsx)("div", { className: "activity-description", children: activity.description })] }), (0, jsx_runtime_1.jsx)("div", { className: "activity-time", children: activity.time })] }, index))) })] })] }), showPrintManager && ((0, jsx_runtime_1.jsx)(PrintManager_1.PrintManager, { books: books, stats: stats, categories: categories, onClose: () => setShowPrintManager(false) })), (0, jsx_runtime_1.jsx)("style", { children: `
+    return ((0, jsx_runtime_1.jsxs)("div", { className: "dashboard", children: [(0, jsx_runtime_1.jsx)("div", { className: "hero-section", children: (0, jsx_runtime_1.jsxs)("div", { className: "hero-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "hero-text", children: [(0, jsx_runtime_1.jsx)("h1", { className: "hero-title", children: "Bienvenue dans votre biblioth\u00E8que" }), (0, jsx_runtime_1.jsxs)("p", { className: "hero-subtitle", children: ["G\u00E9rez votre collection de ", stats.totalBooks, " livres avec facilit\u00E9 et \u00E9l\u00E9gance"] }), (0, jsx_runtime_1.jsx)("div", { className: "hero-actions", children: heroActions.map((action, index) => ((0, jsx_runtime_1.jsxs)("button", { className: `hero-button ${action.primary ? 'primary' : 'secondary'}`, onClick: action.action, children: [(0, jsx_runtime_1.jsx)(action.icon, { size: 18 }), (0, jsx_runtime_1.jsx)("span", { children: action.title }), (0, jsx_runtime_1.jsx)(lucide_react_1.ArrowRight, { size: 16 })] }, index))) })] }), (0, jsx_runtime_1.jsx)("div", { className: "hero-visual", children: (0, jsx_runtime_1.jsxs)("div", { className: "floating-card", children: [(0, jsx_runtime_1.jsxs)("div", { className: "card-header", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.BookOpen, { size: 24 }), (0, jsx_runtime_1.jsx)("span", { children: "Collection" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "card-stats", children: [(0, jsx_runtime_1.jsxs)("div", { className: "stat", children: [(0, jsx_runtime_1.jsx)("span", { className: "stat-number", children: stats.totalBooks }), (0, jsx_runtime_1.jsx)("span", { className: "stat-label", children: "Livres" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "stat", children: [(0, jsx_runtime_1.jsx)("span", { className: "stat-number", children: stats.borrowedBooks }), (0, jsx_runtime_1.jsx)("span", { className: "stat-label", children: "Emprunt\u00E9s" })] })] })] }) })] }) }), (0, jsx_runtime_1.jsxs)("div", { className: "dashboard-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "stats-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "section-header", children: [(0, jsx_runtime_1.jsx)("h2", { className: "section-title", children: "Vue d'ensemble" }), (0, jsx_runtime_1.jsx)("div", { className: "section-subtitle", children: "Statistiques de votre biblioth\u00E8que" })] }), (0, jsx_runtime_1.jsx)("div", { className: "stats-grid", children: mainStats.map((stat, index) => ((0, jsx_runtime_1.jsxs)("div", { className: "stat-card card-elevated", children: [(0, jsx_runtime_1.jsx)("div", { className: "stat-header", children: (0, jsx_runtime_1.jsx)("div", { className: "stat-icon", style: { color: stat.color }, children: (0, jsx_runtime_1.jsx)(stat.icon, { size: 24 }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-content", children: [stat.trend && (0, jsx_runtime_1.jsx)("span", { className: "stat-trend", children: stat.trend }), stat.percentage && (0, jsx_runtime_1.jsxs)("span", { className: "stat-percentage", children: [stat.percentage, "%"] }), (0, jsx_runtime_1.jsx)("div", { className: "stat-value", children: stat.value }), (0, jsx_runtime_1.jsx)("div", { className: "stat-title", children: stat.title })] })] }, index))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "dashboard-grid", children: [(0, jsx_runtime_1.jsxs)("div", { className: "quick-actions-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "section-header", children: (0, jsx_runtime_1.jsx)("h3", { className: "section-title", children: "Actions rapides" }) }), (0, jsx_runtime_1.jsx)("div", { className: "actions-grid", children: quickActions.map((action, index) => ((0, jsx_runtime_1.jsxs)("button", { className: "action-card card-elevated", onClick: action.action, children: [(0, jsx_runtime_1.jsxs)("div", { className: "action-icon", style: { backgroundColor: action.color }, children: [(0, jsx_runtime_1.jsx)(action.icon, { size: 20 }), action.badge && (0, jsx_runtime_1.jsx)("div", { className: "action-badge" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "action-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "action-title", children: action.title }), (0, jsx_runtime_1.jsx)("div", { className: "action-description", children: action.description })] }), (0, jsx_runtime_1.jsx)(lucide_react_1.ArrowRight, { size: 16, className: "action-arrow" })] }, index))) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "progress-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "section-header", children: (0, jsx_runtime_1.jsx)("h3", { className: "section-title", children: "Utilisation" }) }), (0, jsx_runtime_1.jsxs)("div", { className: "progress-card card", children: [(0, jsx_runtime_1.jsxs)("div", { className: "progress-item", children: [(0, jsx_runtime_1.jsxs)("div", { className: "progress-header", children: [(0, jsx_runtime_1.jsx)("span", { className: "progress-label", children: "Taux d'emprunt" }), (0, jsx_runtime_1.jsxs)("span", { className: "progress-value", children: [borrowRate, "%"] })] }), (0, jsx_runtime_1.jsx)("div", { className: "progress-bar", children: (0, jsx_runtime_1.jsx)("div", { className: "progress-fill", style: { width: `${borrowRate}%` } }) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "progress-metrics", children: [(0, jsx_runtime_1.jsxs)("div", { className: "metric", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.TrendingUp, { size: 16 }), (0, jsx_runtime_1.jsx)("span", { children: "Tendance stable" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "metric", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Calendar, { size: 16 }), (0, jsx_runtime_1.jsx)("span", { children: "Mis \u00E0 jour maintenant" })] })] })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "activity-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "section-header", children: [(0, jsx_runtime_1.jsx)("h3", { className: "section-title", children: "Activit\u00E9 r\u00E9cente" }), (0, jsx_runtime_1.jsxs)("button", { className: "view-all-button", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Eye, { size: 16 }), "Voir tout"] })] }), (0, jsx_runtime_1.jsx)("div", { className: "activity-list card", children: recentActivity.map((activity, index) => ((0, jsx_runtime_1.jsxs)("div", { className: "activity-item", children: [(0, jsx_runtime_1.jsx)("div", { className: "activity-icon", children: (0, jsx_runtime_1.jsx)(activity.icon, { size: 16 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "activity-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "activity-title", children: activity.title }), (0, jsx_runtime_1.jsx)("div", { className: "activity-description", children: activity.description })] }), (0, jsx_runtime_1.jsx)("div", { className: "activity-time", children: activity.time })] }, index))) })] })] }), showPrintManager && ((0, jsx_runtime_1.jsx)(PrintManager_1.PrintManager, { books: books, stats: stats, categories: categories, onClose: () => setShowPrintManager(false) })), (0, jsx_runtime_1.jsx)("style", { children: `
         .dashboard {
           height: 100%;
           overflow-y: auto;
@@ -62125,6 +62125,8 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
           margin-bottom: 24px;
           padding-top: 20px;
           border-top: 1px solid rgba(243, 238, 217, 0.1);
+          position: relative;
+          isolation: isolate;
         }
         
         .stats-section:first-of-type {
@@ -62133,19 +62135,22 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
         }
         
         .stats-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 16px;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: space-between !important;
+          margin-bottom: 16px !important;
+          position: relative !important;
+          z-index: 10 !important;
         }
         
         .stats-title {
-          font-size: 11px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          color: rgba(243, 238, 217, 0.6);
-          margin: 0;
+          font-size: 11px !important;
+          font-weight: 700 !important;
+          text-transform: uppercase !important;
+          letter-spacing: 1px !important;
+          color: rgba(243, 238, 217, 0.6) !important;
+          margin: 0 !important;
+          font-family: inherit !important;
         }
         
         .popularity-score {
@@ -62164,16 +62169,17 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
         }
         
         .stat-card {
-          background: rgba(243, 238, 217, 0.08);
-          border-radius: 12px;
-          padding: 14px 12px;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          transition: all 0.2s ease;
-          border: 1px solid rgba(243, 238, 217, 0.1);
-          position: relative;
-          overflow: hidden;
+          background: rgba(243, 238, 217, 0.08) !important;
+          border-radius: 12px !important;
+          padding: 14px 12px !important;
+          display: flex !important;
+          align-items: center !important;
+          gap: 12px !important;
+          transition: all 0.2s ease !important;
+          border: 1px solid rgba(243, 238, 217, 0.1) !important;
+          position: relative !important;
+          overflow: hidden !important;
+          isolation: isolate !important;
         }
         
         .stat-card::before {
@@ -62223,20 +62229,22 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
         }
         
         .stat-value {
-          font-size: 18px;
-          font-weight: 800;
-          line-height: 1.2;
-          color: #F3EED9;
-          margin-bottom: 2px;
+          font-size: 18px !important;
+          font-weight: 800 !important;
+          line-height: 1.2 !important;
+          color: #F3EED9 !important;
+          margin-bottom: 2px !important;
+          font-family: inherit !important;
         }
         
         .stat-label {
-          font-size: 10px;
-          color: rgba(243, 238, 217, 0.7);
-          line-height: 1.2;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          font-weight: 600;
+          font-size: 10px !important;
+          color: rgba(243, 238, 217, 0.7) !important;
+          line-height: 1.2 !important;
+          text-transform: uppercase !important;
+          letter-spacing: 0.5px !important;
+          font-weight: 600 !important;
+          font-family: inherit !important;
         }
         
         .stat-trend {

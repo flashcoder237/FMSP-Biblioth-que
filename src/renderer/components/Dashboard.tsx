@@ -193,12 +193,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   <div className="stat-icon" style={{ color: stat.color }}>
                     <stat.icon size={24} />
                   </div>
-                  <div className="stat-meta">
-                    {stat.trend && <span className="stat-trend">{stat.trend}</span>}
-                    {stat.percentage && <span className="stat-percentage">{stat.percentage}%</span>}
-                  </div>
+                  
                 </div>
                 <div className="stat-content">
+                    {stat.trend && <span className="stat-trend">{stat.trend}</span>}
+                    {stat.percentage && <span className="stat-percentage">{stat.percentage}%</span>}
                   <div className="stat-value">{stat.value}</div>
                   <div className="stat-title">{stat.title}</div>
                 </div>

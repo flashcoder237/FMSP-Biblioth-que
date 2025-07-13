@@ -534,6 +534,8 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
           margin-bottom: 24px;
           padding-top: 20px;
           border-top: 1px solid rgba(243, 238, 217, 0.1);
+          position: relative;
+          isolation: isolate;
         }
         
         .stats-section:first-of-type {
@@ -542,19 +544,22 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
         }
         
         .stats-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 16px;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: space-between !important;
+          margin-bottom: 16px !important;
+          position: relative !important;
+          z-index: 10 !important;
         }
         
         .stats-title {
-          font-size: 11px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          color: rgba(243, 238, 217, 0.6);
-          margin: 0;
+          font-size: 11px !important;
+          font-weight: 700 !important;
+          text-transform: uppercase !important;
+          letter-spacing: 1px !important;
+          color: rgba(243, 238, 217, 0.6) !important;
+          margin: 0 !important;
+          font-family: inherit !important;
         }
         
         .popularity-score {
@@ -573,16 +578,17 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
         }
         
         .stat-card {
-          background: rgba(243, 238, 217, 0.08);
-          border-radius: 12px;
-          padding: 14px 12px;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          transition: all 0.2s ease;
-          border: 1px solid rgba(243, 238, 217, 0.1);
-          position: relative;
-          overflow: hidden;
+          background: rgba(243, 238, 217, 0.08) !important;
+          border-radius: 12px !important;
+          padding: 14px 12px !important;
+          display: flex !important;
+          align-items: center !important;
+          gap: 12px !important;
+          transition: all 0.2s ease !important;
+          border: 1px solid rgba(243, 238, 217, 0.1) !important;
+          position: relative !important;
+          overflow: hidden !important;
+          isolation: isolate !important;
         }
         
         .stat-card::before {
@@ -632,20 +638,22 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
         }
         
         .stat-value {
-          font-size: 18px;
-          font-weight: 800;
-          line-height: 1.2;
-          color: #F3EED9;
-          margin-bottom: 2px;
+          font-size: 18px !important;
+          font-weight: 800 !important;
+          line-height: 1.2 !important;
+          color: #F3EED9 !important;
+          margin-bottom: 2px !important;
+          font-family: inherit !important;
         }
         
         .stat-label {
-          font-size: 10px;
-          color: rgba(243, 238, 217, 0.7);
-          line-height: 1.2;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          font-weight: 600;
+          font-size: 10px !important;
+          color: rgba(243, 238, 217, 0.7) !important;
+          line-height: 1.2 !important;
+          text-transform: uppercase !important;
+          letter-spacing: 0.5px !important;
+          font-weight: 600 !important;
+          font-family: inherit !important;
         }
         
         .stat-trend {
