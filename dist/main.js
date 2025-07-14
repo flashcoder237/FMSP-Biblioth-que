@@ -37,8 +37,14 @@ const electron_1 = require("electron");
 const path = __importStar(require("path"));
 const fs = __importStar(require("fs"));
 const DatabaseService_1 = require("./services/DatabaseService");
+const BackupService_1 = require("./services/BackupService");
+const AuthService_1 = require("./services/AuthService");
+const SettingsService_1 = require("./services/SettingsService");
 let mainWindow;
 let dbService;
+let backupService;
+let authService;
+let settingsService;
 function createWindow() {
     mainWindow = new electron_1.BrowserWindow({
         width: 1200,
@@ -53,6 +59,7 @@ function createWindow() {
         titleBarStyle: 'hiddenInset',
         frame: false,
         show: false,
+        icon: path.join(__dirname, '../assets/icon.png'), // Ajout d'une icône
     });
     if (process.env.NODE_ENV === 'development') {
         mainWindow.loadURL('http://localhost:8080');
@@ -64,10 +71,29 @@ function createWindow() {
     mainWindow.once('ready-to-show', () => {
         mainWindow.show();
     });
+    // Gestion de la fermeture de l'application
+    mainWindow.on('close', async (event) => {
+        if (backupService && settingsService) {
+            const settings = await settingsService.getSettings();
+            if (settings?.backup.autoBackup) {
+                // Créer une sauvegarde automatique à la fermeture
+                try {
+                    await backupService.createBackup();
+                }
+                catch (error) {
+                    console.error('Erreur lors de la sauvegarde automatique:', error);
+                }
+            }
+        }
+    });
 }
 electron_1.app.whenReady().then(async () => {
+    // Initialiser les services
     dbService = new DatabaseService_1.DatabaseService();
     await dbService.initialize();
+    backupService = new BackupService_1.BackupService(dbService);
+    authService = new AuthService_1.AuthService();
+    settingsService = new SettingsService_1.SettingsService();
     createWindow();
     electron_1.app.on('activate', () => {
         if (electron_1.BrowserWindow.getAllWindows().length === 0) {
@@ -157,6 +183,100 @@ electron_1.ipcMain.handle('db:getBorrowHistory', async (_, filter) => {
 electron_1.ipcMain.handle('db:getStats', async () => {
     return await dbService.getStats();
 });
+// Nouvelles opérations de base de données
+electron_1.ipcMain.handle('db:clearAll', async () => {
+    return await dbService.clearDatabase();
+});
+electron_1.ipcMain.handle('db:export', async () => {
+    const result = await electron_1.dialog.showSaveDialog(mainWindow, {
+        title: 'Exporter la base de données',
+        defaultPath: `bibliotheque_backup_${new Date().toISOString().split('T')[0]}.db`,
+        filters: [
+            { name: 'Base de données', extensions: ['db'] },
+            { name: 'Tous les fichiers', extensions: ['*'] }
+        ]
+    });
+    if (!result.filePath)
+        return null;
+    try {
+        await backupService.exportDatabase(result.filePath);
+        return result.filePath;
+    }
+    catch (error) {
+        console.error('Erreur lors de l\'export:', error);
+        return null;
+    }
+});
+electron_1.ipcMain.handle('db:import', async (_, filePath) => {
+    try {
+        await backupService.importDatabase(filePath);
+        return true;
+    }
+    catch (error) {
+        console.error('Erreur lors de l\'import:', error);
+        return false;
+    }
+});
+// Settings Operations
+electron_1.ipcMain.handle('settings:get', async () => {
+    return await settingsService.getSettings();
+});
+electron_1.ipcMain.handle('settings:save', async (_, settings) => {
+    return await settingsService.saveSettings(settings);
+});
+// Backup Operations
+electron_1.ipcMain.handle('backup:create', async () => {
+    return await backupService.createBackup();
+});
+electron_1.ipcMain.handle('backup:restore', async () => {
+    const result = await electron_1.dialog.showOpenDialog(mainWindow, {
+        title: 'Sélectionner une sauvegarde',
+        filters: [
+            { name: 'Sauvegardes', extensions: ['bak', 'backup'] },
+            { name: 'Tous les fichiers', extensions: ['*'] }
+        ],
+        properties: ['openFile']
+    });
+    if (result.canceled || !result.filePaths[0])
+        return false;
+    try {
+        await backupService.restoreBackup(result.filePaths[0]);
+        return true;
+    }
+    catch (error) {
+        console.error('Erreur lors de la restauration:', error);
+        return false;
+    }
+});
+// Authentication Operations
+electron_1.ipcMain.handle('auth:status', async () => {
+    return authService.isAuthenticated();
+});
+electron_1.ipcMain.handle('auth:login', async (_, credentials) => {
+    return await authService.login(credentials);
+});
+electron_1.ipcMain.handle('auth:logout', async () => {
+    return authService.logout();
+});
+// File Operations
+electron_1.ipcMain.handle('file:select', async (_, options = {}) => {
+    const result = await electron_1.dialog.showOpenDialog(mainWindow, {
+        properties: ['openFile'],
+        filters: [
+            { name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'gif', 'bmp'] },
+            { name: 'Documents', extensions: ['pdf', 'doc', 'docx', 'txt'] },
+            { name: 'Tous les fichiers', extensions: ['*'] }
+        ],
+        ...options
+    });
+    return result.canceled ? null : result.filePaths[0];
+});
+electron_1.ipcMain.handle('file:selectDirectory', async () => {
+    const result = await electron_1.dialog.showOpenDialog(mainWindow, {
+        properties: ['openDirectory']
+    });
+    return result.canceled ? null : result.filePaths[0];
+});
 // Print Operations
 electron_1.ipcMain.handle('print:inventory', async (_, data) => {
     return await createPrintWindow(data, 'inventory');
@@ -173,6 +293,94 @@ electron_1.ipcMain.handle('print:borrow-history', async (_, data) => {
 electron_1.ipcMain.handle('export:csv', async (_, data) => {
     return await exportToCSV(data);
 });
+// Notification Operations
+electron_1.ipcMain.handle('notification:show', async (_, title, body) => {
+    if (electron_1.Notification.isSupported()) {
+        new electron_1.Notification({
+            title,
+            body,
+            icon: path.join(__dirname, '../assets/icon.png')
+        }).show();
+    }
+});
+// System Operations
+electron_1.ipcMain.handle('system:info', async () => {
+    return {
+        platform: process.platform,
+        arch: process.arch,
+        version: process.version,
+        appVersion: electron_1.app.getVersion(),
+        electronVersion: process.versions.electron,
+        chromeVersion: process.versions.chrome,
+        nodeVersion: process.versions.node
+    };
+});
+electron_1.ipcMain.handle('system:checkUpdates', async () => {
+    // Placeholder pour la vérification des mises à jour
+    return {
+        hasUpdate: false,
+        currentVersion: electron_1.app.getVersion(),
+        latestVersion: electron_1.app.getVersion()
+    };
+});
+// Theme Operations
+electron_1.ipcMain.handle('theme:set', async (_, theme) => {
+    await settingsService.setTheme(theme);
+});
+electron_1.ipcMain.handle('theme:get', async () => {
+    return await settingsService.getTheme();
+});
+// Statistics Operations
+electron_1.ipcMain.handle('stats:advanced', async () => {
+    const basicStats = await dbService.getStats();
+    const borrowHistory = await dbService.getBorrowHistory();
+    // Calculer des statistiques avancées
+    const now = new Date();
+    const monthlyBorrows = borrowHistory.filter(h => {
+        const borrowDate = new Date(h.borrowDate);
+        return borrowDate.getMonth() === now.getMonth() && borrowDate.getFullYear() === now.getFullYear();
+    }).length;
+    const averageBorrowDuration = borrowHistory
+        .filter(h => h.actualReturnDate)
+        .reduce((acc, h) => {
+        const borrowed = new Date(h.borrowDate);
+        const returned = new Date(h.actualReturnDate);
+        const duration = (returned.getTime() - borrowed.getTime()) / (1000 * 60 * 60 * 24);
+        return acc + duration;
+    }, 0) / borrowHistory.filter(h => h.actualReturnDate).length || 0;
+    const topCategories = await getTopCategories();
+    const topBorrowers = await getTopBorrowers();
+    return {
+        ...basicStats,
+        monthlyBorrows,
+        averageBorrowDuration: Math.round(averageBorrowDuration),
+        topCategories,
+        topBorrowers
+    };
+});
+async function getTopCategories() {
+    const books = await dbService.getBooks();
+    const categoryCounts = books.reduce((acc, book) => {
+        acc[book.category] = (acc[book.category] || 0) + 1;
+        return acc;
+    }, {});
+    return Object.entries(categoryCounts)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 5)
+        .map(([category, count]) => ({ category, count }));
+}
+async function getTopBorrowers() {
+    const history = await dbService.getBorrowHistory();
+    const borrowerCounts = history.reduce((acc, h) => {
+        const key = `${h.borrower?.firstName} ${h.borrower?.lastName}`;
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+    }, {});
+    return Object.entries(borrowerCounts)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 5)
+        .map(([borrower, count]) => ({ borrower, count }));
+}
 async function createPrintWindow(data, type) {
     return new Promise((resolve) => {
         const printWindow = new electron_1.BrowserWindow({

@@ -4,7 +4,7 @@ exports.Borrowers = void 0;
 const jsx_runtime_1 = require("react/jsx-runtime");
 const react_1 = require("react");
 const lucide_react_1 = require("lucide-react");
-const Borrowers = ({ onClose }) => {
+const Borrowers = ({ onClose, onRefreshData }) => {
     const [borrowers, setBorrowers] = (0, react_1.useState)([]);
     const [searchQuery, setSearchQuery] = (0, react_1.useState)('');
     const [filterType, setFilterType] = (0, react_1.useState)('all');
@@ -22,6 +22,7 @@ const Borrowers = ({ onClose }) => {
         email: '',
         phone: ''
     });
+    const [formErrors, setFormErrors] = (0, react_1.useState)({});
     (0, react_1.useEffect)(() => {
         loadBorrowers();
     }, []);
@@ -33,6 +34,26 @@ const Borrowers = ({ onClose }) => {
         catch (error) {
             console.error('Erreur lors du chargement des emprunteurs:', error);
         }
+    };
+    const validateForm = () => {
+        const errors = {};
+        if (!formData.firstName.trim()) {
+            errors.firstName = 'Le prénom est requis';
+        }
+        if (!formData.lastName.trim()) {
+            errors.lastName = 'Le nom est requis';
+        }
+        if (!formData.matricule.trim()) {
+            errors.matricule = 'Le matricule est requis';
+        }
+        if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            errors.email = 'Format email invalide';
+        }
+        if (formData.phone && !/^[\d\s\+\-\(\)]{6,}$/.test(formData.phone)) {
+            errors.phone = 'Format téléphone invalide';
+        }
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
     };
     const handleSearch = async (query) => {
         setSearchQuery(query);
@@ -49,7 +70,7 @@ const Borrowers = ({ onClose }) => {
             loadBorrowers();
         }
     };
-    const handleAddBorrower = () => {
+    const resetForm = () => {
         setFormData({
             type: 'student',
             firstName: '',
@@ -61,7 +82,11 @@ const Borrowers = ({ onClose }) => {
             email: '',
             phone: ''
         });
+        setFormErrors({});
         setEditingBorrower(null);
+    };
+    const handleAddBorrower = () => {
+        resetForm();
         setShowAddModal(true);
     };
     const handleEditBorrower = (borrower) => {
@@ -76,11 +101,15 @@ const Borrowers = ({ onClose }) => {
             email: borrower.email || '',
             phone: borrower.phone || ''
         });
+        setFormErrors({});
         setEditingBorrower(borrower);
         setShowAddModal(true);
     };
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validateForm()) {
+            return;
+        }
         setIsLoading(true);
         try {
             if (editingBorrower) {
@@ -90,11 +119,21 @@ const Borrowers = ({ onClose }) => {
                 await window.electronAPI.addBorrower(formData);
             }
             setShowAddModal(false);
-            loadBorrowers();
+            resetForm();
+            await loadBorrowers();
+            // Rafraîchir les données dans le parent si callback fourni
+            if (onRefreshData) {
+                await onRefreshData();
+            }
         }
         catch (error) {
             console.error('Erreur:', error);
-            alert(error.message || 'Erreur lors de l\'opération');
+            if (error.message && error.message.includes('matricule')) {
+                setFormErrors({ matricule: 'Un emprunteur avec ce matricule existe déjà' });
+            }
+            else {
+                alert(error.message || 'Erreur lors de l\'opération');
+            }
         }
         finally {
             setIsLoading(false);
@@ -104,7 +143,11 @@ const Borrowers = ({ onClose }) => {
         if (window.confirm(`Êtes-vous sûr de vouloir supprimer ${borrower.firstName} ${borrower.lastName} ?`)) {
             try {
                 await window.electronAPI.deleteBorrower(borrower.id);
-                loadBorrowers();
+                await loadBorrowers();
+                // Rafraîchir les données dans le parent si callback fourni
+                if (onRefreshData) {
+                    await onRefreshData();
+                }
             }
             catch (error) {
                 alert(error.message || 'Erreur lors de la suppression');
@@ -120,7 +163,32 @@ const Borrowers = ({ onClose }) => {
     const staffCount = borrowers.filter(b => b.type === 'staff').length;
     return ((0, jsx_runtime_1.jsxs)("div", { className: "borrowers-overlay", children: [(0, jsx_runtime_1.jsxs)("div", { className: "borrowers-modal", children: [(0, jsx_runtime_1.jsxs)("div", { className: "modal-header", children: [(0, jsx_runtime_1.jsxs)("div", { className: "header-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "header-icon", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Users, { size: 28 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "header-text", children: [(0, jsx_runtime_1.jsx)("h2", { className: "modal-title", children: "Gestion des Emprunteurs" }), (0, jsx_runtime_1.jsxs)("p", { className: "modal-subtitle", children: [borrowers.length, " emprunteur(s) \u2022 ", studentCount, " \u00E9tudiant(s) \u2022 ", staffCount, " personnel(s)"] })] })] }), (0, jsx_runtime_1.jsx)("button", { className: "close-button", onClick: onClose, children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 20 }) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "stats-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "stat-card", children: [(0, jsx_runtime_1.jsx)("div", { className: "stat-icon student", children: (0, jsx_runtime_1.jsx)(lucide_react_1.GraduationCap, { size: 20 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-content", children: [(0, jsx_runtime_1.jsx)("span", { className: "stat-value", children: studentCount }), (0, jsx_runtime_1.jsx)("span", { className: "stat-label", children: "\u00C9tudiants" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-card", children: [(0, jsx_runtime_1.jsx)("div", { className: "stat-icon staff", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Briefcase, { size: 20 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-content", children: [(0, jsx_runtime_1.jsx)("span", { className: "stat-value", children: staffCount }), (0, jsx_runtime_1.jsx)("span", { className: "stat-label", children: "Personnel" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-card", children: [(0, jsx_runtime_1.jsx)("div", { className: "stat-icon total", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Users, { size: 20 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-content", children: [(0, jsx_runtime_1.jsx)("span", { className: "stat-value", children: borrowers.length }), (0, jsx_runtime_1.jsx)("span", { className: "stat-label", children: "Total" })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "controls-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "search-container", children: (0, jsx_runtime_1.jsxs)("div", { className: "search-input-wrapper", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Search, { className: "search-icon", size: 20 }), (0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "Rechercher par nom, pr\u00E9nom, matricule...", value: searchQuery, onChange: (e) => handleSearch(e.target.value), className: "search-input" }), searchQuery && ((0, jsx_runtime_1.jsx)("button", { className: "clear-search", onClick: () => handleSearch(''), children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 16 }) }))] }) }), (0, jsx_runtime_1.jsxs)("div", { className: "controls-right", children: [(0, jsx_runtime_1.jsxs)("div", { className: "filter-group", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Filter, { size: 16 }), (0, jsx_runtime_1.jsxs)("select", { value: filterType, onChange: (e) => setFilterType(e.target.value), className: "filter-select", children: [(0, jsx_runtime_1.jsx)("option", { value: "all", children: "Tous" }), (0, jsx_runtime_1.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0, jsx_runtime_1.jsx)("option", { value: "staff", children: "Personnel" })] })] }), (0, jsx_runtime_1.jsxs)("button", { className: "btn-primary", onClick: handleAddBorrower, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Plus, { size: 18 }), "Ajouter"] })] })] }), (0, jsx_runtime_1.jsx)("div", { className: "borrowers-content", children: filteredBorrowers.length > 0 ? ((0, jsx_runtime_1.jsx)("div", { className: "borrowers-grid", children: filteredBorrowers.map((borrower) => ((0, jsx_runtime_1.jsxs)("div", { className: `borrower-card ${borrower.type}`, children: [(0, jsx_runtime_1.jsxs)("div", { className: "card-header", children: [(0, jsx_runtime_1.jsxs)("div", { className: "borrower-type", children: [borrower.type === 'student' ? ((0, jsx_runtime_1.jsx)(lucide_react_1.GraduationCap, { size: 20 })) : ((0, jsx_runtime_1.jsx)(lucide_react_1.Briefcase, { size: 20 })), (0, jsx_runtime_1.jsx)("span", { children: borrower.type === 'student' ? 'Étudiant' : 'Personnel' })] }), (0, jsx_runtime_1.jsxs)("div", { className: "card-actions", children: [(0, jsx_runtime_1.jsx)("button", { className: "action-btn view", onClick: () => { }, title: "Voir d\u00E9tails", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Eye, { size: 16 }) }), (0, jsx_runtime_1.jsx)("button", { className: "action-btn edit", onClick: () => handleEditBorrower(borrower), title: "Modifier", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Edit, { size: 16 }) }), (0, jsx_runtime_1.jsx)("button", { className: "action-btn delete", onClick: () => handleDelete(borrower), title: "Supprimer", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Trash2, { size: 16 }) })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "card-content", children: [(0, jsx_runtime_1.jsxs)("h3", { className: "borrower-name", children: [borrower.firstName, " ", borrower.lastName] }), (0, jsx_runtime_1.jsxs)("div", { className: "borrower-details", children: [(0, jsx_runtime_1.jsxs)("div", { className: "detail-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Hash, { size: 14 }), (0, jsx_runtime_1.jsx)("span", { children: borrower.matricule })] }), borrower.type === 'student' && borrower.classe && ((0, jsx_runtime_1.jsxs)("div", { className: "detail-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.School, { size: 14 }), (0, jsx_runtime_1.jsx)("span", { children: borrower.classe })] })), borrower.type === 'staff' && borrower.position && ((0, jsx_runtime_1.jsxs)("div", { className: "detail-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Building, { size: 14 }), (0, jsx_runtime_1.jsx)("span", { children: borrower.position })] })), borrower.email && ((0, jsx_runtime_1.jsxs)("div", { className: "detail-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Mail, { size: 14 }), (0, jsx_runtime_1.jsx)("span", { children: borrower.email })] }))] })] })] }, borrower.id))) })) : ((0, jsx_runtime_1.jsxs)("div", { className: "empty-state", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Users, { size: 64 }), (0, jsx_runtime_1.jsx)("h3", { children: "Aucun emprunteur trouv\u00E9" }), (0, jsx_runtime_1.jsx)("p", { children: searchQuery || filterType !== 'all'
                                         ? 'Aucun résultat pour les critères sélectionnés'
-                                        : 'Commencez par ajouter des emprunteurs' })] })) }), showAddModal && ((0, jsx_runtime_1.jsx)("div", { className: "add-modal-overlay", onClick: () => setShowAddModal(false), children: (0, jsx_runtime_1.jsxs)("div", { className: "add-modal", onClick: (e) => e.stopPropagation(), children: [(0, jsx_runtime_1.jsxs)("div", { className: "add-modal-header", children: [(0, jsx_runtime_1.jsxs)("h3", { children: [editingBorrower ? 'Modifier' : 'Ajouter', " un emprunteur"] }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close", onClick: () => setShowAddModal(false), children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 20 }) })] }), (0, jsx_runtime_1.jsxs)("form", { onSubmit: handleSubmit, className: "add-form", children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Type d'emprunteur *" }), (0, jsx_runtime_1.jsxs)("div", { className: "type-selector", children: [(0, jsx_runtime_1.jsxs)("button", { type: "button", className: `type-button ${formData.type === 'student' ? 'active' : ''}`, onClick: () => setFormData(prev => ({ ...prev, type: 'student' })), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.GraduationCap, { size: 20 }), "\u00C9tudiant"] }), (0, jsx_runtime_1.jsxs)("button", { type: "button", className: `type-button ${formData.type === 'staff' ? 'active' : ''}`, onClick: () => setFormData(prev => ({ ...prev, type: 'staff' })), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Briefcase, { size: 20 }), "Personnel"] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-grid", children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Pr\u00E9nom *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.firstName, onChange: (e) => setFormData(prev => ({ ...prev, firstName: e.target.value })), className: "form-input", required: true })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Nom *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.lastName, onChange: (e) => setFormData(prev => ({ ...prev, lastName: e.target.value })), className: "form-input", required: true })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Matricule *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.matricule, onChange: (e) => setFormData(prev => ({ ...prev, matricule: e.target.value })), className: "form-input", required: true })] }), formData.type === 'student' ? ((0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Classe" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.classe, onChange: (e) => setFormData(prev => ({ ...prev, classe: e.target.value })), className: "form-input", placeholder: "ex: Terminale C" })] })) : ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "N\u00B0 CNI" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.cniNumber, onChange: (e) => setFormData(prev => ({ ...prev, cniNumber: e.target.value })), className: "form-input" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group span-full", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Poste" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.position, onChange: (e) => setFormData(prev => ({ ...prev, position: e.target.value })), className: "form-input", placeholder: "ex: Professeur de Math\u00E9matiques" })] })] })), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Email" }), (0, jsx_runtime_1.jsx)("input", { type: "email", value: formData.email, onChange: (e) => setFormData(prev => ({ ...prev, email: e.target.value })), className: "form-input" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "T\u00E9l\u00E9phone" }), (0, jsx_runtime_1.jsx)("input", { type: "tel", value: formData.phone, onChange: (e) => setFormData(prev => ({ ...prev, phone: e.target.value })), className: "form-input" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-actions", children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "btn-secondary", onClick: () => setShowAddModal(false), children: "Annuler" }), (0, jsx_runtime_1.jsxs)("button", { type: "submit", className: "btn-primary", disabled: isLoading, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Save, { size: 16 }), isLoading ? 'Enregistrement...' : editingBorrower ? 'Modifier' : 'Ajouter'] })] })] })] }) }))] }), (0, jsx_runtime_1.jsx)("style", { children: `
+                                        : 'Commencez par ajouter des emprunteurs' })] })) }), showAddModal && ((0, jsx_runtime_1.jsx)("div", { className: "add-modal-overlay", onClick: () => setShowAddModal(false), children: (0, jsx_runtime_1.jsxs)("div", { className: "add-modal", onClick: (e) => e.stopPropagation(), children: [(0, jsx_runtime_1.jsxs)("div", { className: "add-modal-header", children: [(0, jsx_runtime_1.jsxs)("h3", { children: [editingBorrower ? 'Modifier' : 'Ajouter', " un emprunteur"] }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close", onClick: () => setShowAddModal(false), children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 20 }) })] }), (0, jsx_runtime_1.jsxs)("form", { onSubmit: handleSubmit, className: "add-form", children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Type d'emprunteur *" }), (0, jsx_runtime_1.jsxs)("div", { className: "type-selector", children: [(0, jsx_runtime_1.jsxs)("button", { type: "button", className: `type-button ${formData.type === 'student' ? 'active' : ''}`, onClick: () => setFormData(prev => ({ ...prev, type: 'student' })), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.GraduationCap, { size: 20 }), "\u00C9tudiant"] }), (0, jsx_runtime_1.jsxs)("button", { type: "button", className: `type-button ${formData.type === 'staff' ? 'active' : ''}`, onClick: () => setFormData(prev => ({ ...prev, type: 'staff' })), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Briefcase, { size: 20 }), "Personnel"] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-grid", children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Pr\u00E9nom *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.firstName, onChange: (e) => {
+                                                                setFormData(prev => ({ ...prev, firstName: e.target.value }));
+                                                                if (formErrors.firstName) {
+                                                                    setFormErrors(prev => ({ ...prev, firstName: '' }));
+                                                                }
+                                                            }, className: `form-input ${formErrors.firstName ? 'error' : ''}`, required: true }), formErrors.firstName && (0, jsx_runtime_1.jsx)("span", { className: "error-text", children: formErrors.firstName })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Nom *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.lastName, onChange: (e) => {
+                                                                setFormData(prev => ({ ...prev, lastName: e.target.value }));
+                                                                if (formErrors.lastName) {
+                                                                    setFormErrors(prev => ({ ...prev, lastName: '' }));
+                                                                }
+                                                            }, className: `form-input ${formErrors.lastName ? 'error' : ''}`, required: true }), formErrors.lastName && (0, jsx_runtime_1.jsx)("span", { className: "error-text", children: formErrors.lastName })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Matricule *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.matricule, onChange: (e) => {
+                                                                setFormData(prev => ({ ...prev, matricule: e.target.value }));
+                                                                if (formErrors.matricule) {
+                                                                    setFormErrors(prev => ({ ...prev, matricule: '' }));
+                                                                }
+                                                            }, className: `form-input ${formErrors.matricule ? 'error' : ''}`, required: true }), formErrors.matricule && (0, jsx_runtime_1.jsx)("span", { className: "error-text", children: formErrors.matricule })] }), formData.type === 'student' ? ((0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Classe" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.classe, onChange: (e) => setFormData(prev => ({ ...prev, classe: e.target.value })), className: "form-input", placeholder: "ex: Terminale C" })] })) : ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "N\u00B0 CNI" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.cniNumber, onChange: (e) => setFormData(prev => ({ ...prev, cniNumber: e.target.value })), className: "form-input" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group span-full", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Poste" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.position, onChange: (e) => setFormData(prev => ({ ...prev, position: e.target.value })), className: "form-input", placeholder: "ex: Professeur de Math\u00E9matiques" })] })] })), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Email" }), (0, jsx_runtime_1.jsx)("input", { type: "email", value: formData.email, onChange: (e) => {
+                                                                setFormData(prev => ({ ...prev, email: e.target.value }));
+                                                                if (formErrors.email) {
+                                                                    setFormErrors(prev => ({ ...prev, email: '' }));
+                                                                }
+                                                            }, className: `form-input ${formErrors.email ? 'error' : ''}` }), formErrors.email && (0, jsx_runtime_1.jsx)("span", { className: "error-text", children: formErrors.email })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "T\u00E9l\u00E9phone" }), (0, jsx_runtime_1.jsx)("input", { type: "tel", value: formData.phone, onChange: (e) => {
+                                                                setFormData(prev => ({ ...prev, phone: e.target.value }));
+                                                                if (formErrors.phone) {
+                                                                    setFormErrors(prev => ({ ...prev, phone: '' }));
+                                                                }
+                                                            }, className: `form-input ${formErrors.phone ? 'error' : ''}` }), formErrors.phone && (0, jsx_runtime_1.jsx)("span", { className: "error-text", children: formErrors.phone })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-actions", children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "btn-secondary", onClick: () => setShowAddModal(false), disabled: isLoading, children: "Annuler" }), (0, jsx_runtime_1.jsxs)("button", { type: "submit", className: "btn-primary", disabled: isLoading, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Save, { size: 16 }), isLoading ? 'Enregistrement...' : editingBorrower ? 'Modifier' : 'Ajouter'] })] })] })] }) }))] }), (0, jsx_runtime_1.jsx)("style", { children: `
         .borrowers-overlay {
           position: fixed;
           top: 0;
@@ -340,6 +408,11 @@ const Borrowers = ({ onClose }) => {
           color: #2E2E2E;
           font-size: 14px;
           cursor: pointer;
+        }
+        
+        .filter-select:focus {
+          outline: none;
+          border-color: #3E5C49;
         }
         
         .btn-primary {
@@ -656,6 +729,17 @@ const Borrowers = ({ onClose }) => {
           box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
         }
         
+        .form-input.error {
+          border-color: #C2571B;
+          background: rgba(194, 87, 27, 0.05);
+        }
+        
+        .error-text {
+          font-size: 12px;
+          color: #C2571B;
+          font-weight: 500;
+        }
+        
         .form-actions {
           display: flex;
           gap: 12px;
@@ -679,9 +763,15 @@ const Borrowers = ({ onClose }) => {
           transition: all 0.2s ease;
         }
         
-        .btn-secondary:hover {
+        .btn-secondary:hover:not(:disabled) {
           background: #EAEADC;
           color: #2E2E2E;
+        }
+        
+        .btn-primary:disabled,
+        .btn-secondary:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
         
         /* Responsive */
@@ -730,6 +820,37 @@ const Borrowers = ({ onClose }) => {
           
           .type-selector {
             flex-direction: column;
+          }
+          
+          .form-actions {
+            flex-direction: column-reverse;
+          }
+          
+          .btn-primary,
+          .btn-secondary {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .add-modal {
+            margin: 8px;
+            border-radius: 16px;
+          }
+          
+          .add-modal-header,
+          .add-form {
+            padding: 20px 16px;
+          }
+          
+          .borrower-card {
+            border-radius: 12px;
+          }
+          
+          .card-header,
+          .card-content {
+            padding: 16px;
           }
         }
       ` })] }));

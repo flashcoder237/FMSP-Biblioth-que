@@ -53170,10 +53170,13 @@ const BorrowedBooks_1 = __webpack_require__(/*! ./components/BorrowedBooks */ ".
 const AddBook_1 = __webpack_require__(/*! ./components/AddBook */ "./src/renderer/components/AddBook.tsx");
 const Borrowers_1 = __webpack_require__(/*! ./components/Borrowers */ "./src/renderer/components/Borrowers.tsx");
 const BorrowHistory_1 = __webpack_require__(/*! ./components/BorrowHistory */ "./src/renderer/components/BorrowHistory.tsx");
+const Settings_1 = __webpack_require__(/*! ./components/Settings */ "./src/renderer/components/Settings.tsx");
 const Donation_1 = __webpack_require__(/*! ./components/Donation */ "./src/renderer/components/Donation.tsx");
 const About_1 = __webpack_require__(/*! ./components/About */ "./src/renderer/components/About.tsx");
+const Authentication_1 = __webpack_require__(Object(function webpackMissingModule() { var e = new Error("Cannot find module './components/Authentication'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 const App = () => {
-    const [currentView, setCurrentView] = (0, react_1.useState)('dashboard');
+    const [currentView, setCurrentView] = (0, react_1.useState)('auth');
+    const [isAuthenticated, setIsAuthenticated] = (0, react_1.useState)(false);
     const [books, setBooks] = (0, react_1.useState)([]);
     const [authors, setAuthors] = (0, react_1.useState)([]);
     const [categories, setCategories] = (0, react_1.useState)([]);
@@ -53193,7 +53196,21 @@ const App = () => {
     const [showBorrowModal, setShowBorrowModal] = (0, react_1.useState)(false);
     const [selectedBook, setSelectedBook] = (0, react_1.useState)(null);
     (0, react_1.useEffect)(() => {
-        loadData();
+        // Check authentication status
+        const checkAuth = async () => {
+            try {
+                const authStatus = await window.electronAPI.getAuthStatus();
+                setIsAuthenticated(authStatus);
+                if (authStatus) {
+                    setCurrentView('dashboard');
+                    loadData();
+                }
+            }
+            catch (error) {
+                console.error('Error checking auth status:', error);
+            }
+        };
+        checkAuth();
     }, []);
     const loadData = async () => {
         try {
@@ -53215,6 +53232,21 @@ const App = () => {
         catch (error) {
             console.error('Erreur lors du chargement des données:', error);
         }
+    };
+    const handleLogin = (credentials) => {
+        // For now, simple authentication
+        if (credentials.username === 'admin' && credentials.password === 'admin') {
+            setIsAuthenticated(true);
+            setCurrentView('dashboard');
+            loadData();
+        }
+        else {
+            throw new Error('Identifiants incorrects');
+        }
+    };
+    const handleLogout = () => {
+        setIsAuthenticated(false);
+        setCurrentView('auth');
     };
     const handleAddBook = async (book) => {
         try {
@@ -53267,6 +53299,13 @@ const App = () => {
         setShowBorrowModal(false);
         setSelectedBook(null);
     };
+    // Callback pour rafraîchir les données depuis les modals
+    const refreshData = async () => {
+        await loadData();
+    };
+    if (!isAuthenticated) {
+        return (0, jsx_runtime_1.jsx)(Authentication_1.Authentication, { onLogin: handleLogin });
+    }
     const renderCurrentView = () => {
         switch (currentView) {
             case 'dashboard':
@@ -53289,9 +53328,11 @@ const App = () => {
             case 'add-book':
                 return ((0, jsx_runtime_1.jsx)(AddBook_1.AddBook, { authors: authors, categories: categories, onAddBook: handleAddBook, onCancel: () => setCurrentView('books') }));
             case 'borrowers':
-                return ((0, jsx_runtime_1.jsx)(Borrowers_1.Borrowers, { onClose: () => setCurrentView('dashboard') }));
+                return ((0, jsx_runtime_1.jsx)(Borrowers_1.Borrowers, { onClose: () => setCurrentView('dashboard'), onRefreshData: refreshData }));
             case 'history':
                 return ((0, jsx_runtime_1.jsx)(BorrowHistory_1.BorrowHistory, { onClose: () => setCurrentView('dashboard') }));
+            case 'settings':
+                return ((0, jsx_runtime_1.jsx)(Settings_1.Settings, { onClose: () => setCurrentView('dashboard'), onLogout: handleLogout }));
             case 'donation':
                 return ((0, jsx_runtime_1.jsx)(Donation_1.Donation, { onClose: () => setCurrentView('dashboard') }));
             case 'about':
@@ -53300,7 +53341,7 @@ const App = () => {
                 return ((0, jsx_runtime_1.jsx)(Dashboard_1.Dashboard, { stats: stats, onNavigate: setCurrentView, books: books, categories: categories }));
         }
     };
-    return ((0, jsx_runtime_1.jsxs)("div", { className: "app", children: [(0, jsx_runtime_1.jsx)(TitleBar_1.TitleBar, {}), (0, jsx_runtime_1.jsxs)("div", { className: "app-container", children: [(0, jsx_runtime_1.jsx)(Sidebar_1.Sidebar, { currentView: currentView, onNavigate: setCurrentView, stats: stats }), (0, jsx_runtime_1.jsx)("main", { className: "main-content", children: (0, jsx_runtime_1.jsx)("div", { className: "content-wrapper", children: renderCurrentView() }) })] }), showBorrowModal && selectedBook && ((0, jsx_runtime_1.jsx)("div", { className: "borrow-modal-overlay", children: (0, jsx_runtime_1.jsxs)("div", { className: "borrow-modal", children: [(0, jsx_runtime_1.jsxs)("div", { className: "modal-header", children: [(0, jsx_runtime_1.jsxs)("div", { className: "header-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "header-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "24", height: "24", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.1 3.89 23 5 23H19C20.1 23 21 22.1 21 21V9ZM19 21H5V3H13V9H19V21Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "header-text", children: [(0, jsx_runtime_1.jsx)("h3", { children: "Nouvel emprunt" }), (0, jsx_runtime_1.jsx)("p", { children: "S\u00E9lectionnez un emprunteur et d\u00E9finissez la dur\u00E9e" })] })] }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close", onClick: closeBorrowModal, children: "\u00D7" })] }), (0, jsx_runtime_1.jsx)(EnhancedBorrowForm, { book: selectedBook, borrowers: borrowers, onSubmit: handleBorrowBook, onCancel: closeBorrowModal })] }) })), (0, jsx_runtime_1.jsx)("style", { children: `
+    return ((0, jsx_runtime_1.jsxs)("div", { className: "app", children: [(0, jsx_runtime_1.jsx)(TitleBar_1.TitleBar, {}), (0, jsx_runtime_1.jsxs)("div", { className: "app-container", children: [(0, jsx_runtime_1.jsx)(Sidebar_1.Sidebar, { currentView: currentView, onNavigate: setCurrentView, stats: stats }), (0, jsx_runtime_1.jsx)("main", { className: "main-content", children: (0, jsx_runtime_1.jsx)("div", { className: "content-wrapper", children: renderCurrentView() }) })] }), showBorrowModal && selectedBook && ((0, jsx_runtime_1.jsx)("div", { className: "borrow-modal-overlay", children: (0, jsx_runtime_1.jsxs)("div", { className: "borrow-modal", children: [(0, jsx_runtime_1.jsxs)("div", { className: "modal-header", children: [(0, jsx_runtime_1.jsxs)("div", { className: "header-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "header-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "24", height: "24", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.1 3.89 23 5 23H19C20.1 23 21 22.1 21 21V9ZM19 21H5V3H13V9H19V21Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "header-text", children: [(0, jsx_runtime_1.jsx)("h3", { children: "Nouvel emprunt" }), (0, jsx_runtime_1.jsx)("p", { children: "S\u00E9lectionnez un emprunteur et d\u00E9finissez la dur\u00E9e" })] })] }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close", onClick: closeBorrowModal, children: "\u00D7" })] }), (0, jsx_runtime_1.jsx)(EnhancedBorrowForm, { book: selectedBook, borrowers: borrowers, onSubmit: handleBorrowBook, onCancel: closeBorrowModal, onRefreshBorrowers: refreshData })] }) })), (0, jsx_runtime_1.jsx)("style", { children: `
         .app {
           height: 100vh;
           display: flex;
@@ -53463,52 +53504,6 @@ const App = () => {
           transform: scale(0.95);
         }
         
-        /* Smooth animations */
-        * {
-          transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        
-        /* Enhanced scrollbars */
-        ::-webkit-scrollbar {
-          width: 16px;
-          height: 16px;
-        }
-        
-        ::-webkit-scrollbar-track {
-          background: #F3EED9;
-          border-radius: 10px;
-          border: 2px solid #FFFFFF;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          border-radius: 10px;
-          border: 3px solid #F3EED9;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(135deg, #2E453A 0%, #1E2F25 100%);
-        }
-        
-        ::-webkit-scrollbar-corner {
-          background: #F3EED9;
-        }
-        
-        /* Enhanced focus states */
-        button:focus-visible,
-        input:focus-visible,
-        textarea:focus-visible,
-        select:focus-visible {
-          outline: 3px solid rgba(62, 92, 73, 0.4);
-          outline-offset: 2px;
-        }
-        
-        /* Enhanced selection color */
-        ::selection {
-          background: rgba(62, 92, 73, 0.2);
-          color: #2E453A;
-        }
-        
         /* Responsive enhancements */
         @media (max-width: 768px) {
           .app-container {
@@ -53564,14 +53559,26 @@ const App = () => {
       ` })] }));
 };
 exports.App = App;
-const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
+const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel, onRefreshBorrowers }) => {
     const [selectedBorrower, setSelectedBorrower] = (0, react_1.useState)(null);
     const [expectedReturnDate, setExpectedReturnDate] = (0, react_1.useState)('');
     const [isLoading, setIsLoading] = (0, react_1.useState)(false);
     const [searchQuery, setSearchQuery] = (0, react_1.useState)('');
     const [filterType, setFilterType] = (0, react_1.useState)('all');
     const [borrowDuration, setBorrowDuration] = (0, react_1.useState)('2weeks');
-    // Calculer la date par défaut (dans 2 semaines)
+    const [showAddBorrower, setShowAddBorrower] = (0, react_1.useState)(false);
+    const [newBorrowerData, setNewBorrowerData] = (0, react_1.useState)({
+        type: 'student',
+        firstName: '',
+        lastName: '',
+        matricule: '',
+        classe: '',
+        cniNumber: '',
+        position: '',
+        email: '',
+        phone: ''
+    });
+    // Calculate default date (in 2 weeks)
     react_1.default.useEffect(() => {
         updateDateFromDuration(borrowDuration);
     }, [borrowDuration]);
@@ -53589,15 +53596,41 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
                 targetDate.setMonth(today.getMonth() + 1);
                 break;
             default:
-                return; // Pour 'custom', ne pas changer
+                return; // For 'custom', don't change
         }
         setExpectedReturnDate(targetDate.toISOString().split('T')[0]);
     };
+    const handleAddBorrower = async () => {
+        try {
+            setIsLoading(true);
+            const newId = await window.electronAPI.addBorrower(newBorrowerData);
+            setSelectedBorrower(newId);
+            setShowAddBorrower(false);
+            await onRefreshBorrowers(); // Refresh the borrowers list
+            setNewBorrowerData({
+                type: 'student',
+                firstName: '',
+                lastName: '',
+                matricule: '',
+                classe: '',
+                cniNumber: '',
+                position: '',
+                email: '',
+                phone: ''
+            });
+        }
+        catch (error) {
+            alert(error.message || 'Erreur lors de l\'ajout de l\'emprunteur');
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
     const filteredBorrowers = borrowers.filter(borrower => {
-        // Filtre par type
+        // Filter by type
         if (filterType !== 'all' && borrower.type !== filterType)
             return false;
-        // Filtre par recherche
+        // Filter by search
         if (searchQuery) {
             const query = searchQuery.toLowerCase();
             return (borrower.firstName.toLowerCase().includes(query) ||
@@ -53608,10 +53641,6 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
         }
         return true;
     });
-    // Suggestions basées sur l'activité récente
-    const getSuggestedBorrowers = () => {
-        return filteredBorrowers.slice(0, 6); // Top 6 pour les suggestions
-    };
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!selectedBorrower || !expectedReturnDate)
@@ -53628,8 +53657,7 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
         }
     };
     const selectedBorrowerData = borrowers.find(b => b.id === selectedBorrower);
-    const suggestedBorrowers = getSuggestedBorrowers();
-    return ((0, jsx_runtime_1.jsxs)("form", { onSubmit: handleSubmit, className: "enhanced-borrow-form", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-info-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "book-cover", children: book.coverUrl ? ((0, jsx_runtime_1.jsx)("img", { src: book.coverUrl, alt: book.title })) : ((0, jsx_runtime_1.jsx)("div", { className: "book-placeholder", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "32", height: "32", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2ZM18 20H6V4H18V20Z" }) }) })) }), (0, jsx_runtime_1.jsxs)("div", { className: "book-details", children: [(0, jsx_runtime_1.jsxs)("h4", { className: "book-title", children: ["\"", book.title, "\""] }), (0, jsx_runtime_1.jsxs)("p", { className: "book-author", children: ["par ", book.author] }), (0, jsx_runtime_1.jsxs)("div", { className: "book-meta", children: [(0, jsx_runtime_1.jsx)("span", { className: "book-category", children: book.category }), book.publishedDate && (0, jsx_runtime_1.jsx)("span", { className: "book-year", children: book.publishedDate })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Dur\u00E9e d'emprunt" }), (0, jsx_runtime_1.jsx)("div", { className: "duration-selector", children: [
+    return ((0, jsx_runtime_1.jsxs)("div", { className: "enhanced-borrow-form", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-info-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "book-cover", children: book.coverUrl ? ((0, jsx_runtime_1.jsx)("img", { src: book.coverUrl, alt: book.title })) : ((0, jsx_runtime_1.jsx)("div", { className: "book-placeholder", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "32", height: "32", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2ZM18 20H6V4H18V20Z" }) }) })) }), (0, jsx_runtime_1.jsxs)("div", { className: "book-details", children: [(0, jsx_runtime_1.jsxs)("h4", { className: "book-title", children: ["\"", book.title, "\""] }), (0, jsx_runtime_1.jsxs)("p", { className: "book-author", children: ["par ", book.author] }), (0, jsx_runtime_1.jsxs)("div", { className: "book-meta", children: [(0, jsx_runtime_1.jsx)("span", { className: "book-category", children: book.category }), book.publishedDate && (0, jsx_runtime_1.jsx)("span", { className: "book-year", children: book.publishedDate })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Dur\u00E9e d'emprunt" }), (0, jsx_runtime_1.jsx)("div", { className: "duration-selector", children: [
                             { id: '1week', label: '1 semaine', recommended: false },
                             { id: '2weeks', label: '2 semaines', recommended: true },
                             { id: '1month', label: '1 mois', recommended: false },
@@ -53638,12 +53666,12 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
                             setExpectedReturnDate(e.target.value);
                             setBorrowDuration('custom');
                         }, className: "date-input", min: new Date().toISOString().split('T')[0], required: true }), (0, jsx_runtime_1.jsx)("small", { className: "form-hint", children: borrowDuration !== 'custom' && `Durée sélectionnée : ${borrowDuration === '1week' ? '7 jours' :
-                            borrowDuration === '2weeks' ? '14 jours' : '1 mois'}` })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Emprunteur *" }), (0, jsx_runtime_1.jsxs)("div", { className: "borrower-filters", children: [(0, jsx_runtime_1.jsxs)("div", { className: "search-container", children: [(0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "Rechercher un emprunteur...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }), (0, jsx_runtime_1.jsx)("svg", { className: "search-icon", viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3S3 5.91 3 9.5S5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14Z" }) })] }), (0, jsx_runtime_1.jsx)("div", { className: "type-filter", children: (0, jsx_runtime_1.jsxs)("select", { value: filterType, onChange: (e) => setFilterType(e.target.value), className: "filter-select", children: [(0, jsx_runtime_1.jsx)("option", { value: "all", children: "Tous" }), (0, jsx_runtime_1.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0, jsx_runtime_1.jsx)("option", { value: "staff", children: "Personnel" })] }) })] }), !searchQuery && ((0, jsx_runtime_1.jsxs)("div", { className: "suggestions-section", children: [(0, jsx_runtime_1.jsx)("h5", { className: "suggestions-title", children: "Suggestions rapides" }), (0, jsx_runtime_1.jsx)("div", { className: "suggestions-grid", children: suggestedBorrowers.slice(0, 4).map((borrower) => ((0, jsx_runtime_1.jsxs)("button", { type: "button", className: `suggestion-card ${selectedBorrower === borrower.id ? 'selected' : ''}`, onClick: () => setSelectedBorrower(borrower.id), children: [(0, jsx_runtime_1.jsx)("div", { className: "suggestion-avatar", children: borrower.type === 'student' ? '🎓' : '👔' }), (0, jsx_runtime_1.jsxs)("div", { className: "suggestion-info", children: [(0, jsx_runtime_1.jsxs)("div", { className: "suggestion-name", children: [borrower.firstName, " ", borrower.lastName] }), (0, jsx_runtime_1.jsx)("div", { className: "suggestion-details", children: borrower.matricule })] })] }, borrower.id))) })] })), (0, jsx_runtime_1.jsxs)("div", { className: "borrowers-list", children: [(0, jsx_runtime_1.jsxs)("div", { className: "list-header", children: [(0, jsx_runtime_1.jsx)("span", { children: "Nom" }), (0, jsx_runtime_1.jsx)("span", { children: "Type" }), (0, jsx_runtime_1.jsx)("span", { children: "Matricule" }), (0, jsx_runtime_1.jsx)("span", { children: "Classe/Poste" })] }), (0, jsx_runtime_1.jsx)("div", { className: "list-content", children: filteredBorrowers.length > 0 ? (filteredBorrowers.map((borrower) => ((0, jsx_runtime_1.jsxs)("div", { className: `borrower-row ${selectedBorrower === borrower.id ? 'selected' : ''}`, onClick: () => setSelectedBorrower(borrower.id), children: [(0, jsx_runtime_1.jsxs)("div", { className: "borrower-name", children: [(0, jsx_runtime_1.jsxs)("div", { className: "name-main", children: [borrower.firstName, " ", borrower.lastName] }), (0, jsx_runtime_1.jsx)("div", { className: "name-sub", children: borrower.email })] }), (0, jsx_runtime_1.jsx)("div", { className: "borrower-type", children: (0, jsx_runtime_1.jsx)("span", { className: `type-badge ${borrower.type}`, children: borrower.type === 'student' ? 'Étudiant' : 'Personnel' }) }), (0, jsx_runtime_1.jsx)("div", { className: "borrower-matricule", children: borrower.matricule }), (0, jsx_runtime_1.jsx)("div", { className: "borrower-extra", children: borrower.type === 'student' ? borrower.classe : borrower.position }), (0, jsx_runtime_1.jsx)("div", { className: "selection-indicator", children: selectedBorrower === borrower.id && ((0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" }) })) })] }, borrower.id)))) : ((0, jsx_runtime_1.jsxs)("div", { className: "no-borrowers", children: [(0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "48", height: "48", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.1 3.89 23 5 23H19C20.1 23 21 22.1 21 21V9Z" }) }), (0, jsx_runtime_1.jsx)("p", { children: "Aucun emprunteur trouv\u00E9" }), (0, jsx_runtime_1.jsx)("small", { children: searchQuery ? `pour "${searchQuery}"` : 'Essayez de modifier les filtres' })] })) })] })] }), selectedBorrowerData && ((0, jsx_runtime_1.jsxs)("div", { className: "selected-summary", children: [(0, jsx_runtime_1.jsx)("h4", { children: "R\u00E9capitulatif de l'emprunt" }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-card", children: [(0, jsx_runtime_1.jsxs)("div", { className: "summary-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-icon book-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-label", children: "Livre" }), (0, jsx_runtime_1.jsx)("div", { className: "summary-value", children: book.title }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-sub", children: ["par ", book.author] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-icon user-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-label", children: "Emprunteur" }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-value", children: [selectedBorrowerData.firstName, " ", selectedBorrowerData.lastName] }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-sub", children: [selectedBorrowerData.matricule, " \u2022 ", selectedBorrowerData.type === 'student' ? 'Étudiant' : 'Personnel'] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-icon date-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M19 3H18V1H16V3H8V1H6V3H5C3.89 3 3.01 3.9 3.01 5L3 19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V8H19V19ZM7 10H12V15H7V10Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-label", children: "Retour pr\u00E9vu" }), (0, jsx_runtime_1.jsx)("div", { className: "summary-value", children: new Date(expectedReturnDate).toLocaleDateString('fr-FR', {
+                            borrowDuration === '2weeks' ? '14 jours' : '1 mois'}` })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "section-header", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Emprunteur *" }), (0, jsx_runtime_1.jsxs)("button", { type: "button", className: "add-borrower-button", onClick: () => setShowAddBorrower(true), children: [(0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "16", height: "16", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" }) }), "Ajouter emprunteur"] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "borrower-filters", children: [(0, jsx_runtime_1.jsxs)("div", { className: "search-container", children: [(0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "Rechercher un emprunteur...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }), (0, jsx_runtime_1.jsx)("svg", { className: "search-icon", viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3S3 5.91 3 9.5S5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14Z" }) })] }), (0, jsx_runtime_1.jsx)("div", { className: "type-filter", children: (0, jsx_runtime_1.jsxs)("select", { value: filterType, onChange: (e) => setFilterType(e.target.value), className: "filter-select", children: [(0, jsx_runtime_1.jsx)("option", { value: "all", children: "Tous" }), (0, jsx_runtime_1.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0, jsx_runtime_1.jsx)("option", { value: "staff", children: "Personnel" })] }) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "borrowers-list", children: [(0, jsx_runtime_1.jsxs)("div", { className: "list-header", children: [(0, jsx_runtime_1.jsx)("span", { children: "Nom" }), (0, jsx_runtime_1.jsx)("span", { children: "Type" }), (0, jsx_runtime_1.jsx)("span", { children: "Matricule" }), (0, jsx_runtime_1.jsx)("span", { children: "Classe/Poste" })] }), (0, jsx_runtime_1.jsx)("div", { className: "list-content", children: filteredBorrowers.length > 0 ? (filteredBorrowers.map((borrower) => ((0, jsx_runtime_1.jsxs)("div", { className: `borrower-row ${selectedBorrower === borrower.id ? 'selected' : ''}`, onClick: () => setSelectedBorrower(borrower.id), children: [(0, jsx_runtime_1.jsxs)("div", { className: "borrower-name", children: [(0, jsx_runtime_1.jsxs)("div", { className: "name-main", children: [borrower.firstName, " ", borrower.lastName] }), (0, jsx_runtime_1.jsx)("div", { className: "name-sub", children: borrower.email })] }), (0, jsx_runtime_1.jsx)("div", { className: "borrower-type", children: (0, jsx_runtime_1.jsx)("span", { className: `type-badge ${borrower.type}`, children: borrower.type === 'student' ? 'Étudiant' : 'Personnel' }) }), (0, jsx_runtime_1.jsx)("div", { className: "borrower-matricule", children: borrower.matricule }), (0, jsx_runtime_1.jsx)("div", { className: "borrower-extra", children: borrower.type === 'student' ? borrower.classe : borrower.position }), (0, jsx_runtime_1.jsx)("div", { className: "selection-indicator", children: selectedBorrower === borrower.id && ((0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" }) })) })] }, borrower.id)))) : ((0, jsx_runtime_1.jsxs)("div", { className: "no-borrowers", children: [(0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "48", height: "48", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.1 3.89 23 5 23H19C20.1 23 21 22.1 21 21V9Z" }) }), (0, jsx_runtime_1.jsx)("p", { children: "Aucun emprunteur trouv\u00E9" }), (0, jsx_runtime_1.jsx)("small", { children: searchQuery ? `pour "${searchQuery}"` : 'Essayez de modifier les filtres' })] })) })] })] }), selectedBorrowerData && ((0, jsx_runtime_1.jsxs)("div", { className: "selected-summary", children: [(0, jsx_runtime_1.jsx)("h4", { children: "R\u00E9capitulatif de l'emprunt" }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-card", children: [(0, jsx_runtime_1.jsxs)("div", { className: "summary-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-icon book-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-label", children: "Livre" }), (0, jsx_runtime_1.jsx)("div", { className: "summary-value", children: book.title }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-sub", children: ["par ", book.author] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-icon user-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-label", children: "Emprunteur" }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-value", children: [selectedBorrowerData.firstName, " ", selectedBorrowerData.lastName] }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-sub", children: [selectedBorrowerData.matricule, " \u2022 ", selectedBorrowerData.type === 'student' ? 'Étudiant' : 'Personnel'] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-icon date-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M19 3H18V1H16V3H8V1H6V3H5C3.89 3 3.01 3.9 3.01 5L3 19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V8H19V19ZM7 10H12V15H7V10Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-label", children: "Retour pr\u00E9vu" }), (0, jsx_runtime_1.jsx)("div", { className: "summary-value", children: new Date(expectedReturnDate).toLocaleDateString('fr-FR', {
                                                     weekday: 'long',
                                                     year: 'numeric',
                                                     month: 'long',
                                                     day: 'numeric'
-                                                }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-sub", children: ["Dans ", Math.ceil((new Date(expectedReturnDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)), " jour(s)"] })] })] })] })] })), (0, jsx_runtime_1.jsxs)("div", { className: "form-actions", children: [(0, jsx_runtime_1.jsxs)("button", { type: "button", className: "btn-secondary", onClick: onCancel, disabled: isLoading, children: [(0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "18", height: "18", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z" }) }), "Annuler"] }), (0, jsx_runtime_1.jsx)("button", { type: "submit", className: "btn-primary", disabled: !selectedBorrower || !expectedReturnDate || isLoading, children: isLoading ? ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)("div", { className: "loading-spinner" }), "Traitement..."] })) : ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "18", height: "18", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.58L9 16.17Z" }) }), "Confirmer l'emprunt"] })) })] }), (0, jsx_runtime_1.jsx)("style", { children: `
+                                                }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-sub", children: ["Dans ", Math.ceil((new Date(expectedReturnDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)), " jour(s)"] })] })] })] })] })), (0, jsx_runtime_1.jsxs)("div", { className: "form-actions", children: [(0, jsx_runtime_1.jsxs)("button", { type: "button", className: "btn-secondary", onClick: onCancel, disabled: isLoading, children: [(0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "18", height: "18", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z" }) }), "Annuler"] }), (0, jsx_runtime_1.jsx)("button", { type: "submit", className: "btn-primary", disabled: !selectedBorrower || !expectedReturnDate || isLoading, onClick: handleSubmit, children: isLoading ? ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)("div", { className: "loading-spinner" }), "Traitement..."] })) : ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "18", height: "18", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.58L9 16.17Z" }) }), "Confirmer l'emprunt"] })) })] }), showAddBorrower && ((0, jsx_runtime_1.jsx)("div", { className: "add-borrower-overlay", onClick: () => setShowAddBorrower(false), children: (0, jsx_runtime_1.jsxs)("div", { className: "add-borrower-modal", onClick: (e) => e.stopPropagation(), children: [(0, jsx_runtime_1.jsxs)("div", { className: "add-borrower-header", children: [(0, jsx_runtime_1.jsx)("h3", { children: "Ajouter un emprunteur" }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close-small", onClick: () => setShowAddBorrower(false), children: "\u00D7" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "add-borrower-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "type-selector", children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: `type-button ${newBorrowerData.type === 'student' ? 'active' : ''}`, onClick: () => setNewBorrowerData(prev => ({ ...prev, type: 'student' })), children: "\uD83C\uDF93 \u00C9tudiant" }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: `type-button ${newBorrowerData.type === 'staff' ? 'active' : ''}`, onClick: () => setNewBorrowerData(prev => ({ ...prev, type: 'staff' })), children: "\uD83D\uDC54 Personnel" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-grid-compact", children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-group-compact", children: [(0, jsx_runtime_1.jsx)("label", { children: "Pr\u00E9nom *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: newBorrowerData.firstName, onChange: (e) => setNewBorrowerData(prev => ({ ...prev, firstName: e.target.value })), className: "form-input-compact", required: true })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group-compact", children: [(0, jsx_runtime_1.jsx)("label", { children: "Nom *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: newBorrowerData.lastName, onChange: (e) => setNewBorrowerData(prev => ({ ...prev, lastName: e.target.value })), className: "form-input-compact", required: true })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group-compact", children: [(0, jsx_runtime_1.jsx)("label", { children: "Matricule *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: newBorrowerData.matricule, onChange: (e) => setNewBorrowerData(prev => ({ ...prev, matricule: e.target.value })), className: "form-input-compact", required: true })] }), newBorrowerData.type === 'student' ? ((0, jsx_runtime_1.jsxs)("div", { className: "form-group-compact", children: [(0, jsx_runtime_1.jsx)("label", { children: "Classe" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: newBorrowerData.classe, onChange: (e) => setNewBorrowerData(prev => ({ ...prev, classe: e.target.value })), className: "form-input-compact", placeholder: "ex: Terminale C" })] })) : ((0, jsx_runtime_1.jsxs)("div", { className: "form-group-compact", children: [(0, jsx_runtime_1.jsx)("label", { children: "Poste" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: newBorrowerData.position, onChange: (e) => setNewBorrowerData(prev => ({ ...prev, position: e.target.value })), className: "form-input-compact", placeholder: "ex: Professeur" })] })), (0, jsx_runtime_1.jsxs)("div", { className: "form-group-compact span-full", children: [(0, jsx_runtime_1.jsx)("label", { children: "Email" }), (0, jsx_runtime_1.jsx)("input", { type: "email", value: newBorrowerData.email, onChange: (e) => setNewBorrowerData(prev => ({ ...prev, email: e.target.value })), className: "form-input-compact" })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "add-borrower-actions", children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "btn-secondary-small", onClick: () => setShowAddBorrower(false), children: "Annuler" }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "btn-primary-small", onClick: handleAddBorrower, disabled: !newBorrowerData.firstName || !newBorrowerData.lastName || !newBorrowerData.matricule || isLoading, children: isLoading ? 'Ajout...' : 'Ajouter' })] })] }) })), (0, jsx_runtime_1.jsx)("style", { children: `
         .enhanced-borrow-form {
           padding: 32px;
           display: flex;
@@ -53750,11 +53778,17 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
           font-weight: 500;
         }
         
-        /* Duration Selector */
+        /* Form Sections */
         .form-section {
           display: flex;
           flex-direction: column;
           gap: 12px;
+        }
+        
+        .section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
         }
         
         .form-label {
@@ -53764,6 +53798,27 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
           margin: 0;
         }
         
+        .add-borrower-button {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 12px;
+          background: #3E5C49;
+          color: #F3EED9;
+          border: none;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .add-borrower-button:hover {
+          background: #2E453A;
+          transform: translateY(-1px);
+        }
+        
+        /* Duration Selector */
         .duration-selector {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -53903,73 +53958,6 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
         .filter-select:focus {
           outline: none;
           border-color: #3E5C49;
-        }
-        
-        /* Suggestions */
-        .suggestions-section {
-          margin-bottom: 20px;
-        }
-        
-        .suggestions-title {
-          font-size: 14px;
-          font-weight: 600;
-          color: #6E6E6E;
-          margin: 0 0 12px 0;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        
-        .suggestions-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-          gap: 12px;
-        }
-        
-        .suggestion-card {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          background: #FFFFFF;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          text-align: left;
-        }
-        
-        .suggestion-card:hover {
-          border-color: #3E5C49;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.15);
-        }
-        
-        .suggestion-card.selected {
-          border-color: #3E5C49;
-          background: rgba(62, 92, 73, 0.05);
-        }
-        
-        .suggestion-avatar {
-          font-size: 20px;
-          width: 36px;
-          height: 36px;
-          background: #F3EED9;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .suggestion-name {
-          font-size: 14px;
-          font-weight: 600;
-          color: #2E2E2E;
-          margin-bottom: 2px;
-        }
-        
-        .suggestion-details {
-          font-size: 12px;
-          color: #6E6E6E;
         }
         
         /* Borrowers List Enhanced */
@@ -54248,6 +54236,190 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
+
+        /* Add Borrower Modal */
+        .add-borrower-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(46, 46, 46, 0.7);
+          backdrop-filter: blur(8px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1001;
+          padding: 20px;
+        }
+        
+        .add-borrower-modal {
+          background: #FFFFFF;
+          border-radius: 16px;
+          width: 100%;
+          max-width: 500px;
+          max-height: 80vh;
+          overflow-y: auto;
+          box-shadow: 0 20px 40px rgba(62, 92, 73, 0.2);
+          border: 1px solid rgba(229, 220, 194, 0.3);
+        }
+        
+        .add-borrower-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 20px 24px;
+          border-bottom: 1px solid #E5DCC2;
+          background: #F3EED9;
+        }
+        
+        .add-borrower-header h3 {
+          font-size: 18px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0;
+        }
+        
+        .modal-close-small {
+          background: rgba(110, 110, 110, 0.1);
+          border: none;
+          cursor: pointer;
+          padding: 8px;
+          border-radius: 8px;
+          color: #6E6E6E;
+          font-size: 18px;
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+        }
+        
+        .modal-close-small:hover {
+          background: rgba(110, 110, 110, 0.2);
+          color: #2E2E2E;
+        }
+        
+        .add-borrower-content {
+          padding: 24px;
+        }
+        
+        .type-selector {
+          display: flex;
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+        
+        .type-button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 12px 16px;
+          border: 2px solid #E5DCC2;
+          border-radius: 10px;
+          background: #FFFFFF;
+          color: #6E6E6E;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 14px;
+          font-weight: 500;
+          flex: 1;
+        }
+        
+        .type-button:hover {
+          border-color: #3E5C49;
+          color: #3E5C49;
+        }
+        
+        .type-button.active {
+          border-color: #3E5C49;
+          background: #3E5C49;
+          color: #F3EED9;
+        }
+        
+        .form-grid-compact {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        
+        .form-group-compact {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        
+        .form-group-compact.span-full {
+          grid-column: 1 / -1;
+        }
+        
+        .form-group-compact label {
+          font-size: 12px;
+          font-weight: 600;
+          color: #2E2E2E;
+        }
+        
+        .form-input-compact {
+          padding: 10px 12px;
+          border: 2px solid #E5DCC2;
+          border-radius: 8px;
+          font-size: 14px;
+          background: #FFFFFF;
+          color: #2E2E2E;
+          transition: all 0.2s ease;
+        }
+        
+        .form-input-compact:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+        
+        .add-borrower-actions {
+          display: flex;
+          gap: 12px;
+          justify-content: flex-end;
+          padding: 20px 24px;
+          border-top: 1px solid #E5DCC2;
+          background: #FEFEFE;
+        }
+        
+        .btn-secondary-small, .btn-primary-small {
+          padding: 10px 16px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border: none;
+        }
+        
+        .btn-secondary-small {
+          background: #F3EED9;
+          color: #6E6E6E;
+          border: 2px solid #E5DCC2;
+        }
+        
+        .btn-secondary-small:hover {
+          background: #EAEADC;
+          color: #2E2E2E;
+        }
+        
+        .btn-primary-small {
+          background: #3E5C49;
+          color: #F3EED9;
+        }
+        
+        .btn-primary-small:hover:not(:disabled) {
+          background: #2E453A;
+        }
+        
+        .btn-primary-small:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
         
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -54269,10 +54441,6 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
           .borrower-filters {
             flex-direction: column;
             gap: 12px;
-          }
-          
-          .suggestions-grid {
-            grid-template-columns: 1fr;
           }
           
           .list-header,
@@ -54304,6 +54472,10 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
           .btn-primary {
             width: 100%;
             justify-content: center;
+          }
+          
+          .form-grid-compact {
+            grid-template-columns: 1fr;
           }
         }
         
@@ -58754,7 +58926,7 @@ exports.Borrowers = void 0;
 const jsx_runtime_1 = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 const react_1 = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 const lucide_react_1 = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/cjs/lucide-react.cjs");
-const Borrowers = ({ onClose }) => {
+const Borrowers = ({ onClose, onRefreshData }) => {
     const [borrowers, setBorrowers] = (0, react_1.useState)([]);
     const [searchQuery, setSearchQuery] = (0, react_1.useState)('');
     const [filterType, setFilterType] = (0, react_1.useState)('all');
@@ -58772,6 +58944,7 @@ const Borrowers = ({ onClose }) => {
         email: '',
         phone: ''
     });
+    const [formErrors, setFormErrors] = (0, react_1.useState)({});
     (0, react_1.useEffect)(() => {
         loadBorrowers();
     }, []);
@@ -58783,6 +58956,26 @@ const Borrowers = ({ onClose }) => {
         catch (error) {
             console.error('Erreur lors du chargement des emprunteurs:', error);
         }
+    };
+    const validateForm = () => {
+        const errors = {};
+        if (!formData.firstName.trim()) {
+            errors.firstName = 'Le prénom est requis';
+        }
+        if (!formData.lastName.trim()) {
+            errors.lastName = 'Le nom est requis';
+        }
+        if (!formData.matricule.trim()) {
+            errors.matricule = 'Le matricule est requis';
+        }
+        if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            errors.email = 'Format email invalide';
+        }
+        if (formData.phone && !/^[\d\s\+\-\(\)]{6,}$/.test(formData.phone)) {
+            errors.phone = 'Format téléphone invalide';
+        }
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
     };
     const handleSearch = async (query) => {
         setSearchQuery(query);
@@ -58799,7 +58992,7 @@ const Borrowers = ({ onClose }) => {
             loadBorrowers();
         }
     };
-    const handleAddBorrower = () => {
+    const resetForm = () => {
         setFormData({
             type: 'student',
             firstName: '',
@@ -58811,7 +59004,11 @@ const Borrowers = ({ onClose }) => {
             email: '',
             phone: ''
         });
+        setFormErrors({});
         setEditingBorrower(null);
+    };
+    const handleAddBorrower = () => {
+        resetForm();
         setShowAddModal(true);
     };
     const handleEditBorrower = (borrower) => {
@@ -58826,11 +59023,15 @@ const Borrowers = ({ onClose }) => {
             email: borrower.email || '',
             phone: borrower.phone || ''
         });
+        setFormErrors({});
         setEditingBorrower(borrower);
         setShowAddModal(true);
     };
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validateForm()) {
+            return;
+        }
         setIsLoading(true);
         try {
             if (editingBorrower) {
@@ -58840,11 +59041,21 @@ const Borrowers = ({ onClose }) => {
                 await window.electronAPI.addBorrower(formData);
             }
             setShowAddModal(false);
-            loadBorrowers();
+            resetForm();
+            await loadBorrowers();
+            // Rafraîchir les données dans le parent si callback fourni
+            if (onRefreshData) {
+                await onRefreshData();
+            }
         }
         catch (error) {
             console.error('Erreur:', error);
-            alert(error.message || 'Erreur lors de l\'opération');
+            if (error.message && error.message.includes('matricule')) {
+                setFormErrors({ matricule: 'Un emprunteur avec ce matricule existe déjà' });
+            }
+            else {
+                alert(error.message || 'Erreur lors de l\'opération');
+            }
         }
         finally {
             setIsLoading(false);
@@ -58854,7 +59065,11 @@ const Borrowers = ({ onClose }) => {
         if (window.confirm(`Êtes-vous sûr de vouloir supprimer ${borrower.firstName} ${borrower.lastName} ?`)) {
             try {
                 await window.electronAPI.deleteBorrower(borrower.id);
-                loadBorrowers();
+                await loadBorrowers();
+                // Rafraîchir les données dans le parent si callback fourni
+                if (onRefreshData) {
+                    await onRefreshData();
+                }
             }
             catch (error) {
                 alert(error.message || 'Erreur lors de la suppression');
@@ -58870,7 +59085,32 @@ const Borrowers = ({ onClose }) => {
     const staffCount = borrowers.filter(b => b.type === 'staff').length;
     return ((0, jsx_runtime_1.jsxs)("div", { className: "borrowers-overlay", children: [(0, jsx_runtime_1.jsxs)("div", { className: "borrowers-modal", children: [(0, jsx_runtime_1.jsxs)("div", { className: "modal-header", children: [(0, jsx_runtime_1.jsxs)("div", { className: "header-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "header-icon", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Users, { size: 28 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "header-text", children: [(0, jsx_runtime_1.jsx)("h2", { className: "modal-title", children: "Gestion des Emprunteurs" }), (0, jsx_runtime_1.jsxs)("p", { className: "modal-subtitle", children: [borrowers.length, " emprunteur(s) \u2022 ", studentCount, " \u00E9tudiant(s) \u2022 ", staffCount, " personnel(s)"] })] })] }), (0, jsx_runtime_1.jsx)("button", { className: "close-button", onClick: onClose, children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 20 }) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "stats-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "stat-card", children: [(0, jsx_runtime_1.jsx)("div", { className: "stat-icon student", children: (0, jsx_runtime_1.jsx)(lucide_react_1.GraduationCap, { size: 20 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-content", children: [(0, jsx_runtime_1.jsx)("span", { className: "stat-value", children: studentCount }), (0, jsx_runtime_1.jsx)("span", { className: "stat-label", children: "\u00C9tudiants" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-card", children: [(0, jsx_runtime_1.jsx)("div", { className: "stat-icon staff", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Briefcase, { size: 20 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-content", children: [(0, jsx_runtime_1.jsx)("span", { className: "stat-value", children: staffCount }), (0, jsx_runtime_1.jsx)("span", { className: "stat-label", children: "Personnel" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-card", children: [(0, jsx_runtime_1.jsx)("div", { className: "stat-icon total", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Users, { size: 20 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "stat-content", children: [(0, jsx_runtime_1.jsx)("span", { className: "stat-value", children: borrowers.length }), (0, jsx_runtime_1.jsx)("span", { className: "stat-label", children: "Total" })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "controls-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "search-container", children: (0, jsx_runtime_1.jsxs)("div", { className: "search-input-wrapper", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Search, { className: "search-icon", size: 20 }), (0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "Rechercher par nom, pr\u00E9nom, matricule...", value: searchQuery, onChange: (e) => handleSearch(e.target.value), className: "search-input" }), searchQuery && ((0, jsx_runtime_1.jsx)("button", { className: "clear-search", onClick: () => handleSearch(''), children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 16 }) }))] }) }), (0, jsx_runtime_1.jsxs)("div", { className: "controls-right", children: [(0, jsx_runtime_1.jsxs)("div", { className: "filter-group", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Filter, { size: 16 }), (0, jsx_runtime_1.jsxs)("select", { value: filterType, onChange: (e) => setFilterType(e.target.value), className: "filter-select", children: [(0, jsx_runtime_1.jsx)("option", { value: "all", children: "Tous" }), (0, jsx_runtime_1.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0, jsx_runtime_1.jsx)("option", { value: "staff", children: "Personnel" })] })] }), (0, jsx_runtime_1.jsxs)("button", { className: "btn-primary", onClick: handleAddBorrower, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Plus, { size: 18 }), "Ajouter"] })] })] }), (0, jsx_runtime_1.jsx)("div", { className: "borrowers-content", children: filteredBorrowers.length > 0 ? ((0, jsx_runtime_1.jsx)("div", { className: "borrowers-grid", children: filteredBorrowers.map((borrower) => ((0, jsx_runtime_1.jsxs)("div", { className: `borrower-card ${borrower.type}`, children: [(0, jsx_runtime_1.jsxs)("div", { className: "card-header", children: [(0, jsx_runtime_1.jsxs)("div", { className: "borrower-type", children: [borrower.type === 'student' ? ((0, jsx_runtime_1.jsx)(lucide_react_1.GraduationCap, { size: 20 })) : ((0, jsx_runtime_1.jsx)(lucide_react_1.Briefcase, { size: 20 })), (0, jsx_runtime_1.jsx)("span", { children: borrower.type === 'student' ? 'Étudiant' : 'Personnel' })] }), (0, jsx_runtime_1.jsxs)("div", { className: "card-actions", children: [(0, jsx_runtime_1.jsx)("button", { className: "action-btn view", onClick: () => { }, title: "Voir d\u00E9tails", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Eye, { size: 16 }) }), (0, jsx_runtime_1.jsx)("button", { className: "action-btn edit", onClick: () => handleEditBorrower(borrower), title: "Modifier", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Edit, { size: 16 }) }), (0, jsx_runtime_1.jsx)("button", { className: "action-btn delete", onClick: () => handleDelete(borrower), title: "Supprimer", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Trash2, { size: 16 }) })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "card-content", children: [(0, jsx_runtime_1.jsxs)("h3", { className: "borrower-name", children: [borrower.firstName, " ", borrower.lastName] }), (0, jsx_runtime_1.jsxs)("div", { className: "borrower-details", children: [(0, jsx_runtime_1.jsxs)("div", { className: "detail-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Hash, { size: 14 }), (0, jsx_runtime_1.jsx)("span", { children: borrower.matricule })] }), borrower.type === 'student' && borrower.classe && ((0, jsx_runtime_1.jsxs)("div", { className: "detail-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.School, { size: 14 }), (0, jsx_runtime_1.jsx)("span", { children: borrower.classe })] })), borrower.type === 'staff' && borrower.position && ((0, jsx_runtime_1.jsxs)("div", { className: "detail-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Building, { size: 14 }), (0, jsx_runtime_1.jsx)("span", { children: borrower.position })] })), borrower.email && ((0, jsx_runtime_1.jsxs)("div", { className: "detail-item", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Mail, { size: 14 }), (0, jsx_runtime_1.jsx)("span", { children: borrower.email })] }))] })] })] }, borrower.id))) })) : ((0, jsx_runtime_1.jsxs)("div", { className: "empty-state", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Users, { size: 64 }), (0, jsx_runtime_1.jsx)("h3", { children: "Aucun emprunteur trouv\u00E9" }), (0, jsx_runtime_1.jsx)("p", { children: searchQuery || filterType !== 'all'
                                         ? 'Aucun résultat pour les critères sélectionnés'
-                                        : 'Commencez par ajouter des emprunteurs' })] })) }), showAddModal && ((0, jsx_runtime_1.jsx)("div", { className: "add-modal-overlay", onClick: () => setShowAddModal(false), children: (0, jsx_runtime_1.jsxs)("div", { className: "add-modal", onClick: (e) => e.stopPropagation(), children: [(0, jsx_runtime_1.jsxs)("div", { className: "add-modal-header", children: [(0, jsx_runtime_1.jsxs)("h3", { children: [editingBorrower ? 'Modifier' : 'Ajouter', " un emprunteur"] }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close", onClick: () => setShowAddModal(false), children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 20 }) })] }), (0, jsx_runtime_1.jsxs)("form", { onSubmit: handleSubmit, className: "add-form", children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Type d'emprunteur *" }), (0, jsx_runtime_1.jsxs)("div", { className: "type-selector", children: [(0, jsx_runtime_1.jsxs)("button", { type: "button", className: `type-button ${formData.type === 'student' ? 'active' : ''}`, onClick: () => setFormData(prev => ({ ...prev, type: 'student' })), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.GraduationCap, { size: 20 }), "\u00C9tudiant"] }), (0, jsx_runtime_1.jsxs)("button", { type: "button", className: `type-button ${formData.type === 'staff' ? 'active' : ''}`, onClick: () => setFormData(prev => ({ ...prev, type: 'staff' })), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Briefcase, { size: 20 }), "Personnel"] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-grid", children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Pr\u00E9nom *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.firstName, onChange: (e) => setFormData(prev => ({ ...prev, firstName: e.target.value })), className: "form-input", required: true })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Nom *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.lastName, onChange: (e) => setFormData(prev => ({ ...prev, lastName: e.target.value })), className: "form-input", required: true })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Matricule *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.matricule, onChange: (e) => setFormData(prev => ({ ...prev, matricule: e.target.value })), className: "form-input", required: true })] }), formData.type === 'student' ? ((0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Classe" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.classe, onChange: (e) => setFormData(prev => ({ ...prev, classe: e.target.value })), className: "form-input", placeholder: "ex: Terminale C" })] })) : ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "N\u00B0 CNI" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.cniNumber, onChange: (e) => setFormData(prev => ({ ...prev, cniNumber: e.target.value })), className: "form-input" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group span-full", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Poste" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.position, onChange: (e) => setFormData(prev => ({ ...prev, position: e.target.value })), className: "form-input", placeholder: "ex: Professeur de Math\u00E9matiques" })] })] })), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Email" }), (0, jsx_runtime_1.jsx)("input", { type: "email", value: formData.email, onChange: (e) => setFormData(prev => ({ ...prev, email: e.target.value })), className: "form-input" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "T\u00E9l\u00E9phone" }), (0, jsx_runtime_1.jsx)("input", { type: "tel", value: formData.phone, onChange: (e) => setFormData(prev => ({ ...prev, phone: e.target.value })), className: "form-input" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-actions", children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "btn-secondary", onClick: () => setShowAddModal(false), children: "Annuler" }), (0, jsx_runtime_1.jsxs)("button", { type: "submit", className: "btn-primary", disabled: isLoading, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Save, { size: 16 }), isLoading ? 'Enregistrement...' : editingBorrower ? 'Modifier' : 'Ajouter'] })] })] })] }) }))] }), (0, jsx_runtime_1.jsx)("style", { children: `
+                                        : 'Commencez par ajouter des emprunteurs' })] })) }), showAddModal && ((0, jsx_runtime_1.jsx)("div", { className: "add-modal-overlay", onClick: () => setShowAddModal(false), children: (0, jsx_runtime_1.jsxs)("div", { className: "add-modal", onClick: (e) => e.stopPropagation(), children: [(0, jsx_runtime_1.jsxs)("div", { className: "add-modal-header", children: [(0, jsx_runtime_1.jsxs)("h3", { children: [editingBorrower ? 'Modifier' : 'Ajouter', " un emprunteur"] }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close", onClick: () => setShowAddModal(false), children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 20 }) })] }), (0, jsx_runtime_1.jsxs)("form", { onSubmit: handleSubmit, className: "add-form", children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Type d'emprunteur *" }), (0, jsx_runtime_1.jsxs)("div", { className: "type-selector", children: [(0, jsx_runtime_1.jsxs)("button", { type: "button", className: `type-button ${formData.type === 'student' ? 'active' : ''}`, onClick: () => setFormData(prev => ({ ...prev, type: 'student' })), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.GraduationCap, { size: 20 }), "\u00C9tudiant"] }), (0, jsx_runtime_1.jsxs)("button", { type: "button", className: `type-button ${formData.type === 'staff' ? 'active' : ''}`, onClick: () => setFormData(prev => ({ ...prev, type: 'staff' })), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Briefcase, { size: 20 }), "Personnel"] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-grid", children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Pr\u00E9nom *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.firstName, onChange: (e) => {
+                                                                setFormData(prev => ({ ...prev, firstName: e.target.value }));
+                                                                if (formErrors.firstName) {
+                                                                    setFormErrors(prev => ({ ...prev, firstName: '' }));
+                                                                }
+                                                            }, className: `form-input ${formErrors.firstName ? 'error' : ''}`, required: true }), formErrors.firstName && (0, jsx_runtime_1.jsx)("span", { className: "error-text", children: formErrors.firstName })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Nom *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.lastName, onChange: (e) => {
+                                                                setFormData(prev => ({ ...prev, lastName: e.target.value }));
+                                                                if (formErrors.lastName) {
+                                                                    setFormErrors(prev => ({ ...prev, lastName: '' }));
+                                                                }
+                                                            }, className: `form-input ${formErrors.lastName ? 'error' : ''}`, required: true }), formErrors.lastName && (0, jsx_runtime_1.jsx)("span", { className: "error-text", children: formErrors.lastName })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Matricule *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.matricule, onChange: (e) => {
+                                                                setFormData(prev => ({ ...prev, matricule: e.target.value }));
+                                                                if (formErrors.matricule) {
+                                                                    setFormErrors(prev => ({ ...prev, matricule: '' }));
+                                                                }
+                                                            }, className: `form-input ${formErrors.matricule ? 'error' : ''}`, required: true }), formErrors.matricule && (0, jsx_runtime_1.jsx)("span", { className: "error-text", children: formErrors.matricule })] }), formData.type === 'student' ? ((0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Classe" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.classe, onChange: (e) => setFormData(prev => ({ ...prev, classe: e.target.value })), className: "form-input", placeholder: "ex: Terminale C" })] })) : ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "N\u00B0 CNI" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.cniNumber, onChange: (e) => setFormData(prev => ({ ...prev, cniNumber: e.target.value })), className: "form-input" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group span-full", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Poste" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: formData.position, onChange: (e) => setFormData(prev => ({ ...prev, position: e.target.value })), className: "form-input", placeholder: "ex: Professeur de Math\u00E9matiques" })] })] })), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Email" }), (0, jsx_runtime_1.jsx)("input", { type: "email", value: formData.email, onChange: (e) => {
+                                                                setFormData(prev => ({ ...prev, email: e.target.value }));
+                                                                if (formErrors.email) {
+                                                                    setFormErrors(prev => ({ ...prev, email: '' }));
+                                                                }
+                                                            }, className: `form-input ${formErrors.email ? 'error' : ''}` }), formErrors.email && (0, jsx_runtime_1.jsx)("span", { className: "error-text", children: formErrors.email })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "T\u00E9l\u00E9phone" }), (0, jsx_runtime_1.jsx)("input", { type: "tel", value: formData.phone, onChange: (e) => {
+                                                                setFormData(prev => ({ ...prev, phone: e.target.value }));
+                                                                if (formErrors.phone) {
+                                                                    setFormErrors(prev => ({ ...prev, phone: '' }));
+                                                                }
+                                                            }, className: `form-input ${formErrors.phone ? 'error' : ''}` }), formErrors.phone && (0, jsx_runtime_1.jsx)("span", { className: "error-text", children: formErrors.phone })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-actions", children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "btn-secondary", onClick: () => setShowAddModal(false), disabled: isLoading, children: "Annuler" }), (0, jsx_runtime_1.jsxs)("button", { type: "submit", className: "btn-primary", disabled: isLoading, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Save, { size: 16 }), isLoading ? 'Enregistrement...' : editingBorrower ? 'Modifier' : 'Ajouter'] })] })] })] }) }))] }), (0, jsx_runtime_1.jsx)("style", { children: `
         .borrowers-overlay {
           position: fixed;
           top: 0;
@@ -59090,6 +59330,11 @@ const Borrowers = ({ onClose }) => {
           color: #2E2E2E;
           font-size: 14px;
           cursor: pointer;
+        }
+        
+        .filter-select:focus {
+          outline: none;
+          border-color: #3E5C49;
         }
         
         .btn-primary {
@@ -59406,6 +59651,17 @@ const Borrowers = ({ onClose }) => {
           box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
         }
         
+        .form-input.error {
+          border-color: #C2571B;
+          background: rgba(194, 87, 27, 0.05);
+        }
+        
+        .error-text {
+          font-size: 12px;
+          color: #C2571B;
+          font-weight: 500;
+        }
+        
         .form-actions {
           display: flex;
           gap: 12px;
@@ -59429,9 +59685,15 @@ const Borrowers = ({ onClose }) => {
           transition: all 0.2s ease;
         }
         
-        .btn-secondary:hover {
+        .btn-secondary:hover:not(:disabled) {
           background: #EAEADC;
           color: #2E2E2E;
+        }
+        
+        .btn-primary:disabled,
+        .btn-secondary:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
         
         /* Responsive */
@@ -59480,6 +59742,37 @@ const Borrowers = ({ onClose }) => {
           
           .type-selector {
             flex-direction: column;
+          }
+          
+          .form-actions {
+            flex-direction: column-reverse;
+          }
+          
+          .btn-primary,
+          .btn-secondary {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .add-modal {
+            margin: 8px;
+            border-radius: 16px;
+          }
+          
+          .add-modal-header,
+          .add-form {
+            padding: 20px 16px;
+          }
+          
+          .borrower-card {
+            border-radius: 12px;
+          }
+          
+          .card-header,
+          .card-content {
+            padding: 16px;
           }
         }
       ` })] }));
@@ -61579,6 +61872,1157 @@ const PrintManager = ({ books, stats, categories, onClose }) => {
       ` })] }));
 };
 exports.PrintManager = PrintManager;
+
+
+/***/ }),
+
+/***/ "./src/renderer/components/Settings.tsx":
+/*!**********************************************!*\
+  !*** ./src/renderer/components/Settings.tsx ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Settings = void 0;
+const jsx_runtime_1 = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+const react_1 = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const lucide_react_1 = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/cjs/lucide-react.cjs");
+const Settings = ({ onClose, onLogout }) => {
+    const [activeTab, setActiveTab] = (0, react_1.useState)('institution');
+    const [isLoading, setIsLoading] = (0, react_1.useState)(false);
+    const [message, setMessage] = (0, react_1.useState)(null);
+    const [institutionSettings, setInstitutionSettings] = (0, react_1.useState)({
+        name: 'Lycée Moderne de Douala',
+        address: 'Avenue de la Liberté',
+        city: 'Douala',
+        country: 'Cameroun',
+        phone: '+237 233 42 15 67',
+        email: 'contact@lyceemoderne.cm',
+        website: 'www.lyceemoderne.cm',
+        logo: '',
+        description: 'Établissement d\'enseignement secondaire général et technique'
+    });
+    const [backupSettings, setBackupSettings] = (0, react_1.useState)({
+        autoBackup: true,
+        backupFrequency: 'weekly',
+        lastBackup: new Date().toISOString(),
+        cloudSync: false,
+        cloudProvider: 'google'
+    });
+    const [securitySettings, setSecuritySettings] = (0, react_1.useState)({
+        requireAuth: true,
+        sessionTimeout: 60,
+        passwordPolicy: {
+            minLength: 6,
+            requireNumbers: true,
+            requireSymbols: false
+        }
+    });
+    const [showConfirmLogout, setShowConfirmLogout] = (0, react_1.useState)(false);
+    (0, react_1.useEffect)(() => {
+        loadSettings();
+    }, []);
+    const loadSettings = async () => {
+        try {
+            // Simulate loading settings from storage
+            const settings = await window.electronAPI.getSettings();
+            if (settings) {
+                setInstitutionSettings(settings.institution || institutionSettings);
+                setBackupSettings(settings.backup || backupSettings);
+                setSecuritySettings(settings.security || securitySettings);
+            }
+        }
+        catch (error) {
+            console.error('Error loading settings:', error);
+        }
+    };
+    const saveSettings = async () => {
+        setIsLoading(true);
+        try {
+            await window.electronAPI.saveSettings({
+                institution: institutionSettings,
+                backup: backupSettings,
+                security: securitySettings
+            });
+            showMessage('success', 'Paramètres sauvegardés avec succès');
+        }
+        catch (error) {
+            showMessage('error', 'Erreur lors de la sauvegarde');
+            console.error('Error saving settings:', error);
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    const showMessage = (type, text) => {
+        setMessage({ type, text });
+        setTimeout(() => setMessage(null), 5000);
+    };
+    const handleLogoUpload = async (event) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setInstitutionSettings(prev => ({
+                    ...prev,
+                    logo: e.target?.result
+                }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    const handleBackup = async () => {
+        setIsLoading(true);
+        try {
+            await window.electronAPI.createBackup();
+            setBackupSettings(prev => ({
+                ...prev,
+                lastBackup: new Date().toISOString()
+            }));
+            showMessage('success', 'Sauvegarde créée avec succès');
+        }
+        catch (error) {
+            showMessage('error', 'Erreur lors de la sauvegarde');
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    const handleRestore = async () => {
+        if (window.confirm('Êtes-vous sûr de vouloir restaurer une sauvegarde ? Cela remplacera toutes les données actuelles.')) {
+            setIsLoading(true);
+            try {
+                await window.electronAPI.restoreBackup();
+                showMessage('success', 'Données restaurées avec succès');
+            }
+            catch (error) {
+                showMessage('error', 'Erreur lors de la restauration');
+            }
+            finally {
+                setIsLoading(false);
+            }
+        }
+    };
+    const handleClearData = async () => {
+        if (window.confirm('⚠️ ATTENTION: Cette action supprimera définitivement toutes les données. Êtes-vous absolument sûr ?')) {
+            if (window.confirm('Dernière confirmation: Voulez-vous vraiment supprimer TOUTES les données ?')) {
+                setIsLoading(true);
+                try {
+                    await window.electronAPI.clearAllData();
+                    showMessage('success', 'Toutes les données ont été supprimées');
+                }
+                catch (error) {
+                    showMessage('error', 'Erreur lors de la suppression');
+                }
+                finally {
+                    setIsLoading(false);
+                }
+            }
+        }
+    };
+    const tabs = [
+        { id: 'institution', label: 'Établissement', icon: lucide_react_1.Building },
+        { id: 'backup', label: 'Sauvegardes', icon: lucide_react_1.Database },
+        { id: 'security', label: 'Sécurité', icon: lucide_react_1.Shield },
+        { id: 'about', label: 'À propos', icon: lucide_react_1.Settings }
+    ];
+    return ((0, jsx_runtime_1.jsxs)("div", { className: "settings-overlay", children: [(0, jsx_runtime_1.jsxs)("div", { className: "settings-modal", children: [(0, jsx_runtime_1.jsxs)("div", { className: "modal-header", children: [(0, jsx_runtime_1.jsxs)("div", { className: "header-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "header-icon", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Settings, { size: 28 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "header-text", children: [(0, jsx_runtime_1.jsx)("h2", { className: "modal-title", children: "Param\u00E8tres" }), (0, jsx_runtime_1.jsx)("p", { className: "modal-subtitle", children: "Configuration de l'application" })] })] }), (0, jsx_runtime_1.jsx)("button", { className: "close-button", onClick: onClose, children: (0, jsx_runtime_1.jsx)(lucide_react_1.X, { size: 20 }) })] }), message && ((0, jsx_runtime_1.jsxs)("div", { className: `message ${message.type}`, children: [message.type === 'success' ? (0, jsx_runtime_1.jsx)(lucide_react_1.CheckCircle, { size: 20 }) : (0, jsx_runtime_1.jsx)(lucide_react_1.AlertCircle, { size: 20 }), (0, jsx_runtime_1.jsx)("span", { children: message.text })] })), (0, jsx_runtime_1.jsxs)("div", { className: "settings-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "settings-sidebar", children: [(0, jsx_runtime_1.jsx)("nav", { className: "settings-nav", children: tabs.map((tab) => ((0, jsx_runtime_1.jsxs)("button", { className: `nav-button ${activeTab === tab.id ? 'active' : ''}`, onClick: () => setActiveTab(tab.id), children: [(0, jsx_runtime_1.jsx)(tab.icon, { size: 20 }), (0, jsx_runtime_1.jsx)("span", { children: tab.label })] }, tab.id))) }), (0, jsx_runtime_1.jsx)("div", { className: "logout-section", children: (0, jsx_runtime_1.jsxs)("button", { className: "logout-button", onClick: () => setShowConfirmLogout(true), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.LogOut, { size: 18 }), "Se d\u00E9connecter"] }) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "settings-main", children: [activeTab === 'institution' && ((0, jsx_runtime_1.jsxs)("div", { className: "settings-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "section-header", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Building, { size: 24 }), (0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)("h3", { children: "Informations de l'\u00E9tablissement" }), (0, jsx_runtime_1.jsx)("p", { children: "Configurez les d\u00E9tails de votre institution" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "logo-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "logo-preview", children: institutionSettings.logo ? ((0, jsx_runtime_1.jsx)("img", { src: institutionSettings.logo, alt: "Logo" })) : ((0, jsx_runtime_1.jsxs)("div", { className: "logo-placeholder", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Camera, { size: 32 }), (0, jsx_runtime_1.jsx)("span", { children: "Logo" })] })) }), (0, jsx_runtime_1.jsxs)("div", { className: "logo-actions", children: [(0, jsx_runtime_1.jsxs)("label", { className: "upload-button", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Upload, { size: 16 }), "Changer le logo", (0, jsx_runtime_1.jsx)("input", { type: "file", accept: "image/*", onChange: handleLogoUpload, style: { display: 'none' } })] }), institutionSettings.logo && ((0, jsx_runtime_1.jsxs)("button", { className: "remove-button", onClick: () => setInstitutionSettings(prev => ({ ...prev, logo: '' })), children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Trash2, { size: 16 }), "Supprimer"] }))] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-grid", children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { children: "Nom de l'\u00E9tablissement" }), (0, jsx_runtime_1.jsxs)("div", { className: "input-wrapper", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Building, { size: 18 }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: institutionSettings.name, onChange: (e) => setInstitutionSettings(prev => ({ ...prev, name: e.target.value })), className: "form-input" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { children: "T\u00E9l\u00E9phone" }), (0, jsx_runtime_1.jsxs)("div", { className: "input-wrapper", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Phone, { size: 18 }), (0, jsx_runtime_1.jsx)("input", { type: "tel", value: institutionSettings.phone, onChange: (e) => setInstitutionSettings(prev => ({ ...prev, phone: e.target.value })), className: "form-input" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { children: "Email" }), (0, jsx_runtime_1.jsxs)("div", { className: "input-wrapper", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Mail, { size: 18 }), (0, jsx_runtime_1.jsx)("input", { type: "email", value: institutionSettings.email, onChange: (e) => setInstitutionSettings(prev => ({ ...prev, email: e.target.value })), className: "form-input" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { children: "Site web" }), (0, jsx_runtime_1.jsxs)("div", { className: "input-wrapper", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Globe, { size: 18 }), (0, jsx_runtime_1.jsx)("input", { type: "url", value: institutionSettings.website, onChange: (e) => setInstitutionSettings(prev => ({ ...prev, website: e.target.value })), className: "form-input" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { children: "Adresse" }), (0, jsx_runtime_1.jsxs)("div", { className: "input-wrapper", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.MapPin, { size: 18 }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: institutionSettings.address, onChange: (e) => setInstitutionSettings(prev => ({ ...prev, address: e.target.value })), className: "form-input" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group", children: [(0, jsx_runtime_1.jsx)("label", { children: "Ville" }), (0, jsx_runtime_1.jsxs)("div", { className: "input-wrapper", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.MapPin, { size: 18 }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: institutionSettings.city, onChange: (e) => setInstitutionSettings(prev => ({ ...prev, city: e.target.value })), className: "form-input" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group span-full", children: [(0, jsx_runtime_1.jsx)("label", { children: "Description" }), (0, jsx_runtime_1.jsx)("textarea", { value: institutionSettings.description, onChange: (e) => setInstitutionSettings(prev => ({ ...prev, description: e.target.value })), className: "form-textarea", rows: 3 })] })] })] })] })), activeTab === 'backup' && ((0, jsx_runtime_1.jsxs)("div", { className: "settings-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "section-header", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Database, { size: 24 }), (0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)("h3", { children: "Gestion des sauvegardes" }), (0, jsx_runtime_1.jsx)("p", { children: "Prot\u00E9gez vos donn\u00E9es avec des sauvegardes automatiques" })] })] }), (0, jsx_runtime_1.jsx)("div", { className: "backup-status", children: (0, jsx_runtime_1.jsxs)("div", { className: "status-card", children: [(0, jsx_runtime_1.jsx)("div", { className: "status-icon success", children: (0, jsx_runtime_1.jsx)(lucide_react_1.CheckCircle, { size: 24 }) }), (0, jsx_runtime_1.jsxs)("div", { className: "status-content", children: [(0, jsx_runtime_1.jsx)("h4", { children: "Derni\u00E8re sauvegarde" }), (0, jsx_runtime_1.jsx)("p", { children: new Date(backupSettings.lastBackup).toLocaleDateString('fr-FR', {
+                                                                        year: 'numeric',
+                                                                        month: 'long',
+                                                                        day: 'numeric',
+                                                                        hour: '2-digit',
+                                                                        minute: '2-digit'
+                                                                    }) })] })] }) }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "setting-group", children: [(0, jsx_runtime_1.jsxs)("div", { className: "setting-header", children: [(0, jsx_runtime_1.jsx)("h4", { children: "Sauvegarde automatique" }), (0, jsx_runtime_1.jsxs)("label", { className: "toggle-switch", children: [(0, jsx_runtime_1.jsx)("input", { type: "checkbox", checked: backupSettings.autoBackup, onChange: (e) => setBackupSettings(prev => ({ ...prev, autoBackup: e.target.checked })) }), (0, jsx_runtime_1.jsx)("span", { className: "toggle-slider" })] })] }), (0, jsx_runtime_1.jsx)("p", { children: "Cr\u00E9er automatiquement des sauvegardes selon la fr\u00E9quence d\u00E9finie" })] }), backupSettings.autoBackup && ((0, jsx_runtime_1.jsxs)("div", { className: "setting-group", children: [(0, jsx_runtime_1.jsx)("h4", { children: "Fr\u00E9quence" }), (0, jsx_runtime_1.jsx)("div", { className: "radio-group", children: [
+                                                                    { value: 'daily', label: 'Quotidienne' },
+                                                                    { value: 'weekly', label: 'Hebdomadaire' },
+                                                                    { value: 'monthly', label: 'Mensuelle' }
+                                                                ].map((option) => ((0, jsx_runtime_1.jsxs)("label", { className: "radio-option", children: [(0, jsx_runtime_1.jsx)("input", { type: "radio", name: "frequency", value: option.value, checked: backupSettings.backupFrequency === option.value, onChange: (e) => setBackupSettings(prev => ({ ...prev, backupFrequency: e.target.value })) }), (0, jsx_runtime_1.jsx)("span", { className: "radio-label", children: option.label })] }, option.value))) })] })), (0, jsx_runtime_1.jsxs)("div", { className: "setting-group", children: [(0, jsx_runtime_1.jsxs)("div", { className: "setting-header", children: [(0, jsx_runtime_1.jsx)("h4", { children: "Synchronisation cloud" }), (0, jsx_runtime_1.jsxs)("label", { className: "toggle-switch", children: [(0, jsx_runtime_1.jsx)("input", { type: "checkbox", checked: backupSettings.cloudSync, onChange: (e) => setBackupSettings(prev => ({ ...prev, cloudSync: e.target.checked })) }), (0, jsx_runtime_1.jsx)("span", { className: "toggle-slider" })] })] }), (0, jsx_runtime_1.jsx)("p", { children: "Synchroniser automatiquement vos sauvegardes avec le cloud" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "backup-actions", children: [(0, jsx_runtime_1.jsxs)("button", { className: "action-button primary", onClick: handleBackup, disabled: isLoading, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.HardDrive, { size: 18 }), "Cr\u00E9er une sauvegarde maintenant"] }), (0, jsx_runtime_1.jsxs)("button", { className: "action-button secondary", onClick: handleRestore, disabled: isLoading, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Download, { size: 18 }), "Restaurer une sauvegarde"] }), (0, jsx_runtime_1.jsxs)("button", { className: "action-button danger", onClick: handleClearData, disabled: isLoading, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Trash2, { size: 18 }), "Effacer toutes les donn\u00E9es"] })] })] })] })), activeTab === 'security' && ((0, jsx_runtime_1.jsxs)("div", { className: "settings-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "section-header", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Shield, { size: 24 }), (0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)("h3", { children: "Param\u00E8tres de s\u00E9curit\u00E9" }), (0, jsx_runtime_1.jsx)("p", { children: "Configurez la s\u00E9curit\u00E9 et l'authentification" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "setting-group", children: [(0, jsx_runtime_1.jsxs)("div", { className: "setting-header", children: [(0, jsx_runtime_1.jsx)("h4", { children: "Authentification requise" }), (0, jsx_runtime_1.jsxs)("label", { className: "toggle-switch", children: [(0, jsx_runtime_1.jsx)("input", { type: "checkbox", checked: securitySettings.requireAuth, onChange: (e) => setSecuritySettings(prev => ({ ...prev, requireAuth: e.target.checked })) }), (0, jsx_runtime_1.jsx)("span", { className: "toggle-slider" })] })] }), (0, jsx_runtime_1.jsx)("p", { children: "Exiger une connexion pour acc\u00E9der \u00E0 l'application" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "setting-group", children: [(0, jsx_runtime_1.jsx)("h4", { children: "D\u00E9lai d'expiration de session (minutes)" }), (0, jsx_runtime_1.jsxs)("div", { className: "input-wrapper", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Lock, { size: 18 }), (0, jsx_runtime_1.jsx)("input", { type: "number", min: "5", max: "480", value: securitySettings.sessionTimeout, onChange: (e) => setSecuritySettings(prev => ({ ...prev, sessionTimeout: parseInt(e.target.value) })), className: "form-input" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "setting-group", children: [(0, jsx_runtime_1.jsx)("h4", { children: "Politique de mot de passe" }), (0, jsx_runtime_1.jsxs)("div", { className: "sub-setting", children: [(0, jsx_runtime_1.jsx)("label", { children: "Longueur minimale" }), (0, jsx_runtime_1.jsxs)("div", { className: "input-wrapper", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Lock, { size: 18 }), (0, jsx_runtime_1.jsx)("input", { type: "number", min: "4", max: "20", value: securitySettings.passwordPolicy.minLength, onChange: (e) => setSecuritySettings(prev => ({
+                                                                                    ...prev,
+                                                                                    passwordPolicy: {
+                                                                                        ...prev.passwordPolicy,
+                                                                                        minLength: parseInt(e.target.value)
+                                                                                    }
+                                                                                })), className: "form-input" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "checkbox-group", children: [(0, jsx_runtime_1.jsxs)("label", { className: "checkbox-option", children: [(0, jsx_runtime_1.jsx)("input", { type: "checkbox", checked: securitySettings.passwordPolicy.requireNumbers, onChange: (e) => setSecuritySettings(prev => ({
+                                                                                    ...prev,
+                                                                                    passwordPolicy: {
+                                                                                        ...prev.passwordPolicy,
+                                                                                        requireNumbers: e.target.checked
+                                                                                    }
+                                                                                })) }), (0, jsx_runtime_1.jsx)("span", { className: "checkbox-label", children: "Exiger des chiffres" })] }), (0, jsx_runtime_1.jsxs)("label", { className: "checkbox-option", children: [(0, jsx_runtime_1.jsx)("input", { type: "checkbox", checked: securitySettings.passwordPolicy.requireSymbols, onChange: (e) => setSecuritySettings(prev => ({
+                                                                                    ...prev,
+                                                                                    passwordPolicy: {
+                                                                                        ...prev.passwordPolicy,
+                                                                                        requireSymbols: e.target.checked
+                                                                                    }
+                                                                                })) }), (0, jsx_runtime_1.jsx)("span", { className: "checkbox-label", children: "Exiger des symboles" })] })] })] })] })] })), activeTab === 'about' && ((0, jsx_runtime_1.jsxs)("div", { className: "settings-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "section-header", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Settings, { size: 24 }), (0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\u00C0 propos de l'application" }), (0, jsx_runtime_1.jsx)("p", { children: "Informations sur la version et les cr\u00E9dits" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "about-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "app-info", children: [(0, jsx_runtime_1.jsx)("div", { className: "app-logo", children: (0, jsx_runtime_1.jsx)(lucide_react_1.Building, { size: 48 }) }), (0, jsx_runtime_1.jsx)("h3", { children: "Biblioth\u00E8que v2.0.0" }), (0, jsx_runtime_1.jsx)("p", { children: "Syst\u00E8me de gestion moderne pour biblioth\u00E8ques" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "info-cards", children: [(0, jsx_runtime_1.jsxs)("div", { className: "info-card", children: [(0, jsx_runtime_1.jsx)("h4", { children: "D\u00E9velopp\u00E9 par" }), (0, jsx_runtime_1.jsx)("p", { children: "Votre \u00E9quipe de d\u00E9veloppement" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "info-card", children: [(0, jsx_runtime_1.jsx)("h4", { children: "Technologies utilis\u00E9es" }), (0, jsx_runtime_1.jsxs)("div", { className: "tech-list", children: [(0, jsx_runtime_1.jsx)("span", { children: "Electron" }), (0, jsx_runtime_1.jsx)("span", { children: "React" }), (0, jsx_runtime_1.jsx)("span", { children: "TypeScript" }), (0, jsx_runtime_1.jsx)("span", { children: "SQLite" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "info-card", children: [(0, jsx_runtime_1.jsx)("h4", { children: "Licence" }), (0, jsx_runtime_1.jsx)("p", { children: "MIT License" })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "system-info", children: [(0, jsx_runtime_1.jsx)("h4", { children: "Informations syst\u00E8me" }), (0, jsx_runtime_1.jsxs)("div", { className: "system-details", children: [(0, jsx_runtime_1.jsxs)("div", { className: "detail-item", children: [(0, jsx_runtime_1.jsx)("span", { children: "Version de l'application" }), (0, jsx_runtime_1.jsx)("span", { children: "2.0.0" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "detail-item", children: [(0, jsx_runtime_1.jsx)("span", { children: "Base de donn\u00E9es" }), (0, jsx_runtime_1.jsx)("span", { children: "SQLite v3.39.0" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "detail-item", children: [(0, jsx_runtime_1.jsx)("span", { children: "Plateforme" }), (0, jsx_runtime_1.jsx)("span", { children: "Windows/macOS/Linux" })] })] })] })] })] }))] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "settings-footer", children: [(0, jsx_runtime_1.jsx)("button", { className: "btn-secondary", onClick: onClose, disabled: isLoading, children: "Annuler" }), (0, jsx_runtime_1.jsx)("button", { className: "btn-primary", onClick: saveSettings, disabled: isLoading, children: isLoading ? ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)(lucide_react_1.RefreshCw, { size: 16, className: "spinning" }), "Sauvegarde..."] })) : ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)(lucide_react_1.Save, { size: 16 }), "Sauvegarder"] })) })] })] }), showConfirmLogout && ((0, jsx_runtime_1.jsx)("div", { className: "logout-overlay", onClick: () => setShowConfirmLogout(false), children: (0, jsx_runtime_1.jsxs)("div", { className: "logout-modal", onClick: (e) => e.stopPropagation(), children: [(0, jsx_runtime_1.jsxs)("div", { className: "logout-header", children: [(0, jsx_runtime_1.jsx)(lucide_react_1.LogOut, { size: 24 }), (0, jsx_runtime_1.jsx)("h3", { children: "Confirmer la d\u00E9connexion" })] }), (0, jsx_runtime_1.jsx)("p", { children: "\u00CAtes-vous s\u00FBr de vouloir vous d\u00E9connecter ? Toutes les donn\u00E9es non sauvegard\u00E9es seront perdues." }), (0, jsx_runtime_1.jsxs)("div", { className: "logout-actions", children: [(0, jsx_runtime_1.jsx)("button", { className: "btn-secondary", onClick: () => setShowConfirmLogout(false), children: "Annuler" }), (0, jsx_runtime_1.jsxs)("button", { className: "btn-danger", onClick: () => {
+                                        setShowConfirmLogout(false);
+                                        onLogout();
+                                    }, children: [(0, jsx_runtime_1.jsx)(lucide_react_1.LogOut, { size: 16 }), "Se d\u00E9connecter"] })] })] }) })), (0, jsx_runtime_1.jsx)("style", { children: `
+        .settings-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(46, 46, 46, 0.7);
+          backdrop-filter: blur(8px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 20px;
+        }
+        
+        .settings-modal {
+          background: #FFFFFF;
+          border-radius: 24px;
+          width: 100%;
+          max-width: 1200px;
+          max-height: 90vh;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 
+            0 24px 48px rgba(62, 92, 73, 0.2),
+            0 8px 24px rgba(62, 92, 73, 0.12);
+          border: 1px solid rgba(229, 220, 194, 0.3);
+        }
+        
+        .modal-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 32px;
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+        }
+        
+        .header-content {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+        }
+        
+        .header-icon {
+          width: 56px;
+          height: 56px;
+          background: rgba(243, 238, 217, 0.2);
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .modal-title {
+          font-size: 24px;
+          font-weight: 800;
+          margin: 0 0 4px 0;
+        }
+        
+        .modal-subtitle {
+          font-size: 14px;
+          opacity: 0.9;
+          margin: 0;
+        }
+        
+        .close-button {
+          background: rgba(243, 238, 217, 0.15);
+          border: 1px solid rgba(243, 238, 217, 0.3);
+          color: #F3EED9;
+          padding: 12px;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        
+        .close-button:hover {
+          background: rgba(243, 238, 217, 0.25);
+        }
+        
+        .message {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 16px 32px;
+          font-size: 14px;
+          font-weight: 600;
+          border-bottom: 1px solid #E5DCC2;
+        }
+        
+        .message.success {
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+        }
+        
+        .message.error {
+          background: rgba(194, 87, 27, 0.1);
+          color: #C2571B;
+        }
+        
+        .settings-content {
+          flex: 1;
+          display: flex;
+          overflow: hidden;
+        }
+        
+        .settings-sidebar {
+          width: 280px;
+          background: #F3EED9;
+          border-right: 1px solid #E5DCC2;
+          padding: 24px 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+        }
+        
+        .settings-nav {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          padding: 0 24px;
+        }
+        
+        .nav-button {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 16px 20px;
+          border: none;
+          background: transparent;
+          color: #6E6E6E;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 14px;
+          font-weight: 500;
+          text-align: left;
+        }
+        
+        .nav-button:hover {
+          background: rgba(62, 92, 73, 0.08);
+          color: #3E5C49;
+        }
+        
+        .nav-button.active {
+          background: #3E5C49;
+          color: #F3EED9;
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.2);
+        }
+        
+        .logout-section {
+          padding: 0 24px;
+          border-top: 1px solid #E5DCC2;
+          padding-top: 24px;
+        }
+        
+        .logout-button {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 16px 20px;
+          border: none;
+          background: rgba(194, 87, 27, 0.1);
+          color: #C2571B;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 14px;
+          font-weight: 600;
+        }
+        
+        .logout-button:hover {
+          background: rgba(194, 87, 27, 0.15);
+          color: #A8481A;
+        }
+        
+        .settings-main {
+          flex: 1;
+          overflow-y: auto;
+          padding: 32px;
+        }
+        
+        .settings-section {
+          max-width: 800px;
+        }
+        
+        .section-header {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 32px;
+          padding-bottom: 16px;
+          border-bottom: 2px solid #E5DCC2;
+        }
+        
+        .section-header h3 {
+          font-size: 24px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 4px 0;
+        }
+        
+        .section-header p {
+          font-size: 14px;
+          color: #6E6E6E;
+          margin: 0;
+        }
+        
+        .form-section {
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+        
+        .logo-section {
+          display: flex;
+          align-items: center;
+          gap: 24px;
+          padding: 24px;
+          background: #F3EED9;
+          border-radius: 16px;
+          border: 1px solid #E5DCC2;
+          margin-bottom: 32px;
+        }
+        
+        .logo-preview {
+          width: 120px;
+          height: 120px;
+          border-radius: 16px;
+          overflow: hidden;
+          border: 2px solid #E5DCC2;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #FFFFFF;
+        }
+        
+        .logo-preview img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        
+        .logo-placeholder {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          color: #6E6E6E;
+          text-align: center;
+        }
+        
+        .logo-actions {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        
+        .upload-button {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          background: #3E5C49;
+          color: #F3EED9;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: 600;
+          transition: all 0.2s ease;
+        }
+        
+        .upload-button:hover {
+          background: #2E453A;
+        }
+        
+        .remove-button {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          background: rgba(194, 87, 27, 0.1);
+          color: #C2571B;
+          border: 1px solid rgba(194, 87, 27, 0.2);
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: 600;
+          transition: all 0.2s ease;
+        }
+        
+        .remove-button:hover {
+          background: rgba(194, 87, 27, 0.15);
+        }
+        
+        .form-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+        }
+        
+        .form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .form-group.span-full {
+          grid-column: 1 / -1;
+        }
+        
+        .form-group label {
+          font-size: 14px;
+          font-weight: 600;
+          color: #2E2E2E;
+        }
+        
+        .input-wrapper {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+        
+        .input-wrapper svg {
+          position: absolute;
+          left: 16px;
+          color: #6E6E6E;
+          z-index: 2;
+        }
+        
+        .form-input {
+          width: 100%;
+          padding: 12px 16px 12px 48px;
+          border: 2px solid #E5DCC2;
+          border-radius: 8px;
+          font-size: 14px;
+          background: #FFFFFF;
+          color: #2E2E2E;
+          transition: all 0.2s ease;
+        }
+        
+        .form-input:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+        
+        .form-textarea {
+          width: 100%;
+          padding: 12px 16px;
+          border: 2px solid #E5DCC2;
+          border-radius: 8px;
+          font-size: 14px;
+          background: #FFFFFF;
+          color: #2E2E2E;
+          transition: all 0.2s ease;
+          resize: vertical;
+          min-height: 80px;
+        }
+        
+        .form-textarea:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+        
+        .backup-status {
+          margin-bottom: 32px;
+        }
+        
+        .status-card {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 20px;
+          background: rgba(62, 92, 73, 0.05);
+          border: 1px solid rgba(62, 92, 73, 0.1);
+          border-radius: 12px;
+        }
+        
+        .status-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .status-icon.success {
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+        }
+        
+        .status-content h4 {
+          font-size: 16px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0 0 4px 0;
+        }
+        
+        .status-content p {
+          font-size: 14px;
+          color: #6E6E6E;
+          margin: 0;
+        }
+        
+        .setting-group {
+          padding: 20px;
+          background: #FEFEFE;
+          border: 1px solid #E5DCC2;
+          border-radius: 12px;
+        }
+        
+        .setting-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+        }
+        
+        .setting-header h4 {
+          font-size: 16px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0;
+        }
+        
+        .setting-group p {
+          font-size: 14px;
+          color: #6E6E6E;
+          margin: 0;
+          line-height: 1.4;
+        }
+        
+        .toggle-switch {
+          position: relative;
+          display: inline-block;
+          width: 44px;
+          height: 24px;
+        }
+        
+        .toggle-switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+        
+        .toggle-slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: #E5DCC2;
+          transition: 0.3s;
+          border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+          position: absolute;
+          content: "";
+          height: 20px;
+          width: 20px;
+          left: 2px;
+          bottom: 2px;
+          background: #FFFFFF;
+          transition: 0.3s;
+          border-radius: 50%;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        input:checked + .toggle-slider {
+          background: #3E5C49;
+        }
+        
+        input:checked + .toggle-slider:before {
+          transform: translateX(20px);
+        }
+        
+        .radio-group {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-top: 12px;
+        }
+        
+        .radio-option {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          cursor: pointer;
+        }
+        
+        .radio-option input {
+          margin: 0;
+        }
+        
+        .radio-label {
+          font-size: 14px;
+          color: #2E2E2E;
+        }
+        
+        .checkbox-group {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-top: 12px;
+        }
+        
+        .checkbox-option {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          cursor: pointer;
+        }
+        
+        .checkbox-option input {
+          margin: 0;
+        }
+        
+        .checkbox-label {
+          font-size: 14px;
+          color: #2E2E2E;
+        }
+        
+        .sub-setting {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin-top: 16px;
+        }
+        
+        .sub-setting label {
+          font-size: 13px;
+          font-weight: 500;
+          color: #6E6E6E;
+        }
+        
+        .backup-actions {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-top: 24px;
+        }
+        
+        .action-button {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 16px 20px;
+          border: none;
+          border-radius: 12px;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: 600;
+          transition: all 0.2s ease;
+          text-align: left;
+        }
+        
+        .action-button.primary {
+          background: #3E5C49;
+          color: #F3EED9;
+        }
+        
+        .action-button.primary:hover:not(:disabled) {
+          background: #2E453A;
+        }
+        
+        .action-button.secondary {
+          background: #F3EED9;
+          color: #6E6E6E;
+          border: 1px solid #E5DCC2;
+        }
+        
+        .action-button.secondary:hover:not(:disabled) {
+          background: #EAEADC;
+          color: #2E2E2E;
+        }
+        
+        .action-button.danger {
+          background: rgba(194, 87, 27, 0.1);
+          color: #C2571B;
+          border: 1px solid rgba(194, 87, 27, 0.2);
+        }
+        
+        .action-button.danger:hover:not(:disabled) {
+          background: rgba(194, 87, 27, 0.15);
+        }
+        
+        .action-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        
+        .about-content {
+          display: flex;
+          flex-direction: column;
+          gap: 32px;
+        }
+        
+        .app-info {
+          text-align: center;
+          padding: 32px;
+          background: #F3EED9;
+          border-radius: 16px;
+          border: 1px solid #E5DCC2;
+        }
+        
+        .app-logo {
+          width: 80px;
+          height: 80px;
+          background: #3E5C49;
+          color: #F3EED9;
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 20px;
+        }
+        
+        .app-info h3 {
+          font-size: 24px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 8px 0;
+        }
+        
+        .app-info p {
+          font-size: 16px;
+          color: #6E6E6E;
+          margin: 0;
+        }
+        
+        .info-cards {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 20px;
+        }
+        
+        .info-card {
+          padding: 20px;
+          background: #FFFFFF;
+          border: 1px solid #E5DCC2;
+          border-radius: 12px;
+        }
+        
+        .info-card h4 {
+          font-size: 16px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0 0 12px 0;
+        }
+        
+        .info-card p {
+          font-size: 14px;
+          color: #6E6E6E;
+          margin: 0;
+        }
+        
+        .tech-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        
+        .tech-list span {
+          background: #3E5C49;
+          color: #F3EED9;
+          padding: 4px 12px;
+          border-radius: 16px;
+          font-size: 12px;
+          font-weight: 600;
+        }
+        
+        .system-info {
+          padding: 24px;
+          background: #FEFEFE;
+          border: 1px solid #E5DCC2;
+          border-radius: 12px;
+        }
+        
+        .system-info h4 {
+          font-size: 18px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0 0 16px 0;
+        }
+        
+        .system-details {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        
+        .detail-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 0;
+          border-bottom: 1px solid #F3EED9;
+        }
+        
+        .detail-item:last-child {
+          border-bottom: none;
+        }
+        
+        .detail-item span:first-child {
+          font-size: 14px;
+          color: #6E6E6E;
+        }
+        
+        .detail-item span:last-child {
+          font-size: 14px;
+          font-weight: 600;
+          color: #2E2E2E;
+        }
+        
+        .settings-footer {
+          display: flex;
+          justify-content: flex-end;
+          gap: 16px;
+          padding: 24px 32px;
+          border-top: 1px solid #E5DCC2;
+          background: #FEFEFE;
+        }
+        
+        .btn-secondary, .btn-primary {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 24px;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border: none;
+        }
+        
+        .btn-secondary {
+          background: #F3EED9;
+          color: #6E6E6E;
+          border: 2px solid #E5DCC2;
+        }
+        
+        .btn-secondary:hover:not(:disabled) {
+          background: #EAEADC;
+          color: #2E2E2E;
+        }
+        
+        .btn-primary {
+          background: #3E5C49;
+          color: #F3EED9;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+          background: #2E453A;
+        }
+        
+        .btn-secondary:disabled,
+        .btn-primary:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        
+        .spinning {
+          animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        
+        /* Logout Modal */
+        .logout-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(46, 46, 46, 0.8);
+          backdrop-filter: blur(4px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1001;
+          padding: 20px;
+        }
+        
+        .logout-modal {
+          background: #FFFFFF;
+          border-radius: 16px;
+          width: 100%;
+          max-width: 400px;
+          padding: 24px;
+          box-shadow: 0 20px 40px rgba(62, 92, 73, 0.2);
+          border: 1px solid rgba(229, 220, 194, 0.3);
+        }
+        
+        .logout-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 16px;
+          color: #C2571B;
+        }
+        
+        .logout-header h3 {
+          font-size: 18px;
+          font-weight: 700;
+          margin: 0;
+        }
+        
+        .logout-modal p {
+          font-size: 14px;
+          color: #6E6E6E;
+          margin: 0 0 24px 0;
+          line-height: 1.5;
+        }
+        
+        .logout-actions {
+          display: flex;
+          gap: 12px;
+          justify-content: flex-end;
+        }
+        
+        .btn-danger {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 20px;
+          background: #C2571B;
+          color: #F3EED9;
+          border: none;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .btn-danger:hover {
+          background: #A8481A;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+          .settings-content {
+            flex-direction: column;
+          }
+          
+          .settings-sidebar {
+            width: 100%;
+            flex-direction: row;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-right: none;
+            border-bottom: 1px solid #E5DCC2;
+          }
+          
+          .settings-nav {
+            flex-direction: row;
+            gap: 12px;
+            padding: 0;
+            overflow-x: auto;
+          }
+          
+          .nav-button {
+            white-space: nowrap;
+            min-width: 120px;
+            justify-content: center;
+          }
+          
+          .logout-section {
+            border-top: none;
+            border-left: 1px solid #E5DCC2;
+            padding-top: 0;
+            padding-left: 24px;
+          }
+          
+          .logout-button {
+            width: auto;
+            min-width: 140px;
+          }
+        }
+        
+        @media (max-width: 768px) {
+          .settings-modal {
+            margin: 12px;
+            border-radius: 20px;
+            max-height: calc(100vh - 24px);
+          }
+          
+          .modal-header {
+            padding: 20px;
+            flex-direction: column;
+            gap: 16px;
+            text-align: center;
+          }
+          
+          .settings-main {
+            padding: 20px;
+          }
+          
+          .form-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .logo-section {
+            flex-direction: column;
+            text-align: center;
+          }
+          
+          .info-cards {
+            grid-template-columns: 1fr;
+          }
+          
+          .settings-footer {
+            padding: 16px 20px;
+            flex-direction: column-reverse;
+          }
+          
+          .btn-secondary,
+          .btn-primary {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .settings-sidebar {
+            flex-direction: column;
+            gap: 16px;
+          }
+          
+          .settings-nav {
+            flex-direction: column;
+          }
+          
+          .logout-section {
+            border-left: none;
+            border-top: 1px solid #E5DCC2;
+            padding-left: 0;
+            padding-top: 16px;
+          }
+          
+          .backup-actions {
+            gap: 8px;
+          }
+          
+          .action-button {
+            padding: 12px 16px;
+            font-size: 13px;
+          }
+        }
+      ` })] }));
+};
+exports.Settings = Settings;
 
 
 /***/ }),

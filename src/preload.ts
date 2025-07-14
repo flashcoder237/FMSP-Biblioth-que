@@ -14,7 +14,7 @@ export interface Book {
   borrowDate?: string;
   expectedReturnDate?: string;
   returnDate?: string;
-  borrowerName?: string; // Add this line
+  borrowerName?: string;
   createdAt?: string;
 }
 
@@ -85,27 +85,88 @@ export interface HistoryFilter {
   bookId?: number;
 }
 
+// Nouvelles interfaces pour les paramètres
+export interface InstitutionSettings {
+  name: string;
+  address: string;
+  city: string;
+  country: string;
+  phone: string;
+  email: string;
+  website: string;
+  logo: string;
+  description: string;
+}
+
+export interface BackupSettings {
+  autoBackup: boolean;
+  backupFrequency: 'daily' | 'weekly' | 'monthly';
+  lastBackup: string;
+  cloudSync: boolean;
+  cloudProvider: 'google' | 'dropbox' | 'onedrive';
+}
+
+export interface SecuritySettings {
+  requireAuth: boolean;
+  sessionTimeout: number;
+  passwordPolicy: {
+    minLength: number;
+    requireNumbers: boolean;
+    requireSymbols: boolean;
+  };
+}
+
+export interface AppSettings {
+  institution: InstitutionSettings;
+  backup: BackupSettings;
+  security: SecuritySettings;
+}
+
+// Interface pour l'authentification
+export interface UserCredentials {
+  username: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  user?: {
+    id: number;
+    username: string;
+    role: string;
+    lastLogin: string;
+  };
+  error?: string;
+}
+
 contextBridge.exposeInMainWorld('electronAPI', {
   // Window controls
   minimizeWindow: () => ipcRenderer.invoke('window-controls:minimize'),
   maximizeWindow: () => ipcRenderer.invoke('window-controls:maximize'),
   closeWindow: () => ipcRenderer.invoke('window-controls:close'),
 
-  // Database operations
+  // Authentication
+  getAuthStatus: (): Promise<boolean> => ipcRenderer.invoke('auth:getStatus'),
+  login: (credentials: UserCredentials): Promise<AuthResponse> => ipcRenderer.invoke('auth:login', credentials),
+  logout: (): Promise<void> => ipcRenderer.invoke('auth:logout'),
+  register: (userData: any): Promise<AuthResponse> => ipcRenderer.invoke('auth:register', userData),
+
+  // Database operations - Books
   getBooks: (): Promise<Book[]> => ipcRenderer.invoke('db:getBooks'),
   addBook: (book: Omit<Book, 'id'>): Promise<number> => ipcRenderer.invoke('db:addBook', book),
   updateBook: (book: Book): Promise<boolean> => ipcRenderer.invoke('db:updateBook', book),
   deleteBook: (id: number): Promise<boolean> => ipcRenderer.invoke('db:deleteBook', id),
+  searchBooks: (query: string): Promise<Book[]> => ipcRenderer.invoke('db:searchBooks', query),
   
+  // Database operations - Authors
   getAuthors: (): Promise<Author[]> => ipcRenderer.invoke('db:getAuthors'),
   addAuthor: (author: Omit<Author, 'id'>): Promise<number> => ipcRenderer.invoke('db:addAuthor', author),
   
+  // Database operations - Categories
   getCategories: (): Promise<Category[]> => ipcRenderer.invoke('db:getCategories'),
   addCategory: (category: Omit<Category, 'id'>): Promise<number> => ipcRenderer.invoke('db:addCategory', category),
   
-  searchBooks: (query: string): Promise<Book[]> => ipcRenderer.invoke('db:searchBooks', query),
-  
-  // Borrowers
+  // Database operations - Borrowers
   getBorrowers: (): Promise<Borrower[]> => ipcRenderer.invoke('db:getBorrowers'),
   addBorrower: (borrower: Omit<Borrower, 'id'>): Promise<number> => ipcRenderer.invoke('db:addBorrower', borrower),
   updateBorrower: (borrower: Borrower): Promise<boolean> => ipcRenderer.invoke('db:updateBorrower', borrower),
@@ -123,46 +184,114 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getBorrowHistory: (filter?: HistoryFilter): Promise<BorrowHistory[]> => 
     ipcRenderer.invoke('db:getBorrowHistory', filter),
   
+  // Statistics
   getStats: (): Promise<Stats> => ipcRenderer.invoke('db:getStats'),
+  
+  // Settings management
+  getSettings: (): Promise<AppSettings | null> => ipcRenderer.invoke('settings:get'),
+  saveSettings: (settings: AppSettings): Promise<boolean> => ipcRenderer.invoke('settings:save', settings),
+  
+  // Backup and restore operations
+  createBackup: (): Promise<string> => ipcRenderer.invoke('backup:create'),
+  restoreBackup: (): Promise<boolean> => ipcRenderer.invoke('backup:restore'),
+  clearAllData: (): Promise<boolean> => ipcRenderer.invoke('backup:clearAllData'),
   
   // Print operations
   printInventory: (data: any): Promise<boolean> => ipcRenderer.invoke('print:inventory', data),
   printAvailableBooks: (data: any): Promise<boolean> => ipcRenderer.invoke('print:available-books', data),
   printBorrowedBooks: (data: any): Promise<boolean> => ipcRenderer.invoke('print:borrowed-books', data),
   printBorrowHistory: (data: any): Promise<boolean> => ipcRenderer.invoke('print:borrow-history', data),
+  
+  // Export operations
   exportCSV: (data: any): Promise<string | null> => ipcRenderer.invoke('export:csv', data),
+  
+  // File operations for institution logo
+  selectFile: (options: any): Promise<string | null> => ipcRenderer.invoke('file:select', options),
+  saveFile: (data: string, filename: string): Promise<string | null> => ipcRenderer.invoke('file:save', data, filename),
+  
+  // System information
+  getSystemInfo: (): Promise<any> => ipcRenderer.invoke('system:info'),
+  
+  // Application updates
+  checkForUpdates: (): Promise<any> => ipcRenderer.invoke('app:checkUpdates'),
+  downloadUpdate: (): Promise<boolean> => ipcRenderer.invoke('app:downloadUpdate'),
+  installUpdate: (): Promise<void> => ipcRenderer.invoke('app:installUpdate'),
 });
 
 declare global {
   interface Window {
     electronAPI: {
+      // Window controls
       minimizeWindow: () => Promise<void>;
       maximizeWindow: () => Promise<void>;
       closeWindow: () => Promise<void>;
+      
+      // Authentication
+      getAuthStatus: () => Promise<boolean>;
+      login: (credentials: UserCredentials) => Promise<AuthResponse>;
+      logout: () => Promise<void>;
+      register: (userData: any) => Promise<AuthResponse>;
+      
+      // Books
       getBooks: () => Promise<Book[]>;
       addBook: (book: Omit<Book, 'id'>) => Promise<number>;
       updateBook: (book: Book) => Promise<boolean>;
       deleteBook: (id: number) => Promise<boolean>;
+      searchBooks: (query: string) => Promise<Book[]>;
+      
+      // Authors
       getAuthors: () => Promise<Author[]>;
       addAuthor: (author: Omit<Author, 'id'>) => Promise<number>;
+      
+      // Categories
       getCategories: () => Promise<Category[]>;
       addCategory: (category: Omit<Category, 'id'>) => Promise<number>;
-      searchBooks: (query: string) => Promise<Book[]>;
+      
+      // Borrowers
       getBorrowers: () => Promise<Borrower[]>;
       addBorrower: (borrower: Omit<Borrower, 'id'>) => Promise<number>;
       updateBorrower: (borrower: Borrower) => Promise<boolean>;
       deleteBorrower: (id: number) => Promise<boolean>;
       searchBorrowers: (query: string) => Promise<Borrower[]>;
+      
+      // Borrow operations
       getBorrowedBooks: () => Promise<BorrowHistory[]>;
       borrowBook: (bookId: number, borrowerId: number, expectedReturnDate: string) => Promise<number>;
       returnBook: (borrowHistoryId: number, notes?: string) => Promise<boolean>;
       getBorrowHistory: (filter?: HistoryFilter) => Promise<BorrowHistory[]>;
+      
+      // Statistics
       getStats: () => Promise<Stats>;
+      
+      // Settings
+      getSettings: () => Promise<AppSettings | null>;
+      saveSettings: (settings: AppSettings) => Promise<boolean>;
+      
+      // Backup operations
+      createBackup: () => Promise<string>;
+      restoreBackup: () => Promise<boolean>;
+      clearAllData: () => Promise<boolean>;
+      
+      // Print operations
       printInventory: (data: any) => Promise<boolean>;
       printAvailableBooks: (data: any) => Promise<boolean>;
       printBorrowedBooks: (data: any) => Promise<boolean>;
       printBorrowHistory: (data: any) => Promise<boolean>;
+      
+      // Export
       exportCSV: (data: any) => Promise<string | null>;
+      
+      // File operations
+      selectFile: (options: any) => Promise<string | null>;
+      saveFile: (data: string, filename: string) => Promise<string | null>;
+      
+      // System
+      getSystemInfo: () => Promise<any>;
+      
+      // Updates
+      checkForUpdates: () => Promise<any>;
+      downloadUpdate: () => Promise<boolean>;
+      installUpdate: () => Promise<void>;
     };
   }
 }

@@ -44,10 +44,13 @@ const BorrowedBooks_1 = require("./components/BorrowedBooks");
 const AddBook_1 = require("./components/AddBook");
 const Borrowers_1 = require("./components/Borrowers");
 const BorrowHistory_1 = require("./components/BorrowHistory");
+const Settings_1 = require("./components/Settings");
 const Donation_1 = require("./components/Donation");
 const About_1 = require("./components/About");
+const Authentication_1 = require("./components/Authentication");
 const App = () => {
-    const [currentView, setCurrentView] = (0, react_1.useState)('dashboard');
+    const [currentView, setCurrentView] = (0, react_1.useState)('auth');
+    const [isAuthenticated, setIsAuthenticated] = (0, react_1.useState)(false);
     const [books, setBooks] = (0, react_1.useState)([]);
     const [authors, setAuthors] = (0, react_1.useState)([]);
     const [categories, setCategories] = (0, react_1.useState)([]);
@@ -67,7 +70,21 @@ const App = () => {
     const [showBorrowModal, setShowBorrowModal] = (0, react_1.useState)(false);
     const [selectedBook, setSelectedBook] = (0, react_1.useState)(null);
     (0, react_1.useEffect)(() => {
-        loadData();
+        // Check authentication status
+        const checkAuth = async () => {
+            try {
+                const authStatus = await window.electronAPI.getAuthStatus();
+                setIsAuthenticated(authStatus);
+                if (authStatus) {
+                    setCurrentView('dashboard');
+                    loadData();
+                }
+            }
+            catch (error) {
+                console.error('Error checking auth status:', error);
+            }
+        };
+        checkAuth();
     }, []);
     const loadData = async () => {
         try {
@@ -89,6 +106,21 @@ const App = () => {
         catch (error) {
             console.error('Erreur lors du chargement des données:', error);
         }
+    };
+    const handleLogin = (credentials) => {
+        // For now, simple authentication
+        if (credentials.username === 'admin' && credentials.password === 'admin') {
+            setIsAuthenticated(true);
+            setCurrentView('dashboard');
+            loadData();
+        }
+        else {
+            throw new Error('Identifiants incorrects');
+        }
+    };
+    const handleLogout = () => {
+        setIsAuthenticated(false);
+        setCurrentView('auth');
     };
     const handleAddBook = async (book) => {
         try {
@@ -141,6 +173,13 @@ const App = () => {
         setShowBorrowModal(false);
         setSelectedBook(null);
     };
+    // Callback pour rafraîchir les données depuis les modals
+    const refreshData = async () => {
+        await loadData();
+    };
+    if (!isAuthenticated) {
+        return (0, jsx_runtime_1.jsx)(Authentication_1.Authentication, { onLogin: handleLogin });
+    }
     const renderCurrentView = () => {
         switch (currentView) {
             case 'dashboard':
@@ -163,9 +202,11 @@ const App = () => {
             case 'add-book':
                 return ((0, jsx_runtime_1.jsx)(AddBook_1.AddBook, { authors: authors, categories: categories, onAddBook: handleAddBook, onCancel: () => setCurrentView('books') }));
             case 'borrowers':
-                return ((0, jsx_runtime_1.jsx)(Borrowers_1.Borrowers, { onClose: () => setCurrentView('dashboard') }));
+                return ((0, jsx_runtime_1.jsx)(Borrowers_1.Borrowers, { onClose: () => setCurrentView('dashboard'), onRefreshData: refreshData }));
             case 'history':
                 return ((0, jsx_runtime_1.jsx)(BorrowHistory_1.BorrowHistory, { onClose: () => setCurrentView('dashboard') }));
+            case 'settings':
+                return ((0, jsx_runtime_1.jsx)(Settings_1.Settings, { onClose: () => setCurrentView('dashboard'), onLogout: handleLogout }));
             case 'donation':
                 return ((0, jsx_runtime_1.jsx)(Donation_1.Donation, { onClose: () => setCurrentView('dashboard') }));
             case 'about':
@@ -174,7 +215,7 @@ const App = () => {
                 return ((0, jsx_runtime_1.jsx)(Dashboard_1.Dashboard, { stats: stats, onNavigate: setCurrentView, books: books, categories: categories }));
         }
     };
-    return ((0, jsx_runtime_1.jsxs)("div", { className: "app", children: [(0, jsx_runtime_1.jsx)(TitleBar_1.TitleBar, {}), (0, jsx_runtime_1.jsxs)("div", { className: "app-container", children: [(0, jsx_runtime_1.jsx)(Sidebar_1.Sidebar, { currentView: currentView, onNavigate: setCurrentView, stats: stats }), (0, jsx_runtime_1.jsx)("main", { className: "main-content", children: (0, jsx_runtime_1.jsx)("div", { className: "content-wrapper", children: renderCurrentView() }) })] }), showBorrowModal && selectedBook && ((0, jsx_runtime_1.jsx)("div", { className: "borrow-modal-overlay", children: (0, jsx_runtime_1.jsxs)("div", { className: "borrow-modal", children: [(0, jsx_runtime_1.jsxs)("div", { className: "modal-header", children: [(0, jsx_runtime_1.jsxs)("div", { className: "header-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "header-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "24", height: "24", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.1 3.89 23 5 23H19C20.1 23 21 22.1 21 21V9ZM19 21H5V3H13V9H19V21Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "header-text", children: [(0, jsx_runtime_1.jsx)("h3", { children: "Nouvel emprunt" }), (0, jsx_runtime_1.jsx)("p", { children: "S\u00E9lectionnez un emprunteur et d\u00E9finissez la dur\u00E9e" })] })] }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close", onClick: closeBorrowModal, children: "\u00D7" })] }), (0, jsx_runtime_1.jsx)(EnhancedBorrowForm, { book: selectedBook, borrowers: borrowers, onSubmit: handleBorrowBook, onCancel: closeBorrowModal })] }) })), (0, jsx_runtime_1.jsx)("style", { children: `
+    return ((0, jsx_runtime_1.jsxs)("div", { className: "app", children: [(0, jsx_runtime_1.jsx)(TitleBar_1.TitleBar, {}), (0, jsx_runtime_1.jsxs)("div", { className: "app-container", children: [(0, jsx_runtime_1.jsx)(Sidebar_1.Sidebar, { currentView: currentView, onNavigate: setCurrentView, stats: stats }), (0, jsx_runtime_1.jsx)("main", { className: "main-content", children: (0, jsx_runtime_1.jsx)("div", { className: "content-wrapper", children: renderCurrentView() }) })] }), showBorrowModal && selectedBook && ((0, jsx_runtime_1.jsx)("div", { className: "borrow-modal-overlay", children: (0, jsx_runtime_1.jsxs)("div", { className: "borrow-modal", children: [(0, jsx_runtime_1.jsxs)("div", { className: "modal-header", children: [(0, jsx_runtime_1.jsxs)("div", { className: "header-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "header-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "24", height: "24", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.1 3.89 23 5 23H19C20.1 23 21 22.1 21 21V9ZM19 21H5V3H13V9H19V21Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "header-text", children: [(0, jsx_runtime_1.jsx)("h3", { children: "Nouvel emprunt" }), (0, jsx_runtime_1.jsx)("p", { children: "S\u00E9lectionnez un emprunteur et d\u00E9finissez la dur\u00E9e" })] })] }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close", onClick: closeBorrowModal, children: "\u00D7" })] }), (0, jsx_runtime_1.jsx)(EnhancedBorrowForm, { book: selectedBook, borrowers: borrowers, onSubmit: handleBorrowBook, onCancel: closeBorrowModal, onRefreshBorrowers: refreshData })] }) })), (0, jsx_runtime_1.jsx)("style", { children: `
         .app {
           height: 100vh;
           display: flex;
@@ -337,52 +378,6 @@ const App = () => {
           transform: scale(0.95);
         }
         
-        /* Smooth animations */
-        * {
-          transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        
-        /* Enhanced scrollbars */
-        ::-webkit-scrollbar {
-          width: 16px;
-          height: 16px;
-        }
-        
-        ::-webkit-scrollbar-track {
-          background: #F3EED9;
-          border-radius: 10px;
-          border: 2px solid #FFFFFF;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          border-radius: 10px;
-          border: 3px solid #F3EED9;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(135deg, #2E453A 0%, #1E2F25 100%);
-        }
-        
-        ::-webkit-scrollbar-corner {
-          background: #F3EED9;
-        }
-        
-        /* Enhanced focus states */
-        button:focus-visible,
-        input:focus-visible,
-        textarea:focus-visible,
-        select:focus-visible {
-          outline: 3px solid rgba(62, 92, 73, 0.4);
-          outline-offset: 2px;
-        }
-        
-        /* Enhanced selection color */
-        ::selection {
-          background: rgba(62, 92, 73, 0.2);
-          color: #2E453A;
-        }
-        
         /* Responsive enhancements */
         @media (max-width: 768px) {
           .app-container {
@@ -438,14 +433,26 @@ const App = () => {
       ` })] }));
 };
 exports.App = App;
-const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
+const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel, onRefreshBorrowers }) => {
     const [selectedBorrower, setSelectedBorrower] = (0, react_1.useState)(null);
     const [expectedReturnDate, setExpectedReturnDate] = (0, react_1.useState)('');
     const [isLoading, setIsLoading] = (0, react_1.useState)(false);
     const [searchQuery, setSearchQuery] = (0, react_1.useState)('');
     const [filterType, setFilterType] = (0, react_1.useState)('all');
     const [borrowDuration, setBorrowDuration] = (0, react_1.useState)('2weeks');
-    // Calculer la date par défaut (dans 2 semaines)
+    const [showAddBorrower, setShowAddBorrower] = (0, react_1.useState)(false);
+    const [newBorrowerData, setNewBorrowerData] = (0, react_1.useState)({
+        type: 'student',
+        firstName: '',
+        lastName: '',
+        matricule: '',
+        classe: '',
+        cniNumber: '',
+        position: '',
+        email: '',
+        phone: ''
+    });
+    // Calculate default date (in 2 weeks)
     react_1.default.useEffect(() => {
         updateDateFromDuration(borrowDuration);
     }, [borrowDuration]);
@@ -463,15 +470,41 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
                 targetDate.setMonth(today.getMonth() + 1);
                 break;
             default:
-                return; // Pour 'custom', ne pas changer
+                return; // For 'custom', don't change
         }
         setExpectedReturnDate(targetDate.toISOString().split('T')[0]);
     };
+    const handleAddBorrower = async () => {
+        try {
+            setIsLoading(true);
+            const newId = await window.electronAPI.addBorrower(newBorrowerData);
+            setSelectedBorrower(newId);
+            setShowAddBorrower(false);
+            await onRefreshBorrowers(); // Refresh the borrowers list
+            setNewBorrowerData({
+                type: 'student',
+                firstName: '',
+                lastName: '',
+                matricule: '',
+                classe: '',
+                cniNumber: '',
+                position: '',
+                email: '',
+                phone: ''
+            });
+        }
+        catch (error) {
+            alert(error.message || 'Erreur lors de l\'ajout de l\'emprunteur');
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
     const filteredBorrowers = borrowers.filter(borrower => {
-        // Filtre par type
+        // Filter by type
         if (filterType !== 'all' && borrower.type !== filterType)
             return false;
-        // Filtre par recherche
+        // Filter by search
         if (searchQuery) {
             const query = searchQuery.toLowerCase();
             return (borrower.firstName.toLowerCase().includes(query) ||
@@ -482,10 +515,6 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
         }
         return true;
     });
-    // Suggestions basées sur l'activité récente
-    const getSuggestedBorrowers = () => {
-        return filteredBorrowers.slice(0, 6); // Top 6 pour les suggestions
-    };
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!selectedBorrower || !expectedReturnDate)
@@ -502,8 +531,7 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
         }
     };
     const selectedBorrowerData = borrowers.find(b => b.id === selectedBorrower);
-    const suggestedBorrowers = getSuggestedBorrowers();
-    return ((0, jsx_runtime_1.jsxs)("form", { onSubmit: handleSubmit, className: "enhanced-borrow-form", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-info-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "book-cover", children: book.coverUrl ? ((0, jsx_runtime_1.jsx)("img", { src: book.coverUrl, alt: book.title })) : ((0, jsx_runtime_1.jsx)("div", { className: "book-placeholder", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "32", height: "32", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2ZM18 20H6V4H18V20Z" }) }) })) }), (0, jsx_runtime_1.jsxs)("div", { className: "book-details", children: [(0, jsx_runtime_1.jsxs)("h4", { className: "book-title", children: ["\"", book.title, "\""] }), (0, jsx_runtime_1.jsxs)("p", { className: "book-author", children: ["par ", book.author] }), (0, jsx_runtime_1.jsxs)("div", { className: "book-meta", children: [(0, jsx_runtime_1.jsx)("span", { className: "book-category", children: book.category }), book.publishedDate && (0, jsx_runtime_1.jsx)("span", { className: "book-year", children: book.publishedDate })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Dur\u00E9e d'emprunt" }), (0, jsx_runtime_1.jsx)("div", { className: "duration-selector", children: [
+    return ((0, jsx_runtime_1.jsxs)("div", { className: "enhanced-borrow-form", children: [(0, jsx_runtime_1.jsxs)("div", { className: "book-info-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "book-cover", children: book.coverUrl ? ((0, jsx_runtime_1.jsx)("img", { src: book.coverUrl, alt: book.title })) : ((0, jsx_runtime_1.jsx)("div", { className: "book-placeholder", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "32", height: "32", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2ZM18 20H6V4H18V20Z" }) }) })) }), (0, jsx_runtime_1.jsxs)("div", { className: "book-details", children: [(0, jsx_runtime_1.jsxs)("h4", { className: "book-title", children: ["\"", book.title, "\""] }), (0, jsx_runtime_1.jsxs)("p", { className: "book-author", children: ["par ", book.author] }), (0, jsx_runtime_1.jsxs)("div", { className: "book-meta", children: [(0, jsx_runtime_1.jsx)("span", { className: "book-category", children: book.category }), book.publishedDate && (0, jsx_runtime_1.jsx)("span", { className: "book-year", children: book.publishedDate })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Dur\u00E9e d'emprunt" }), (0, jsx_runtime_1.jsx)("div", { className: "duration-selector", children: [
                             { id: '1week', label: '1 semaine', recommended: false },
                             { id: '2weeks', label: '2 semaines', recommended: true },
                             { id: '1month', label: '1 mois', recommended: false },
@@ -512,12 +540,12 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
                             setExpectedReturnDate(e.target.value);
                             setBorrowDuration('custom');
                         }, className: "date-input", min: new Date().toISOString().split('T')[0], required: true }), (0, jsx_runtime_1.jsx)("small", { className: "form-hint", children: borrowDuration !== 'custom' && `Durée sélectionnée : ${borrowDuration === '1week' ? '7 jours' :
-                            borrowDuration === '2weeks' ? '14 jours' : '1 mois'}` })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Emprunteur *" }), (0, jsx_runtime_1.jsxs)("div", { className: "borrower-filters", children: [(0, jsx_runtime_1.jsxs)("div", { className: "search-container", children: [(0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "Rechercher un emprunteur...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }), (0, jsx_runtime_1.jsx)("svg", { className: "search-icon", viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3S3 5.91 3 9.5S5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14Z" }) })] }), (0, jsx_runtime_1.jsx)("div", { className: "type-filter", children: (0, jsx_runtime_1.jsxs)("select", { value: filterType, onChange: (e) => setFilterType(e.target.value), className: "filter-select", children: [(0, jsx_runtime_1.jsx)("option", { value: "all", children: "Tous" }), (0, jsx_runtime_1.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0, jsx_runtime_1.jsx)("option", { value: "staff", children: "Personnel" })] }) })] }), !searchQuery && ((0, jsx_runtime_1.jsxs)("div", { className: "suggestions-section", children: [(0, jsx_runtime_1.jsx)("h5", { className: "suggestions-title", children: "Suggestions rapides" }), (0, jsx_runtime_1.jsx)("div", { className: "suggestions-grid", children: suggestedBorrowers.slice(0, 4).map((borrower) => ((0, jsx_runtime_1.jsxs)("button", { type: "button", className: `suggestion-card ${selectedBorrower === borrower.id ? 'selected' : ''}`, onClick: () => setSelectedBorrower(borrower.id), children: [(0, jsx_runtime_1.jsx)("div", { className: "suggestion-avatar", children: borrower.type === 'student' ? '🎓' : '👔' }), (0, jsx_runtime_1.jsxs)("div", { className: "suggestion-info", children: [(0, jsx_runtime_1.jsxs)("div", { className: "suggestion-name", children: [borrower.firstName, " ", borrower.lastName] }), (0, jsx_runtime_1.jsx)("div", { className: "suggestion-details", children: borrower.matricule })] })] }, borrower.id))) })] })), (0, jsx_runtime_1.jsxs)("div", { className: "borrowers-list", children: [(0, jsx_runtime_1.jsxs)("div", { className: "list-header", children: [(0, jsx_runtime_1.jsx)("span", { children: "Nom" }), (0, jsx_runtime_1.jsx)("span", { children: "Type" }), (0, jsx_runtime_1.jsx)("span", { children: "Matricule" }), (0, jsx_runtime_1.jsx)("span", { children: "Classe/Poste" })] }), (0, jsx_runtime_1.jsx)("div", { className: "list-content", children: filteredBorrowers.length > 0 ? (filteredBorrowers.map((borrower) => ((0, jsx_runtime_1.jsxs)("div", { className: `borrower-row ${selectedBorrower === borrower.id ? 'selected' : ''}`, onClick: () => setSelectedBorrower(borrower.id), children: [(0, jsx_runtime_1.jsxs)("div", { className: "borrower-name", children: [(0, jsx_runtime_1.jsxs)("div", { className: "name-main", children: [borrower.firstName, " ", borrower.lastName] }), (0, jsx_runtime_1.jsx)("div", { className: "name-sub", children: borrower.email })] }), (0, jsx_runtime_1.jsx)("div", { className: "borrower-type", children: (0, jsx_runtime_1.jsx)("span", { className: `type-badge ${borrower.type}`, children: borrower.type === 'student' ? 'Étudiant' : 'Personnel' }) }), (0, jsx_runtime_1.jsx)("div", { className: "borrower-matricule", children: borrower.matricule }), (0, jsx_runtime_1.jsx)("div", { className: "borrower-extra", children: borrower.type === 'student' ? borrower.classe : borrower.position }), (0, jsx_runtime_1.jsx)("div", { className: "selection-indicator", children: selectedBorrower === borrower.id && ((0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" }) })) })] }, borrower.id)))) : ((0, jsx_runtime_1.jsxs)("div", { className: "no-borrowers", children: [(0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "48", height: "48", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.1 3.89 23 5 23H19C20.1 23 21 22.1 21 21V9Z" }) }), (0, jsx_runtime_1.jsx)("p", { children: "Aucun emprunteur trouv\u00E9" }), (0, jsx_runtime_1.jsx)("small", { children: searchQuery ? `pour "${searchQuery}"` : 'Essayez de modifier les filtres' })] })) })] })] }), selectedBorrowerData && ((0, jsx_runtime_1.jsxs)("div", { className: "selected-summary", children: [(0, jsx_runtime_1.jsx)("h4", { children: "R\u00E9capitulatif de l'emprunt" }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-card", children: [(0, jsx_runtime_1.jsxs)("div", { className: "summary-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-icon book-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-label", children: "Livre" }), (0, jsx_runtime_1.jsx)("div", { className: "summary-value", children: book.title }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-sub", children: ["par ", book.author] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-icon user-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-label", children: "Emprunteur" }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-value", children: [selectedBorrowerData.firstName, " ", selectedBorrowerData.lastName] }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-sub", children: [selectedBorrowerData.matricule, " \u2022 ", selectedBorrowerData.type === 'student' ? 'Étudiant' : 'Personnel'] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-icon date-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M19 3H18V1H16V3H8V1H6V3H5C3.89 3 3.01 3.9 3.01 5L3 19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V8H19V19ZM7 10H12V15H7V10Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-label", children: "Retour pr\u00E9vu" }), (0, jsx_runtime_1.jsx)("div", { className: "summary-value", children: new Date(expectedReturnDate).toLocaleDateString('fr-FR', {
+                            borrowDuration === '2weeks' ? '14 jours' : '1 mois'}` })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-section", children: [(0, jsx_runtime_1.jsxs)("div", { className: "section-header", children: [(0, jsx_runtime_1.jsx)("label", { className: "form-label", children: "Emprunteur *" }), (0, jsx_runtime_1.jsxs)("button", { type: "button", className: "add-borrower-button", onClick: () => setShowAddBorrower(true), children: [(0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "16", height: "16", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" }) }), "Ajouter emprunteur"] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "borrower-filters", children: [(0, jsx_runtime_1.jsxs)("div", { className: "search-container", children: [(0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "Rechercher un emprunteur...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }), (0, jsx_runtime_1.jsx)("svg", { className: "search-icon", viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3S3 5.91 3 9.5S5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14Z" }) })] }), (0, jsx_runtime_1.jsx)("div", { className: "type-filter", children: (0, jsx_runtime_1.jsxs)("select", { value: filterType, onChange: (e) => setFilterType(e.target.value), className: "filter-select", children: [(0, jsx_runtime_1.jsx)("option", { value: "all", children: "Tous" }), (0, jsx_runtime_1.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0, jsx_runtime_1.jsx)("option", { value: "staff", children: "Personnel" })] }) })] }), (0, jsx_runtime_1.jsxs)("div", { className: "borrowers-list", children: [(0, jsx_runtime_1.jsxs)("div", { className: "list-header", children: [(0, jsx_runtime_1.jsx)("span", { children: "Nom" }), (0, jsx_runtime_1.jsx)("span", { children: "Type" }), (0, jsx_runtime_1.jsx)("span", { children: "Matricule" }), (0, jsx_runtime_1.jsx)("span", { children: "Classe/Poste" })] }), (0, jsx_runtime_1.jsx)("div", { className: "list-content", children: filteredBorrowers.length > 0 ? (filteredBorrowers.map((borrower) => ((0, jsx_runtime_1.jsxs)("div", { className: `borrower-row ${selectedBorrower === borrower.id ? 'selected' : ''}`, onClick: () => setSelectedBorrower(borrower.id), children: [(0, jsx_runtime_1.jsxs)("div", { className: "borrower-name", children: [(0, jsx_runtime_1.jsxs)("div", { className: "name-main", children: [borrower.firstName, " ", borrower.lastName] }), (0, jsx_runtime_1.jsx)("div", { className: "name-sub", children: borrower.email })] }), (0, jsx_runtime_1.jsx)("div", { className: "borrower-type", children: (0, jsx_runtime_1.jsx)("span", { className: `type-badge ${borrower.type}`, children: borrower.type === 'student' ? 'Étudiant' : 'Personnel' }) }), (0, jsx_runtime_1.jsx)("div", { className: "borrower-matricule", children: borrower.matricule }), (0, jsx_runtime_1.jsx)("div", { className: "borrower-extra", children: borrower.type === 'student' ? borrower.classe : borrower.position }), (0, jsx_runtime_1.jsx)("div", { className: "selection-indicator", children: selectedBorrower === borrower.id && ((0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" }) })) })] }, borrower.id)))) : ((0, jsx_runtime_1.jsxs)("div", { className: "no-borrowers", children: [(0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "48", height: "48", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.1 3.89 23 5 23H19C20.1 23 21 22.1 21 21V9Z" }) }), (0, jsx_runtime_1.jsx)("p", { children: "Aucun emprunteur trouv\u00E9" }), (0, jsx_runtime_1.jsx)("small", { children: searchQuery ? `pour "${searchQuery}"` : 'Essayez de modifier les filtres' })] })) })] })] }), selectedBorrowerData && ((0, jsx_runtime_1.jsxs)("div", { className: "selected-summary", children: [(0, jsx_runtime_1.jsx)("h4", { children: "R\u00E9capitulatif de l'emprunt" }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-card", children: [(0, jsx_runtime_1.jsxs)("div", { className: "summary-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-icon book-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-label", children: "Livre" }), (0, jsx_runtime_1.jsx)("div", { className: "summary-value", children: book.title }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-sub", children: ["par ", book.author] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-icon user-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-label", children: "Emprunteur" }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-value", children: [selectedBorrowerData.firstName, " ", selectedBorrowerData.lastName] }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-sub", children: [selectedBorrowerData.matricule, " \u2022 ", selectedBorrowerData.type === 'student' ? 'Étudiant' : 'Personnel'] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-section", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-icon date-icon", children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M19 3H18V1H16V3H8V1H6V3H5C3.89 3 3.01 3.9 3.01 5L3 19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V8H19V19ZM7 10H12V15H7V10Z" }) }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-content", children: [(0, jsx_runtime_1.jsx)("div", { className: "summary-label", children: "Retour pr\u00E9vu" }), (0, jsx_runtime_1.jsx)("div", { className: "summary-value", children: new Date(expectedReturnDate).toLocaleDateString('fr-FR', {
                                                     weekday: 'long',
                                                     year: 'numeric',
                                                     month: 'long',
                                                     day: 'numeric'
-                                                }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-sub", children: ["Dans ", Math.ceil((new Date(expectedReturnDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)), " jour(s)"] })] })] })] })] })), (0, jsx_runtime_1.jsxs)("div", { className: "form-actions", children: [(0, jsx_runtime_1.jsxs)("button", { type: "button", className: "btn-secondary", onClick: onCancel, disabled: isLoading, children: [(0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "18", height: "18", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z" }) }), "Annuler"] }), (0, jsx_runtime_1.jsx)("button", { type: "submit", className: "btn-primary", disabled: !selectedBorrower || !expectedReturnDate || isLoading, children: isLoading ? ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)("div", { className: "loading-spinner" }), "Traitement..."] })) : ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "18", height: "18", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.58L9 16.17Z" }) }), "Confirmer l'emprunt"] })) })] }), (0, jsx_runtime_1.jsx)("style", { children: `
+                                                }) }), (0, jsx_runtime_1.jsxs)("div", { className: "summary-sub", children: ["Dans ", Math.ceil((new Date(expectedReturnDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)), " jour(s)"] })] })] })] })] })), (0, jsx_runtime_1.jsxs)("div", { className: "form-actions", children: [(0, jsx_runtime_1.jsxs)("button", { type: "button", className: "btn-secondary", onClick: onCancel, disabled: isLoading, children: [(0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "18", height: "18", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z" }) }), "Annuler"] }), (0, jsx_runtime_1.jsx)("button", { type: "submit", className: "btn-primary", disabled: !selectedBorrower || !expectedReturnDate || isLoading, onClick: handleSubmit, children: isLoading ? ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)("div", { className: "loading-spinner" }), "Traitement..."] })) : ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 24 24", width: "18", height: "18", fill: "currentColor", children: (0, jsx_runtime_1.jsx)("path", { d: "M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.58L9 16.17Z" }) }), "Confirmer l'emprunt"] })) })] }), showAddBorrower && ((0, jsx_runtime_1.jsx)("div", { className: "add-borrower-overlay", onClick: () => setShowAddBorrower(false), children: (0, jsx_runtime_1.jsxs)("div", { className: "add-borrower-modal", onClick: (e) => e.stopPropagation(), children: [(0, jsx_runtime_1.jsxs)("div", { className: "add-borrower-header", children: [(0, jsx_runtime_1.jsx)("h3", { children: "Ajouter un emprunteur" }), (0, jsx_runtime_1.jsx)("button", { className: "modal-close-small", onClick: () => setShowAddBorrower(false), children: "\u00D7" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "add-borrower-content", children: [(0, jsx_runtime_1.jsxs)("div", { className: "type-selector", children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: `type-button ${newBorrowerData.type === 'student' ? 'active' : ''}`, onClick: () => setNewBorrowerData(prev => ({ ...prev, type: 'student' })), children: "\uD83C\uDF93 \u00C9tudiant" }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: `type-button ${newBorrowerData.type === 'staff' ? 'active' : ''}`, onClick: () => setNewBorrowerData(prev => ({ ...prev, type: 'staff' })), children: "\uD83D\uDC54 Personnel" })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-grid-compact", children: [(0, jsx_runtime_1.jsxs)("div", { className: "form-group-compact", children: [(0, jsx_runtime_1.jsx)("label", { children: "Pr\u00E9nom *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: newBorrowerData.firstName, onChange: (e) => setNewBorrowerData(prev => ({ ...prev, firstName: e.target.value })), className: "form-input-compact", required: true })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group-compact", children: [(0, jsx_runtime_1.jsx)("label", { children: "Nom *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: newBorrowerData.lastName, onChange: (e) => setNewBorrowerData(prev => ({ ...prev, lastName: e.target.value })), className: "form-input-compact", required: true })] }), (0, jsx_runtime_1.jsxs)("div", { className: "form-group-compact", children: [(0, jsx_runtime_1.jsx)("label", { children: "Matricule *" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: newBorrowerData.matricule, onChange: (e) => setNewBorrowerData(prev => ({ ...prev, matricule: e.target.value })), className: "form-input-compact", required: true })] }), newBorrowerData.type === 'student' ? ((0, jsx_runtime_1.jsxs)("div", { className: "form-group-compact", children: [(0, jsx_runtime_1.jsx)("label", { children: "Classe" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: newBorrowerData.classe, onChange: (e) => setNewBorrowerData(prev => ({ ...prev, classe: e.target.value })), className: "form-input-compact", placeholder: "ex: Terminale C" })] })) : ((0, jsx_runtime_1.jsxs)("div", { className: "form-group-compact", children: [(0, jsx_runtime_1.jsx)("label", { children: "Poste" }), (0, jsx_runtime_1.jsx)("input", { type: "text", value: newBorrowerData.position, onChange: (e) => setNewBorrowerData(prev => ({ ...prev, position: e.target.value })), className: "form-input-compact", placeholder: "ex: Professeur" })] })), (0, jsx_runtime_1.jsxs)("div", { className: "form-group-compact span-full", children: [(0, jsx_runtime_1.jsx)("label", { children: "Email" }), (0, jsx_runtime_1.jsx)("input", { type: "email", value: newBorrowerData.email, onChange: (e) => setNewBorrowerData(prev => ({ ...prev, email: e.target.value })), className: "form-input-compact" })] })] })] }), (0, jsx_runtime_1.jsxs)("div", { className: "add-borrower-actions", children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "btn-secondary-small", onClick: () => setShowAddBorrower(false), children: "Annuler" }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "btn-primary-small", onClick: handleAddBorrower, disabled: !newBorrowerData.firstName || !newBorrowerData.lastName || !newBorrowerData.matricule || isLoading, children: isLoading ? 'Ajout...' : 'Ajouter' })] })] }) })), (0, jsx_runtime_1.jsx)("style", { children: `
         .enhanced-borrow-form {
           padding: 32px;
           display: flex;
@@ -624,11 +652,17 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
           font-weight: 500;
         }
         
-        /* Duration Selector */
+        /* Form Sections */
         .form-section {
           display: flex;
           flex-direction: column;
           gap: 12px;
+        }
+        
+        .section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
         }
         
         .form-label {
@@ -638,6 +672,27 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
           margin: 0;
         }
         
+        .add-borrower-button {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 12px;
+          background: #3E5C49;
+          color: #F3EED9;
+          border: none;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .add-borrower-button:hover {
+          background: #2E453A;
+          transform: translateY(-1px);
+        }
+        
+        /* Duration Selector */
         .duration-selector {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -777,73 +832,6 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
         .filter-select:focus {
           outline: none;
           border-color: #3E5C49;
-        }
-        
-        /* Suggestions */
-        .suggestions-section {
-          margin-bottom: 20px;
-        }
-        
-        .suggestions-title {
-          font-size: 14px;
-          font-weight: 600;
-          color: #6E6E6E;
-          margin: 0 0 12px 0;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        
-        .suggestions-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-          gap: 12px;
-        }
-        
-        .suggestion-card {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          background: #FFFFFF;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          text-align: left;
-        }
-        
-        .suggestion-card:hover {
-          border-color: #3E5C49;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.15);
-        }
-        
-        .suggestion-card.selected {
-          border-color: #3E5C49;
-          background: rgba(62, 92, 73, 0.05);
-        }
-        
-        .suggestion-avatar {
-          font-size: 20px;
-          width: 36px;
-          height: 36px;
-          background: #F3EED9;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .suggestion-name {
-          font-size: 14px;
-          font-weight: 600;
-          color: #2E2E2E;
-          margin-bottom: 2px;
-        }
-        
-        .suggestion-details {
-          font-size: 12px;
-          color: #6E6E6E;
         }
         
         /* Borrowers List Enhanced */
@@ -1122,6 +1110,190 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
+
+        /* Add Borrower Modal */
+        .add-borrower-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(46, 46, 46, 0.7);
+          backdrop-filter: blur(8px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1001;
+          padding: 20px;
+        }
+        
+        .add-borrower-modal {
+          background: #FFFFFF;
+          border-radius: 16px;
+          width: 100%;
+          max-width: 500px;
+          max-height: 80vh;
+          overflow-y: auto;
+          box-shadow: 0 20px 40px rgba(62, 92, 73, 0.2);
+          border: 1px solid rgba(229, 220, 194, 0.3);
+        }
+        
+        .add-borrower-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 20px 24px;
+          border-bottom: 1px solid #E5DCC2;
+          background: #F3EED9;
+        }
+        
+        .add-borrower-header h3 {
+          font-size: 18px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0;
+        }
+        
+        .modal-close-small {
+          background: rgba(110, 110, 110, 0.1);
+          border: none;
+          cursor: pointer;
+          padding: 8px;
+          border-radius: 8px;
+          color: #6E6E6E;
+          font-size: 18px;
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+        }
+        
+        .modal-close-small:hover {
+          background: rgba(110, 110, 110, 0.2);
+          color: #2E2E2E;
+        }
+        
+        .add-borrower-content {
+          padding: 24px;
+        }
+        
+        .type-selector {
+          display: flex;
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+        
+        .type-button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 12px 16px;
+          border: 2px solid #E5DCC2;
+          border-radius: 10px;
+          background: #FFFFFF;
+          color: #6E6E6E;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 14px;
+          font-weight: 500;
+          flex: 1;
+        }
+        
+        .type-button:hover {
+          border-color: #3E5C49;
+          color: #3E5C49;
+        }
+        
+        .type-button.active {
+          border-color: #3E5C49;
+          background: #3E5C49;
+          color: #F3EED9;
+        }
+        
+        .form-grid-compact {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        
+        .form-group-compact {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        
+        .form-group-compact.span-full {
+          grid-column: 1 / -1;
+        }
+        
+        .form-group-compact label {
+          font-size: 12px;
+          font-weight: 600;
+          color: #2E2E2E;
+        }
+        
+        .form-input-compact {
+          padding: 10px 12px;
+          border: 2px solid #E5DCC2;
+          border-radius: 8px;
+          font-size: 14px;
+          background: #FFFFFF;
+          color: #2E2E2E;
+          transition: all 0.2s ease;
+        }
+        
+        .form-input-compact:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+        
+        .add-borrower-actions {
+          display: flex;
+          gap: 12px;
+          justify-content: flex-end;
+          padding: 20px 24px;
+          border-top: 1px solid #E5DCC2;
+          background: #FEFEFE;
+        }
+        
+        .btn-secondary-small, .btn-primary-small {
+          padding: 10px 16px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border: none;
+        }
+        
+        .btn-secondary-small {
+          background: #F3EED9;
+          color: #6E6E6E;
+          border: 2px solid #E5DCC2;
+        }
+        
+        .btn-secondary-small:hover {
+          background: #EAEADC;
+          color: #2E2E2E;
+        }
+        
+        .btn-primary-small {
+          background: #3E5C49;
+          color: #F3EED9;
+        }
+        
+        .btn-primary-small:hover:not(:disabled) {
+          background: #2E453A;
+        }
+        
+        .btn-primary-small:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
         
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -1143,10 +1315,6 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
           .borrower-filters {
             flex-direction: column;
             gap: 12px;
-          }
-          
-          .suggestions-grid {
-            grid-template-columns: 1fr;
           }
           
           .list-header,
@@ -1178,6 +1346,10 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel }) => {
           .btn-primary {
             width: 100%;
             justify-content: center;
+          }
+          
+          .form-grid-compact {
+            grid-template-columns: 1fr;
           }
         }
         

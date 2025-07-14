@@ -1,10 +1,17 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, Notification } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import { DatabaseService } from './services/DatabaseService';
+import { BackupService } from './services/BackupService';
+import { AuthService } from './services/AuthService';
+import { SettingsService } from './services/SettingsService';
+import { ApplicationSettings, AuthCredentials } from './preload';
 
 let mainWindow: BrowserWindow;
 let dbService: DatabaseService;
+let backupService: BackupService;
+let authService: AuthService;
+let settingsService: SettingsService;
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -20,6 +27,7 @@ function createWindow(): void {
     titleBarStyle: 'hiddenInset',
     frame: false,
     show: false,
+    icon: path.join(__dirname, '../assets/icon.png'), // Ajout d'une icône
   });
 
   if (process.env.NODE_ENV === 'development') {
@@ -32,11 +40,31 @@ function createWindow(): void {
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
   });
+
+  // Gestion de la fermeture de l'application
+  mainWindow.on('close', async (event) => {
+    if (backupService && settingsService) {
+      const settings = await settingsService.getSettings();
+      if (settings?.backup.autoBackup) {
+        // Créer une sauvegarde automatique à la fermeture
+        try {
+          await backupService.createBackup();
+        } catch (error) {
+          console.error('Erreur lors de la sauvegarde automatique:', error);
+        }
+      }
+    }
+  });
 }
 
 app.whenReady().then(async () => {
+  // Initialiser les services
   dbService = new DatabaseService();
   await dbService.initialize();
+  
+  backupService = new BackupService(dbService);
+  authService = new AuthService();
+  settingsService = new SettingsService();
   
   createWindow();
 
@@ -151,6 +179,113 @@ ipcMain.handle('db:getStats', async () => {
   return await dbService.getStats();
 });
 
+// Nouvelles opérations de base de données
+ipcMain.handle('db:clearAll', async () => {
+  return await dbService.clearDatabase();
+});
+
+ipcMain.handle('db:export', async () => {
+  const result = await dialog.showSaveDialog(mainWindow, {
+    title: 'Exporter la base de données',
+    defaultPath: `bibliotheque_backup_${new Date().toISOString().split('T')[0]}.db`,
+    filters: [
+      { name: 'Base de données', extensions: ['db'] },
+      { name: 'Tous les fichiers', extensions: ['*'] }
+    ]
+  });
+
+  if (!result.filePath) return null;
+
+  try {
+    await backupService.exportDatabase(result.filePath);
+    return result.filePath;
+  } catch (error) {
+    console.error('Erreur lors de l\'export:', error);
+    return null;
+  }
+});
+
+ipcMain.handle('db:import', async (_, filePath) => {
+  try {
+    await backupService.importDatabase(filePath);
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de l\'import:', error);
+    return false;
+  }
+});
+
+// Settings Operations
+ipcMain.handle('settings:get', async () => {
+  return await settingsService.getSettings();
+});
+
+ipcMain.handle('settings:save', async (_, settings: ApplicationSettings) => {
+  return await settingsService.saveSettings(settings);
+});
+
+// Backup Operations
+ipcMain.handle('backup:create', async () => {
+  return await backupService.createBackup();
+});
+
+ipcMain.handle('backup:restore', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: 'Sélectionner une sauvegarde',
+    filters: [
+      { name: 'Sauvegardes', extensions: ['bak', 'backup'] },
+      { name: 'Tous les fichiers', extensions: ['*'] }
+    ],
+    properties: ['openFile']
+  });
+
+  if (result.canceled || !result.filePaths[0]) return false;
+
+  try {
+    await backupService.restoreBackup(result.filePaths[0]);
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de la restauration:', error);
+    return false;
+  }
+});
+
+// Authentication Operations
+ipcMain.handle('auth:status', async () => {
+  return authService.isAuthenticated();
+});
+
+ipcMain.handle('auth:login', async (_, credentials: AuthCredentials) => {
+  return await authService.login(credentials);
+});
+
+ipcMain.handle('auth:logout', async () => {
+  return authService.logout();
+});
+
+// File Operations
+ipcMain.handle('file:select', async (_, options = {}) => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openFile'],
+    filters: [
+      { name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'gif', 'bmp'] },
+      { name: 'Documents', extensions: ['pdf', 'doc', 'docx', 'txt'] },
+      { name: 'Tous les fichiers', extensions: ['*'] }
+    ],
+    ...options
+  });
+
+  return result.canceled ? null : result.filePaths[0];
+});
+
+ipcMain.handle('file:selectDirectory', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openDirectory']
+  });
+
+  return result.canceled ? null : result.filePaths[0];
+});
+
 // Print Operations
 ipcMain.handle('print:inventory', async (_, data) => {
   return await createPrintWindow(data, 'inventory');
@@ -171,6 +306,108 @@ ipcMain.handle('print:borrow-history', async (_, data) => {
 ipcMain.handle('export:csv', async (_, data) => {
   return await exportToCSV(data);
 });
+
+// Notification Operations
+ipcMain.handle('notification:show', async (_, title: string, body: string) => {
+  if (Notification.isSupported()) {
+    new Notification({
+      title,
+      body,
+      icon: path.join(__dirname, '../assets/icon.png')
+    }).show();
+  }
+});
+
+// System Operations
+ipcMain.handle('system:info', async () => {
+  return {
+    platform: process.platform,
+    arch: process.arch,
+    version: process.version,
+    appVersion: app.getVersion(),
+    electronVersion: process.versions.electron,
+    chromeVersion: process.versions.chrome,
+    nodeVersion: process.versions.node
+  };
+});
+
+ipcMain.handle('system:checkUpdates', async () => {
+  // Placeholder pour la vérification des mises à jour
+  return {
+    hasUpdate: false,
+    currentVersion: app.getVersion(),
+    latestVersion: app.getVersion()
+  };
+});
+
+// Theme Operations
+ipcMain.handle('theme:set', async (_, theme: string) => {
+  await settingsService.setTheme(theme);
+});
+
+ipcMain.handle('theme:get', async () => {
+  return await settingsService.getTheme();
+});
+
+// Statistics Operations
+ipcMain.handle('stats:advanced', async () => {
+  const basicStats = await dbService.getStats();
+  const borrowHistory = await dbService.getBorrowHistory();
+  
+  // Calculer des statistiques avancées
+  const now = new Date();
+  const monthlyBorrows = borrowHistory.filter(h => {
+    const borrowDate = new Date(h.borrowDate);
+    return borrowDate.getMonth() === now.getMonth() && borrowDate.getFullYear() === now.getFullYear();
+  }).length;
+
+  const averageBorrowDuration = borrowHistory
+    .filter(h => h.actualReturnDate)
+    .reduce((acc, h) => {
+      const borrowed = new Date(h.borrowDate);
+      const returned = new Date(h.actualReturnDate!);
+      const duration = (returned.getTime() - borrowed.getTime()) / (1000 * 60 * 60 * 24);
+      return acc + duration;
+    }, 0) / borrowHistory.filter(h => h.actualReturnDate).length || 0;
+
+  const topCategories = await getTopCategories();
+  const topBorrowers = await getTopBorrowers();
+
+  return {
+    ...basicStats,
+    monthlyBorrows,
+    averageBorrowDuration: Math.round(averageBorrowDuration),
+    topCategories,
+    topBorrowers
+  };
+});
+
+async function getTopCategories() {
+  const books = await dbService.getBooks();
+  const categoryCounts = books.reduce((acc: any, book) => {
+    acc[book.category] = (acc[book.category] || 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(categoryCounts)
+    .sort(([,a], [,b]) => (b as number) - (a as number))
+    .slice(0, 5)
+    .map(([category, count]) => ({ category, count }));
+}
+
+async function getTopBorrowers() {
+  const history = await dbService.getBorrowHistory();
+  const borrowerCounts = history.reduce((acc: any, h) => {
+    const key = `${h.borrower?.firstName} ${h.borrower?.lastName}`;
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(borrowerCounts)
+    .sort(([,a], [,b]) => (b as number) - (a as number))
+    .slice(0, 5)
+    .map(([borrower, count]) => ({ borrower, count }));
+}
 
 async function createPrintWindow(data: any, type: string): Promise<boolean> {
   return new Promise((resolve) => {

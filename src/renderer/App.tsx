@@ -7,14 +7,17 @@ import { BorrowedBooks } from './components/BorrowedBooks';
 import { AddBook } from './components/AddBook';
 import { Borrowers } from './components/Borrowers';
 import { BorrowHistory } from './components/BorrowHistory';
+import { Settings } from './components/Settings';
 import { Donation } from './components/Donation';
 import { About } from './components/About';
+import { Authentication } from './components/Authentication';
 import { Book, Author, Category, Stats, Borrower, BorrowHistory as BorrowHistoryType } from '../preload';
 
-type ViewType = 'dashboard' | 'books' | 'borrowed' | 'add-book' | 'borrowers' | 'history' | 'donation' | 'about';
+type ViewType = 'dashboard' | 'books' | 'borrowed' | 'add-book' | 'borrowers' | 'history' | 'settings' | 'donation' | 'about' | 'auth';
 
 export const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<ViewType>('dashboard');
+  const [currentView, setCurrentView] = useState<ViewType>('auth');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [books, setBooks] = useState<Book[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -35,7 +38,21 @@ export const App: React.FC = () => {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
 
   useEffect(() => {
-    loadData();
+    // Check authentication status
+    const checkAuth = async () => {
+      try {
+        const authStatus = await window.electronAPI.getAuthStatus();
+        setIsAuthenticated(authStatus);
+        if (authStatus) {
+          setCurrentView('dashboard');
+          loadData();
+        }
+      } catch (error) {
+        console.error('Error checking auth status:', error);
+      }
+    };
+
+    checkAuth();
   }, []);
 
   const loadData = async () => {
@@ -65,6 +82,22 @@ export const App: React.FC = () => {
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
     }
+  };
+
+  const handleLogin = (credentials: { username: string; password: string }) => {
+    // For now, simple authentication
+    if (credentials.username === 'admin' && credentials.password === 'admin') {
+      setIsAuthenticated(true);
+      setCurrentView('dashboard');
+      loadData();
+    } else {
+      throw new Error('Identifiants incorrects');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setCurrentView('auth');
   };
 
   const handleAddBook = async (book: Omit<Book, 'id'>) => {
@@ -120,6 +153,15 @@ export const App: React.FC = () => {
     setSelectedBook(null);
   };
 
+  // Callback pour rafraîchir les données depuis les modals
+  const refreshData = async () => {
+    await loadData();
+  };
+
+  if (!isAuthenticated) {
+    return <Authentication onLogin={handleLogin} />;
+  }
+
   const renderCurrentView = () => {
     switch (currentView) {
       case 'dashboard':
@@ -168,11 +210,21 @@ export const App: React.FC = () => {
         );
       case 'borrowers':
         return (
-          <Borrowers onClose={() => setCurrentView('dashboard')} />
+          <Borrowers 
+            onClose={() => setCurrentView('dashboard')} 
+            onRefreshData={refreshData}
+          />
         );
       case 'history':
         return (
           <BorrowHistory onClose={() => setCurrentView('dashboard')} />
+        );
+      case 'settings':
+        return (
+          <Settings 
+            onClose={() => setCurrentView('dashboard')}
+            onLogout={handleLogout}
+          />
         );
       case 'donation':
         return (
@@ -239,6 +291,7 @@ export const App: React.FC = () => {
               borrowers={borrowers}
               onSubmit={handleBorrowBook}
               onCancel={closeBorrowModal}
+              onRefreshBorrowers={refreshData}
             />
           </div>
         </div>
@@ -407,52 +460,6 @@ export const App: React.FC = () => {
           transform: scale(0.95);
         }
         
-        /* Smooth animations */
-        * {
-          transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        
-        /* Enhanced scrollbars */
-        ::-webkit-scrollbar {
-          width: 16px;
-          height: 16px;
-        }
-        
-        ::-webkit-scrollbar-track {
-          background: #F3EED9;
-          border-radius: 10px;
-          border: 2px solid #FFFFFF;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          border-radius: 10px;
-          border: 3px solid #F3EED9;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(135deg, #2E453A 0%, #1E2F25 100%);
-        }
-        
-        ::-webkit-scrollbar-corner {
-          background: #F3EED9;
-        }
-        
-        /* Enhanced focus states */
-        button:focus-visible,
-        input:focus-visible,
-        textarea:focus-visible,
-        select:focus-visible {
-          outline: 3px solid rgba(62, 92, 73, 0.4);
-          outline-offset: 2px;
-        }
-        
-        /* Enhanced selection color */
-        ::selection {
-          background: rgba(62, 92, 73, 0.2);
-          color: #2E453A;
-        }
-        
         /* Responsive enhancements */
         @media (max-width: 768px) {
           .app-container {
@@ -510,23 +517,43 @@ export const App: React.FC = () => {
   );
 };
 
-// Enhanced Borrow Form Component
+// Enhanced Borrow Form Component with refresh callback
 interface EnhancedBorrowFormProps {
   book: Book;
   borrowers: Borrower[];
   onSubmit: (bookId: number, borrowerId: number, expectedReturnDate: string) => Promise<void>;
   onCancel: () => void;
+  onRefreshBorrowers: () => Promise<void>;
 }
 
-const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ book, borrowers, onSubmit, onCancel }) => {
+const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ 
+  book, 
+  borrowers, 
+  onSubmit, 
+  onCancel, 
+  onRefreshBorrowers 
+}) => {
   const [selectedBorrower, setSelectedBorrower] = useState<number | null>(null);
   const [expectedReturnDate, setExpectedReturnDate] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'student' | 'staff'>('all');
   const [borrowDuration, setBorrowDuration] = useState<'1week' | '2weeks' | '1month' | 'custom'>('2weeks');
+  const [showAddBorrower, setShowAddBorrower] = useState(false);
 
-  // Calculer la date par défaut (dans 2 semaines)
+  const [newBorrowerData, setNewBorrowerData] = useState({
+    type: 'student' as const,
+    firstName: '',
+    lastName: '',
+    matricule: '',
+    classe: '',
+    cniNumber: '',
+    position: '',
+    email: '',
+    phone: ''
+  });
+
+  // Calculate default date (in 2 weeks)
   React.useEffect(() => {
     updateDateFromDuration(borrowDuration);
   }, [borrowDuration]);
@@ -546,17 +573,42 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ book, borrowers
         targetDate.setMonth(today.getMonth() + 1);
         break;
       default:
-        return; // Pour 'custom', ne pas changer
+        return; // For 'custom', don't change
     }
     
     setExpectedReturnDate(targetDate.toISOString().split('T')[0]);
   };
 
+  const handleAddBorrower = async () => {
+    try {
+      setIsLoading(true);
+      const newId = await window.electronAPI.addBorrower(newBorrowerData);
+      setSelectedBorrower(newId);
+      setShowAddBorrower(false);
+      await onRefreshBorrowers(); // Refresh the borrowers list
+      setNewBorrowerData({
+        type: 'student',
+        firstName: '',
+        lastName: '',
+        matricule: '',
+        classe: '',
+        cniNumber: '',
+        position: '',
+        email: '',
+        phone: ''
+      });
+    } catch (error: any) {
+      alert(error.message || 'Erreur lors de l\'ajout de l\'emprunteur');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const filteredBorrowers = borrowers.filter(borrower => {
-    // Filtre par type
+    // Filter by type
     if (filterType !== 'all' && borrower.type !== filterType) return false;
     
-    // Filtre par recherche
+    // Filter by search
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       return (
@@ -570,11 +622,6 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ book, borrowers
     
     return true;
   });
-
-  // Suggestions basées sur l'activité récente
-  const getSuggestedBorrowers = () => {
-    return filteredBorrowers.slice(0, 6); // Top 6 pour les suggestions
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -591,10 +638,9 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ book, borrowers
   };
 
   const selectedBorrowerData = borrowers.find(b => b.id === selectedBorrower);
-  const suggestedBorrowers = getSuggestedBorrowers();
 
   return (
-    <form onSubmit={handleSubmit} className="enhanced-borrow-form">
+    <div className="enhanced-borrow-form">
       {/* Book Info Enhanced */}
       <div className="book-info-section">
         <div className="book-cover">
@@ -665,7 +711,19 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ book, borrowers
 
       {/* Enhanced Borrower Selection */}
       <div className="form-section">
-        <label className="form-label">Emprunteur *</label>
+        <div className="section-header">
+          <label className="form-label">Emprunteur *</label>
+          <button
+            type="button"
+            className="add-borrower-button"
+            onClick={() => setShowAddBorrower(true)}
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+            Ajouter emprunteur
+          </button>
+        </div>
         
         {/* Filters */}
         <div className="borrower-filters">
@@ -694,31 +752,6 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ book, borrowers
             </select>
           </div>
         </div>
-
-        {/* Quick Suggestions */}
-        {!searchQuery && (
-          <div className="suggestions-section">
-            <h5 className="suggestions-title">Suggestions rapides</h5>
-            <div className="suggestions-grid">
-              {suggestedBorrowers.slice(0, 4).map((borrower) => (
-                <button
-                  key={borrower.id}
-                  type="button"
-                  className={`suggestion-card ${selectedBorrower === borrower.id ? 'selected' : ''}`}
-                  onClick={() => setSelectedBorrower(borrower.id!)}
-                >
-                  <div className="suggestion-avatar">
-                    {borrower.type === 'student' ? '🎓' : '👔'}
-                  </div>
-                  <div className="suggestion-info">
-                    <div className="suggestion-name">{borrower.firstName} {borrower.lastName}</div>
-                    <div className="suggestion-details">{borrower.matricule}</div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
         
         {/* Borrowers List */}
         <div className="borrowers-list">
@@ -849,6 +882,7 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ book, borrowers
           type="submit"
           className="btn-primary"
           disabled={!selectedBorrower || !expectedReturnDate || isLoading}
+          onClick={handleSubmit}
         >
           {isLoading ? (
             <>
@@ -865,6 +899,129 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ book, borrowers
           )}
         </button>
       </div>
+
+      {/* Add Borrower Modal */}
+      {showAddBorrower && (
+        <div className="add-borrower-overlay" onClick={() => setShowAddBorrower(false)}>
+          <div className="add-borrower-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="add-borrower-header">
+              <h3>Ajouter un emprunteur</h3>
+              <button
+                className="modal-close-small"
+                onClick={() => setShowAddBorrower(false)}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="add-borrower-content">
+              <div className="type-selector">
+                <button
+                  type="button"
+                  className={`type-button ${newBorrowerData.type === 'student' ? 'active' : ''}`}
+                  onClick={() => setNewBorrowerData(prev => ({ ...prev, type: 'student' }))}
+                >
+                  🎓 Étudiant
+                </button>
+                <button
+                  type="button"
+                  className={`type-button ${newBorrowerData.type === 'staff' ? 'active' : ''}`}
+                  onClick={() => setNewBorrowerData(prev => ({ ...prev, type: 'staff' }))}
+                >
+                  👔 Personnel
+                </button>
+              </div>
+
+              <div className="form-grid-compact">
+                <div className="form-group-compact">
+                  <label>Prénom *</label>
+                  <input
+                    type="text"
+                    value={newBorrowerData.firstName}
+                    onChange={(e) => setNewBorrowerData(prev => ({ ...prev, firstName: e.target.value }))}
+                    className="form-input-compact"
+                    required
+                  />
+                </div>
+                
+                <div className="form-group-compact">
+                  <label>Nom *</label>
+                  <input
+                    type="text"
+                    value={newBorrowerData.lastName}
+                    onChange={(e) => setNewBorrowerData(prev => ({ ...prev, lastName: e.target.value }))}
+                    className="form-input-compact"
+                    required
+                  />
+                </div>
+                
+                <div className="form-group-compact">
+                  <label>Matricule *</label>
+                  <input
+                    type="text"
+                    value={newBorrowerData.matricule}
+                    onChange={(e) => setNewBorrowerData(prev => ({ ...prev, matricule: e.target.value }))}
+                    className="form-input-compact"
+                    required
+                  />
+                </div>
+                
+                {newBorrowerData.type === 'student' ? (
+                  <div className="form-group-compact">
+                    <label>Classe</label>
+                    <input
+                      type="text"
+                      value={newBorrowerData.classe}
+                      onChange={(e) => setNewBorrowerData(prev => ({ ...prev, classe: e.target.value }))}
+                      className="form-input-compact"
+                      placeholder="ex: Terminale C"
+                    />
+                  </div>
+                ) : (
+                  <div className="form-group-compact">
+                    <label>Poste</label>
+                    <input
+                      type="text"
+                      value={newBorrowerData.position}
+                      onChange={(e) => setNewBorrowerData(prev => ({ ...prev, position: e.target.value }))}
+                      className="form-input-compact"
+                      placeholder="ex: Professeur"
+                    />
+                  </div>
+                )}
+                
+                <div className="form-group-compact span-full">
+                  <label>Email</label>
+                  <input
+                    type="email"
+                    value={newBorrowerData.email}
+                    onChange={(e) => setNewBorrowerData(prev => ({ ...prev, email: e.target.value }))}
+                    className="form-input-compact"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="add-borrower-actions">
+              <button
+                type="button"
+                className="btn-secondary-small"
+                onClick={() => setShowAddBorrower(false)}
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                className="btn-primary-small"
+                onClick={handleAddBorrower}
+                disabled={!newBorrowerData.firstName || !newBorrowerData.lastName || !newBorrowerData.matricule || isLoading}
+              >
+                {isLoading ? 'Ajout...' : 'Ajouter'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         .enhanced-borrow-form {
@@ -973,11 +1130,17 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ book, borrowers
           font-weight: 500;
         }
         
-        /* Duration Selector */
+        /* Form Sections */
         .form-section {
           display: flex;
           flex-direction: column;
           gap: 12px;
+        }
+        
+        .section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
         }
         
         .form-label {
@@ -987,6 +1150,27 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ book, borrowers
           margin: 0;
         }
         
+        .add-borrower-button {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 12px;
+          background: #3E5C49;
+          color: #F3EED9;
+          border: none;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .add-borrower-button:hover {
+          background: #2E453A;
+          transform: translateY(-1px);
+        }
+        
+        /* Duration Selector */
         .duration-selector {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -1126,73 +1310,6 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ book, borrowers
         .filter-select:focus {
           outline: none;
           border-color: #3E5C49;
-        }
-        
-        /* Suggestions */
-        .suggestions-section {
-          margin-bottom: 20px;
-        }
-        
-        .suggestions-title {
-          font-size: 14px;
-          font-weight: 600;
-          color: #6E6E6E;
-          margin: 0 0 12px 0;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        
-        .suggestions-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-          gap: 12px;
-        }
-        
-        .suggestion-card {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          background: #FFFFFF;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          text-align: left;
-        }
-        
-        .suggestion-card:hover {
-          border-color: #3E5C49;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.15);
-        }
-        
-        .suggestion-card.selected {
-          border-color: #3E5C49;
-          background: rgba(62, 92, 73, 0.05);
-        }
-        
-        .suggestion-avatar {
-          font-size: 20px;
-          width: 36px;
-          height: 36px;
-          background: #F3EED9;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .suggestion-name {
-          font-size: 14px;
-          font-weight: 600;
-          color: #2E2E2E;
-          margin-bottom: 2px;
-        }
-        
-        .suggestion-details {
-          font-size: 12px;
-          color: #6E6E6E;
         }
         
         /* Borrowers List Enhanced */
@@ -1471,6 +1588,190 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ book, borrowers
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
+
+        /* Add Borrower Modal */
+        .add-borrower-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(46, 46, 46, 0.7);
+          backdrop-filter: blur(8px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1001;
+          padding: 20px;
+        }
+        
+        .add-borrower-modal {
+          background: #FFFFFF;
+          border-radius: 16px;
+          width: 100%;
+          max-width: 500px;
+          max-height: 80vh;
+          overflow-y: auto;
+          box-shadow: 0 20px 40px rgba(62, 92, 73, 0.2);
+          border: 1px solid rgba(229, 220, 194, 0.3);
+        }
+        
+        .add-borrower-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 20px 24px;
+          border-bottom: 1px solid #E5DCC2;
+          background: #F3EED9;
+        }
+        
+        .add-borrower-header h3 {
+          font-size: 18px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0;
+        }
+        
+        .modal-close-small {
+          background: rgba(110, 110, 110, 0.1);
+          border: none;
+          cursor: pointer;
+          padding: 8px;
+          border-radius: 8px;
+          color: #6E6E6E;
+          font-size: 18px;
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+        }
+        
+        .modal-close-small:hover {
+          background: rgba(110, 110, 110, 0.2);
+          color: #2E2E2E;
+        }
+        
+        .add-borrower-content {
+          padding: 24px;
+        }
+        
+        .type-selector {
+          display: flex;
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+        
+        .type-button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 12px 16px;
+          border: 2px solid #E5DCC2;
+          border-radius: 10px;
+          background: #FFFFFF;
+          color: #6E6E6E;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 14px;
+          font-weight: 500;
+          flex: 1;
+        }
+        
+        .type-button:hover {
+          border-color: #3E5C49;
+          color: #3E5C49;
+        }
+        
+        .type-button.active {
+          border-color: #3E5C49;
+          background: #3E5C49;
+          color: #F3EED9;
+        }
+        
+        .form-grid-compact {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        
+        .form-group-compact {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        
+        .form-group-compact.span-full {
+          grid-column: 1 / -1;
+        }
+        
+        .form-group-compact label {
+          font-size: 12px;
+          font-weight: 600;
+          color: #2E2E2E;
+        }
+        
+        .form-input-compact {
+          padding: 10px 12px;
+          border: 2px solid #E5DCC2;
+          border-radius: 8px;
+          font-size: 14px;
+          background: #FFFFFF;
+          color: #2E2E2E;
+          transition: all 0.2s ease;
+        }
+        
+        .form-input-compact:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+        
+        .add-borrower-actions {
+          display: flex;
+          gap: 12px;
+          justify-content: flex-end;
+          padding: 20px 24px;
+          border-top: 1px solid #E5DCC2;
+          background: #FEFEFE;
+        }
+        
+        .btn-secondary-small, .btn-primary-small {
+          padding: 10px 16px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border: none;
+        }
+        
+        .btn-secondary-small {
+          background: #F3EED9;
+          color: #6E6E6E;
+          border: 2px solid #E5DCC2;
+        }
+        
+        .btn-secondary-small:hover {
+          background: #EAEADC;
+          color: #2E2E2E;
+        }
+        
+        .btn-primary-small {
+          background: #3E5C49;
+          color: #F3EED9;
+        }
+        
+        .btn-primary-small:hover:not(:disabled) {
+          background: #2E453A;
+        }
+        
+        .btn-primary-small:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
         
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -1492,10 +1793,6 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ book, borrowers
           .borrower-filters {
             flex-direction: column;
             gap: 12px;
-          }
-          
-          .suggestions-grid {
-            grid-template-columns: 1fr;
           }
           
           .list-header,
@@ -1528,6 +1825,10 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ book, borrowers
             width: 100%;
             justify-content: center;
           }
+          
+          .form-grid-compact {
+            grid-template-columns: 1fr;
+          }
         }
         
         @media (max-width: 480px) {
@@ -1559,6 +1860,6 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ book, borrowers
           }
         }
       `}</style>
-    </form>
+    </div>
   );
 };

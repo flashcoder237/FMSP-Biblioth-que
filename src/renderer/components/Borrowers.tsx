@@ -22,9 +22,10 @@ import { Borrower } from '../../preload';
 
 interface BorrowersProps {
   onClose: () => void;
+  onRefreshData?: () => Promise<void>; // Callback pour rafraîchir les données
 }
 
-export const Borrowers: React.FC<BorrowersProps> = ({ onClose }) => {
+export const Borrowers: React.FC<BorrowersProps> = ({ onClose, onRefreshData }) => {
   const [borrowers, setBorrowers] = useState<Borrower[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'student' | 'staff'>('all');
@@ -44,6 +45,8 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose }) => {
     phone: ''
   });
 
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+
   useEffect(() => {
     loadBorrowers();
   }, []);
@@ -55,6 +58,29 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose }) => {
     } catch (error) {
       console.error('Erreur lors du chargement des emprunteurs:', error);
     }
+  };
+
+  const validateForm = () => {
+    const errors: { [key: string]: string } = {};
+
+    if (!formData.firstName.trim()) {
+      errors.firstName = 'Le prénom est requis';
+    }
+    if (!formData.lastName.trim()) {
+      errors.lastName = 'Le nom est requis';
+    }
+    if (!formData.matricule.trim()) {
+      errors.matricule = 'Le matricule est requis';
+    }
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Format email invalide';
+    }
+    if (formData.phone && !/^[\d\s\+\-\(\)]{6,}$/.test(formData.phone)) {
+      errors.phone = 'Format téléphone invalide';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSearch = async (query: string) => {
@@ -71,7 +97,7 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose }) => {
     }
   };
 
-  const handleAddBorrower = () => {
+  const resetForm = () => {
     setFormData({
       type: 'student',
       firstName: '',
@@ -83,7 +109,12 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose }) => {
       email: '',
       phone: ''
     });
+    setFormErrors({});
     setEditingBorrower(null);
+  };
+
+  const handleAddBorrower = () => {
+    resetForm();
     setShowAddModal(true);
   };
 
@@ -99,12 +130,18 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose }) => {
       email: borrower.email || '',
       phone: borrower.phone || ''
     });
+    setFormErrors({});
     setEditingBorrower(borrower);
     setShowAddModal(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -115,10 +152,20 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose }) => {
       }
       
       setShowAddModal(false);
-      loadBorrowers();
+      resetForm();
+      await loadBorrowers();
+      
+      // Rafraîchir les données dans le parent si callback fourni
+      if (onRefreshData) {
+        await onRefreshData();
+      }
     } catch (error: any) {
       console.error('Erreur:', error);
-      alert(error.message || 'Erreur lors de l\'opération');
+      if (error.message && error.message.includes('matricule')) {
+        setFormErrors({ matricule: 'Un emprunteur avec ce matricule existe déjà' });
+      } else {
+        alert(error.message || 'Erreur lors de l\'opération');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -128,7 +175,12 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose }) => {
     if (window.confirm(`Êtes-vous sûr de vouloir supprimer ${borrower.firstName} ${borrower.lastName} ?`)) {
       try {
         await window.electronAPI.deleteBorrower(borrower.id!);
-        loadBorrowers();
+        await loadBorrowers();
+        
+        // Rafraîchir les données dans le parent si callback fourni
+        if (onRefreshData) {
+          await onRefreshData();
+        }
       } catch (error: any) {
         alert(error.message || 'Erreur lors de la suppression');
       }
@@ -375,10 +427,16 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose }) => {
                     <input
                       type="text"
                       value={formData.firstName}
-                      onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
-                      className="form-input"
+                      onChange={(e) => {
+                        setFormData(prev => ({ ...prev, firstName: e.target.value }));
+                        if (formErrors.firstName) {
+                          setFormErrors(prev => ({ ...prev, firstName: '' }));
+                        }
+                      }}
+                      className={`form-input ${formErrors.firstName ? 'error' : ''}`}
                       required
                     />
+                    {formErrors.firstName && <span className="error-text">{formErrors.firstName}</span>}
                   </div>
                   
                   <div className="form-group">
@@ -386,10 +444,16 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose }) => {
                     <input
                       type="text"
                       value={formData.lastName}
-                      onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
-                      className="form-input"
+                      onChange={(e) => {
+                        setFormData(prev => ({ ...prev, lastName: e.target.value }));
+                        if (formErrors.lastName) {
+                          setFormErrors(prev => ({ ...prev, lastName: '' }));
+                        }
+                      }}
+                      className={`form-input ${formErrors.lastName ? 'error' : ''}`}
                       required
                     />
+                    {formErrors.lastName && <span className="error-text">{formErrors.lastName}</span>}
                   </div>
                   
                   <div className="form-group">
@@ -397,10 +461,16 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose }) => {
                     <input
                       type="text"
                       value={formData.matricule}
-                      onChange={(e) => setFormData(prev => ({ ...prev, matricule: e.target.value }))}
-                      className="form-input"
+                      onChange={(e) => {
+                        setFormData(prev => ({ ...prev, matricule: e.target.value }));
+                        if (formErrors.matricule) {
+                          setFormErrors(prev => ({ ...prev, matricule: '' }));
+                        }
+                      }}
+                      className={`form-input ${formErrors.matricule ? 'error' : ''}`}
                       required
                     />
+                    {formErrors.matricule && <span className="error-text">{formErrors.matricule}</span>}
                   </div>
                   
                   {formData.type === 'student' ? (
@@ -443,9 +513,15 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose }) => {
                     <input
                       type="email"
                       value={formData.email}
-                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                      className="form-input"
+                      onChange={(e) => {
+                        setFormData(prev => ({ ...prev, email: e.target.value }));
+                        if (formErrors.email) {
+                          setFormErrors(prev => ({ ...prev, email: '' }));
+                        }
+                      }}
+                      className={`form-input ${formErrors.email ? 'error' : ''}`}
                     />
+                    {formErrors.email && <span className="error-text">{formErrors.email}</span>}
                   </div>
                   
                   <div className="form-group">
@@ -453,9 +529,15 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose }) => {
                     <input
                       type="tel"
                       value={formData.phone}
-                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                      className="form-input"
+                      onChange={(e) => {
+                        setFormData(prev => ({ ...prev, phone: e.target.value }));
+                        if (formErrors.phone) {
+                          setFormErrors(prev => ({ ...prev, phone: '' }));
+                        }
+                      }}
+                      className={`form-input ${formErrors.phone ? 'error' : ''}`}
                     />
+                    {formErrors.phone && <span className="error-text">{formErrors.phone}</span>}
                   </div>
                 </div>
                 
@@ -464,6 +546,7 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose }) => {
                     type="button"
                     className="btn-secondary"
                     onClick={() => setShowAddModal(false)}
+                    disabled={isLoading}
                   >
                     Annuler
                   </button>
@@ -702,6 +785,11 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose }) => {
           color: #2E2E2E;
           font-size: 14px;
           cursor: pointer;
+        }
+        
+        .filter-select:focus {
+          outline: none;
+          border-color: #3E5C49;
         }
         
         .btn-primary {
@@ -1018,6 +1106,17 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose }) => {
           box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
         }
         
+        .form-input.error {
+          border-color: #C2571B;
+          background: rgba(194, 87, 27, 0.05);
+        }
+        
+        .error-text {
+          font-size: 12px;
+          color: #C2571B;
+          font-weight: 500;
+        }
+        
         .form-actions {
           display: flex;
           gap: 12px;
@@ -1041,9 +1140,15 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose }) => {
           transition: all 0.2s ease;
         }
         
-        .btn-secondary:hover {
+        .btn-secondary:hover:not(:disabled) {
           background: #EAEADC;
           color: #2E2E2E;
+        }
+        
+        .btn-primary:disabled,
+        .btn-secondary:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
         
         /* Responsive */
@@ -1092,6 +1197,37 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose }) => {
           
           .type-selector {
             flex-direction: column;
+          }
+          
+          .form-actions {
+            flex-direction: column-reverse;
+          }
+          
+          .btn-primary,
+          .btn-secondary {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .add-modal {
+            margin: 8px;
+            border-radius: 16px;
+          }
+          
+          .add-modal-header,
+          .add-form {
+            padding: 20px 16px;
+          }
+          
+          .borrower-card {
+            border-radius: 12px;
+          }
+          
+          .card-header,
+          .card-content {
+            padding: 16px;
           }
         }
       `}</style>
