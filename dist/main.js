@@ -222,7 +222,7 @@ electron_1.ipcMain.handle('settings:get', async () => {
     return await settingsService.getSettings();
 });
 electron_1.ipcMain.handle('settings:save', async (_, settings) => {
-    return await settingsService.saveSettings(settings);
+    return settingsService.saveUserSettings(settings);
 });
 // Backup Operations
 electron_1.ipcMain.handle('backup:create', async () => {

@@ -85,7 +85,7 @@ export interface HistoryFilter {
   bookId?: number;
 }
 
-// Nouvelles interfaces pour les paramètres
+// Interfaces pour les paramètres
 export interface InstitutionSettings {
   name: string;
   address: string;
@@ -116,14 +116,14 @@ export interface SecuritySettings {
   };
 }
 
-export interface AppSettings {
+export interface ApplicationSettings {
   institution: InstitutionSettings;
   backup: BackupSettings;
   security: SecuritySettings;
 }
 
 // Interface pour l'authentification
-export interface UserCredentials {
+export interface AuthCredentials {
   username: string;
   password: string;
 }
@@ -146,10 +146,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   closeWindow: () => ipcRenderer.invoke('window-controls:close'),
 
   // Authentication
-  getAuthStatus: (): Promise<boolean> => ipcRenderer.invoke('auth:getStatus'),
-  login: (credentials: UserCredentials): Promise<AuthResponse> => ipcRenderer.invoke('auth:login', credentials),
+  getAuthStatus: (): Promise<boolean> => ipcRenderer.invoke('auth:status'),
+  login: (credentials: AuthCredentials): Promise<AuthResponse> => ipcRenderer.invoke('auth:login', credentials),
   logout: (): Promise<void> => ipcRenderer.invoke('auth:logout'),
-  register: (userData: any): Promise<AuthResponse> => ipcRenderer.invoke('auth:register', userData),
 
   // Database operations - Books
   getBooks: (): Promise<Book[]> => ipcRenderer.invoke('db:getBooks'),
@@ -188,13 +187,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getStats: (): Promise<Stats> => ipcRenderer.invoke('db:getStats'),
   
   // Settings management
-  getSettings: (): Promise<AppSettings | null> => ipcRenderer.invoke('settings:get'),
-  saveSettings: (settings: AppSettings): Promise<boolean> => ipcRenderer.invoke('settings:save', settings),
+  getSettings: (): Promise<ApplicationSettings | null> => ipcRenderer.invoke('settings:get'),
+  saveSettings: (settings: ApplicationSettings): Promise<boolean> => ipcRenderer.invoke('settings:save', settings),
   
   // Backup and restore operations
   createBackup: (): Promise<string> => ipcRenderer.invoke('backup:create'),
   restoreBackup: (): Promise<boolean> => ipcRenderer.invoke('backup:restore'),
-  clearAllData: (): Promise<boolean> => ipcRenderer.invoke('backup:clearAllData'),
+  clearAllData: (): Promise<boolean> => ipcRenderer.invoke('db:clearAll'),
+  
+  // Export/Import operations
+  exportDatabase: (filePath: string): Promise<void> => ipcRenderer.invoke('db:export', filePath),
+  importDatabase: (filePath: string): Promise<boolean> => ipcRenderer.invoke('db:import', filePath),
   
   // Print operations
   printInventory: (data: any): Promise<boolean> => ipcRenderer.invoke('print:inventory', data),
@@ -205,17 +208,26 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Export operations
   exportCSV: (data: any): Promise<string | null> => ipcRenderer.invoke('export:csv', data),
   
-  // File operations for institution logo
-  selectFile: (options: any): Promise<string | null> => ipcRenderer.invoke('file:select', options),
-  saveFile: (data: string, filename: string): Promise<string | null> => ipcRenderer.invoke('file:save', data, filename),
+  // File operations
+  selectFile: (options?: any): Promise<string | null> => ipcRenderer.invoke('file:select', options),
+  selectDirectory: (): Promise<string | null> => ipcRenderer.invoke('file:selectDirectory'),
+  
+  // Notification operations
+  showNotification: (title: string, body: string): Promise<void> => 
+    ipcRenderer.invoke('notification:show', title, body),
   
   // System information
   getSystemInfo: (): Promise<any> => ipcRenderer.invoke('system:info'),
   
   // Application updates
-  checkForUpdates: (): Promise<any> => ipcRenderer.invoke('app:checkUpdates'),
-  downloadUpdate: (): Promise<boolean> => ipcRenderer.invoke('app:downloadUpdate'),
-  installUpdate: (): Promise<void> => ipcRenderer.invoke('app:installUpdate'),
+  checkForUpdates: (): Promise<any> => ipcRenderer.invoke('system:checkUpdates'),
+  
+  // Theme operations
+  setTheme: (theme: string): Promise<void> => ipcRenderer.invoke('theme:set', theme),
+  getTheme: (): Promise<string> => ipcRenderer.invoke('theme:get'),
+  
+  // Advanced statistics
+  getAdvancedStats: (): Promise<any> => ipcRenderer.invoke('stats:advanced'),
 });
 
 declare global {
@@ -228,9 +240,8 @@ declare global {
       
       // Authentication
       getAuthStatus: () => Promise<boolean>;
-      login: (credentials: UserCredentials) => Promise<AuthResponse>;
+      login: (credentials: AuthCredentials) => Promise<AuthResponse>;
       logout: () => Promise<void>;
-      register: (userData: any) => Promise<AuthResponse>;
       
       // Books
       getBooks: () => Promise<Book[]>;
@@ -262,15 +273,18 @@ declare global {
       
       // Statistics
       getStats: () => Promise<Stats>;
+      getAdvancedStats: () => Promise<any>;
       
       // Settings
-      getSettings: () => Promise<AppSettings | null>;
-      saveSettings: (settings: AppSettings) => Promise<boolean>;
+      getSettings: () => Promise<ApplicationSettings | null>;
+      saveSettings: (settings: ApplicationSettings) => Promise<boolean>;
       
       // Backup operations
       createBackup: () => Promise<string>;
       restoreBackup: () => Promise<boolean>;
       clearAllData: () => Promise<boolean>;
+      exportDatabase: (filePath: string) => Promise<void>;
+      importDatabase: (filePath: string) => Promise<boolean>;
       
       // Print operations
       printInventory: (data: any) => Promise<boolean>;
@@ -282,16 +296,19 @@ declare global {
       exportCSV: (data: any) => Promise<string | null>;
       
       // File operations
-      selectFile: (options: any) => Promise<string | null>;
-      saveFile: (data: string, filename: string) => Promise<string | null>;
+      selectFile: (options?: any) => Promise<string | null>;
+      selectDirectory: () => Promise<string | null>;
+      
+      // Notifications
+      showNotification: (title: string, body: string) => Promise<void>;
       
       // System
       getSystemInfo: () => Promise<any>;
-      
-      // Updates
       checkForUpdates: () => Promise<any>;
-      downloadUpdate: () => Promise<boolean>;
-      installUpdate: () => Promise<void>;
+      
+      // Theme
+      setTheme: (theme: string) => Promise<void>;
+      getTheme: () => Promise<string>;
     };
   }
 }

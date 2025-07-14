@@ -1,3 +1,5 @@
+
+// src/renderer/components/Authentication.tsx
 import React, { useState } from 'react';
 import { 
   Book, 

@@ -221,7 +221,7 @@ ipcMain.handle('settings:get', async () => {
 });
 
 ipcMain.handle('settings:save', async (_, settings: ApplicationSettings) => {
-  return await settingsService.saveSettings(settings);
+  return settingsService.saveUserSettings(settings);
 });
 
 // Backup Operations

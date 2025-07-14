@@ -7,10 +7,9 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     maximizeWindow: () => electron_1.ipcRenderer.invoke('window-controls:maximize'),
     closeWindow: () => electron_1.ipcRenderer.invoke('window-controls:close'),
     // Authentication
-    getAuthStatus: () => electron_1.ipcRenderer.invoke('auth:getStatus'),
+    getAuthStatus: () => electron_1.ipcRenderer.invoke('auth:status'),
     login: (credentials) => electron_1.ipcRenderer.invoke('auth:login', credentials),
     logout: () => electron_1.ipcRenderer.invoke('auth:logout'),
-    register: (userData) => electron_1.ipcRenderer.invoke('auth:register', userData),
     // Database operations - Books
     getBooks: () => electron_1.ipcRenderer.invoke('db:getBooks'),
     addBook: (book) => electron_1.ipcRenderer.invoke('db:addBook', book),
@@ -43,7 +42,10 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     // Backup and restore operations
     createBackup: () => electron_1.ipcRenderer.invoke('backup:create'),
     restoreBackup: () => electron_1.ipcRenderer.invoke('backup:restore'),
-    clearAllData: () => electron_1.ipcRenderer.invoke('backup:clearAllData'),
+    clearAllData: () => electron_1.ipcRenderer.invoke('db:clearAll'),
+    // Export/Import operations
+    exportDatabase: (filePath) => electron_1.ipcRenderer.invoke('db:export', filePath),
+    importDatabase: (filePath) => electron_1.ipcRenderer.invoke('db:import', filePath),
     // Print operations
     printInventory: (data) => electron_1.ipcRenderer.invoke('print:inventory', data),
     printAvailableBooks: (data) => electron_1.ipcRenderer.invoke('print:available-books', data),
@@ -51,13 +53,18 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     printBorrowHistory: (data) => electron_1.ipcRenderer.invoke('print:borrow-history', data),
     // Export operations
     exportCSV: (data) => electron_1.ipcRenderer.invoke('export:csv', data),
-    // File operations for institution logo
+    // File operations
     selectFile: (options) => electron_1.ipcRenderer.invoke('file:select', options),
-    saveFile: (data, filename) => electron_1.ipcRenderer.invoke('file:save', data, filename),
+    selectDirectory: () => electron_1.ipcRenderer.invoke('file:selectDirectory'),
+    // Notification operations
+    showNotification: (title, body) => electron_1.ipcRenderer.invoke('notification:show', title, body),
     // System information
     getSystemInfo: () => electron_1.ipcRenderer.invoke('system:info'),
     // Application updates
-    checkForUpdates: () => electron_1.ipcRenderer.invoke('app:checkUpdates'),
-    downloadUpdate: () => electron_1.ipcRenderer.invoke('app:downloadUpdate'),
-    installUpdate: () => electron_1.ipcRenderer.invoke('app:installUpdate'),
+    checkForUpdates: () => electron_1.ipcRenderer.invoke('system:checkUpdates'),
+    // Theme operations
+    setTheme: (theme) => electron_1.ipcRenderer.invoke('theme:set', theme),
+    getTheme: () => electron_1.ipcRenderer.invoke('theme:get'),
+    // Advanced statistics
+    getAdvancedStats: () => electron_1.ipcRenderer.invoke('stats:advanced'),
 });

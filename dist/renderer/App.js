@@ -47,7 +47,7 @@ const BorrowHistory_1 = require("./components/BorrowHistory");
 const Settings_1 = require("./components/Settings");
 const Donation_1 = require("./components/Donation");
 const About_1 = require("./components/About");
-const Authentication_1 = require("./components/Authentication");
+const Authenticator_1 = require("./components/Authenticator");
 const App = () => {
     const [currentView, setCurrentView] = (0, react_1.useState)('auth');
     const [isAuthenticated, setIsAuthenticated] = (0, react_1.useState)(false);
@@ -178,7 +178,7 @@ const App = () => {
         await loadData();
     };
     if (!isAuthenticated) {
-        return (0, jsx_runtime_1.jsx)(Authentication_1.Authentication, { onLogin: handleLogin });
+        return (0, jsx_runtime_1.jsx)(Authenticator_1.Authentication, { onLogin: handleLogin });
     }
     const renderCurrentView = () => {
         switch (currentView) {

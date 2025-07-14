@@ -452,26 +452,5 @@ class BackupService {
         }
         return `${size.toFixed(1)} ${units[unitIndex]}`;
     }
-    async getBackupStats() {
-        try {
-            const backups = await this.getBackupList();
-            const totalSize = this.getBackupDirectorySize();
-            return {
-                totalBackups: backups.length,
-                totalSize,
-                oldestBackup: backups.length > 0 ? backups[backups.length - 1].createdAt : undefined,
-                newestBackup: backups.length > 0 ? backups[0].createdAt : undefined,
-                averageSize: backups.length > 0 ? totalSize / backups.length : 0
-            };
-        }
-        catch (error) {
-            console.error('Erreur lors de la récupération des statistiques de sauvegarde:', error);
-            return {
-                totalBackups: 0,
-                totalSize: 0,
-                averageSize: 0
-            };
-        }
-    }
 }
 exports.BackupService = BackupService;

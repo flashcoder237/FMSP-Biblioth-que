@@ -10,7 +10,7 @@ import { BorrowHistory } from './components/BorrowHistory';
 import { Settings } from './components/Settings';
 import { Donation } from './components/Donation';
 import { About } from './components/About';
-import { Authentication } from './components/Authentication';
+import { Authentication } from './components/Authenticator';
 import { Book, Author, Category, Stats, Borrower, BorrowHistory as BorrowHistoryType } from '../preload';
 
 type ViewType = 'dashboard' | 'books' | 'borrowed' | 'add-book' | 'borrowers' | 'history' | 'settings' | 'donation' | 'about' | 'auth';
@@ -541,8 +541,18 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({
   const [borrowDuration, setBorrowDuration] = useState<'1week' | '2weeks' | '1month' | 'custom'>('2weeks');
   const [showAddBorrower, setShowAddBorrower] = useState(false);
 
-  const [newBorrowerData, setNewBorrowerData] = useState({
-    type: 'student' as const,
+  const [newBorrowerData, setNewBorrowerData] = useState<{
+    type: 'student' | 'staff';
+    firstName: string;
+    lastName: string;
+    matricule: string;
+    classe: string;
+    cniNumber: string;
+    position: string;
+    email: string;
+    phone: string;
+  }>({
+    type: 'student',
     firstName: '',
     lastName: '',
     matricule: '',
