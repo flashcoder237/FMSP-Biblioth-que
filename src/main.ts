@@ -4,8 +4,8 @@ import * as fs from 'fs';
 import { DatabaseService } from './services/DatabaseService';
 import { BackupService } from './services/BackupService';
 import { AuthService } from './services/AuthService';
-import { SettingsService } from './services/SettingsService';
-import { ApplicationSettings, AuthCredentials } from './preload';
+import { ApplicationSettings, SettingsService } from './services/SettingsService';
+import { AuthCredentials } from './preload';
 
 let mainWindow: BrowserWindow;
 let dbService: DatabaseService;
@@ -341,7 +341,7 @@ ipcMain.handle('system:checkUpdates', async () => {
 });
 
 // Theme Operations
-ipcMain.handle('theme:set', async (_, theme: string) => {
+ipcMain.handle('theme:set', async (_, theme: 'light' | 'dark' | 'auto') => {
   await settingsService.setTheme(theme);
 });
 
@@ -384,7 +384,7 @@ ipcMain.handle('stats:advanced', async () => {
 
 async function getTopCategories() {
   const books = await dbService.getBooks();
-  const categoryCounts = books.reduce((acc: any, book) => {
+  const categoryCounts = books.reduce((acc: { [key: string]: number }, book) => {
     acc[book.category] = (acc[book.category] || 0) + 1;
     return acc;
   }, {});
@@ -397,7 +397,7 @@ async function getTopCategories() {
 
 async function getTopBorrowers() {
   const history = await dbService.getBorrowHistory();
-  const borrowerCounts = history.reduce((acc: any, h) => {
+  const borrowerCounts = history.reduce((acc: { [key: string]: number }, h) => {
     const key = `${h.borrower?.firstName} ${h.borrower?.lastName}`;
     acc[key] = (acc[key] || 0) + 1;
     return acc;
@@ -991,7 +991,7 @@ async function exportToCSV(data: any): Promise<string | null> {
         ];
       });
 
-      csvContent = [csvHeaders.join(','), ...csvRows.map(row => row.join(','))].join('\n');
+      csvContent = [csvHeaders.join(','), ...csvRows.map((row: any) => row.join(','))].join('\n');
     } else {
       // Export livres
       const { books } = data;
@@ -1021,7 +1021,7 @@ async function exportToCSV(data: any): Promise<string | null> {
         `"${book.expectedReturnDate ? new Date(book.expectedReturnDate).toLocaleDateString('fr-FR') : ''}"`
       ]);
 
-      csvContent = [csvHeaders.join(','), ...csvRows.map(row => row.join(','))].join('\n');
+      csvContent = [csvHeaders.join(','), ...csvRows.map((row: any) => row.join(','))].join('\n');
     }
     
     fs.writeFileSync(result.filePath, '\ufeff' + csvContent, 'utf8');

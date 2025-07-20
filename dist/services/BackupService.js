@@ -32,12 +32,15 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BackupService = void 0;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
-const archiver = __importStar(require("archiver"));
-const extract = __importStar(require("extract-zip"));
+const archiver_1 = __importDefault(require("archiver"));
+const extract_zip_1 = __importDefault(require("extract-zip"));
 const electron_1 = require("electron");
 class BackupService {
     constructor(databaseService) {
@@ -66,7 +69,7 @@ class BackupService {
             const crypto = require('crypto');
             const hash = crypto.createHash('sha256');
             const stream = fs.createReadStream(filePath);
-            stream.on('data', (data) => hash.update(data));
+            stream.on('data', (data) => hash.update(Buffer.from(data)));
             stream.on('end', () => resolve(hash.digest('hex')));
             stream.on('error', reject);
         });
@@ -102,7 +105,7 @@ class BackupService {
                 const backupFilePath = path.join(this.backupDir, backupFileName);
                 // Créer l'archive
                 const output = fs.createWriteStream(backupFilePath);
-                const archive = archiver('zip', {
+                const archive = (0, archiver_1.default)('zip', {
                     zlib: { level: 9 } // Compression maximale
                 });
                 output.on('close', async () => {
@@ -181,7 +184,7 @@ class BackupService {
                 fs.mkdirSync(extractPath, { recursive: true });
                 try {
                     // Extraire l'archive
-                    await extract(backupFilePath, { dir: extractPath });
+                    await (0, extract_zip_1.default)(backupFilePath, { dir: extractPath });
                     // Vérifier la structure de la sauvegarde
                     const backupInfoPath = path.join(extractPath, 'backup_info.json');
                     if (!fs.existsSync(backupInfoPath)) {
@@ -279,12 +282,12 @@ class BackupService {
     async extractBackupMetadata(backupFilePath) {
         const tempExtractPath = path.join(this.tempDir, `meta_extract_${Date.now()}`);
         try {
-            await extract(backupFilePath, {
+            await (0, extract_zip_1.default)(backupFilePath, {
                 dir: tempExtractPath,
                 onEntry: (entry, zipFile) => {
                     // Ne extraire que le fichier backup_info.json
                     if (entry.fileName !== 'backup_info.json') {
-                        entry.autodrain();
+                        zipFile.readEntry();
                     }
                 }
             });
@@ -351,7 +354,7 @@ class BackupService {
             // Vérifier que l'archive peut être ouverte et contient les fichiers essentiels
             const tempExtractPath = path.join(this.tempDir, `validate_${Date.now()}`);
             try {
-                await extract(backupFilePath, { dir: tempExtractPath });
+                await (0, extract_zip_1.default)(backupFilePath, { dir: tempExtractPath });
                 const requiredFiles = ['backup_info.json'];
                 const hasRequiredFiles = requiredFiles.every(file => fs.existsSync(path.join(tempExtractPath, file)));
                 return hasRequiredFiles;

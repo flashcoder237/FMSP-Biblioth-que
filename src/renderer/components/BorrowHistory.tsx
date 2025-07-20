@@ -17,8 +17,11 @@ import {
 } from 'lucide-react';
 import { BorrowHistory as BorrowHistoryType, HistoryFilter } from '../../preload';
 
+import { SupabaseService } from '../../services/SupabaseService';
+
 interface BorrowHistoryProps {
   onClose: () => void;
+  supabaseService: SupabaseService;
 }
 
 export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {

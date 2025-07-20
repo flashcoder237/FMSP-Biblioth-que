@@ -149,6 +149,9 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
 
   const previewData = getPreviewData();
   const selectedOption = printOptions.find(opt => opt.id === selectedType);
+  if (!selectedOption) {
+    return <div>Erreur: option sélectionnée invalide</div>;
+  }
 
   return (
     <div className="print-manager-overlay">

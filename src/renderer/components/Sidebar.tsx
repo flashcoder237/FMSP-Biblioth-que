@@ -21,10 +21,14 @@ import {
 } from 'lucide-react';
 import { Stats } from '../../preload';
 
+import { SupabaseService, User, Institution } from '../../services/SupabaseService';
+
 interface SidebarProps {
   currentView: string;
   onNavigate: (view: 'dashboard' | 'books' | 'borrowed' | 'add-book' | 'borrowers' | 'history' | 'donation' | 'about') => void;
   stats: Stats;
+  currentUser: User | null;
+  currentInstitution: Institution | null;
 }
 
 // Types pour les items de menu

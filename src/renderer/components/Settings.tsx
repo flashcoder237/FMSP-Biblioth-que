@@ -27,9 +27,14 @@ import {
   AlertCircle
 } from 'lucide-react';
 
+import { SupabaseService, User as SupabaseUser, Institution as SupabaseInstitution } from '../../services/SupabaseService';
+
 interface SettingsProps {
   onClose: () => void;
   onLogout: () => void;
+  currentUser: SupabaseUser | null;
+  currentInstitution: SupabaseInstitution | null;
+  supabaseService: SupabaseService;
 }
 
 interface InstitutionSettings {

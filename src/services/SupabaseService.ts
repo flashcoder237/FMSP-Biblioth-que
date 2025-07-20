@@ -128,7 +128,8 @@ export class SupabaseService {
           first_name: userData.firstName,
           last_name: userData.lastName,
           role: userData.role || 'user',
-          institution_id: userData.institutionCode ? (await this.getInstitutionByCode(userData.institutionCode))?.id : undefined
+          institution_id: userData.institutionCode ? (await this.getInstitutionByCode(userData.institutionCode))?.id : undefined,
+          is_active: true
         });
 
         return { success: true, user: userProfile };
@@ -341,6 +342,10 @@ export class SupabaseService {
       throw new Error('Utilisateur ou institution non connecté');
     }
 
+    if (book.id === undefined) {
+      throw new Error('Book id is undefined');
+    }
+
     const { error } = await this.supabase
       .from('books')
       .update({
@@ -475,6 +480,10 @@ export class SupabaseService {
   async updateBorrower(borrower: Borrower): Promise<boolean> {
     if (!this.currentInstitution || !this.currentUser) {
       throw new Error('Utilisateur ou institution non connecté');
+    }
+
+    if (borrower.id === undefined) {
+      throw new Error('Borrower id is undefined');
     }
 
     const { error } = await this.supabase

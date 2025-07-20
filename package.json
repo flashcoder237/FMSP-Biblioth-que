@@ -11,7 +11,9 @@
     "package": "electron-builder"
   },
   "devDependencies": {
+    "@types/archiver": "^6.0.3",
     "@types/estree": "^1.0.8",
+    "@types/extract-zip": "^2.0.0",
     "@types/http-cache-semantics": "^4.0.4",
     "@types/json-schema": "^7.0.15",
     "@types/ms": "^0.7.34",
@@ -20,6 +22,7 @@
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@types/sqlite3": "^3.1.8",
+    "@types/yauzl": "^2.10.3",
     "concurrently": "^8.2.0",
     "css-loader": "^6.8.1",
     "electron": "^25.0.0",
@@ -33,6 +36,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.52.0",
     "archiver": "^7.0.1",
     "extract-zip": "^2.0.1",
     "lucide-react": "^0.263.1",

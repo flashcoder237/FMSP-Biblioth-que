@@ -207,6 +207,9 @@ class SettingsService {
     }
     saveUserSettings(newSettings) {
         try {
+            if (typeof newSettings !== 'object' || newSettings === null) {
+                throw new Error('Invalid settings object');
+            }
             this.settings = { ...newSettings };
             this.validateAndMigrateSettings();
             this.saveSettings();

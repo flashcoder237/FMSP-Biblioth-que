@@ -20,9 +20,12 @@ import {
 } from 'lucide-react';
 import { Borrower } from '../../preload';
 
+import { SupabaseService } from '../../services/SupabaseService';
+
 interface BorrowersProps {
   onClose: () => void;
   onRefreshData?: () => Promise<void>; // Callback pour rafraîchir les données
+  supabaseService: SupabaseService;
 }
 
 export const Borrowers: React.FC<BorrowersProps> = ({ onClose, onRefreshData }) => {

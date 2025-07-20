@@ -939,7 +939,7 @@ async function exportToCSV(data) {
                     `"${(item.notes || '').replace(/"/g, '""')}"`
                 ];
             });
-            csvContent = [csvHeaders.join(','), ...csvRows.map(row => row.join(','))].join('\n');
+            csvContent = [csvHeaders.join(','), ...csvRows.map((row) => row.join(','))].join('\n');
         }
         else {
             // Export livres
@@ -968,7 +968,7 @@ async function exportToCSV(data) {
                 `"${book.borrowDate ? new Date(book.borrowDate).toLocaleDateString('fr-FR') : ''}"`,
                 `"${book.expectedReturnDate ? new Date(book.expectedReturnDate).toLocaleDateString('fr-FR') : ''}"`
             ]);
-            csvContent = [csvHeaders.join(','), ...csvRows.map(row => row.join(','))].join('\n');
+            csvContent = [csvHeaders.join(','), ...csvRows.map((row) => row.join(','))].join('\n');
         }
         fs.writeFileSync(result.filePath, '\ufeff' + csvContent, 'utf8');
         return result.filePath;

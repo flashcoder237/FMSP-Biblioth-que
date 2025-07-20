@@ -233,6 +233,10 @@ const App = () => {
         }
     };
     const handleBorrowBook = async (bookId, borrowerId, expectedReturnDate) => {
+        if (bookId === undefined || borrowerId === undefined || !expectedReturnDate) {
+            console.error('Invalid arguments for borrowBook:', { bookId, borrowerId, expectedReturnDate });
+            return;
+        }
         try {
             await supabaseService.borrowBook(bookId, borrowerId, expectedReturnDate);
             await loadData();
@@ -245,6 +249,10 @@ const App = () => {
         }
     };
     const handleReturnBook = async (borrowHistoryId, notes) => {
+        if (borrowHistoryId === undefined) {
+            console.error('Invalid argument for returnBook:', { borrowHistoryId });
+            return;
+        }
         try {
             await supabaseService.returnBook(borrowHistoryId, notes);
             await loadData();

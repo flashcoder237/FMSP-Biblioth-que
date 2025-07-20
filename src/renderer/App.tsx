@@ -234,6 +234,10 @@ export const App: React.FC = () => {
   };
 
   const handleBorrowBook = async (bookId: number, borrowerId: number, expectedReturnDate: string) => {
+    if (bookId === undefined || borrowerId === undefined || !expectedReturnDate) {
+      console.error('Invalid arguments for borrowBook:', { bookId, borrowerId, expectedReturnDate });
+      return;
+    }
     try {
       await supabaseService.borrowBook(bookId, borrowerId, expectedReturnDate);
       await loadData();
@@ -246,6 +250,10 @@ export const App: React.FC = () => {
   };
 
   const handleReturnBook = async (borrowHistoryId: number, notes?: string) => {
+    if (borrowHistoryId === undefined) {
+      console.error('Invalid argument for returnBook:', { borrowHistoryId });
+      return;
+    }
     try {
       await supabaseService.returnBook(borrowHistoryId, notes);
       await loadData();

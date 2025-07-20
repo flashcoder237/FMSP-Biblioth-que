@@ -1048,3 +1048,5 @@ L'équipe de ${institution?.name}
         }
       `}</style>
     </div>
+  );
+};

@@ -1,7 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as archiver from 'archiver';
-import * as extract from 'extract-zip';
+import archiver from 'archiver';
+import extract, { Options } from 'extract-zip';
+import { Entry, ZipFile } from 'yauzl';
 import { app } from 'electron';
 import { DatabaseService } from './DatabaseService';
 
@@ -62,7 +63,7 @@ export class BackupService {
       const hash = crypto.createHash('sha256');
       const stream = fs.createReadStream(filePath);
       
-      stream.on('data', (data: Buffer) => hash.update(data));
+      stream.on('data', (data: string | Buffer) => hash.update(Buffer.from(data)));
       stream.on('end', () => resolve(hash.digest('hex')));
       stream.on('error', reject);
     });
@@ -311,10 +312,10 @@ export class BackupService {
     try {
       await extract(backupFilePath, { 
         dir: tempExtractPath,
-        onEntry: (entry, zipFile) => {
+        onEntry: (entry: Entry, zipFile: ZipFile) => {
           // Ne extraire que le fichier backup_info.json
           if (entry.fileName !== 'backup_info.json') {
-            entry.autodrain();
+            zipFile.readEntry();
           }
         }
       });
