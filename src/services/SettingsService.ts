@@ -404,7 +404,7 @@ export class SettingsService {
   resetSectionToDefault(section: keyof ApplicationSettings): boolean {
     try {
       if (section in this.defaultSettings) {
-        (this.settings as any)[section] = { ...this.defaultSettings[section] };
+        (this.settings as any)[section] = { ...(this.defaultSettings[section] as any) };
         this.saveSettings();
         return true;
       }

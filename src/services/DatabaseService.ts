@@ -1,7 +1,7 @@
 import * as sqlite3 from 'sqlite3';
 import * as path from 'path';
 import { app } from 'electron';
-import { Book, Author, Category, Stats, Borrower, BorrowHistory, HistoryFilter } from '../preload';
+import { Document, Book, Author, Category, Stats, Borrower, BorrowHistory, HistoryFilter, SyncOperation } from '../preload';
 
 // Interface pour les erreurs SQLite
 interface SQLiteError extends Error {
@@ -20,7 +20,7 @@ export class DatabaseService {
   async initialize(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.db.serialize(() => {
-        // Table des auteurs
+        // Table des auteurs avec support sync
         this.db.run(`
           CREATE TABLE IF NOT EXISTS authors (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,22 +28,36 @@ export class DatabaseService {
             biography TEXT,
             birthDate TEXT,
             nationality TEXT,
+            -- Métadonnées de synchronisation
+            localId TEXT UNIQUE,
+            remoteId TEXT,
+            syncStatus TEXT DEFAULT 'pending' CHECK (syncStatus IN ('synced', 'pending', 'conflict', 'error')),
+            lastModified DATETIME DEFAULT CURRENT_TIMESTAMP,
+            version INTEGER DEFAULT 1,
+            deletedAt DATETIME,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
           )
         `);
 
-        // Table des catégories
+        // Table des catégories avec support sync
         this.db.run(`
           CREATE TABLE IF NOT EXISTS categories (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL UNIQUE,
             description TEXT,
             color TEXT DEFAULT '#3E5C49',
+            -- Métadonnées de synchronisation
+            localId TEXT UNIQUE,
+            remoteId TEXT,
+            syncStatus TEXT DEFAULT 'pending' CHECK (syncStatus IN ('synced', 'pending', 'conflict', 'error')),
+            lastModified DATETIME DEFAULT CURRENT_TIMESTAMP,
+            version INTEGER DEFAULT 1,
+            deletedAt DATETIME,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
           )
         `);
 
-        // Table des emprunteurs
+        // Table des emprunteurs avec support sync
         this.db.run(`
           CREATE TABLE IF NOT EXISTS borrowers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,33 +70,79 @@ export class DatabaseService {
             position TEXT,
             email TEXT,
             phone TEXT,
+            -- Métadonnées de synchronisation
+            localId TEXT UNIQUE,
+            remoteId TEXT,
+            syncStatus TEXT DEFAULT 'pending' CHECK (syncStatus IN ('synced', 'pending', 'conflict', 'error')),
+            lastModified DATETIME DEFAULT CURRENT_TIMESTAMP,
+            version INTEGER DEFAULT 1,
+            deletedAt DATETIME,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
           )
         `);
 
-        // Table des livres - mise à jour
+        // Table des documents (nouvelle structure)
         this.db.run(`
-          CREATE TABLE IF NOT EXISTS books (
+          CREATE TABLE IF NOT EXISTS documents (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            author TEXT NOT NULL,
+            
+            -- Champs principaux requis
+            auteur TEXT NOT NULL,
+            titre TEXT NOT NULL,
+            editeur TEXT NOT NULL,
+            lieuEdition TEXT NOT NULL,
+            annee TEXT NOT NULL,
+            descripteurs TEXT NOT NULL,
+            cote TEXT NOT NULL UNIQUE,
+            
+            -- Champs optionnels
             isbn TEXT,
-            category TEXT NOT NULL,
-            publishedDate TEXT,
             description TEXT,
-            coverUrl TEXT,
-            isBorrowed BOOLEAN DEFAULT 0,
-            borrowerId INTEGER,
-            borrowDate TEXT,
-            expectedReturnDate TEXT,
-            returnDate TEXT,
+            couverture TEXT,
+            
+            -- Statut d'emprunt
+            estEmprunte BOOLEAN DEFAULT 0,
+            emprunteurId INTEGER,
+            dateEmprunt TEXT,
+            dateRetourPrevu TEXT,
+            dateRetour TEXT,
+            
+            -- Métadonnées de synchronisation
+            localId TEXT UNIQUE,
+            remoteId TEXT,
+            syncStatus TEXT DEFAULT 'pending' CHECK (syncStatus IN ('synced', 'pending', 'conflict', 'error')),
+            lastModified DATETIME DEFAULT CURRENT_TIMESTAMP,
+            version INTEGER DEFAULT 1,
+            deletedAt DATETIME,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(isbn) ON CONFLICT IGNORE,
-            FOREIGN KEY (borrowerId) REFERENCES borrowers(id)
+            
+            FOREIGN KEY (emprunteurId) REFERENCES borrowers(id)
           )
         `);
 
-        // Table historique des emprunts
+        // Vue pour compatibilité avec l'ancienne table books
+        this.db.run(`
+          CREATE VIEW IF NOT EXISTS books_view AS
+          SELECT 
+            id,
+            titre AS title,
+            auteur AS author,
+            isbn,
+            descripteurs AS category,
+            annee AS publishedDate,
+            description,
+            couverture AS coverUrl,
+            estEmprunte AS isBorrowed,
+            emprunteurId AS borrowerId,
+            dateEmprunt AS borrowDate,
+            dateRetourPrevu AS expectedReturnDate,
+            dateRetour AS returnDate,
+            createdAt
+          FROM documents
+          WHERE deletedAt IS NULL
+        `);
+
+        // Table historique des emprunts avec support sync
         this.db.run(`
           CREATE TABLE IF NOT EXISTS borrow_history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -93,9 +153,31 @@ export class DatabaseService {
             actualReturnDate DATETIME,
             status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'returned', 'overdue')),
             notes TEXT,
+            -- Métadonnées de synchronisation
+            localId TEXT UNIQUE,
+            remoteId TEXT,
+            syncStatus TEXT DEFAULT 'pending' CHECK (syncStatus IN ('synced', 'pending', 'conflict', 'error')),
+            lastModified DATETIME DEFAULT CURRENT_TIMESTAMP,
+            version INTEGER DEFAULT 1,
+            deletedAt DATETIME,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (bookId) REFERENCES books(id),
+            FOREIGN KEY (bookId) REFERENCES documents(id),
             FOREIGN KEY (borrowerId) REFERENCES borrowers(id)
+          )
+        `);
+
+        // Table de queue de synchronisation
+        this.db.run(`
+          CREATE TABLE IF NOT EXISTS sync_queue (
+            id TEXT PRIMARY KEY,
+            type TEXT NOT NULL CHECK (type IN ('document', 'author', 'category', 'borrower', 'history')),
+            operation TEXT NOT NULL CHECK (operation IN ('create', 'update', 'delete')),
+            data TEXT NOT NULL,
+            timestamp DATETIME NOT NULL,
+            retryCount INTEGER DEFAULT 0,
+            maxRetries INTEGER DEFAULT 3,
+            lastError TEXT,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
           )
         `, (err) => {
           if (err) {
@@ -111,8 +193,8 @@ export class DatabaseService {
   private async seedInitialData(): Promise<void> {
     try {
       // Vérifier si des données existent déjà
-      const existingBooks = await this.getBooks();
-      if (existingBooks.length > 0) {
+      const existingDocuments = await this.getDocuments();
+      if (existingDocuments.length > 0) {
         console.log('Base de données déjà initialisée');
         return;
       }
@@ -162,33 +244,80 @@ export class DatabaseService {
         }
       ];
 
-      const books = [
+      const documents = [
         {
-          title: 'Les Misérables',
-          author: 'Victor Hugo',
+          auteur: 'Victor Hugo',
+          titre: 'Les Misérables',
+          editeur: 'Gallimard',
+          lieuEdition: 'Paris',
+          annee: '1862',
+          descripteurs: 'Fiction, Roman historique, XIXe siècle, France',
+          cote: 'FIC-HUG-001',
           isbn: '978-2-253-00001-1',
-          category: 'Fiction',
-          publishedDate: '1862',
           description: 'Roman historique français décrivant la vie de divers personnages français dans la première moitié du XIXe siècle.',
-          isBorrowed: false
+          estEmprunte: false,
+          syncStatus: 'synced' as const,
+          lastModified: new Date().toISOString(),
+          version: 1
         },
         {
-          title: 'L\'Étranger',
-          author: 'Albert Camus',
+          auteur: 'Albert Camus',
+          titre: 'L\'Étranger',
+          editeur: 'Gallimard',
+          lieuEdition: 'Paris',
+          annee: '1942',
+          descripteurs: 'Fiction, Philosophie, Absurde, Littérature française',
+          cote: 'FIC-CAM-001',
           isbn: '978-2-253-00002-2',
-          category: 'Fiction',
-          publishedDate: '1942',
           description: 'Premier roman d\'Albert Camus, publié en 1942. Il prend place dans la lignée des récits qui illustrent la philosophie de l\'absurde.',
-          isBorrowed: false
+          estEmprunte: false,
+          syncStatus: 'synced' as const,
+          lastModified: new Date().toISOString(),
+          version: 1
         },
         {
-          title: 'Fondation',
-          author: 'Isaac Asimov',
+          auteur: 'Isaac Asimov',
+          titre: 'Fondation',
+          editeur: 'Denoël',
+          lieuEdition: 'Paris',
+          annee: '1951',
+          descripteurs: 'Science-Fiction, Futur, Empire galactique, Psychohistoire',
+          cote: 'SF-ASI-001',
           isbn: '978-2-253-00003-3',
-          category: 'Science-Fiction',
-          publishedDate: '1951',
           description: 'Premier tome du cycle de Fondation, une saga de science-fiction se déroulant dans un futur lointain.',
-          isBorrowed: false
+          estEmprunte: false,
+          syncStatus: 'synced' as const,
+          lastModified: new Date().toISOString(),
+          version: 1
+        },
+        {
+          auteur: 'Marie Curie',
+          titre: 'La Radioactivité',
+          editeur: 'Dunod',
+          lieuEdition: 'Paris',
+          annee: '1935',
+          descripteurs: 'Sciences, Physique, Radioactivité, Chimie',
+          cote: 'SCI-CUR-001',
+          description: 'Ouvrage fondamental sur la découverte et les applications de la radioactivité.',
+          estEmprunte: false,
+          syncStatus: 'synced' as const,
+          lastModified: new Date().toISOString(),
+          version: 1
+        },
+        {
+          auteur: 'Jules Verne',
+          titre: 'Vingt mille lieues sous les mers',
+          editeur: 'Hetzel',
+          lieuEdition: 'Paris',
+          annee: '1870',
+          descripteurs: 'Science-Fiction, Aventure, Sous-marins, Océan',
+          cote: 'SF-VER-001',
+          isbn: '978-2-253-00004-4',
+          description: 'Roman d\'aventures de Jules Verne décrivant les exploits du capitaine Nemo à bord du Nautilus.',
+          estEmprunte: false,
+          syncStatus: 'synced' as const,
+          lastModified: new Date().toISOString(),
+          version: 1
         }
       ];
 
@@ -207,9 +336,9 @@ export class DatabaseService {
         await this.addBorrower(borrower);
       }
 
-      // Ajouter les livres
-      for (const book of books) {
-        await this.addBook(book);
+      // Ajouter les documents
+      for (const document of documents) {
+        await this.addDocument(document);
       }
 
       console.log('Données d\'exemple ajoutées avec succès');
@@ -256,7 +385,7 @@ export class DatabaseService {
             reject(err);
           }
         } else {
-          resolve(this.lastID);
+          resolve(this.lastID || 0);
         }
       });
       
@@ -378,7 +507,7 @@ export class DatabaseService {
             reject(err);
           }
         } else {
-          resolve(this.lastID);
+          resolve(this.lastID || 0);
         }
       });
       
@@ -420,7 +549,7 @@ export class DatabaseService {
             reject(err);
           }
         } else {
-          resolve(this.changes > 0);
+          resolve((this.changes || 0) > 0);
         }
       });
       
@@ -562,7 +691,7 @@ export class DatabaseService {
                   reject(err);
                 } else {
                   db.run('COMMIT');
-                  resolve(this.changes > 0);
+                  resolve((this.changes || 0) > 0);
                 }
               });
               
@@ -926,6 +1055,383 @@ export class DatabaseService {
           });
         });
       });
+    });
+  }
+
+  // ===============================
+  // NOUVELLES MÉTHODES POUR DOCUMENTS
+  // ===============================
+
+  async getDocuments(): Promise<Document[]> {
+    return new Promise((resolve, reject) => {
+      this.db.all(`
+        SELECT 
+          d.*,
+          b.firstName as borrower_firstName,
+          b.lastName as borrower_lastName
+        FROM documents d
+        LEFT JOIN borrowers b ON d.emprunteurId = b.id
+        WHERE d.deletedAt IS NULL
+        ORDER BY d.lastModified DESC
+      `, (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          const documents = rows.map((row: any) => ({
+            id: row.id,
+            auteur: row.auteur,
+            titre: row.titre,
+            editeur: row.editeur,
+            lieuEdition: row.lieuEdition,
+            annee: row.annee,
+            descripteurs: row.descripteurs,
+            cote: row.cote,
+            isbn: row.isbn,
+            description: row.description,
+            couverture: row.couverture,
+            estEmprunte: Boolean(row.estEmprunte),
+            emprunteurId: row.emprunteurId,
+            dateEmprunt: row.dateEmprunt,
+            dateRetourPrevu: row.dateRetourPrevu,
+            dateRetour: row.dateRetour,
+            nomEmprunteur: row.borrower_firstName && row.borrower_lastName 
+              ? `${row.borrower_firstName} ${row.borrower_lastName}` 
+              : undefined,
+            localId: row.localId,
+            remoteId: row.remoteId,
+            syncStatus: row.syncStatus,
+            lastModified: row.lastModified,
+            version: row.version,
+            deletedAt: row.deletedAt,
+            createdAt: row.createdAt
+          }));
+          resolve(documents);
+        }
+      });
+    });
+  }
+
+  async addDocument(document: Omit<Document, 'id'>): Promise<number> {
+    return new Promise((resolve, reject) => {
+      const localId = `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const now = new Date().toISOString();
+      
+      const stmt = this.db.prepare(`
+        INSERT INTO documents (
+          auteur, titre, editeur, lieuEdition, annee, descripteurs, cote,
+          isbn, description, couverture, estEmprunte,
+          localId, syncStatus, lastModified, version, createdAt
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      
+      stmt.run([
+        document.auteur,
+        document.titre,
+        document.editeur,
+        document.lieuEdition,
+        document.annee,
+        document.descripteurs,
+        document.cote,
+        document.isbn || null,
+        document.description || null,
+        document.couverture || null,
+        document.estEmprunte ? 1 : 0,
+        localId,
+        'pending',
+        now,
+        1,
+        now
+      ], function(this: sqlite3.Statement & { lastID?: number }, err: SQLiteError | null) {
+        if (err) {
+          if (err.code === 'SQLITE_CONSTRAINT' && err.message && err.message.includes('UNIQUE constraint failed: documents.cote')) {
+            reject(new Error('Un document avec cette cote existe déjà'));
+          } else {
+            reject(err);
+          }
+        } else {
+          resolve(this.lastID || 0);
+        }
+      });
+      
+      stmt.finalize();
+    });
+  }
+
+  async updateDocument(document: Document): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      const now = new Date().toISOString();
+      
+      const stmt = this.db.prepare(`
+        UPDATE documents SET 
+          auteur = ?, titre = ?, editeur = ?, lieuEdition = ?, annee = ?, 
+          descripteurs = ?, cote = ?, isbn = ?, description = ?, couverture = ?,
+          lastModified = ?, version = version + 1, syncStatus = 'pending'
+        WHERE id = ? AND deletedAt IS NULL
+      `);
+      
+      stmt.run([
+        document.auteur,
+        document.titre,
+        document.editeur,
+        document.lieuEdition,
+        document.annee,
+        document.descripteurs,
+        document.cote,
+        document.isbn || null,
+        document.description || null,
+        document.couverture || null,
+        now,
+        document.id
+      ], function(this: sqlite3.Statement & { changes?: number }, err: SQLiteError | null) {
+        if (err) {
+          if (err.code === 'SQLITE_CONSTRAINT' && err.message && err.message.includes('UNIQUE constraint failed: documents.cote')) {
+            reject(new Error('Un autre document avec cette cote existe déjà'));
+          } else {
+            reject(err);
+          }
+        } else {
+          resolve((this.changes || 0) > 0);
+        }
+      });
+      
+      stmt.finalize();
+    });
+  }
+
+  async deleteDocument(id: number): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      const now = new Date().toISOString();
+      
+      // Soft delete
+      const stmt = this.db.prepare(`
+        UPDATE documents 
+        SET deletedAt = ?, lastModified = ?, syncStatus = 'pending', version = version + 1
+        WHERE id = ? AND deletedAt IS NULL
+      `);
+      
+      stmt.run([now, now, id], function(this: sqlite3.Statement & { changes?: number }, err: SQLiteError | null) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve((this.changes || 0) > 0);
+        }
+      });
+      
+      stmt.finalize();
+    });
+  }
+
+  async searchDocuments(query: string): Promise<Document[]> {
+    return new Promise((resolve, reject) => {
+      const searchTerm = `%${query.toLowerCase()}%`;
+      
+      this.db.all(`
+        SELECT 
+          d.*,
+          b.firstName as borrower_firstName,
+          b.lastName as borrower_lastName
+        FROM documents d
+        LEFT JOIN borrowers b ON d.emprunteurId = b.id
+        WHERE d.deletedAt IS NULL
+        AND (
+          LOWER(d.titre) LIKE ? OR 
+          LOWER(d.auteur) LIKE ? OR 
+          LOWER(d.editeur) LIKE ? OR
+          LOWER(d.descripteurs) LIKE ? OR
+          LOWER(d.cote) LIKE ? OR
+          LOWER(d.isbn) LIKE ?
+        )
+        ORDER BY d.lastModified DESC
+      `, [searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm], (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          const documents = rows.map((row: any) => ({
+            id: row.id,
+            auteur: row.auteur,
+            titre: row.titre,
+            editeur: row.editeur,
+            lieuEdition: row.lieuEdition,
+            annee: row.annee,
+            descripteurs: row.descripteurs,
+            cote: row.cote,
+            isbn: row.isbn,
+            description: row.description,
+            couverture: row.couverture,
+            estEmprunte: Boolean(row.estEmprunte),
+            emprunteurId: row.emprunteurId,
+            dateEmprunt: row.dateEmprunt,
+            dateRetourPrevu: row.dateRetourPrevu,
+            dateRetour: row.dateRetour,
+            nomEmprunteur: row.borrower_firstName && row.borrower_lastName 
+              ? `${row.borrower_firstName} ${row.borrower_lastName}` 
+              : undefined,
+            localId: row.localId,
+            remoteId: row.remoteId,
+            syncStatus: row.syncStatus,
+            lastModified: row.lastModified,
+            version: row.version,
+            deletedAt: row.deletedAt,
+            createdAt: row.createdAt
+          }));
+          resolve(documents);
+        }
+      });
+    });
+  }
+
+  // ===============================
+  // MÉTHODES DE SYNCHRONISATION
+  // ===============================
+
+  async getSyncQueue(): Promise<SyncOperation[]> {
+    return new Promise((resolve, reject) => {
+      this.db.all('SELECT * FROM sync_queue ORDER BY timestamp ASC', (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          const operations = rows.map((row: any) => ({
+            id: row.id,
+            type: row.type,
+            operation: row.operation,
+            data: JSON.parse(row.data),
+            timestamp: row.timestamp,
+            retryCount: row.retryCount,
+            maxRetries: row.maxRetries
+          }));
+          resolve(operations);
+        }
+      });
+    });
+  }
+
+  async addSyncOperation(operation: SyncOperation): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const stmt = this.db.prepare(`
+        INSERT INTO sync_queue (id, type, operation, data, timestamp, retryCount, maxRetries)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `);
+      
+      stmt.run([
+        operation.id,
+        operation.type,
+        operation.operation,
+        JSON.stringify(operation.data),
+        operation.timestamp,
+        operation.retryCount,
+        operation.maxRetries
+      ], (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+      
+      stmt.finalize();
+    });
+  }
+
+  async updateSyncOperation(operation: SyncOperation): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const stmt = this.db.prepare(`
+        UPDATE sync_queue 
+        SET retryCount = ?, data = ?, lastError = ?
+        WHERE id = ?
+      `);
+      
+      stmt.run([
+        operation.retryCount,
+        JSON.stringify(operation.data),
+        '', // lastError sera ajouté plus tard si nécessaire
+        operation.id
+      ], (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+      
+      stmt.finalize();
+    });
+  }
+
+  async removeSyncOperation(operationId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.db.run('DELETE FROM sync_queue WHERE id = ?', [operationId], (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
+
+  // Méthodes pour mettre à jour les IDs distants
+  async updateDocumentRemoteId(localId: string, remoteId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        'UPDATE documents SET remoteId = ?, syncStatus = "synced" WHERE localId = ?',
+        [remoteId, localId],
+        (err) => {
+          if (err) reject(err);
+          else resolve();
+        }
+      );
+    });
+  }
+
+  async updateAuthorRemoteId(localId: string, remoteId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        'UPDATE authors SET remoteId = ?, syncStatus = "synced" WHERE localId = ?',
+        [remoteId, localId],
+        (err) => {
+          if (err) reject(err);
+          else resolve();
+        }
+      );
+    });
+  }
+
+  async updateCategoryRemoteId(localId: string, remoteId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        'UPDATE categories SET remoteId = ?, syncStatus = "synced" WHERE localId = ?',
+        [remoteId, localId],
+        (err) => {
+          if (err) reject(err);
+          else resolve();
+        }
+      );
+    });
+  }
+
+  async updateBorrowerRemoteId(localId: string, remoteId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        'UPDATE borrowers SET remoteId = ?, syncStatus = "synced" WHERE localId = ?',
+        [remoteId, localId],
+        (err) => {
+          if (err) reject(err);
+          else resolve();
+        }
+      );
+    });
+  }
+
+  async updateBorrowHistoryRemoteId(localId: string, remoteId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        'UPDATE borrow_history SET remoteId = ?, syncStatus = "synced" WHERE localId = ?',
+        [remoteId, localId],
+        (err) => {
+          if (err) reject(err);
+          else resolve();
+        }
+      );
     });
   }
 }

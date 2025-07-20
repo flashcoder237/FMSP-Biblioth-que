@@ -1,0 +1,372 @@
+import React, { useState, useEffect } from 'react';
+import { Document, SyncStatus, NetworkStatus } from '../../preload';
+import { 
+  Search, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  BookOpen, 
+  User, 
+  Building, 
+  MapPin, 
+  Calendar, 
+  Tag, 
+  Hash,
+  Download,
+  Upload,
+  Wifi,
+  WifiOff,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  Loader2
+} from 'lucide-react';
+
+interface DocumentListProps {
+  documents: Document[];
+  onAdd: () => void;
+  onEdit: (document: Document) => void;
+  onDelete: (id: number) => void;
+  onRefresh: () => void;
+  syncStatus: SyncStatus;
+  networkStatus: NetworkStatus;
+}
+
+export const DocumentList: React.FC<DocumentListProps> = ({
+  documents,
+  onAdd,
+  onEdit,
+  onDelete,
+  onRefresh,
+  syncStatus,
+  networkStatus
+}) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedSyncStatus, setSelectedSyncStatus] = useState('all');
+  const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
+
+  useEffect(() => {
+    filterDocuments();
+  }, [documents, searchTerm, selectedCategory, selectedSyncStatus]);
+
+  const filterDocuments = () => {
+    let filtered = documents;
+
+    // Filtrage par terme de recherche
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(doc =>
+        doc.titre.toLowerCase().includes(term) ||
+        doc.auteur.toLowerCase().includes(term) ||
+        doc.editeur.toLowerCase().includes(term) ||
+        doc.descripteurs.toLowerCase().includes(term) ||
+        doc.cote.toLowerCase().includes(term) ||
+        (doc.isbn && doc.isbn.toLowerCase().includes(term))
+      );
+    }
+
+    // Filtrage par catégorie (utilise les descripteurs)
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(doc =>
+        doc.descripteurs.toLowerCase().includes(selectedCategory.toLowerCase())
+      );
+    }
+
+    // Filtrage par statut de sync
+    if (selectedSyncStatus !== 'all') {
+      filtered = filtered.filter(doc => doc.syncStatus === selectedSyncStatus);
+    }
+
+    setFilteredDocuments(filtered);
+  };
+
+  const getUniqueCategories = () => {
+    const categories = new Set<string>();
+    documents.forEach(doc => {
+      doc.descripteurs.split(',').forEach(desc => {
+        categories.add(desc.trim());
+      });
+    });
+    return Array.from(categories).sort();
+  };
+
+  const getSyncStatusIcon = (status: Document['syncStatus']) => {
+    switch (status) {
+      case 'synced':
+        return <CheckCircle className="w-4 h-4 text-green-500" title="Synchronisé" />;
+      case 'pending':
+        return <Clock className="w-4 h-4 text-yellow-500" title="En attente de synchronisation" />;
+      case 'error':
+        return <AlertCircle className="w-4 h-4 text-red-500" title="Erreur de synchronisation" />;
+      case 'conflict':
+        return <AlertCircle className="w-4 h-4 text-orange-500" title="Conflit de synchronisation" />;
+      default:
+        return <Clock className="w-4 h-4 text-gray-500" />;
+    }
+  };
+
+  const getNetworkStatusDisplay = () => {
+    return (
+      <div className="flex items-center gap-2 text-sm">
+        {networkStatus.isOnline ? (
+          <div className="flex items-center gap-1 text-green-600">
+            <Wifi className="w-4 h-4" />
+            En ligne
+          </div>
+        ) : (
+          <div className="flex items-center gap-1 text-red-600">
+            <WifiOff className="w-4 h-4" />
+            Hors ligne
+          </div>
+        )}
+        
+        {syncStatus.syncInProgress && (
+          <div className="flex items-center gap-1 text-blue-600">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Synchronisation...
+          </div>
+        )}
+        
+        {syncStatus.pendingOperations > 0 && (
+          <div className="text-orange-600">
+            {syncStatus.pendingOperations} en attente
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* En-tête avec statuts */}
+      <div className="bg-white rounded-lg shadow-sm border p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <BookOpen className="w-6 h-6 text-blue-500" />
+              Documents ({filteredDocuments.length})
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Gestion de la collection documentaire
+            </p>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            {getNetworkStatusDisplay()}
+            
+            <button
+              onClick={onAdd}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Nouveau document
+            </button>
+          </div>
+        </div>
+        
+        {syncStatus.lastSync && (
+          <div className="mt-2 text-sm text-gray-500">
+            Dernière synchronisation: {new Date(syncStatus.lastSync).toLocaleString('fr-FR')}
+          </div>
+        )}
+      </div>
+
+      {/* Filtres */}
+      <div className="bg-white rounded-lg shadow-sm border p-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Rechercher
+            </label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Titre, auteur, éditeur, cote, ISBN..."
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Catégorie
+            </label>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">Toutes les catégories</option>
+              {getUniqueCategories().map(category => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Statut sync
+            </label>
+            <select
+              value={selectedSyncStatus}
+              onChange={(e) => setSelectedSyncStatus(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">Tous les statuts</option>
+              <option value="synced">Synchronisé</option>
+              <option value="pending">En attente</option>
+              <option value="error">Erreur</option>
+              <option value="conflict">Conflit</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Liste des documents */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredDocuments.map((document) => (
+          <div key={document.id} className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            {/* Image de couverture */}
+            {document.couverture && (
+              <div className="h-48 bg-gray-100 rounded-t-lg overflow-hidden">
+                <img
+                  src={document.couverture}
+                  alt={`Couverture de ${document.titre}`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+            
+            <div className="p-4">
+              {/* En-tête avec statut de sync */}
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-gray-800 truncate" title={document.titre}>
+                    {document.titre}
+                  </h3>
+                  <p className="text-sm text-gray-600 truncate" title={document.auteur}>
+                    <User className="w-3 h-3 inline mr-1" />
+                    {document.auteur}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1 ml-2">
+                  {getSyncStatusIcon(document.syncStatus)}
+                  {document.estEmprunte && (
+                    <div className="w-2 h-2 bg-orange-500 rounded-full" title="Emprunté" />
+                  )}
+                </div>
+              </div>
+
+              {/* Informations détaillées */}
+              <div className="space-y-2 text-sm text-gray-600">
+                <div className="flex items-center gap-1 truncate">
+                  <Building className="w-3 h-3 flex-shrink-0" />
+                  <span className="truncate">{document.editeur}</span>
+                </div>
+                
+                <div className="flex items-center gap-1 truncate">
+                  <MapPin className="w-3 h-3 flex-shrink-0" />
+                  <span className="truncate">{document.lieuEdition}</span>
+                </div>
+                
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-3 h-3 flex-shrink-0" />
+                  <span>{document.annee}</span>
+                </div>
+                
+                <div className="flex items-center gap-1 truncate">
+                  <Hash className="w-3 h-3 flex-shrink-0" />
+                  <span className="font-mono text-xs truncate">{document.cote}</span>
+                </div>
+                
+                <div className="flex items-start gap-1">
+                  <Tag className="w-3 h-3 flex-shrink-0 mt-0.5" />
+                  <div className="flex flex-wrap gap-1 min-w-0">
+                    {document.descripteurs.split(',').slice(0, 3).map((desc, index) => (
+                      <span
+                        key={index}
+                        className="inline-block bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full truncate max-w-20"
+                        title={desc.trim()}
+                      >
+                        {desc.trim()}
+                      </span>
+                    ))}
+                    {document.descripteurs.split(',').length > 3 && (
+                      <span className="text-xs text-gray-500">
+                        +{document.descripteurs.split(',').length - 3}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Description si disponible */}
+              {document.description && (
+                <p className="text-sm text-gray-600 mt-3 line-clamp-2" title={document.description}>
+                  {document.description}
+                </p>
+              )}
+
+              {/* Actions */}
+              <div className="flex justify-between items-center mt-4 pt-3 border-t">
+                <div className="text-xs text-gray-500">
+                  v{document.version} • {new Date(document.lastModified).toLocaleDateString('fr-FR')}
+                </div>
+                
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => onEdit(document)}
+                    className="p-1.5 text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded transition-colors"
+                    title="Modifier"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => document.id && onDelete(document.id)}
+                    className="p-1.5 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                    title="Supprimer"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Message si aucun document */}
+      {filteredDocuments.length === 0 && (
+        <div className="text-center py-12">
+          <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-600 mb-2">
+            {searchTerm || selectedCategory !== 'all' || selectedSyncStatus !== 'all'
+              ? 'Aucun document trouvé'
+              : 'Aucun document dans la collection'
+            }
+          </h3>
+          <p className="text-gray-500 mb-6">
+            {searchTerm || selectedCategory !== 'all' || selectedSyncStatus !== 'all'
+              ? 'Essayez de modifier vos critères de recherche'
+              : 'Commencez par ajouter votre premier document à la bibliothèque'
+            }
+          </p>
+          <button
+            onClick={onAdd}
+            className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2 mx-auto"
+          >
+            <Plus className="w-4 h-4" />
+            Ajouter un document
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};

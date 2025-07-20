@@ -1,22 +1,41 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
-export interface Book {
+export interface Document {
   id?: number;
-  title: string;
-  author: string;
-  isbn: string;
-  category: string;
-  publishedDate: string;
-  description: string;
-  coverUrl?: string;
-  isBorrowed: boolean;
-  borrowerId?: number;
-  borrowDate?: string;
-  expectedReturnDate?: string;
-  returnDate?: string;
-  borrowerName?: string;
+  // Champs principaux requis
+  auteur: string;           // AUTEUR
+  titre: string;            // TITRE  
+  editeur: string;          // EDITEUR
+  lieuEdition: string;      // LIEU D'EDITION
+  annee: string;            // ANNEE
+  descripteurs: string;     // DESCRIPTEURS (mots-clés séparés par des virgules)
+  cote: string;             // COTE (référence de classification)
+  
+  // Champs optionnels
+  isbn?: string;
+  description?: string;
+  couverture?: string;
+  
+  // Statut d'emprunt
+  estEmprunte: boolean;
+  emprunteurId?: number;
+  dateEmprunt?: string;
+  dateRetourPrevu?: string;
+  dateRetour?: string;
+  nomEmprunteur?: string;
+  
+  // Métadonnées de synchronisation
+  localId?: string;         // ID unique local pour la sync
+  remoteId?: string;        // ID sur le serveur distant
+  syncStatus: 'synced' | 'pending' | 'conflict' | 'error';
+  lastModified: string;     // Timestamp de dernière modification
+  version: number;          // Version pour gérer les conflits
+  deletedAt?: string;       // Soft delete
   createdAt?: string;
 }
+
+// Alias pour compatibilité ascendante
+export interface Book extends Document {}
 
 export interface Author {
   id?: number;
@@ -24,6 +43,14 @@ export interface Author {
   biography?: string;
   birthDate?: string;
   nationality?: string;
+  // Synchronisation
+  localId?: string;
+  remoteId?: string;
+  syncStatus: 'synced' | 'pending' | 'conflict' | 'error';
+  lastModified: string;
+  version: number;
+  deletedAt?: string;
+  createdAt?: string;
 }
 
 export interface Category {
@@ -31,6 +58,14 @@ export interface Category {
   name: string;
   description?: string;
   color?: string;
+  // Synchronisation
+  localId?: string;
+  remoteId?: string;
+  syncStatus: 'synced' | 'pending' | 'conflict' | 'error';
+  lastModified: string;
+  version: number;
+  deletedAt?: string;
+  createdAt?: string;
 }
 
 export interface Borrower {
@@ -46,6 +81,13 @@ export interface Borrower {
   position?: string;
   email?: string;
   phone?: string;
+  // Synchronisation
+  localId?: string;
+  remoteId?: string;
+  syncStatus: 'synced' | 'pending' | 'conflict' | 'error';
+  lastModified: string;
+  version: number;
+  deletedAt?: string;
   createdAt?: string;
 }
 
@@ -58,6 +100,13 @@ export interface BorrowHistory {
   actualReturnDate?: string;
   status: 'active' | 'returned' | 'overdue';
   notes?: string;
+  // Synchronisation
+  localId?: string;
+  remoteId?: string;
+  syncStatus: 'synced' | 'pending' | 'conflict' | 'error';
+  lastModified: string;
+  version: number;
+  deletedAt?: string;
   createdAt?: string;
   // Relations
   book?: Book;
@@ -137,6 +186,51 @@ export interface AuthResponse {
     lastLogin: string;
   };
   error?: string;
+}
+
+// Interfaces pour la synchronisation
+export interface SyncStatus {
+  isOnline: boolean;
+  lastSync: string | null;
+  pendingOperations: number;
+  syncInProgress: boolean;
+  errors: SyncError[];
+}
+
+export interface SyncError {
+  id: string;
+  type: 'document' | 'author' | 'category' | 'borrower' | 'history';
+  operation: 'create' | 'update' | 'delete';
+  entityId: string;
+  error: string;
+  timestamp: string;
+  retryCount: number;
+}
+
+export interface SyncOperation {
+  id: string;
+  type: 'document' | 'author' | 'category' | 'borrower' | 'history';
+  operation: 'create' | 'update' | 'delete';
+  data: any;
+  timestamp: string;
+  retryCount: number;
+  maxRetries: number;
+}
+
+export interface NetworkStatus {
+  isOnline: boolean;
+  connectionType: 'wifi' | 'ethernet' | 'cellular' | 'none';
+  speed?: 'slow' | 'medium' | 'fast';
+  lastChecked: string;
+}
+
+export interface ConflictResolution {
+  entityType: 'document' | 'author' | 'category' | 'borrower' | 'history';
+  entityId: string;
+  localVersion: any;
+  remoteVersion: any;
+  resolution: 'use_local' | 'use_remote' | 'merge' | 'manual';
+  resolvedData?: any;
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -228,6 +322,23 @@ contextBridge.exposeInMainWorld('electronAPI', {
   
   // Advanced statistics
   getAdvancedStats: (): Promise<any> => ipcRenderer.invoke('stats:advanced'),
+  
+  // Synchronization operations
+  getSyncStatus: (): Promise<SyncStatus> => ipcRenderer.invoke('sync:status'),
+  startSync: (): Promise<void> => ipcRenderer.invoke('sync:start'),
+  pauseSync: (): Promise<void> => ipcRenderer.invoke('sync:pause'),
+  getNetworkStatus: (): Promise<NetworkStatus> => ipcRenderer.invoke('network:status'),
+  resolveConflict: (resolution: ConflictResolution): Promise<boolean> => ipcRenderer.invoke('sync:resolve-conflict', resolution),
+  getSyncErrors: (): Promise<SyncError[]> => ipcRenderer.invoke('sync:errors'),
+  retrySyncOperation: (operationId: string): Promise<boolean> => ipcRenderer.invoke('sync:retry', operationId),
+  clearSyncErrors: (): Promise<void> => ipcRenderer.invoke('sync:clear-errors'),
+  
+  // Document operations (remplace Books)
+  getDocuments: (): Promise<Document[]> => ipcRenderer.invoke('db:getDocuments'),
+  addDocument: (document: Omit<Document, 'id'>): Promise<number> => ipcRenderer.invoke('db:addDocument', document),
+  updateDocument: (document: Document): Promise<boolean> => ipcRenderer.invoke('db:updateDocument', document),
+  deleteDocument: (id: number): Promise<boolean> => ipcRenderer.invoke('db:deleteDocument', id),
+  searchDocuments: (query: string): Promise<Document[]> => ipcRenderer.invoke('db:searchDocuments', query),
 });
 
 declare global {
@@ -309,6 +420,23 @@ declare global {
       // Theme
       setTheme: (theme: string) => Promise<void>;
       getTheme: () => Promise<string>;
+      
+      // Synchronization
+      getSyncStatus: () => Promise<SyncStatus>;
+      startSync: () => Promise<void>;
+      pauseSync: () => Promise<void>;
+      getNetworkStatus: () => Promise<NetworkStatus>;
+      resolveConflict: (resolution: ConflictResolution) => Promise<boolean>;
+      getSyncErrors: () => Promise<SyncError[]>;
+      retrySyncOperation: (operationId: string) => Promise<boolean>;
+      clearSyncErrors: () => Promise<void>;
+      
+      // Documents (nouveau modèle)
+      getDocuments: () => Promise<Document[]>;
+      addDocument: (document: Omit<Document, 'id'>) => Promise<number>;
+      updateDocument: (document: Document) => Promise<boolean>;
+      deleteDocument: (id: number) => Promise<boolean>;
+      searchDocuments: (query: string) => Promise<Document[]>;
     };
   }
 }

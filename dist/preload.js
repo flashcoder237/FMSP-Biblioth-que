@@ -67,4 +67,19 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     getTheme: () => electron_1.ipcRenderer.invoke('theme:get'),
     // Advanced statistics
     getAdvancedStats: () => electron_1.ipcRenderer.invoke('stats:advanced'),
+    // Synchronization operations
+    getSyncStatus: () => electron_1.ipcRenderer.invoke('sync:status'),
+    startSync: () => electron_1.ipcRenderer.invoke('sync:start'),
+    pauseSync: () => electron_1.ipcRenderer.invoke('sync:pause'),
+    getNetworkStatus: () => electron_1.ipcRenderer.invoke('network:status'),
+    resolveConflict: (resolution) => electron_1.ipcRenderer.invoke('sync:resolve-conflict', resolution),
+    getSyncErrors: () => electron_1.ipcRenderer.invoke('sync:errors'),
+    retrySyncOperation: (operationId) => electron_1.ipcRenderer.invoke('sync:retry', operationId),
+    clearSyncErrors: () => electron_1.ipcRenderer.invoke('sync:clear-errors'),
+    // Document operations (remplace Books)
+    getDocuments: () => electron_1.ipcRenderer.invoke('db:getDocuments'),
+    addDocument: (document) => electron_1.ipcRenderer.invoke('db:addDocument', document),
+    updateDocument: (document) => electron_1.ipcRenderer.invoke('db:updateDocument', document),
+    deleteDocument: (id) => electron_1.ipcRenderer.invoke('db:deleteDocument', id),
+    searchDocuments: (query) => electron_1.ipcRenderer.invoke('db:searchDocuments', query),
 });
