@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "commonjs",
-    "lib": ["ES2020", "DOM"],
+    "lib": ["ES2020"],
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
@@ -11,21 +11,18 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "jsx": "react-jsx",
     "resolveJsonModule": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
     "sourceMap": true,
-    "declaration": false,
-    "removeComments": false
+    "declaration": false
   },
   "include": [
-    "src/**/*"
+    "src/main.ts",
+    "src/preload.ts",
+    "src/services/**/*"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "src/renderer/**/*",
-    "tsconfig.renderer.json"
+    "src/renderer/**/*"
   ]
 }

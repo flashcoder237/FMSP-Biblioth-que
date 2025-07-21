@@ -3,6 +3,11 @@ import * as path from 'path';
 import { app } from 'electron';
 import { Document, Book, Author, Category, Stats, Borrower, BorrowHistory, HistoryFilter, SyncOperation, createBookFromDocument } from '../preload';
 
+interface SQLiteRunResult {
+  lastID: number;
+  changes: number;
+}
+
 
 // Interface pour les erreurs SQLite
 interface SQLiteError extends Error {
@@ -513,44 +518,43 @@ export class DatabaseService {
   
 
   // Gestion des emprunts
-  async borrowBook(bookId: number, borrowerId: number, expectedReturnDate: string): Promise<number> {
+ async borrowBook(bookId: number, borrowerId: number, expectedReturnDate: string): Promise<number> {
   return new Promise((resolve, reject) => {
     const borrowDate = new Date().toISOString();
-    const db = this.db; // capture this.db
+    const database = this.db; // Capturer this.db dans une variable locale
     
-    this.db.serialize(() => {
-      db.run('BEGIN TRANSACTION');
+    database.serialize(() => {
+      database.run('BEGIN TRANSACTION');
       
-      // Use function expression for callback to access stmt1.lastID
-      const stmt1 = db.prepare(`
+      const stmt1 = database.prepare(`
         INSERT INTO borrow_history (bookId, borrowerId, borrowDate, expectedReturnDate, status)
         VALUES (?, ?, ?, ?, 'active')
       `);
       
-      stmt1.run([bookId, borrowerId, borrowDate, expectedReturnDate], function(err) {
+      stmt1.run([bookId, borrowerId, borrowDate, expectedReturnDate], function(this: sqlite3.RunResult, err: Error | null) {
         if (err) {
-          db.run('ROLLBACK'); // use captured db
+          database.run('ROLLBACK');
           reject(err);
           return;
         }
         
-        const historyId = this.lastID; // this refers to Statement
+        const historyId = this.lastID;
         
-        const stmt2 = db.prepare(`
-          UPDATE books SET 
-            isBorrowed = 1, 
-            borrowerId = ?, 
-            borrowDate = ?, 
-            expectedReturnDate = ?
+        const stmt2 = database.prepare(`
+          UPDATE documents SET 
+            estEmprunte = 1, 
+            emprunteurId = ?, 
+            dateEmprunt = ?, 
+            dateRetourPrevu = ?
           WHERE id = ?
         `);
         
-        stmt2.run([borrowerId, borrowDate, expectedReturnDate, bookId], (err) => {
+        stmt2.run([borrowerId, borrowDate, expectedReturnDate, bookId], (err: Error | null) => {
           if (err) {
-            db.run('ROLLBACK');
+            database.run('ROLLBACK');
             reject(err);
           } else {
-            db.run('COMMIT');
+            database.run('COMMIT');
             resolve(historyId);
           }
         });
@@ -564,74 +568,71 @@ export class DatabaseService {
 }
 
   async returnBook(borrowHistoryId: number, notes?: string): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      const returnDate = new Date().toISOString();
-      const db = this.db; // capture this.db
+  return new Promise((resolve, reject) => {
+    const returnDate = new Date().toISOString();
+    const database = this.db; // Capturer this.db dans une variable locale
+    
+    database.serialize(() => {
+      database.run('BEGIN TRANSACTION');
       
-      db.serialize(() => {
-        db.run('BEGIN TRANSACTION');
+      database.get('SELECT bookId FROM borrow_history WHERE id = ?', [borrowHistoryId], (err: Error | null, row: any) => {
+        if (err) {
+          database.run('ROLLBACK');
+          reject(err);
+          return;
+        }
         
-        // Récupérer les infos de l'emprunt
-        db.get('SELECT bookId FROM borrow_history WHERE id = ?', [borrowHistoryId], (err: any, row: any) => {
+        if (!row) {
+          database.run('ROLLBACK');
+          reject(new Error('Emprunt non trouvé'));
+          return;
+        }
+        
+        const bookId = row.bookId;
+        
+        const stmt1 = database.prepare(`
+          UPDATE borrow_history SET 
+            actualReturnDate = ?, 
+            status = 'returned',
+            notes = ?
+          WHERE id = ?
+        `);
+        
+        stmt1.run([returnDate, notes || null, borrowHistoryId], function(this: sqlite3.RunResult, err: Error | null) {
           if (err) {
-            db.run('ROLLBACK');
+            database.run('ROLLBACK');
             reject(err);
             return;
           }
           
-          if (!row) {
-            db.run('ROLLBACK');
-            reject(new Error('Emprunt non trouvé'));
-            return;
-          }
-          
-          const bookId = row.bookId;
-          
-          // Mettre à jour l'historique
-          const stmt1 = db.prepare(`
-            UPDATE borrow_history SET 
-              actualReturnDate = ?, 
-              status = 'returned',
-              notes = ?
+          const stmt2 = database.prepare(`
+            UPDATE documents SET 
+              estEmprunte = 0, 
+              emprunteurId = NULL, 
+              dateEmprunt = NULL,
+              dateRetourPrevu = NULL,
+              dateRetour = ?
             WHERE id = ?
           `);
           
-            stmt1.run([returnDate, notes || null, borrowHistoryId], function(this: sqlite3.Statement & { changes?: number }, err: any) {
-              if (err) {
-                db.run('ROLLBACK');
-                reject(err);
-                return;
-              }
-              
-              // Mettre à jour le livre
-              const stmt2 = db.prepare(`
-                UPDATE books SET 
-                  isBorrowed = 0, 
-                  borrowerId = NULL, 
-                  borrowDate = NULL,
-                  expectedReturnDate = NULL,
-                  returnDate = ?
-                WHERE id = ?
-              `);
-              
-              stmt2.run([returnDate, bookId], function(this: sqlite3.Statement & { changes?: number }, err: any) {
-                if (err) {
-                  db.run('ROLLBACK');
-                  reject(err);
-                } else {
-                  db.run('COMMIT');
-                  resolve((this.changes || 0) > 0);
-                }
-              });
-              
-              stmt2.finalize();
-            });
+          stmt2.run([returnDate, bookId], function(this: sqlite3.RunResult, err: Error | null) {
+            if (err) {
+              database.run('ROLLBACK');
+              reject(err);
+            } else {
+              database.run('COMMIT');
+              resolve((this.changes || 0) > 0);
+            }
+          });
           
-          stmt1.finalize();
+          stmt2.finalize();
         });
+        
+        stmt1.finalize();
       });
     });
-  }
+  });
+}
 
   async getBorrowedBooks(): Promise<BorrowHistory[]> {
     return new Promise((resolve, reject) => {
@@ -956,73 +957,73 @@ export class DatabaseService {
   }
 
   async getStats(): Promise<Stats> {
-    return new Promise((resolve, reject) => {
-      this.db.serialize(() => {
-        const stats: Partial<Stats> = {};
+  return new Promise((resolve, reject) => {
+    this.db.serialize(() => {
+      const stats: Partial<Stats> = {};
+      
+      // Utiliser documents au lieu de books
+      this.db.get('SELECT COUNT(*) as count FROM documents WHERE deletedAt IS NULL', (err: Error | null, row: any) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        stats.totalBooks = row.count || 0;
         
-        this.db.get('SELECT COUNT(*) as count FROM books', (err, row: any) => {
+        this.db.get('SELECT COUNT(*) as count FROM documents WHERE estEmprunte = 1 AND deletedAt IS NULL', (err: Error | null, row: any) => {
           if (err) {
             reject(err);
             return;
           }
-          stats.totalBooks = row.count || 0;
+          stats.borrowedBooks = row.count || 0;
+          stats.availableBooks = (stats.totalBooks || 0) - (stats.borrowedBooks || 0);
           
-          this.db.get('SELECT COUNT(*) as count FROM books WHERE isBorrowed = 1', (err, row: any) => {
+          this.db.get('SELECT COUNT(*) as count FROM authors WHERE deletedAt IS NULL', (err: Error | null, row: any) => {
             if (err) {
               reject(err);
               return;
             }
-            stats.borrowedBooks = row.count || 0;
-            stats.availableBooks = (stats.totalBooks || 0) - (stats.borrowedBooks || 0);
+            stats.totalAuthors = row.count || 0;
             
-            this.db.get('SELECT COUNT(*) as count FROM authors', (err, row: any) => {
+            this.db.get('SELECT COUNT(*) as count FROM categories WHERE deletedAt IS NULL', (err: Error | null, row: any) => {
               if (err) {
                 reject(err);
                 return;
               }
-              stats.totalAuthors = row.count || 0;
+              stats.totalCategories = row.count || 0;
               
-              this.db.get('SELECT COUNT(*) as count FROM categories', (err, row: any) => {
+              this.db.get('SELECT COUNT(*) as count FROM borrowers WHERE deletedAt IS NULL', (err: Error | null, row: any) => {
                 if (err) {
                   reject(err);
                   return;
                 }
-                stats.totalCategories = row.count || 0;
+                stats.totalBorrowers = row.count || 0;
                 
-                this.db.get('SELECT COUNT(*) as count FROM borrowers', (err, row: any) => {
+                this.db.get('SELECT COUNT(*) as count FROM borrowers WHERE type = "student" AND deletedAt IS NULL', (err: Error | null, row: any) => {
                   if (err) {
                     reject(err);
                     return;
                   }
-                  stats.totalBorrowers = row.count || 0;
+                  stats.totalStudents = row.count || 0;
                   
-                  this.db.get('SELECT COUNT(*) as count FROM borrowers WHERE type = "student"', (err, row: any) => {
+                  this.db.get('SELECT COUNT(*) as count FROM borrowers WHERE type = "staff" AND deletedAt IS NULL', (err: Error | null, row: any) => {
                     if (err) {
                       reject(err);
                       return;
                     }
-                    stats.totalStudents = row.count || 0;
+                    stats.totalStaff = row.count || 0;
                     
-                    this.db.get('SELECT COUNT(*) as count FROM borrowers WHERE type = "staff"', (err, row: any) => {
+                    // Compter les livres en retard
+                    const now = new Date().toISOString();
+                    this.db.get(`
+                      SELECT COUNT(*) as count FROM borrow_history 
+                      WHERE status = 'active' AND expectedReturnDate < ? AND deletedAt IS NULL
+                    `, [now], (err: Error | null, row: any) => {
                       if (err) {
                         reject(err);
                         return;
                       }
-                      stats.totalStaff = row.count || 0;
-                      
-                      // Compter les livres en retard
-                      const now = new Date().toISOString();
-                      this.db.get(`
-                        SELECT COUNT(*) as count FROM borrow_history 
-                        WHERE status = 'active' AND expectedReturnDate < ?
-                      `, [now], (err, row: any) => {
-                        if (err) {
-                          reject(err);
-                          return;
-                        }
-                        stats.overdueBooks = row.count || 0;
-                        resolve(stats as Stats);
-                      });
+                      stats.overdueBooks = row.count || 0;
+                      resolve(stats as Stats);
                     });
                   });
                 });
@@ -1032,7 +1033,8 @@ export class DatabaseService {
         });
       });
     });
-  }
+  });
+}
 
   // Méthode pour nettoyer la base de données (utile pour les tests)
   async clearDatabase(): Promise<void> {

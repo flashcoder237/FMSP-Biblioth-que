@@ -7,6 +7,7 @@ import { BackupService } from './services/BackupService';
 import { AuthService } from './services/AuthService';
 import { ApplicationSettings, SettingsService } from './services/SettingsService';
 import { AuthCredentials } from './preload';
+import { RunResult } from 'sqlite3';
 
 let mainWindow: BrowserWindow;
 let dbService: DatabaseService;
@@ -565,6 +566,8 @@ async function createPrintWindow(data: any, type: string): Promise<boolean> {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
+        // IMPORTANT: Garder sandbox: false pour SQLite3
+        sandbox: false
       }
     });
 
@@ -576,12 +579,9 @@ async function createPrintWindow(data: any, type: string): Promise<boolean> {
       printWindow.webContents.print({
         silent: false,
         printBackground: true,
-        margins: {
-          marginType: 'default'
-        }
       }, (success, failureReason) => {
         printWindow.close();
-        if (!success) {
+        if (!success && failureReason) {
           console.error('Print failed:', failureReason);
         }
         resolve(success);

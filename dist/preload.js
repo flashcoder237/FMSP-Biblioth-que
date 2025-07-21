@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createDocumentFromBook = exports.createBookFromDocument = void 0;
-// src/preload.ts - Version corrigée pour Electron
 const electron_1 = require("electron");
 // Debug amélioré
 console.log('=== Preload Script Debug ===');
@@ -240,6 +239,17 @@ const electronAPI = {
     retrySyncOperation: (operationId) => electron_1.ipcRenderer?.invoke('sync:retry', operationId) || Promise.resolve(false),
     clearSyncErrors: () => electron_1.ipcRenderer?.invoke('sync:clear-errors') || Promise.resolve()
 };
+// Type guard pour vérifier si nous sommes dans un environnement qui a accès à la fenêtre
+function hasWindowAccess() {
+    try {
+        return typeof globalThis !== 'undefined' &&
+            'window' in globalThis &&
+            globalThis.window !== undefined;
+    }
+    catch {
+        return false;
+    }
+}
 // Exposer l'API seulement si contextBridge est disponible
 if (typeof electron_1.contextBridge !== 'undefined' && typeof electron_1.ipcRenderer !== 'undefined') {
     try {
@@ -248,15 +258,22 @@ if (typeof electron_1.contextBridge !== 'undefined' && typeof electron_1.ipcRend
     }
     catch (error) {
         console.error('❌ Failed to expose electronAPI:', error);
-        // Fallback: exposer directement sur window (moins sécurisé mais fonctionnel)
-        window.electronAPI = electronAPI;
-        console.log('⚠️ electronAPI exposed directly on window (fallback)');
+        // Fallback: exposer directement sur globalThis si disponible
+        if (hasWindowAccess()) {
+            globalThis.window.electronAPI = electronAPI;
+            console.log('⚠️ electronAPI exposed directly on window (fallback)');
+        }
     }
 }
 else {
     console.warn('⚠️ contextBridge or ipcRenderer not available, using fallback');
     // Fallback pour les environnements où contextBridge n'est pas disponible
-    window.electronAPI = electronAPI;
-    console.log('⚠️ electronAPI exposed directly on window (no contextBridge)');
+    if (hasWindowAccess()) {
+        globalThis.window.electronAPI = electronAPI;
+        console.log('⚠️ electronAPI exposed directly on window (no contextBridge)');
+    }
+    else {
+        console.error('❌ Window object not available');
+    }
 }
 //# sourceMappingURL=preload.js.map

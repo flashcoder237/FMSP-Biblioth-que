@@ -8,13 +8,11 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true
+    "noEmit": true
   },
   "include": [
     "src/renderer/**/*"

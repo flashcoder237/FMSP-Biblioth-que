@@ -1,4 +1,10 @@
 // src/preload.ts - Version corrigée pour Electron
+declare global {
+  interface Window {
+    electronAPI: typeof electronAPI;
+  }
+}
+
 import { contextBridge, ipcRenderer } from 'electron';
 
 // Debug amélioré
@@ -521,6 +527,17 @@ const electronAPI = {
   clearSyncErrors: (): Promise<void> => ipcRenderer?.invoke('sync:clear-errors') || Promise.resolve()
 };
 
+// Type guard pour vérifier si nous sommes dans un environnement qui a accès à la fenêtre
+function hasWindowAccess(): boolean {
+  try {
+    return typeof globalThis !== 'undefined' && 
+           'window' in globalThis && 
+           (globalThis as any).window !== undefined;
+  } catch {
+    return false;
+  }
+}
+
 // Exposer l'API seulement si contextBridge est disponible
 if (typeof contextBridge !== 'undefined' && typeof ipcRenderer !== 'undefined') {
   try {
@@ -528,19 +545,19 @@ if (typeof contextBridge !== 'undefined' && typeof ipcRenderer !== 'undefined') 
     console.log('✅ electronAPI exposed via contextBridge');
   } catch (error) {
     console.error('❌ Failed to expose electronAPI:', error);
-    // Fallback: exposer directement sur window (moins sécurisé mais fonctionnel)
-    (window as any).electronAPI = electronAPI;
-    console.log('⚠️ electronAPI exposed directly on window (fallback)');
+    // Fallback: exposer directement sur globalThis si disponible
+    if (hasWindowAccess()) {
+      (globalThis as any).window.electronAPI = electronAPI;
+      console.log('⚠️ electronAPI exposed directly on window (fallback)');
+    }
   }
 } else {
   console.warn('⚠️ contextBridge or ipcRenderer not available, using fallback');
   // Fallback pour les environnements où contextBridge n'est pas disponible
-  (window as any).electronAPI = electronAPI;
-  console.log('⚠️ electronAPI exposed directly on window (no contextBridge)');
-}
-
-declare global {
-  interface Window {
-    electronAPI: typeof electronAPI;
+  if (hasWindowAccess()) {
+    (globalThis as any).window.electronAPI = electronAPI;
+    console.log('⚠️ electronAPI exposed directly on window (no contextBridge)');
+  } else {
+    console.error('❌ Window object not available');
   }
 }

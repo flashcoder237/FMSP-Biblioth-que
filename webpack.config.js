@@ -3,54 +3,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
-// Common configuration for all targets
-const commonConfig = {
-  mode: isDevelopment ? 'development' : 'production',
-  devtool: isDevelopment ? 'eval-source-map' : 'source-map',
-  resolve: {
-    extensions: ['.tsx', '.ts', '.js', '.jsx'],
-    alias: {
-      '@': path.resolve(__dirname, 'src'),
-      '@renderer': path.resolve(__dirname, 'src/renderer'),
-      '@services': path.resolve(__dirname, 'src/services'),
-    },
-  },
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        use: [
-          {
-            loader: 'ts-loader',
-            options: {
-              transpileOnly: isDevelopment,
-              configFile: path.resolve(__dirname, 'tsconfig.json'),
-            },
-          },
-        ],
-        exclude: /node_modules/,
-      },
-      {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
-      },
-      {
-        test: /\.(png|jpe?g|gif|svg|ico)$/,
-        type: 'asset/resource',
-        generator: {
-          filename: 'assets/images/[name][ext]',
-        },
-      },
-    ],
-  },
-  stats: {
-    errorDetails: true,
-  },
-};
-
-// Main process configuration
+// Configuration pour le processus main
 const mainConfig = {
-  ...commonConfig,
+  mode: isDevelopment ? 'development' : 'production',
   entry: './src/main.ts',
   target: 'electron-main',
   output: {
@@ -59,17 +14,33 @@ const mainConfig = {
     clean: false,
   },
   externals: {
+    // IMPORTANT: Externaliser SQLite3 et autres modules natifs
     'sqlite3': 'commonjs sqlite3',
+    'archiver': 'commonjs archiver',
+    'extract-zip': 'commonjs extract-zip',
+    'yauzl': 'commonjs yauzl',
   },
   node: {
     __dirname: false,
     __filename: false,
   },
+  resolve: {
+    extensions: ['.ts', '.js'],
+  },
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+    ],
+  },
 };
 
-// Preload script configuration
+// Configuration pour preload
 const preloadConfig = {
-  ...commonConfig,
+  mode: isDevelopment ? 'development' : 'production',
   entry: './src/preload.ts',
   target: 'electron-preload',
   output: {
@@ -77,18 +48,27 @@ const preloadConfig = {
     filename: 'preload.js',
     clean: false,
   },
-  externals: {
-    electron: 'commonjs2 electron',
-  },
   node: {
     __dirname: false,
     __filename: false,
   },
+  resolve: {
+    extensions: ['.ts', '.js'],
+  },
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+    ],
+  },
 };
 
-// Renderer process configuration
+// Configuration pour renderer
 const rendererConfig = {
-  ...commonConfig,
+  mode: isDevelopment ? 'development' : 'production',
   entry: './src/renderer/index.tsx',
   target: 'electron-renderer',
   output: {
@@ -96,27 +76,31 @@ const rendererConfig = {
     filename: 'renderer.js',
     clean: false,
   },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js', '.jsx'],
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+    },
+  },
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+      },
+    ],
+  },
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/renderer/index.html',
       filename: 'index.html',
-      inject: 'body',
-      minify: !isDevelopment,
     }),
   ],
-  optimization: {
-    splitChunks: false,
-  },
-  devServer: isDevelopment ? {
-    port: 8080,
-    hot: true,
-    static: {
-      directory: path.join(__dirname, 'dist'),
-    },
-    headers: {
-      'Content-Security-Policy': "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https:;",
-    },
-  } : undefined,
 };
 
 module.exports = [mainConfig, preloadConfig, rendererConfig];
