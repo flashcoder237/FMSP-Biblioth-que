@@ -14,7 +14,7 @@ import {
   Check,
   Sparkles
 } from 'lucide-react';
-import { Book as BookType, Author, Category } from '../../preload';
+import { Book as BookType, Author, Category, createBookFromDocument } from '../../preload';
 
 interface AddBookProps {
   authors: Author[];
@@ -92,14 +92,29 @@ export const AddBook: React.FC<AddBookProps> = ({
     setIsLoading(true);
 
     try {
-      const bookData: Omit<BookType, 'id'> = {
-        ...formData,
-        isbn: formData.isbn.trim() || '',
-        isBorrowed: false,
+      // Create proper Document structure (French property names) as expected by the backend
+      const bookData = {
+        auteur: formData.author,
+        titre: formData.title,
+        editeur: 'Non spécifié',
+        lieuEdition: 'Non spécifié',
+        annee: formData.publishedDate || new Date().getFullYear().toString(),
+        descripteurs: formData.category,
+        cote: `${formData.category.substring(0,3)}-${formData.author.substring(0,3)}-${Math.random().toString(36).substr(2, 3)}`.toUpperCase(),
+        isbn: formData.isbn.trim() || undefined,
+        description: formData.description,
+        couverture: formData.coverUrl,
+        estEmprunte: false,
+        syncStatus: 'pending' as const,
+        lastModified: new Date().toISOString(),
+        version: 1,
         createdAt: new Date().toISOString()
       };
       
-      await onAddBook(bookData);
+      // Convert to Book format using the utility function from preload
+      const bookForCallback = createBookFromDocument(bookData);
+      
+      await onAddBook(bookForCallback);
     } catch (error: any) {
       console.error('Erreur lors de l\'ajout du livre:', error);
       
@@ -125,7 +140,12 @@ export const AddBook: React.FC<AddBookProps> = ({
     if (!newAuthor.name.trim()) return;
 
     try {
-      await window.electronAPI.addAuthor(newAuthor);
+      await window.electronAPI.addAuthor({
+        ...newAuthor,
+        syncStatus: 'pending',
+        lastModified: new Date().toISOString(),
+        version: 1
+      });
       setFormData(prev => ({ ...prev, author: newAuthor.name }));
       setNewAuthor({ name: '', biography: '', nationality: '' });
       setShowNewAuthor(false);
@@ -138,7 +158,12 @@ export const AddBook: React.FC<AddBookProps> = ({
     if (!newCategory.name.trim()) return;
 
     try {
-      await window.electronAPI.addCategory(newCategory);
+      await window.electronAPI.addCategory({
+        ...newCategory,
+        syncStatus: 'pending',
+        lastModified: new Date().toISOString(),
+        version: 1
+      });
       setFormData(prev => ({ ...prev, category: newCategory.name }));
       setNewCategory({ name: '', description: '', color: '#3E5C49' });
       setShowNewCategory(false);

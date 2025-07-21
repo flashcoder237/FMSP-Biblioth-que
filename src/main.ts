@@ -22,6 +22,7 @@ function createWindow(): void {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      sandbox: false,
       preload: path.join(__dirname, 'preload.js'),
     },
     titleBarStyle: 'hiddenInset',
@@ -104,15 +105,15 @@ ipcMain.handle('db:getBooks', async () => {
 });
 
 ipcMain.handle('db:addBook', async (_, book) => {
-  return await dbService.addBook(book);
+  return await dbService.addDocument(book);
 });
 
 ipcMain.handle('db:updateBook', async (_, book) => {
-  return await dbService.updateBook(book);
+  return await dbService.updateDocument(book);
 });
 
 ipcMain.handle('db:deleteBook', async (_, id) => {
-  return await dbService.deleteBook(id);
+  return await dbService.deleteDocument(id);
 });
 
 ipcMain.handle('db:searchBooks', async (_, query) => {

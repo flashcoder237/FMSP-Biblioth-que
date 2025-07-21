@@ -37,6 +37,7 @@ exports.DatabaseService = void 0;
 const sqlite3 = __importStar(require("sqlite3"));
 const path = __importStar(require("path"));
 const electron_1 = require("electron");
+const preload_1 = require("../preload");
 class DatabaseService {
     constructor() {
         const dbPath = path.join(electron_1.app.getPath('userData'), 'bibliotheque.db');
@@ -337,15 +338,33 @@ class DatabaseService {
             ];
             // Ajouter les catégories
             for (const category of categories) {
-                await this.addCategory(category);
+                await this.addCategory({
+                    ...category,
+                    syncStatus: 'pending',
+                    lastModified: new Date().toISOString(),
+                    version: 1,
+                    createdAt: new Date().toISOString()
+                });
             }
             // Ajouter les auteurs
             for (const author of authors) {
-                await this.addAuthor(author);
+                await this.addAuthor({
+                    ...author,
+                    syncStatus: 'pending',
+                    lastModified: new Date().toISOString(),
+                    version: 1,
+                    createdAt: new Date().toISOString()
+                });
             }
             // Ajouter les emprunteurs
             for (const borrower of borrowers) {
-                await this.addBorrower(borrower);
+                await this.addBorrower({
+                    ...borrower,
+                    syncStatus: 'pending',
+                    lastModified: new Date().toISOString(),
+                    version: 1,
+                    createdAt: new Date().toISOString()
+                });
             }
             // Ajouter les documents
             for (const document of documents) {
@@ -475,108 +494,23 @@ class DatabaseService {
     // Books CRUD mis à jour
     async getBooks() {
         return new Promise((resolve, reject) => {
-            this.db.all('SELECT * FROM books ORDER BY createdAt DESC', (err, rows) => {
+            this.db.all(`
+        SELECT 
+          d.*,
+          b.firstName as borrower_firstName,
+          b.lastName as borrower_lastName
+        FROM documents d
+        LEFT JOIN borrowers b ON d.emprunteurId = b.id
+        WHERE d.deletedAt IS NULL
+        ORDER BY d.createdAt DESC
+      `, (err, rows) => {
                 if (err) {
                     reject(err);
                 }
                 else {
-                    resolve(rows);
+                    const books = rows.map((row) => (0, preload_1.createBookFromDocument)(row));
+                    resolve(books);
                 }
-            });
-        });
-    }
-    async addBook(book) {
-        return new Promise((resolve, reject) => {
-            const isbn = book.isbn && book.isbn.trim() ? book.isbn.trim() : null;
-            const stmt = this.db.prepare(`
-        INSERT INTO books (title, author, isbn, category, publishedDate, description, coverUrl, isBorrowed)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `);
-            stmt.run([
-                book.title,
-                book.author,
-                isbn,
-                book.category,
-                book.publishedDate,
-                book.description,
-                book.coverUrl,
-                book.isBorrowed ? 1 : 0
-            ], function (err) {
-                if (err) {
-                    if (err.code === 'SQLITE_CONSTRAINT' && err.message && err.message.includes('UNIQUE constraint failed: books.isbn')) {
-                        reject(new Error('Un livre avec cet ISBN existe déjà'));
-                    }
-                    else {
-                        reject(err);
-                    }
-                }
-                else {
-                    resolve(this.lastID || 0);
-                }
-            });
-            stmt.finalize();
-        });
-    }
-    async updateBook(book) {
-        return new Promise((resolve, reject) => {
-            const isbn = book.isbn && book.isbn.trim() ? book.isbn.trim() : null;
-            const stmt = this.db.prepare(`
-        UPDATE books SET 
-          title = ?, author = ?, isbn = ?, category = ?, publishedDate = ?, 
-          description = ?, coverUrl = ?, isBorrowed = ?, borrowerId = ?, 
-          borrowDate = ?, expectedReturnDate = ?, returnDate = ?
-        WHERE id = ?
-      `);
-            stmt.run([
-                book.title,
-                book.author,
-                isbn,
-                book.category,
-                book.publishedDate,
-                book.description,
-                book.coverUrl,
-                book.isBorrowed ? 1 : 0,
-                book.borrowerId || null,
-                book.borrowDate,
-                book.expectedReturnDate,
-                book.returnDate,
-                book.id
-            ], function (err) {
-                if (err) {
-                    if (err.code === 'SQLITE_CONSTRAINT' && err.message && err.message.includes('UNIQUE constraint failed: books.isbn')) {
-                        reject(new Error('Un autre livre avec cet ISBN existe déjà'));
-                    }
-                    else {
-                        reject(err);
-                    }
-                }
-                else {
-                    resolve((this.changes || 0) > 0);
-                }
-            });
-            stmt.finalize();
-        });
-    }
-    async deleteBook(id) {
-        return new Promise((resolve, reject) => {
-            // Vérifier s'il n'y a pas d'emprunts actifs
-            this.db.get('SELECT COUNT(*) as count FROM borrow_history WHERE bookId = ? AND status = "active"', [id], (err, row) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                if (row.count > 0) {
-                    reject(new Error('Impossible de supprimer : ce livre est actuellement emprunté'));
-                    return;
-                }
-                this.db.run('DELETE FROM books WHERE id = ?', [id], function (err) {
-                    if (err) {
-                        reject(err);
-                    }
-                    else {
-                        resolve(this.changes > 0);
-                    }
-                });
             });
         });
     }
@@ -688,12 +622,19 @@ class DatabaseService {
             this.db.all(`
         SELECT 
           bh.*,
-          b.title, b.author, b.category, b.coverUrl, b.isbn, b.publishedDate, b.description, b.isBorrowed,
-          br.firstName, br.lastName, br.type, br.matricule, br.classe, br.position
+          d.titre as title, d.auteur as author, d.descripteurs as category, d.couverture as coverUrl, 
+          d.isbn, d.annee as publishedDate, d.description, d.estEmprunte as isBorrowed,
+          d.emprunteurId as borrowerId, d.dateEmprunt as borrowDate, d.dateRetourPrevu as expectedReturnDate,
+          d.dateRetour as returnDate, d.syncStatus as bookSyncStatus, d.lastModified as bookLastModified,
+          d.version as bookVersion, d.createdAt as bookCreatedAt,
+          br.firstName, br.lastName, br.type, br.matricule, br.classe, br.position,
+          br.email, br.phone, br.cniNumber, br.syncStatus as borrowerSyncStatus,
+          br.lastModified as borrowerLastModified, br.version as borrowerVersion,
+          br.createdAt as borrowerCreatedAt
         FROM borrow_history bh
-        JOIN books b ON bh.bookId = b.id
+        JOIN documents d ON bh.bookId = d.id
         JOIN borrowers br ON bh.borrowerId = br.id
-        WHERE bh.status = 'active'
+        WHERE bh.status = 'active' AND d.deletedAt IS NULL
         ORDER BY bh.borrowDate DESC
       `, (err, rows) => {
                 if (err) {
@@ -709,26 +650,62 @@ class DatabaseService {
                         actualReturnDate: row.actualReturnDate,
                         status: row.status,
                         notes: row.notes,
+                        syncStatus: row.syncStatus || 'synced',
+                        lastModified: row.lastModified || new Date().toISOString(),
+                        version: row.version || 1,
                         createdAt: row.createdAt,
                         book: {
                             id: row.bookId,
+                            // English properties (Book interface)
                             title: row.title,
                             author: row.author,
-                            category: row.category,
-                            coverUrl: row.coverUrl,
                             isbn: row.isbn,
+                            category: row.category,
                             publishedDate: row.publishedDate,
                             description: row.description,
-                            isBorrowed: row.isBorrowed
+                            coverUrl: row.coverUrl,
+                            isBorrowed: Boolean(row.isBorrowed),
+                            borrowerId: row.borrowerId,
+                            borrowDate: row.borrowDate,
+                            expectedReturnDate: row.expectedReturnDate,
+                            returnDate: row.returnDate,
+                            borrowerName: `${row.firstName} ${row.lastName}`,
+                            // French properties (Document interface)
+                            auteur: row.author,
+                            titre: row.title,
+                            editeur: 'Non spécifié',
+                            lieuEdition: 'Non spécifié',
+                            annee: row.publishedDate,
+                            descripteurs: row.category,
+                            cote: `${row.category.substring(0, 3)}-${row.author.substring(0, 3)}-001`.toUpperCase(),
+                            couverture: row.coverUrl,
+                            estEmprunte: Boolean(row.isBorrowed),
+                            emprunteurId: row.borrowerId,
+                            dateEmprunt: row.borrowDate,
+                            dateRetourPrevu: row.expectedReturnDate,
+                            dateRetour: row.returnDate,
+                            nomEmprunteur: `${row.firstName} ${row.lastName}`,
+                            // Sync properties
+                            syncStatus: row.bookSyncStatus || 'synced',
+                            lastModified: row.bookLastModified || new Date().toISOString(),
+                            version: row.bookVersion || 1,
+                            createdAt: row.bookCreatedAt
                         },
                         borrower: {
                             id: row.borrowerId,
+                            type: row.type,
                             firstName: row.firstName,
                             lastName: row.lastName,
-                            type: row.type,
                             matricule: row.matricule,
                             classe: row.classe,
-                            position: row.position
+                            cniNumber: row.cniNumber,
+                            position: row.position,
+                            email: row.email,
+                            phone: row.phone,
+                            syncStatus: row.borrowerSyncStatus || 'synced',
+                            lastModified: row.borrowerLastModified || new Date().toISOString(),
+                            version: row.borrowerVersion || 1,
+                            createdAt: row.borrowerCreatedAt
                         }
                     }));
                     resolve(history);
@@ -741,13 +718,20 @@ class DatabaseService {
             let query = `
         SELECT 
           bh.*,
-          b.title, b.author, b.category, b.coverUrl, b.isbn, b.publishedDate, b.description, b.isBorrowed,
-          br.firstName, br.lastName, br.type, br.matricule, br.classe, br.position
+          d.titre as title, d.auteur as author, d.descripteurs as category, d.couverture as coverUrl, 
+          d.isbn, d.annee as publishedDate, d.description, d.estEmprunte as isBorrowed,
+          d.emprunteurId as borrowerId, d.dateEmprunt as borrowDate, d.dateRetourPrevu as expectedReturnDate,
+          d.dateRetour as returnDate, d.syncStatus as bookSyncStatus, d.lastModified as bookLastModified,
+          d.version as bookVersion, d.createdAt as bookCreatedAt,
+          br.firstName, br.lastName, br.type, br.matricule, br.classe, br.position,
+          br.email, br.phone, br.cniNumber, br.syncStatus as borrowerSyncStatus,
+          br.lastModified as borrowerLastModified, br.version as borrowerVersion,
+          br.createdAt as borrowerCreatedAt
         FROM borrow_history bh
-        JOIN books b ON bh.bookId = b.id
+        JOIN documents d ON bh.bookId = d.id
         JOIN borrowers br ON bh.borrowerId = br.id
       `;
-            const conditions = [];
+            const conditions = ['d.deletedAt IS NULL'];
             const params = [];
             if (filter) {
                 if (filter.startDate) {
@@ -793,26 +777,62 @@ class DatabaseService {
                         actualReturnDate: row.actualReturnDate,
                         status: row.status,
                         notes: row.notes,
+                        syncStatus: row.syncStatus || 'synced',
+                        lastModified: row.lastModified || new Date().toISOString(),
+                        version: row.version || 1,
                         createdAt: row.createdAt,
                         book: {
                             id: row.bookId,
+                            // English properties (Book interface)
                             title: row.title,
                             author: row.author,
-                            category: row.category,
-                            coverUrl: row.coverUrl,
                             isbn: row.isbn,
+                            category: row.category,
                             publishedDate: row.publishedDate,
                             description: row.description,
-                            isBorrowed: row.isBorrowed
+                            coverUrl: row.coverUrl,
+                            isBorrowed: Boolean(row.isBorrowed),
+                            borrowerId: row.borrowerId,
+                            borrowDate: row.borrowDate,
+                            expectedReturnDate: row.expectedReturnDate,
+                            returnDate: row.returnDate,
+                            borrowerName: `${row.firstName} ${row.lastName}`,
+                            // French properties (Document interface)
+                            auteur: row.author,
+                            titre: row.title,
+                            editeur: 'Non spécifié',
+                            lieuEdition: 'Non spécifié',
+                            annee: row.publishedDate,
+                            descripteurs: row.category,
+                            cote: `${row.category.substring(0, 3)}-${row.author.substring(0, 3)}-001`.toUpperCase(),
+                            couverture: row.coverUrl,
+                            estEmprunte: Boolean(row.isBorrowed),
+                            emprunteurId: row.borrowerId,
+                            dateEmprunt: row.borrowDate,
+                            dateRetourPrevu: row.expectedReturnDate,
+                            dateRetour: row.returnDate,
+                            nomEmprunteur: `${row.firstName} ${row.lastName}`,
+                            // Sync properties
+                            syncStatus: row.bookSyncStatus || 'synced',
+                            lastModified: row.bookLastModified || new Date().toISOString(),
+                            version: row.bookVersion || 1,
+                            createdAt: row.bookCreatedAt
                         },
                         borrower: {
                             id: row.borrowerId,
+                            type: row.type,
                             firstName: row.firstName,
                             lastName: row.lastName,
-                            type: row.type,
                             matricule: row.matricule,
                             classe: row.classe,
-                            position: row.position
+                            cniNumber: row.cniNumber,
+                            position: row.position,
+                            email: row.email,
+                            phone: row.phone,
+                            syncStatus: row.borrowerSyncStatus || 'synced',
+                            lastModified: row.borrowerLastModified || new Date().toISOString(),
+                            version: row.borrowerVersion || 1,
+                            createdAt: row.borrowerCreatedAt
                         }
                     }));
                     resolve(history);
@@ -1363,3 +1383,4 @@ class DatabaseService {
     }
 }
 exports.DatabaseService = DatabaseService;
+//# sourceMappingURL=DatabaseService.js.map

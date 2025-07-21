@@ -94,13 +94,13 @@ export const DocumentList: React.FC<DocumentListProps> = ({
   const getSyncStatusIcon = (status: Document['syncStatus']) => {
     switch (status) {
       case 'synced':
-        return <CheckCircle className="w-4 h-4 text-green-500" title="Synchronisé" />;
+        return <CheckCircle className="w-4 h-4 text-green-500" />;
       case 'pending':
-        return <Clock className="w-4 h-4 text-yellow-500" title="En attente de synchronisation" />;
+        return <Clock className="w-4 h-4 text-yellow-500" />;
       case 'error':
-        return <AlertCircle className="w-4 h-4 text-red-500" title="Erreur de synchronisation" />;
+        return <AlertCircle className="w-4 h-4 text-red-500" />;
       case 'conflict':
-        return <AlertCircle className="w-4 h-4 text-orange-500" title="Conflit de synchronisation" />;
+        return <AlertCircle className="w-4 h-4 text-orange-500" />;
       default:
         return <Clock className="w-4 h-4 text-gray-500" />;
     }

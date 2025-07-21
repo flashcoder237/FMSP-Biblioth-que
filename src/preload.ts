@@ -1,5 +1,15 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
+// Debug: Check if contextBridge is available
+console.log('Preload script loaded');
+console.log('contextBridge available:', typeof contextBridge !== 'undefined');
+console.log('ipcRenderer available:', typeof ipcRenderer !== 'undefined');
+
+if (typeof contextBridge === 'undefined') {
+  console.error('contextBridge is undefined - this indicates the preload script is not running in the correct Electron context');
+  throw new Error('contextBridge is not available. Make sure this script is loaded as a preload script in an Electron BrowserWindow.');
+}
+
 export interface Document {
   id?: number;
   // Champs principaux requis
@@ -14,7 +24,7 @@ export interface Document {
   // Champs optionnels
   isbn?: string;
   description?: string;
-  couverture?: string;
+  couverture?: string;      // URL de la couverture
   
   // Statut d'emprunt
   estEmprunte: boolean;
@@ -34,8 +44,21 @@ export interface Document {
   createdAt?: string;
 }
 
-// Alias pour compatibilité ascendante
-export interface Book extends Document {}
+// Alias pour compatibilité ascendante - NOUVEAU MODÈLE
+export interface Book extends Document {
+  // Propriétés de compatibilité (mappées automatiquement)
+  get title(): string;
+  get author(): string;
+  get category(): string;
+  get publishedDate(): string;
+  get coverUrl(): string | undefined;
+  get isBorrowed(): boolean;
+  get borrowerId(): number | undefined;
+  get borrowDate(): string | undefined;
+  get expectedReturnDate(): string | undefined;
+  get returnDate(): string | undefined;
+  get borrowerName(): string | undefined;
+}
 
 export interface Author {
   id?: number;
@@ -233,6 +256,91 @@ export interface ConflictResolution {
   resolvedData?: any;
 }
 
+// Fonctions utilitaires pour la compatibilité Book/Document
+export const createBookFromDocument = (document: Document): Book => {
+  const book = { ...document } as any;
+  
+  // Ajouter les getters pour la compatibilité
+  Object.defineProperties(book, {
+    title: {
+      get: function() { return this.titre; },
+      enumerable: true
+    },
+    author: {
+      get: function() { return this.auteur; },
+      enumerable: true
+    },
+    category: {
+      get: function() { return this.descripteurs.split(',')[0]?.trim() || ''; },
+      enumerable: true
+    },
+    publishedDate: {
+      get: function() { return this.annee; },
+      enumerable: true
+    },
+    coverUrl: {
+      get: function() { return this.couverture; },
+      enumerable: true
+    },
+    isBorrowed: {
+      get: function() { return this.estEmprunte; },
+      enumerable: true
+    },
+    borrowerId: {
+      get: function() { return this.emprunteurId; },
+      enumerable: true
+    },
+    borrowDate: {
+      get: function() { return this.dateEmprunt; },
+      enumerable: true
+    },
+    expectedReturnDate: {
+      get: function() { return this.dateRetourPrevu; },
+      enumerable: true
+    },
+    returnDate: {
+      get: function() { return this.dateRetour; },
+      enumerable: true
+    },
+    borrowerName: {
+      get: function() { return this.nomEmprunteur; },
+      enumerable: true
+    }
+  });
+  
+  return book as Book;
+};
+
+export const createDocumentFromBook = (book: Partial<Book>): Omit<Document, 'id'> => {
+  const now = new Date().toISOString();
+  
+  return {
+    auteur: (book as any).author || book.auteur || '',
+    titre: (book as any).title || book.titre || '',
+    editeur: book.editeur || 'Non spécifié',
+    lieuEdition: book.lieuEdition || 'Non spécifié',
+    annee: (book as any).publishedDate || book.annee || new Date().getFullYear().toString(),
+    descripteurs: (book as any).category || book.descripteurs || 'Général',
+    cote: book.cote || `GEN-${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+    isbn: book.isbn,
+    description: book.description,
+    couverture: (book as any).coverUrl || book.couverture,
+    estEmprunte: (book as any).isBorrowed || book.estEmprunte || false,
+    emprunteurId: (book as any).borrowerId || book.emprunteurId,
+    dateEmprunt: (book as any).borrowDate || book.dateEmprunt,
+    dateRetourPrevu: (book as any).expectedReturnDate || book.dateRetourPrevu,
+    dateRetour: (book as any).returnDate || book.dateRetour,
+    nomEmprunteur: (book as any).borrowerName || book.nomEmprunteur,
+    localId: book.localId,
+    remoteId: book.remoteId,
+    syncStatus: book.syncStatus || 'pending',
+    lastModified: book.lastModified || now,
+    version: book.version || 1,
+    deletedAt: book.deletedAt,
+    createdAt: book.createdAt || now
+  };
+};
+
 contextBridge.exposeInMainWorld('electronAPI', {
   // Window controls
   minimizeWindow: () => ipcRenderer.invoke('window-controls:minimize'),
@@ -244,25 +352,66 @@ contextBridge.exposeInMainWorld('electronAPI', {
   login: (credentials: AuthCredentials): Promise<AuthResponse> => ipcRenderer.invoke('auth:login', credentials),
   logout: (): Promise<void> => ipcRenderer.invoke('auth:logout'),
 
-  // Database operations - Books
-  getBooks: (): Promise<Book[]> => ipcRenderer.invoke('db:getBooks'),
-  addBook: (book: Omit<Book, 'id'>): Promise<number> => ipcRenderer.invoke('db:addBook', book),
-  updateBook: (book: Book): Promise<boolean> => ipcRenderer.invoke('db:updateBook', book),
+  // Database operations - Books (avec compatibilité Document)
+  getBooks: (): Promise<Book[]> => 
+    ipcRenderer.invoke('db:getBooks').then((documents: Document[]) => 
+      documents.map(createBookFromDocument)
+    ),
+  addBook: (book: Omit<Book, 'id'>): Promise<number> => 
+    ipcRenderer.invoke('db:addBook', createDocumentFromBook(book)),
+  updateBook: (book: Book): Promise<boolean> => 
+    ipcRenderer.invoke('db:updateBook', { ...createDocumentFromBook(book), id: book.id }),
   deleteBook: (id: number): Promise<boolean> => ipcRenderer.invoke('db:deleteBook', id),
-  searchBooks: (query: string): Promise<Book[]> => ipcRenderer.invoke('db:searchBooks', query),
+  searchBooks: (query: string): Promise<Book[]> => 
+    ipcRenderer.invoke('db:searchBooks', query).then((documents: Document[]) => 
+      documents.map(createBookFromDocument)
+    ),
+  
+  // Database operations - Documents (nouveau)
+  getDocuments: (): Promise<Document[]> => ipcRenderer.invoke('db:getDocuments'),
+  addDocument: (document: Omit<Document, 'id'>): Promise<number> => ipcRenderer.invoke('db:addDocument', document),
+  updateDocument: (document: Document): Promise<boolean> => ipcRenderer.invoke('db:updateDocument', document),
+  deleteDocument: (id: number): Promise<boolean> => ipcRenderer.invoke('db:deleteDocument', id),
+  searchDocuments: (query: string): Promise<Document[]> => ipcRenderer.invoke('db:searchDocuments', query),
   
   // Database operations - Authors
   getAuthors: (): Promise<Author[]> => ipcRenderer.invoke('db:getAuthors'),
-  addAuthor: (author: Omit<Author, 'id'>): Promise<number> => ipcRenderer.invoke('db:addAuthor', author),
+  addAuthor: (author: Omit<Author, 'id'>): Promise<number> => ipcRenderer.invoke('db:addAuthor', {
+    ...author,
+    localId: author.localId || `author_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    syncStatus: author.syncStatus || 'pending',
+    lastModified: author.lastModified || new Date().toISOString(),
+    version: author.version || 1,
+    createdAt: author.createdAt || new Date().toISOString()
+  }),
   
   // Database operations - Categories
   getCategories: (): Promise<Category[]> => ipcRenderer.invoke('db:getCategories'),
-  addCategory: (category: Omit<Category, 'id'>): Promise<number> => ipcRenderer.invoke('db:addCategory', category),
+  addCategory: (category: Omit<Category, 'id'>): Promise<number> => ipcRenderer.invoke('db:addCategory', {
+    ...category,
+    localId: category.localId || `category_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    syncStatus: category.syncStatus || 'pending',
+    lastModified: category.lastModified || new Date().toISOString(),
+    version: category.version || 1,
+    createdAt: category.createdAt || new Date().toISOString()
+  }),
   
   // Database operations - Borrowers
   getBorrowers: (): Promise<Borrower[]> => ipcRenderer.invoke('db:getBorrowers'),
-  addBorrower: (borrower: Omit<Borrower, 'id'>): Promise<number> => ipcRenderer.invoke('db:addBorrower', borrower),
-  updateBorrower: (borrower: Borrower): Promise<boolean> => ipcRenderer.invoke('db:updateBorrower', borrower),
+  addBorrower: (borrower: Omit<Borrower, 'id'>): Promise<number> => ipcRenderer.invoke('db:addBorrower', {
+    ...borrower,
+    localId: borrower.localId || `borrower_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    syncStatus: borrower.syncStatus || 'pending',
+    lastModified: borrower.lastModified || new Date().toISOString(),
+    version: borrower.version || 1,
+    createdAt: borrower.createdAt || new Date().toISOString()
+  }),
+  updateBorrower: (borrower: Borrower): Promise<boolean> => ipcRenderer.invoke('db:updateBorrower', {
+    ...borrower,
+    lastModified: new Date().toISOString(),
+    version: (borrower.version || 1) + 1,
+    syncStatus: 'pending'
+  }),
   deleteBorrower: (id: number): Promise<boolean> => ipcRenderer.invoke('db:deleteBorrower', id),
   searchBorrowers: (query: string): Promise<Borrower[]> => ipcRenderer.invoke('db:searchBorrowers', query),
   
@@ -272,13 +421,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke('db:borrowBook', bookId, borrowerId, expectedReturnDate),
   returnBook: (borrowHistoryId: number, notes?: string): Promise<boolean> => 
     ipcRenderer.invoke('db:returnBook', borrowHistoryId, notes),
-  
-  // History
   getBorrowHistory: (filter?: HistoryFilter): Promise<BorrowHistory[]> => 
     ipcRenderer.invoke('db:getBorrowHistory', filter),
   
   // Statistics
   getStats: (): Promise<Stats> => ipcRenderer.invoke('db:getStats'),
+  getAdvancedStats: (): Promise<any> => ipcRenderer.invoke('stats:advanced'),
   
   // Settings management
   getSettings: (): Promise<ApplicationSettings | null> => ipcRenderer.invoke('settings:get'),
@@ -320,9 +468,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   setTheme: (theme: string): Promise<void> => ipcRenderer.invoke('theme:set', theme),
   getTheme: (): Promise<string> => ipcRenderer.invoke('theme:get'),
   
-  // Advanced statistics
-  getAdvancedStats: (): Promise<any> => ipcRenderer.invoke('stats:advanced'),
-  
   // Synchronization operations
   getSyncStatus: (): Promise<SyncStatus> => ipcRenderer.invoke('sync:status'),
   startSync: (): Promise<void> => ipcRenderer.invoke('sync:start'),
@@ -331,14 +476,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   resolveConflict: (resolution: ConflictResolution): Promise<boolean> => ipcRenderer.invoke('sync:resolve-conflict', resolution),
   getSyncErrors: (): Promise<SyncError[]> => ipcRenderer.invoke('sync:errors'),
   retrySyncOperation: (operationId: string): Promise<boolean> => ipcRenderer.invoke('sync:retry', operationId),
-  clearSyncErrors: (): Promise<void> => ipcRenderer.invoke('sync:clear-errors'),
-  
-  // Document operations (remplace Books)
-  getDocuments: (): Promise<Document[]> => ipcRenderer.invoke('db:getDocuments'),
-  addDocument: (document: Omit<Document, 'id'>): Promise<number> => ipcRenderer.invoke('db:addDocument', document),
-  updateDocument: (document: Document): Promise<boolean> => ipcRenderer.invoke('db:updateDocument', document),
-  deleteDocument: (id: number): Promise<boolean> => ipcRenderer.invoke('db:deleteDocument', id),
-  searchDocuments: (query: string): Promise<Document[]> => ipcRenderer.invoke('db:searchDocuments', query),
+  clearSyncErrors: (): Promise<void> => ipcRenderer.invoke('sync:clear-errors')
 });
 
 declare global {
@@ -354,12 +492,19 @@ declare global {
       login: (credentials: AuthCredentials) => Promise<AuthResponse>;
       logout: () => Promise<void>;
       
-      // Books
+      // Books (avec compatibilité Document)
       getBooks: () => Promise<Book[]>;
       addBook: (book: Omit<Book, 'id'>) => Promise<number>;
       updateBook: (book: Book) => Promise<boolean>;
       deleteBook: (id: number) => Promise<boolean>;
       searchBooks: (query: string) => Promise<Book[]>;
+      
+      // Documents (nouveau modèle)
+      getDocuments: () => Promise<Document[]>;
+      addDocument: (document: Omit<Document, 'id'>) => Promise<number>;
+      updateDocument: (document: Document) => Promise<boolean>;
+      deleteDocument: (id: number) => Promise<boolean>;
+      searchDocuments: (query: string) => Promise<Document[]>;
       
       // Authors
       getAuthors: () => Promise<Author[]>;
@@ -430,13 +575,6 @@ declare global {
       getSyncErrors: () => Promise<SyncError[]>;
       retrySyncOperation: (operationId: string) => Promise<boolean>;
       clearSyncErrors: () => Promise<void>;
-      
-      // Documents (nouveau modèle)
-      getDocuments: () => Promise<Document[]>;
-      addDocument: (document: Omit<Document, 'id'>) => Promise<number>;
-      updateDocument: (document: Document) => Promise<boolean>;
-      deleteDocument: (id: number) => Promise<boolean>;
-      searchDocuments: (query: string) => Promise<Document[]>;
     };
   }
 }

@@ -811,7 +811,13 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({
   const handleAddBorrower = async () => {
     try {
       setIsLoading(true);
-      const newId = await supabaseService.addBorrower(newBorrowerData);
+      const newId = await supabaseService.addBorrower({
+        ...newBorrowerData,
+        syncStatus: 'pending',
+        lastModified: new Date().toISOString(),
+        version: 1,
+        createdAt: new Date().toISOString()
+      });
       setSelectedBorrower(newId);
       setShowAddBorrower(false);
       await onRefreshBorrowers(); // Refresh the borrowers list

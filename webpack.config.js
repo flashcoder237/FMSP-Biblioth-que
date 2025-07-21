@@ -1,13 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-module.exports = {
-  entry: './src/renderer/index.tsx',
-  target: 'electron-renderer',
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'renderer.js',
-  },
+const commonConfig = {
   module: {
     rules: [
       {
@@ -24,10 +18,45 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
   },
+  devtool: 'source-map',
+};
+
+const mainConfig = {
+  ...commonConfig,
+  entry: './src/main.ts',
+  target: 'electron-main',
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'main.js',
+  },
+};
+
+const preloadConfig = {
+  ...commonConfig,
+  entry: './src/preload.ts',
+  target: 'electron-preload',
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'preload.js',
+  },
+  externals: {
+    electron: 'commonjs2 electron',
+  },
+};
+
+const rendererConfig = {
+  ...commonConfig,
+  entry: './src/renderer/index.tsx',
+  target: 'electron-renderer',
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'renderer.js',
+  },
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/renderer/index.html',
     }),
   ],
-  devtool: 'source-map',
 };
+
+module.exports = [mainConfig, preloadConfig, rendererConfig];

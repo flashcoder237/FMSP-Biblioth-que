@@ -54,6 +54,7 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
+            sandbox: false,
             preload: path.join(__dirname, 'preload.js'),
         },
         titleBarStyle: 'hiddenInset',
@@ -126,13 +127,13 @@ electron_1.ipcMain.handle('db:getBooks', async () => {
     return await dbService.getBooks();
 });
 electron_1.ipcMain.handle('db:addBook', async (_, book) => {
-    return await dbService.addBook(book);
+    return await dbService.addDocument(book);
 });
 electron_1.ipcMain.handle('db:updateBook', async (_, book) => {
-    return await dbService.updateBook(book);
+    return await dbService.updateDocument(book);
 });
 electron_1.ipcMain.handle('db:deleteBook', async (_, id) => {
-    return await dbService.deleteBook(id);
+    return await dbService.deleteDocument(id);
 });
 electron_1.ipcMain.handle('db:searchBooks', async (_, query) => {
     return await dbService.searchBooks(query);
@@ -978,3 +979,4 @@ async function exportToCSV(data) {
         return null;
     }
 }
+//# sourceMappingURL=main.js.map

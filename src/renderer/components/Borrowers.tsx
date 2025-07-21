@@ -36,17 +36,20 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose, onRefreshData }) 
   const [editingBorrower, setEditingBorrower] = useState<Borrower | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [formData, setFormData] = useState<Omit<Borrower, 'id'>>({
-    type: 'student',
-    firstName: '',
-    lastName: '',
-    matricule: '',
-    classe: '',
-    cniNumber: '',
-    position: '',
-    email: '',
-    phone: ''
-  });
+  const [borrower, setBorrower] = useState<Omit<Borrower, 'id'>>({
+  type: 'student',
+  firstName: '',
+  lastName: '',
+  matricule: '',
+  classe: '',
+  cniNumber: '',
+  position: '',
+  email: '',
+  phone: '',
+  syncStatus: 'pending',
+  lastModified: new Date().toISOString(),
+  version: 1
+});
 
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
@@ -66,19 +69,19 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose, onRefreshData }) 
   const validateForm = () => {
     const errors: { [key: string]: string } = {};
 
-    if (!formData.firstName.trim()) {
+    if (!borrower.firstName.trim()) {
       errors.firstName = 'Le prénom est requis';
     }
-    if (!formData.lastName.trim()) {
+    if (!borrower.lastName.trim()) {
       errors.lastName = 'Le nom est requis';
     }
-    if (!formData.matricule.trim()) {
+    if (!borrower.matricule.trim()) {
       errors.matricule = 'Le matricule est requis';
     }
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    if (borrower.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(borrower.email)) {
       errors.email = 'Format email invalide';
     }
-    if (formData.phone && !/^[\d\s\+\-\(\)]{6,}$/.test(formData.phone)) {
+    if (borrower.phone && !/^[\d\s\+\-\(\)]{6,}$/.test(borrower.phone)) {
       errors.phone = 'Format téléphone invalide';
     }
 
@@ -101,17 +104,20 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose, onRefreshData }) 
   };
 
   const resetForm = () => {
-    setFormData({
-      type: 'student',
-      firstName: '',
-      lastName: '',
-      matricule: '',
-      classe: '',
-      cniNumber: '',
-      position: '',
-      email: '',
-      phone: ''
-    });
+    setBorrower({
+  type: 'student',
+  firstName: '',
+  lastName: '',
+  matricule: '',
+  classe: '',
+  cniNumber: '',
+  position: '',
+  email: '',
+  phone: '',
+  syncStatus: 'pending',
+  lastModified: new Date().toISOString(),
+  version: 1
+});
     setFormErrors({});
     setEditingBorrower(null);
   };
@@ -121,20 +127,23 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose, onRefreshData }) 
     setShowAddModal(true);
   };
 
-  const handleEditBorrower = (borrower: Borrower) => {
-    setFormData({
-      type: borrower.type,
-      firstName: borrower.firstName,
-      lastName: borrower.lastName,
-      matricule: borrower.matricule,
-      classe: borrower.classe || '',
-      cniNumber: borrower.cniNumber || '',
-      position: borrower.position || '',
-      email: borrower.email || '',
-      phone: borrower.phone || ''
+  const handleEditBorrower = (editBorrower: Borrower) => {
+    setBorrower({
+      type: editBorrower.type,
+      firstName: editBorrower.firstName,
+      lastName: editBorrower.lastName,
+      matricule: editBorrower.matricule,
+      classe: editBorrower.classe || '',
+      cniNumber: editBorrower.cniNumber || '',
+      position: editBorrower.position || '',
+      email: editBorrower.email || '',
+      phone: editBorrower.phone || '',
+      syncStatus: editBorrower.syncStatus,
+      lastModified: new Date().toISOString(),
+      version: (editBorrower.version || 1) + 1
     });
     setFormErrors({});
-    setEditingBorrower(borrower);
+    setEditingBorrower(editBorrower);
     setShowAddModal(true);
   };
 
@@ -149,9 +158,9 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose, onRefreshData }) 
 
     try {
       if (editingBorrower) {
-        await window.electronAPI.updateBorrower({ ...formData, id: editingBorrower.id });
+        await window.electronAPI.updateBorrower({ ...borrower, id: editingBorrower.id });
       } else {
-        await window.electronAPI.addBorrower(formData);
+        await window.electronAPI.addBorrower(borrower);
       }
       
       setShowAddModal(false);
@@ -407,16 +416,16 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose, onRefreshData }) 
                   <div className="type-selector">
                     <button
                       type="button"
-                      className={`type-button ${formData.type === 'student' ? 'active' : ''}`}
-                      onClick={() => setFormData(prev => ({ ...prev, type: 'student' }))}
+                      className={`type-button ${borrower.type === 'student' ? 'active' : ''}`}
+                      onClick={() => setBorrower(prev => ({ ...prev, type: 'student' }))}
                     >
                       <GraduationCap size={20} />
                       Étudiant
                     </button>
                     <button
                       type="button"
-                      className={`type-button ${formData.type === 'staff' ? 'active' : ''}`}
-                      onClick={() => setFormData(prev => ({ ...prev, type: 'staff' }))}
+                      className={`type-button ${borrower.type === 'staff' ? 'active' : ''}`}
+                      onClick={() => setBorrower(prev => ({ ...prev, type: 'staff' }))}
                     >
                       <Briefcase size={20} />
                       Personnel
@@ -429,9 +438,9 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose, onRefreshData }) 
                     <label className="form-label">Prénom *</label>
                     <input
                       type="text"
-                      value={formData.firstName}
+                      value={borrower.firstName}
                       onChange={(e) => {
-                        setFormData(prev => ({ ...prev, firstName: e.target.value }));
+                        setBorrower(prev => ({ ...prev, firstName: e.target.value }));
                         if (formErrors.firstName) {
                           setFormErrors(prev => ({ ...prev, firstName: '' }));
                         }
@@ -446,9 +455,9 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose, onRefreshData }) 
                     <label className="form-label">Nom *</label>
                     <input
                       type="text"
-                      value={formData.lastName}
+                      value={borrower.lastName}
                       onChange={(e) => {
-                        setFormData(prev => ({ ...prev, lastName: e.target.value }));
+                        setBorrower(prev => ({ ...prev, lastName: e.target.value }));
                         if (formErrors.lastName) {
                           setFormErrors(prev => ({ ...prev, lastName: '' }));
                         }
@@ -463,9 +472,9 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose, onRefreshData }) 
                     <label className="form-label">Matricule *</label>
                     <input
                       type="text"
-                      value={formData.matricule}
+                      value={borrower.matricule}
                       onChange={(e) => {
-                        setFormData(prev => ({ ...prev, matricule: e.target.value }));
+                        setBorrower(prev => ({ ...prev, matricule: e.target.value }));
                         if (formErrors.matricule) {
                           setFormErrors(prev => ({ ...prev, matricule: '' }));
                         }
@@ -476,13 +485,13 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose, onRefreshData }) 
                     {formErrors.matricule && <span className="error-text">{formErrors.matricule}</span>}
                   </div>
                   
-                  {formData.type === 'student' ? (
+                  {borrower.type === 'student' ? (
                     <div className="form-group">
                       <label className="form-label">Classe</label>
                       <input
                         type="text"
-                        value={formData.classe}
-                        onChange={(e) => setFormData(prev => ({ ...prev, classe: e.target.value }))}
+                        value={borrower.classe}
+                        onChange={(e) => setBorrower(prev => ({ ...prev, classe: e.target.value }))}
                         className="form-input"
                         placeholder="ex: Terminale C"
                       />
@@ -493,8 +502,8 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose, onRefreshData }) 
                         <label className="form-label">N° CNI</label>
                         <input
                           type="text"
-                          value={formData.cniNumber}
-                          onChange={(e) => setFormData(prev => ({ ...prev, cniNumber: e.target.value }))}
+                          value={borrower.cniNumber}
+                          onChange={(e) => setBorrower(prev => ({ ...prev, cniNumber: e.target.value }))}
                           className="form-input"
                         />
                       </div>
@@ -502,8 +511,8 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose, onRefreshData }) 
                         <label className="form-label">Poste</label>
                         <input
                           type="text"
-                          value={formData.position}
-                          onChange={(e) => setFormData(prev => ({ ...prev, position: e.target.value }))}
+                          value={borrower.position}
+                          onChange={(e) => setBorrower(prev => ({ ...prev, position: e.target.value }))}
                           className="form-input"
                           placeholder="ex: Professeur de Mathématiques"
                         />
@@ -515,9 +524,9 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose, onRefreshData }) 
                     <label className="form-label">Email</label>
                     <input
                       type="email"
-                      value={formData.email}
+                      value={borrower.email}
                       onChange={(e) => {
-                        setFormData(prev => ({ ...prev, email: e.target.value }));
+                        setBorrower(prev => ({ ...prev, email: e.target.value }));
                         if (formErrors.email) {
                           setFormErrors(prev => ({ ...prev, email: '' }));
                         }
@@ -531,9 +540,9 @@ export const Borrowers: React.FC<BorrowersProps> = ({ onClose, onRefreshData }) 
                     <label className="form-label">Téléphone</label>
                     <input
                       type="tel"
-                      value={formData.phone}
+                      value={borrower.phone}
                       onChange={(e) => {
-                        setFormData(prev => ({ ...prev, phone: e.target.value }));
+                        setBorrower(prev => ({ ...prev, phone: e.target.value }));
                         if (formErrors.phone) {
                           setFormErrors(prev => ({ ...prev, phone: '' }));
                         }

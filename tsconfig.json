@@ -14,13 +14,18 @@
     "jsx": "react-jsx",
     "resolveJsonModule": true,
     "noImplicitAny": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "sourceMap": true,
+    "declaration": false,
+    "removeComments": false
   },
   "include": [
     "src/**/*"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "src/renderer/**/*",
+    "tsconfig.renderer.json"
   ]
 }

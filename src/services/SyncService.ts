@@ -112,10 +112,15 @@ export class SyncService {
   private async testConnectivity(): Promise<boolean> {
     try {
       // Test simple de ping vers Supabase
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
       const response = await fetch('https://google.com', {
         method: 'HEAD',
-        timeout: 5000
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       return response.ok;
     } catch {
       return false;
@@ -185,7 +190,7 @@ export class SyncService {
         console.error(`Erreur lors du traitement de l'opération ${operation.id}:`, error);
         operation.retryCount++;
         failedOperations.push(operation);
-        this.addSyncError(operation, error.message);
+        this.addSyncError(operation, error instanceof Error ? error.message : String(error));
         await this.databaseService.updateSyncOperation(operation);
       }
     }
@@ -230,7 +235,7 @@ export class SyncService {
         const createdDoc = await this.supabaseService.createDocument(data);
         if (createdDoc) {
           // Mettre à jour l'ID distant local
-          await this.databaseService.updateDocumentRemoteId(data.localId, createdDoc.id);
+          await this.databaseService.updateDocumentRemoteId(data.localId, createdDoc.id?.toString() || '');
           return true;
         }
         return false;
@@ -254,7 +259,7 @@ export class SyncService {
       case 'create':
         const createdAuthor = await this.supabaseService.createAuthor(data);
         if (createdAuthor) {
-          await this.databaseService.updateAuthorRemoteId(data.localId, createdAuthor.id);
+          await this.databaseService.updateAuthorRemoteId(data.localId, createdAuthor.id?.toString() || '');
           return true;
         }
         return false;
@@ -278,7 +283,7 @@ export class SyncService {
       case 'create':
         const createdCategory = await this.supabaseService.createCategory(data);
         if (createdCategory) {
-          await this.databaseService.updateCategoryRemoteId(data.localId, createdCategory.id);
+          await this.databaseService.updateCategoryRemoteId(data.localId, createdCategory.id?.toString() || '');
           return true;
         }
         return false;
@@ -302,7 +307,7 @@ export class SyncService {
       case 'create':
         const createdBorrower = await this.supabaseService.createBorrower(data);
         if (createdBorrower) {
-          await this.databaseService.updateBorrowerRemoteId(data.localId, createdBorrower.id);
+          await this.databaseService.updateBorrowerRemoteId(data.localId, createdBorrower.id?.toString() || '');
           return true;
         }
         return false;
@@ -326,7 +331,7 @@ export class SyncService {
       case 'create':
         const createdHistory = await this.supabaseService.createBorrowHistory(data);
         if (createdHistory) {
-          await this.databaseService.updateBorrowHistoryRemoteId(data.localId, createdHistory.id);
+          await this.databaseService.updateBorrowHistoryRemoteId(data.localId, createdHistory.id?.toString() || '');
           return true;
         }
         return false;
