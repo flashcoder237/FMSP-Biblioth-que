@@ -18,9 +18,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_TitleBar__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/TitleBar */ "./src/renderer/components/TitleBar.tsx");
 /* harmony import */ var _components_Sidebar__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/Sidebar */ "./src/renderer/components/Sidebar.tsx");
 /* harmony import */ var _components_Dashboard__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/Dashboard */ "./src/renderer/components/Dashboard.tsx");
-/* harmony import */ var _components_BookList__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/BookList */ "./src/renderer/components/BookList.tsx");
-/* harmony import */ var _components_BorrowedBooks__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/BorrowedBooks */ "./src/renderer/components/BorrowedBooks.tsx");
-/* harmony import */ var _components_AddBook__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./components/AddBook */ "./src/renderer/components/AddBook.tsx");
+/* harmony import */ var _components_DocumentList__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/DocumentList */ "./src/renderer/components/DocumentList.tsx");
+/* harmony import */ var _components_BorrowedDocuments__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/BorrowedDocuments */ "./src/renderer/components/BorrowedDocuments.tsx");
+/* harmony import */ var _components_AddDocument__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./components/AddDocument */ "./src/renderer/components/AddDocument.tsx");
 /* harmony import */ var _components_Borrowers__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./components/Borrowers */ "./src/renderer/components/Borrowers.tsx");
 /* harmony import */ var _components_BorrowHistory__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./components/BorrowHistory */ "./src/renderer/components/BorrowHistory.tsx");
 /* harmony import */ var _components_Settings__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./components/Settings */ "./src/renderer/components/Settings.tsx");
@@ -53,7 +53,7 @@ const App = () => {
     const [currentInstitution, setCurrentInstitution] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
     const [institutionCode, setInstitutionCode] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
     // Data states
-    const [books, setBooks] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
+    const [documents, setDocuments] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
     const [authors, setAuthors] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
     const [categories, setCategories] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
     const [borrowers, setBorrowers] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
@@ -72,7 +72,7 @@ const App = () => {
     // Services
     const [supabaseService] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(() => new _services_SupabaseService__WEBPACK_IMPORTED_MODULE_15__.SupabaseService());
     const [showBorrowModal, setShowBorrowModal] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
-    const [selectedBook, setSelectedBook] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+    const [selectedDocument, setSelectedDocument] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
     const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [error, setError] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
     (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
@@ -103,15 +103,15 @@ const App = () => {
             return;
         try {
             setIsLoading(true);
-            const [booksData, authorsData, categoriesData, borrowersData, borrowedBooksData, statsData] = await Promise.all([
-                supabaseService.getBooks(),
+            const [documentsData, authorsData, categoriesData, borrowersData, borrowedBooksData, statsData] = await Promise.all([
+                supabaseService.getDocuments(),
                 supabaseService.getAuthors(),
                 supabaseService.getCategories(),
                 supabaseService.getBorrowers(),
                 supabaseService.getBorrowedBooks(),
                 supabaseService.getStats()
             ]);
-            setBooks(booksData);
+            setDocuments(documentsData);
             setAuthors(authorsData);
             setCategories(categoriesData);
             setBorrowers(borrowersData);
@@ -239,7 +239,7 @@ const App = () => {
             setCurrentInstitution(null);
             setCurrentView('auth');
             // Réinitialiser les données
-            setBooks([]);
+            setDocuments([]);
             setAuthors([]);
             setCategories([]);
             setBorrowers([]);
@@ -260,27 +260,27 @@ const App = () => {
             console.error('Erreur lors de la déconnexion:', error);
         }
     };
-    const handleAddBook = async (book) => {
+    const handleAddDocument = async (document) => {
         try {
-            await supabaseService.addBook(book);
+            await supabaseService.addDocument(document);
             await loadData();
-            setCurrentView('books');
+            setCurrentView('documents');
         }
         catch (error) {
-            console.error('Erreur lors de l\'ajout du livre:', error);
+            console.error('Erreur lors de l\'ajout du document:', error);
             throw error;
         }
     };
-    const handleBorrowBook = async (bookId, borrowerId, expectedReturnDate) => {
-        if (bookId === undefined || borrowerId === undefined || !expectedReturnDate) {
-            console.error('Invalid arguments for borrowBook:', { bookId, borrowerId, expectedReturnDate });
+    const handleBorrowDocument = async (documentId, borrowerId, expectedReturnDate) => {
+        if (documentId === undefined || borrowerId === undefined || !expectedReturnDate) {
+            console.error('Invalid arguments for borrowDocument:', { documentId, borrowerId, expectedReturnDate });
             return;
         }
         try {
-            await supabaseService.borrowBook(bookId, borrowerId, expectedReturnDate);
+            await supabaseService.borrowDocument(documentId, borrowerId, expectedReturnDate);
             await loadData();
             setShowBorrowModal(false);
-            setSelectedBook(null);
+            setSelectedDocument(null);
         }
         catch (error) {
             console.error('Erreur lors de l\'emprunt:', error);
@@ -301,9 +301,9 @@ const App = () => {
             throw error;
         }
     };
-    const handleDeleteBook = async (bookId) => {
+    const handleDeleteDocument = async (documentId) => {
         try {
-            await supabaseService.deleteBook(bookId);
+            await supabaseService.deleteDocument(documentId);
             await loadData();
         }
         catch (error) {
@@ -311,13 +311,13 @@ const App = () => {
             throw error;
         }
     };
-    const openBorrowModal = (book) => {
-        setSelectedBook(book);
+    const openBorrowModal = (document) => {
+        setSelectedDocument(document);
         setShowBorrowModal(true);
     };
     const closeBorrowModal = () => {
         setShowBorrowModal(false);
-        setSelectedBook(null);
+        setSelectedDocument(null);
     };
     const refreshData = async () => {
         await loadData();
@@ -335,24 +335,23 @@ const App = () => {
     const renderCurrentView = () => {
         switch (currentView) {
             case 'dashboard':
-                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Dashboard__WEBPACK_IMPORTED_MODULE_4__.Dashboard, { stats: stats, onNavigate: setCurrentView, books: books, categories: categories }));
-            case 'books':
-                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BookList__WEBPACK_IMPORTED_MODULE_5__.BookList, { books: books, onBorrow: openBorrowModal, onDelete: handleDeleteBook }));
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Dashboard__WEBPACK_IMPORTED_MODULE_4__.Dashboard, { stats: stats, onNavigate: setCurrentView, documents: documents, categories: categories }));
+            case 'documents':
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_DocumentList__WEBPACK_IMPORTED_MODULE_5__.DocumentList, { documents: documents, onAdd: () => setCurrentView('add-document'), onEdit: openBorrowModal, onDelete: handleDeleteDocument, onRefresh: refreshData, syncStatus: {}, networkStatus: {} }));
             case 'borrowed':
-                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowedBooks__WEBPACK_IMPORTED_MODULE_6__.BorrowedBooks, { books: borrowedBooks.map(bh => ({
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowedDocuments__WEBPACK_IMPORTED_MODULE_6__.BorrowedDocuments, { documents: borrowedBooks.map(bh => ({
                         ...bh.book,
-                        isBorrowed: true,
-                        borrowerId: bh.borrowerId,
-                        borrowDate: bh.borrowDate,
-                        borrowerName: `${bh.borrower?.firstName} ${bh.borrower?.lastName}`
-                    })), onReturn: (bookId) => {
-                        const borrowHistory = borrowedBooks.find(bh => bh.bookId === bookId);
+                        nomEmprunteur: `${bh.borrower?.firstName} ${bh.borrower?.lastName}`,
+                        dateEmprunt: bh.borrowDate,
+                        dateRetourPrevu: bh.expectedReturnDate
+                    })), onReturn: (documentId) => {
+                        const borrowHistory = borrowedBooks.find(bh => bh.bookId === documentId);
                         if (borrowHistory) {
                             handleReturnBook(borrowHistory.id, undefined);
                         }
                     } }));
-            case 'add-book':
-                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_AddBook__WEBPACK_IMPORTED_MODULE_7__.AddBook, { authors: authors, categories: categories, onAddBook: handleAddBook, onCancel: () => setCurrentView('books') }));
+            case 'add-document':
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_AddDocument__WEBPACK_IMPORTED_MODULE_7__.AddDocument, { onAdd: handleAddDocument, onCancel: () => setCurrentView('documents') }));
             case 'borrowers':
                 return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Borrowers__WEBPACK_IMPORTED_MODULE_8__.Borrowers, { onClose: () => setCurrentView('dashboard'), onRefreshData: refreshData, supabaseService: supabaseService }));
             case 'history':
@@ -364,10 +363,10 @@ const App = () => {
             case 'about':
                 return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_About__WEBPACK_IMPORTED_MODULE_12__.About, { onClose: () => setCurrentView('dashboard') }));
             default:
-                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Dashboard__WEBPACK_IMPORTED_MODULE_4__.Dashboard, { stats: stats, onNavigate: setCurrentView, books: books, categories: categories }));
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Dashboard__WEBPACK_IMPORTED_MODULE_4__.Dashboard, { stats: stats, onNavigate: setCurrentView, documents: documents, categories: categories }));
         }
     };
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, {}), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Sidebar__WEBPACK_IMPORTED_MODULE_3__.Sidebar, { currentView: currentView, onNavigate: setCurrentView, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("main", { className: "main-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-wrapper", children: [isLoading && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Chargement..." })] })), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "error-banner", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => setError(''), children: "\u00D7" })] })), renderCurrentView()] }) })] }), showBorrowModal && selectedBook && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrow-modal-overlay", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrow-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "24", height: "24", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.1 3.89 23 5 23H19C20.1 23 21 22.1 21 21V9ZM19 21H5V3H13V9H19V21Z" }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Nouvel emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "S\u00E9lectionnez un emprunteur et d\u00E9finissez la dur\u00E9e" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "modal-close", onClick: closeBorrowModal, children: "\u00D7" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(EnhancedBorrowForm, { book: selectedBook, borrowers: borrowers, onSubmit: handleBorrowBook, onCancel: closeBorrowModal, onRefreshBorrowers: refreshData, supabaseService: supabaseService })] }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, {}), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Sidebar__WEBPACK_IMPORTED_MODULE_3__.Sidebar, { currentView: currentView, onNavigate: setCurrentView, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("main", { className: "main-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-wrapper", children: [isLoading && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Chargement..." })] })), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "error-banner", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => setError(''), children: "\u00D7" })] })), renderCurrentView()] }) })] }), showBorrowModal && selectedDocument && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrow-modal-overlay", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrow-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "24", height: "24", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.1 3.89 23 5 23H19C20.1 23 21 22.1 21 21V9ZM19 21H5V3H13V9H19V21Z" }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Nouvel emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "S\u00E9lectionnez un emprunteur et d\u00E9finissez la dur\u00E9e" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "modal-close", onClick: closeBorrowModal, children: "\u00D7" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(EnhancedBorrowForm, { document: selectedDocument, borrowers: borrowers, onSubmit: handleBorrowDocument, onCancel: closeBorrowModal, onRefreshBorrowers: refreshData, supabaseService: supabaseService })] }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .app {
           height: 100vh;
           display: flex;
@@ -636,7 +635,7 @@ const App = () => {
         }
       ` })] }));
 };
-const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel, onRefreshBorrowers, supabaseService }) => {
+const EnhancedBorrowForm = ({ document, borrowers, onSubmit, onCancel, onRefreshBorrowers, supabaseService }) => {
     const [selectedBorrower, setSelectedBorrower] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
     const [expectedReturnDate, setExpectedReturnDate] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
     const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
@@ -730,7 +729,7 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel, onRefreshBorr
             return;
         setIsLoading(true);
         try {
-            await onSubmit(book.id, selectedBorrower, expectedReturnDate);
+            await onSubmit(document.id, selectedBorrower, expectedReturnDate);
         }
         catch (error) {
             console.error('Erreur:', error);
@@ -740,7 +739,7 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel, onRefreshBorr
         }
     };
     const selectedBorrowerData = borrowers.find(b => b.id === selectedBorrower);
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "enhanced-borrow-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-info-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "book-cover", children: book.coverUrl ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("img", { src: book.coverUrl, alt: book.title })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "book-placeholder", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "32", height: "32", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2ZM18 20H6V4H18V20Z" }) }) })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h4", { className: "book-title", children: ["\"", book.title, "\""] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "book-author", children: ["par ", book.author] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-meta", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "book-category", children: book.category }), book.publishedDate && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "book-year", children: book.publishedDate })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Dur\u00E9e d'emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "duration-selector", children: [
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "enhanced-borrow-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-info-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "document-cover", children: document.couverture ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("img", { src: document.couverture, alt: document.titre })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "document-placeholder", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "32", height: "32", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2ZM18 20H6V4H18V20Z" }) }) })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h4", { className: "document-title", children: ["\"", document.titre, "\""] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "document-author", children: ["par ", document.auteur] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-meta", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "document-category", children: document.descripteurs }), document.annee && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "document-year", children: document.annee })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Dur\u00E9e d'emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "duration-selector", children: [
                             { id: '1week', label: '1 semaine', recommended: false },
                             { id: '2weeks', label: '2 semaines', recommended: true },
                             { id: '1month', label: '1 mois', recommended: false },
@@ -749,7 +748,7 @@ const EnhancedBorrowForm = ({ book, borrowers, onSubmit, onCancel, onRefreshBorr
                             setExpectedReturnDate(e.target.value);
                             setBorrowDuration('custom');
                         }, className: "date-input", min: new Date().toISOString().split('T')[0], required: true }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { className: "form-hint", children: borrowDuration !== 'custom' && `Durée sélectionnée : ${borrowDuration === '1week' ? '7 jours' :
-                            borrowDuration === '2weeks' ? '14 jours' : '1 mois'}` })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Emprunteur *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "button", className: "add-borrower-button", onClick: () => setShowAddBorrower(true), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "16", height: "16", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" }) }), "Ajouter emprunteur"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-filters", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", placeholder: "Rechercher un emprunteur...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { className: "search-icon", viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3S3 5.91 3 9.5S5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14Z" }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "type-filter", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filterType, onChange: (e) => setFilterType(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "staff", children: "Personnel" })] }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrowers-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "list-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Nom" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Type" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Matricule" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Classe/Poste" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "list-content", children: filteredBorrowers.length > 0 ? (filteredBorrowers.map((borrower) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `borrower-row ${selectedBorrower === borrower.id ? 'selected' : ''}`, onClick: () => setSelectedBorrower(borrower.id), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-name", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "name-main", children: [borrower.firstName, " ", borrower.lastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "name-sub", children: borrower.email })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrower-type", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: `type-badge ${borrower.type}`, children: borrower.type === 'student' ? 'Étudiant' : 'Personnel' }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrower-matricule", children: borrower.matricule }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrower-extra", children: borrower.type === 'student' ? borrower.classe : borrower.position }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "selection-indicator", children: selectedBorrower === borrower.id && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" }) })) })] }, borrower.id)))) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "no-borrowers", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "48", height: "48", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.1 3.89 23 5 23H19C20.1 23 21 22.1 21 21V9Z" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Aucun emprunteur trouv\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: searchQuery ? `pour "${searchQuery}"` : 'Essayez de modifier les filtres' })] })) })] })] }), selectedBorrowerData && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "selected-summary", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "R\u00E9capitulatif de l'emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-icon book-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2Z" }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-label", children: "Livre" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-value", children: book.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-sub", children: ["par ", book.author] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-icon user-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-label", children: "Emprunteur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-value", children: [selectedBorrowerData.firstName, " ", selectedBorrowerData.lastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-sub", children: [selectedBorrowerData.matricule, " \u2022 ", selectedBorrowerData.type === 'student' ? 'Étudiant' : 'Personnel'] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-icon date-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M19 3H18V1H16V3H8V1H6V3H5C3.89 3 3.01 3.9 3.01 5L3 19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V8H19V19ZM7 10H12V15H7V10Z" }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-label", children: "Retour pr\u00E9vu" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-value", children: new Date(expectedReturnDate).toLocaleDateString('fr-FR', {
+                            borrowDuration === '2weeks' ? '14 jours' : '1 mois'}` })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Emprunteur *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "button", className: "add-borrower-button", onClick: () => setShowAddBorrower(true), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "16", height: "16", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" }) }), "Ajouter emprunteur"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-filters", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", placeholder: "Rechercher un emprunteur...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { className: "search-icon", viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3S3 5.91 3 9.5S5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14Z" }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "type-filter", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filterType, onChange: (e) => setFilterType(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "staff", children: "Personnel" })] }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrowers-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "list-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Nom" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Type" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Matricule" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Classe/Poste" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "list-content", children: filteredBorrowers.length > 0 ? (filteredBorrowers.map((borrower) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `borrower-row ${selectedBorrower === borrower.id ? 'selected' : ''}`, onClick: () => setSelectedBorrower(borrower.id), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-name", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "name-main", children: [borrower.firstName, " ", borrower.lastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "name-sub", children: borrower.email })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrower-type", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: `type-badge ${borrower.type}`, children: borrower.type === 'student' ? 'Étudiant' : 'Personnel' }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrower-matricule", children: borrower.matricule }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrower-extra", children: borrower.type === 'student' ? borrower.classe : borrower.position }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "selection-indicator", children: selectedBorrower === borrower.id && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" }) })) })] }, borrower.id)))) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "no-borrowers", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "48", height: "48", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.1 3.89 23 5 23H19C20.1 23 21 22.1 21 21V9Z" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Aucun emprunteur trouv\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: searchQuery ? `pour "${searchQuery}"` : 'Essayez de modifier les filtres' })] })) })] })] }), selectedBorrowerData && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "selected-summary", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "R\u00E9capitulatif de l'emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-icon book-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2Z" }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-label", children: "Document" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-value", children: document.titre }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-sub", children: ["par ", document.auteur] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-icon user-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-label", children: "Emprunteur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-value", children: [selectedBorrowerData.firstName, " ", selectedBorrowerData.lastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-sub", children: [selectedBorrowerData.matricule, " \u2022 ", selectedBorrowerData.type === 'student' ? 'Étudiant' : 'Personnel'] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-icon date-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M19 3H18V1H16V3H8V1H6V3H5C3.89 3 3.01 3.9 3.01 5L3 19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V8H19V19ZM7 10H12V15H7V10Z" }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-label", children: "Retour pr\u00E9vu" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-value", children: new Date(expectedReturnDate).toLocaleDateString('fr-FR', {
                                                     weekday: 'long',
                                                     year: 'numeric',
                                                     month: 'long',
@@ -1774,119 +1773,160 @@ const About = ({ onClose }) => {
 
 /***/ }),
 
-/***/ "./src/renderer/components/AddBook.tsx":
-/*!*********************************************!*\
-  !*** ./src/renderer/components/AddBook.tsx ***!
-  \*********************************************/
+/***/ "./src/renderer/components/AddDocument.tsx":
+/*!*************************************************!*\
+  !*** ./src/renderer/components/AddDocument.tsx ***!
+  \*************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   AddBook: () => (/* binding */ AddBook)
+/* harmony export */   AddDocument: () => (/* binding */ AddDocument)
 /* harmony export */ });
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/arrow-left.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/sparkles.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-circle.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/file-text.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/save.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/tag.mjs");
-/* harmony import */ var _types__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../types */ "./src/types/index.ts");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/file-text.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/building.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/map-pin.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/calendar.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/hash.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/tag.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/image.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/save.mjs");
 
 
 
-
-const AddBook = ({ authors, categories, onAddBook, onCancel }) => {
+const AddDocument = ({ onAdd, onCancel, editingDocument }) => {
     const [formData, setFormData] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({
-        title: '',
-        author: '',
+        auteur: '',
+        titre: '',
+        editeur: '',
+        lieuEdition: '',
+        annee: new Date().getFullYear().toString(),
+        descripteurs: '',
+        cote: '',
         isbn: '',
-        category: '',
-        publishedDate: '',
         description: '',
-        coverUrl: ''
+        couverture: ''
     });
-    const [showNewAuthor, setShowNewAuthor] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
-    const [showNewCategory, setShowNewCategory] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
-    const [newAuthor, setNewAuthor] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({
-        name: '',
-        biography: '',
-        nationality: ''
-    });
-    const [newCategory, setNewCategory] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({
-        name: '',
-        description: '',
-        color: '#3E5C49'
-    });
-    const [errors, setErrors] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({});
+    const [authors, setAuthors] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
+    const [categories, setCategories] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
     const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
-    const [submitError, setSubmitError] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
+    const [errors, setErrors] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({});
+    (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+        loadAuthors();
+        loadCategories();
+        if (editingDocument) {
+            setFormData({
+                auteur: editingDocument.auteur,
+                titre: editingDocument.titre,
+                editeur: editingDocument.editeur,
+                lieuEdition: editingDocument.lieuEdition,
+                annee: editingDocument.annee,
+                descripteurs: editingDocument.descripteurs,
+                cote: editingDocument.cote,
+                isbn: editingDocument.isbn || '',
+                description: editingDocument.description || '',
+                couverture: editingDocument.couverture || ''
+            });
+        }
+    }, [editingDocument]);
+    const loadAuthors = async () => {
+        try {
+            const authorsList = await window.electronAPI.getAuthors();
+            setAuthors(authorsList);
+        }
+        catch (error) {
+            console.error('Erreur lors du chargement des auteurs:', error);
+        }
+    };
+    const loadCategories = async () => {
+        try {
+            const categoriesList = await window.electronAPI.getCategories();
+            setCategories(categoriesList);
+        }
+        catch (error) {
+            console.error('Erreur lors du chargement des catégories:', error);
+        }
+    };
+    const generateCote = () => {
+        if (formData.descripteurs && formData.auteur && formData.annee) {
+            const category = formData.descripteurs.split(',')[0].trim().toUpperCase();
+            const authorCode = formData.auteur.split(' ').map(name => name.substring(0, 3).toUpperCase()).join('-');
+            const yearCode = formData.annee.substring(-2);
+            const randomNum = Math.floor(Math.random() * 999).toString().padStart(3, '0');
+            const generatedCote = `${category.substring(0, 3)}-${authorCode}-${yearCode}${randomNum}`;
+            setFormData(prev => ({ ...prev, cote: generatedCote }));
+        }
+    };
     const validateForm = () => {
         const newErrors = {};
-        if (!formData.title.trim()) {
-            newErrors.title = 'Le titre est requis';
+        // Champs obligatoires
+        if (!formData.auteur.trim())
+            newErrors.auteur = 'L\'auteur est obligatoire';
+        if (!formData.titre.trim())
+            newErrors.titre = 'Le titre est obligatoire';
+        if (!formData.editeur.trim())
+            newErrors.editeur = 'L\'éditeur est obligatoire';
+        if (!formData.lieuEdition.trim())
+            newErrors.lieuEdition = 'Le lieu d\'édition est obligatoire';
+        if (!formData.annee.trim())
+            newErrors.annee = 'L\'année est obligatoire';
+        if (!formData.descripteurs.trim())
+            newErrors.descripteurs = 'Les descripteurs sont obligatoires';
+        if (!formData.cote.trim())
+            newErrors.cote = 'La cote est obligatoire';
+        // Validation de l'année
+        const year = parseInt(formData.annee);
+        if (isNaN(year) || year < 1000 || year > new Date().getFullYear() + 10) {
+            newErrors.annee = 'Année invalide';
         }
-        if (!formData.author.trim()) {
-            newErrors.author = 'L\'auteur est requis';
-        }
-        if (!formData.category.trim()) {
-            newErrors.category = 'La catégorie est requise';
-        }
-        if (formData.isbn && formData.isbn.trim() && !isValidISBN(formData.isbn)) {
-            newErrors.isbn = 'Format ISBN invalide (ex: 978-2-123456-78-9)';
+        // Validation ISBN (optionnel mais si fourni, doit être valide)
+        if (formData.isbn && !/^(978|979)?[0-9]{9}[0-9X]$/.test(formData.isbn.replace(/-/g, ''))) {
+            newErrors.isbn = 'Format ISBN invalide';
         }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-    const isValidISBN = (isbn) => {
-        const cleanISBN = isbn.replace(/[-\s]/g, '');
-        return /^(978|979)\d{10}$/.test(cleanISBN) || /^\d{10}$/.test(cleanISBN);
-    };
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setSubmitError('');
         if (!validateForm()) {
             return;
         }
         setIsLoading(true);
         try {
-            // Create proper Document structure (French property names) as expected by the backend
-            const bookData = {
-                auteur: formData.author,
-                titre: formData.title,
-                editeur: 'Non spécifié',
-                lieuEdition: 'Non spécifié',
-                annee: formData.publishedDate || new Date().getFullYear().toString(),
-                descripteurs: formData.category,
-                cote: `${formData.category.substring(0, 3)}-${formData.author.substring(0, 3)}-${Math.random().toString(36).substr(2, 3)}`.toUpperCase(),
-                isbn: formData.isbn.trim() || undefined,
-                description: formData.description,
-                couverture: formData.coverUrl,
+            const documentData = {
+                ...formData,
                 estEmprunte: false,
                 syncStatus: 'pending',
                 lastModified: new Date().toISOString(),
-                version: 1,
-                createdAt: new Date().toISOString()
+                version: editingDocument ? editingDocument.version + 1 : 1
             };
-            // Convert to Book format using the utility function from preload
-            const bookForCallback = (0,_types__WEBPACK_IMPORTED_MODULE_2__.createBookFromDocument)(bookData);
-            await onAddBook(bookForCallback);
+            await onAdd(documentData);
+            // Reset form si ce n'est pas une édition
+            if (!editingDocument) {
+                setFormData({
+                    auteur: '',
+                    titre: '',
+                    editeur: '',
+                    lieuEdition: '',
+                    annee: new Date().getFullYear().toString(),
+                    descripteurs: '',
+                    cote: '',
+                    isbn: '',
+                    description: '',
+                    couverture: ''
+                });
+            }
         }
         catch (error) {
-            console.error('Erreur lors de l\'ajout du livre:', error);
-            if (error.message && error.message.includes('ISBN existe déjà')) {
-                setErrors({ isbn: 'Un livre avec cet ISBN existe déjà' });
-            }
-            else {
-                setSubmitError('Erreur lors de l\'ajout du livre. Veuillez réessayer.');
-            }
+            console.error('Erreur lors de l\'ajout du document:', error);
+            setErrors({ submit: 'Erreur lors de l\'enregistrement du document' });
         }
         finally {
             setIsLoading(false);
@@ -1894,1819 +1934,27 @@ const AddBook = ({ authors, categories, onAddBook, onCancel }) => {
     };
     const handleInputChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
-        setSubmitError('');
+        // Effacer l'erreur pour ce champ
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: '' }));
         }
     };
-    const handleAddNewAuthor = async () => {
-        if (!newAuthor.name.trim())
-            return;
+    const selectCoverImage = async () => {
         try {
-            await window.electronAPI.addAuthor({
-                ...newAuthor,
-                syncStatus: 'pending',
-                lastModified: new Date().toISOString(),
-                version: 1
+            const filePath = await window.electronAPI.selectFile({
+                filters: [
+                    { name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'gif', 'webp'] }
+                ]
             });
-            setFormData(prev => ({ ...prev, author: newAuthor.name }));
-            setNewAuthor({ name: '', biography: '', nationality: '' });
-            setShowNewAuthor(false);
+            if (filePath) {
+                setFormData(prev => ({ ...prev, couverture: filePath }));
+            }
         }
         catch (error) {
-            console.error('Erreur lors de l\'ajout de l\'auteur:', error);
+            console.error('Erreur lors de la sélection de l\'image:', error);
         }
     };
-    const handleAddNewCategory = async () => {
-        if (!newCategory.name.trim())
-            return;
-        try {
-            await window.electronAPI.addCategory({
-                ...newCategory,
-                syncStatus: 'pending',
-                lastModified: new Date().toISOString(),
-                version: 1
-            });
-            setFormData(prev => ({ ...prev, category: newCategory.name }));
-            setNewCategory({ name: '', description: '', color: '#3E5C49' });
-            setShowNewCategory(false);
-        }
-        catch (error) {
-            console.error('Erreur lors de l\'ajout de la catégorie:', error);
-        }
-    };
-    const predefinedColors = [
-        '#3E5C49', '#C2571B', '#6E6E6E', '#2E453A',
-        '#A8481A', '#8B7355', '#5D4037', '#795548'
-    ];
-    const progressSteps = [
-        { id: 'basic', label: 'Informations', completed: formData.title && formData.author && formData.category },
-        { id: 'details', label: 'Détails', completed: true },
-        { id: 'finish', label: 'Finaliser', completed: false }
-    ];
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "add-book", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-background", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-pattern" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "back-button", onClick: onCancel, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Retour" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-main", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 32 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "hero-title", children: "Ajouter un nouveau livre" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "hero-subtitle", children: "Enrichissez votre collection avec un nouveau titre" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-steps", children: progressSteps.map((step, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step.completed ? 'completed' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-indicator", children: step.completed ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: index + 1 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: step.label })] }, step.id))) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "form-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "book-form", children: [submitError && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "alert alert-error", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: submitError })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-sections", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "section-title", children: "Informations principales" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "section-description", children: "Les d\u00E9tails essentiels de votre livre" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group span-full", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { htmlFor: "title", className: "form-label", children: "Titre du livre *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { id: "title", type: "text", value: formData.title, onChange: (e) => handleInputChange('title', e.target.value), className: `form-input ${errors.title ? 'error' : ''}`, placeholder: "Entrez le titre complet du livre", disabled: isLoading }), errors.title && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "error-message", children: errors.title })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { htmlFor: "author", className: "form-label", children: "Auteur *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { id: "author", value: formData.author, onChange: (e) => handleInputChange('author', e.target.value), className: `form-input ${errors.author ? 'error' : ''}`, disabled: isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "", children: "S\u00E9lectionner un auteur" }), authors.map((author) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: author.name, children: author.name }, author.id)))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "add-button", onClick: () => setShowNewAuthor(true), disabled: isLoading, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) })] }), errors.author && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "error-message", children: errors.author })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { htmlFor: "category", className: "form-label", children: "Cat\u00E9gorie *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { id: "category", value: formData.category, onChange: (e) => handleInputChange('category', e.target.value), className: `form-input ${errors.category ? 'error' : ''}`, disabled: isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "", children: "S\u00E9lectionner une cat\u00E9gorie" }), categories.map((category) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: category.name, children: category.name }, category.id)))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "add-button", onClick: () => setShowNewCategory(true), disabled: isLoading, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) })] }), errors.category && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "error-message", children: errors.category })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "section-title", children: "D\u00E9tails suppl\u00E9mentaires" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "section-description", children: "Informations compl\u00E9mentaires (optionnelles)" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { htmlFor: "isbn", className: "form-label", children: "ISBN" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { id: "isbn", type: "text", value: formData.isbn, onChange: (e) => handleInputChange('isbn', e.target.value), className: `form-input ${errors.isbn ? 'error' : ''}`, placeholder: "978-2-123456-78-9", disabled: isLoading }), errors.isbn && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "error-message", children: errors.isbn }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { className: "form-hint", children: "Laissez vide si vous ne connaissez pas l'ISBN" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { htmlFor: "publishedDate", className: "form-label", children: "Date de publication" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { id: "publishedDate", type: "text", value: formData.publishedDate, onChange: (e) => handleInputChange('publishedDate', e.target.value), className: "form-input", placeholder: "2023 ou 01/01/2023", disabled: isLoading })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group span-full", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { htmlFor: "coverUrl", className: "form-label", children: "URL de la couverture" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { id: "coverUrl", type: "url", value: formData.coverUrl, onChange: (e) => handleInputChange('coverUrl', e.target.value), className: "form-input", placeholder: "https://exemple.com/couverture.jpg", disabled: isLoading })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group span-full", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { htmlFor: "description", className: "form-label", children: "Description" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("textarea", { id: "description", value: formData.description, onChange: (e) => handleInputChange('description', e.target.value), className: "form-textarea", placeholder: "R\u00E9sum\u00E9 ou description du livre...", rows: 4, disabled: isLoading })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "button", className: "btn-secondary", onClick: onCancel, disabled: isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 18 }), "Annuler"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", className: "btn-primary", disabled: isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }), isLoading ? 'Ajout en cours...' : 'Ajouter le livre'] })] })] }) }), showNewAuthor && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "modal-overlay", onClick: () => setShowNewAuthor(false), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal", onClick: (e) => e.stopPropagation(), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-title-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Ajouter un nouvel auteur" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "modal-close", onClick: () => setShowNewAuthor(false), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Nom de l'auteur *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newAuthor.name, onChange: (e) => setNewAuthor(prev => ({ ...prev, name: e.target.value })), className: "form-input", placeholder: "Nom complet de l'auteur" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Nationalit\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newAuthor.nationality, onChange: (e) => setNewAuthor(prev => ({ ...prev, nationality: e.target.value })), className: "form-input", placeholder: "Nationalit\u00E9 de l'auteur" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Biographie" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("textarea", { value: newAuthor.biography, onChange: (e) => setNewAuthor(prev => ({ ...prev, biography: e.target.value })), className: "form-textarea", placeholder: "Courte biographie...", rows: 3 })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-footer", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "btn-secondary", onClick: () => setShowNewAuthor(false), children: "Annuler" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "btn-primary", onClick: handleAddNewAuthor, disabled: !newAuthor.name.trim(), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }), "Ajouter l'auteur"] })] })] }) })), showNewCategory && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "modal-overlay", onClick: () => setShowNewCategory(false), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal", onClick: (e) => e.stopPropagation(), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-title-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Ajouter une nouvelle cat\u00E9gorie" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "modal-close", onClick: () => setShowNewCategory(false), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Nom de la cat\u00E9gorie *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newCategory.name, onChange: (e) => setNewCategory(prev => ({ ...prev, name: e.target.value })), className: "form-input", placeholder: "Nom de la cat\u00E9gorie" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Description" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("textarea", { value: newCategory.description, onChange: (e) => setNewCategory(prev => ({ ...prev, description: e.target.value })), className: "form-textarea", placeholder: "Description de la cat\u00E9gorie...", rows: 2 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Couleur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "color-picker", children: predefinedColors.map((color) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: `color-option ${newCategory.color === color ? 'selected' : ''}`, style: { backgroundColor: color }, onClick: () => setNewCategory(prev => ({ ...prev, color })) }, color))) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-footer", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "btn-secondary", onClick: () => setShowNewCategory(false), children: "Annuler" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "btn-primary", onClick: handleAddNewCategory, disabled: !newCategory.name.trim(), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }), "Ajouter la cat\u00E9gorie"] })] })] }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
-        .add-book {
-          height: 100%;
-          overflow-y: auto;
-          background: #FAF9F6;
-        }
-        
-        .hero-header {
-          position: relative;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: #F3EED9;
-          padding: 32px;
-          overflow: hidden;
-        }
-        
-        .hero-background {
-          position: absolute;
-          inset: 0;
-          overflow: hidden;
-        }
-        
-        .hero-pattern {
-          position: absolute;
-          inset: 0;
-          background-image: 
-            radial-gradient(circle at 25% 25%, rgba(243, 238, 217, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 75% 75%, rgba(194, 87, 27, 0.1) 0%, transparent 50%);
-          animation: drift 20s ease-in-out infinite;
-        }
-        
-        @keyframes drift {
-          0%, 100% { transform: translate(0, 0) rotate(0deg); }
-          33% { transform: translate(30px, -30px) rotate(1deg); }
-          66% { transform: translate(-20px, 20px) rotate(-1deg); }
-        }
-        
-        .hero-content {
-          position: relative;
-          z-index: 1;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-        
-        .back-button {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: rgba(243, 238, 217, 0.15);
-          border: 1px solid rgba(243, 238, 217, 0.3);
-          color: #F3EED9;
-          padding: 12px 20px;
-          border-radius: 12px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          font-size: 14px;
-          font-weight: 500;
-          margin-bottom: 32px;
-          width: fit-content;
-        }
-        
-        .back-button:hover {
-          background: rgba(243, 238, 217, 0.25);
-          transform: translateX(-4px);
-        }
-        
-        .hero-main {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          margin-bottom: 32px;
-        }
-        
-        .hero-icon {
-          width: 64px;
-          height: 64px;
-          background: rgba(194, 87, 27, 0.2);
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #F3EED9;
-        }
-        
-        .hero-title {
-          font-size: 36px;
-          font-weight: 800;
-          margin: 0 0 8px 0;
-          line-height: 1.2;
-          letter-spacing: -0.5px;
-        }
-        
-        .hero-subtitle {
-          font-size: 18px;
-          opacity: 0.9;
-          margin: 0;
-          line-height: 1.4;
-        }
-        
-        .progress-steps {
-          display: flex;
-          gap: 32px;
-        }
-        
-        .progress-step {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          opacity: 0.6;
-          transition: opacity 0.3s ease;
-        }
-        
-        .progress-step.completed {
-          opacity: 1;
-        }
-        
-        .step-indicator {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          background: rgba(243, 238, 217, 0.2);
-          border: 2px solid rgba(243, 238, 217, 0.4);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 14px;
-          font-weight: 600;
-          transition: all 0.3s ease;
-        }
-        
-        .progress-step.completed .step-indicator {
-          background: #C2571B;
-          border-color: #C2571B;
-          color: #FFFFFF;
-        }
-        
-        .step-label {
-          font-size: 14px;
-          font-weight: 500;
-        }
-        
-        .form-container {
-          padding: 40px 32px;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-        
-        .book-form {
-          background: #FFFFFF;
-          border-radius: 20px;
-          padding: 40px;
-          box-shadow: 
-            0 8px 32px rgba(62, 92, 73, 0.08),
-            0 2px 16px rgba(62, 92, 73, 0.12);
-          border: 1px solid rgba(229, 220, 194, 0.3);
-        }
-        
-        .alert {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 16px 20px;
-          border-radius: 12px;
-          margin-bottom: 32px;
-          font-size: 14px;
-          font-weight: 500;
-        }
-        
-        .alert-error {
-          background: rgba(194, 87, 27, 0.1);
-          color: #C2571B;
-          border: 1px solid rgba(194, 87, 27, 0.2);
-        }
-        
-        .form-sections {
-          display: flex;
-          flex-direction: column;
-          gap: 48px;
-          margin-bottom: 40px;
-        }
-        
-        .form-section {
-          border-radius: 16px;
-          border: 1px solid #E5DCC2;
-          background: #FEFEFE;
-          overflow: hidden;
-        }
-        
-        .section-header {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          padding: 24px 32px;
-          background: #F3EED9;
-          border-bottom: 1px solid #E5DCC2;
-        }
-        
-        .section-icon {
-          width: 48px;
-          height: 48px;
-          background: #3E5C49;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #F3EED9;
-        }
-        
-        .section-title {
-          font-size: 20px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 0 0 4px 0;
-        }
-        
-        .section-description {
-          font-size: 14px;
-          color: #6E6E6E;
-          margin: 0;
-        }
-        
-        .form-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 24px;
-          padding: 32px;
-        }
-        
-        .form-group {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        
-        .form-group.span-full {
-          grid-column: 1 / -1;
-        }
-        
-        .form-label {
-          font-size: 14px;
-          font-weight: 600;
-          color: #2E2E2E;
-        }
-        
-        .form-input, .form-textarea {
-          width: 100%;
-          padding: 16px;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          font-size: 16px;
-          background: #FFFFFF;
-          color: #2E2E2E;
-          transition: all 0.2s ease;
-        }
-        
-        .form-input:focus, .form-textarea:focus {
-          outline: none;
-          border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
-        }
-        
-        .form-input.error {
-          border-color: #C2571B;
-          background: rgba(194, 87, 27, 0.05);
-        }
-        
-        .form-input:disabled, .form-textarea:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-          background: #F3EED9;
-        }
-        
-        .form-textarea {
-          resize: vertical;
-          min-height: 120px;
-          line-height: 1.5;
-        }
-        
-        .input-group {
-          display: flex;
-          gap: 8px;
-        }
-        
-        .input-group .form-input {
-          flex: 1;
-        }
-        
-        .add-button {
-          width: 48px;
-          height: 48px;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          background: #F3EED9;
-          color: #3E5C49;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s ease;
-          flex-shrink: 0;
-        }
-        
-        .add-button:hover:not(:disabled) {
-          background: #3E5C49;
-          color: #F3EED9;
-          border-color: #3E5C49;
-        }
-        
-        .add-button:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-        
-        .form-hint {
-          font-size: 12px;
-          color: #6E6E6E;
-          font-style: italic;
-        }
-        
-        .error-message {
-          font-size: 12px;
-          color: #C2571B;
-          font-weight: 500;
-        }
-        
-        .form-actions {
-          display: flex;
-          gap: 16px;
-          justify-content: flex-end;
-          padding-top: 32px;
-          border-top: 1px solid #E5DCC2;
-        }
-        
-        .btn-secondary, .btn-primary {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 16px 32px;
-          border-radius: 12px;
-          font-size: 16px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          border: none;
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .btn-secondary {
-          background: #F3EED9;
-          color: #6E6E6E;
-          border: 2px solid #E5DCC2;
-        }
-        
-        .btn-secondary:hover:not(:disabled) {
-          background: #EAEADC;
-          color: #2E2E2E;
-          transform: translateY(-2px);
-        }
-        
-        .btn-primary {
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: #F3EED9;
-        }
-        
-        .btn-primary:hover:not(:disabled) {
-          background: linear-gradient(135deg, #2E453A 0%, #1E2F25 100%);
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(62, 92, 73, 0.3);
-        }
-        
-        .btn-secondary:disabled,
-        .btn-primary:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-          transform: none;
-        }
-        
-        /* Modal Styles */
-        .modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(46, 46, 46, 0.6);
-          backdrop-filter: blur(4px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 1000;
-          padding: 20px;
-        }
-        
-        .modal {
-          background: #FFFFFF;
-          border-radius: 20px;
-          width: 100%;
-          max-width: 600px;
-          max-height: 90vh;
-          overflow-y: auto;
-          box-shadow: 0 20px 40px rgba(62, 92, 73, 0.2);
-          border: 1px solid rgba(229, 220, 194, 0.3);
-        }
-        
-        .modal-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 24px 32px;
-          border-bottom: 1px solid #E5DCC2;
-          background: #F3EED9;
-        }
-        
-        .modal-title-section {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-        }
-        
-        .modal-title-section h3 {
-          font-size: 20px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 0;
-        }
-        
-        .modal-close {
-          background: rgba(110, 110, 110, 0.1);
-          border: none;
-          cursor: pointer;
-          padding: 8px;
-          border-radius: 8px;
-          color: #6E6E6E;
-          transition: all 0.2s ease;
-        }
-        
-        .modal-close:hover {
-          background: rgba(110, 110, 110, 0.2);
-          color: #2E2E2E;
-        }
-        
-        .modal-content {
-          padding: 32px;
-        }
-        
-        .modal-footer {
-          display: flex;
-          gap: 16px;
-          padding: 24px 32px;
-          border-top: 1px solid #E5DCC2;
-          background: #FEFEFE;
-          justify-content: flex-end;
-        }
-        
-        .color-picker {
-          display: flex;
-          gap: 12px;
-          flex-wrap: wrap;
-        }
-        
-        .color-option {
-          width: 40px;
-          height: 40px;
-          border-radius: 12px;
-          border: 2px solid transparent;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          position: relative;
-        }
-        
-        .color-option:hover {
-          transform: scale(1.1);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-        
-        .color-option.selected {
-          border-color: #2E2E2E;
-          transform: scale(1.1);
-        }
-        
-        .color-option.selected::after {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 16px;
-          height: 16px;
-          background: #FFFFFF;
-          border-radius: 50%;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-          .hero-content {
-            padding: 0 16px;
-          }
-          
-          .form-container {
-            padding: 24px 16px;
-          }
-          
-          .book-form {
-            padding: 24px;
-          }
-          
-          .form-grid {
-            grid-template-columns: 1fr;
-            gap: 20px;
-            padding: 24px;
-          }
-          
-          .section-header {
-            padding: 20px 24px;
-            flex-direction: column;
-            text-align: center;
-            gap: 16px;
-          }
-        }
-        
-        @media (max-width: 768px) {
-          .hero-header {
-            padding: 24px 16px;
-          }
-          
-          .hero-title {
-            font-size: 28px;
-          }
-          
-          .hero-subtitle {
-            font-size: 16px;
-          }
-          
-          .hero-main {
-            flex-direction: column;
-            text-align: center;
-            gap: 16px;
-          }
-          
-          .progress-steps {
-            justify-content: center;
-            gap: 20px;
-          }
-          
-          .form-actions {
-            flex-direction: column-reverse;
-          }
-          
-          .btn-secondary, .btn-primary {
-            width: 100%;
-            justify-content: center;
-          }
-          
-          .modal {
-            margin: 16px;
-            border-radius: 16px;
-          }
-          
-          .modal-header, .modal-content, .modal-footer {
-            padding: 20px;
-          }
-        }
-        
-        @media (max-width: 480px) {
-          .progress-steps {
-            flex-direction: column;
-            gap: 12px;
-          }
-          
-          .progress-step {
-            justify-content: center;
-          }
-          
-          .section-icon {
-            width: 40px;
-            height: 40px;
-          }
-          
-          .hero-icon {
-            width: 56px;
-            height: 56px;
-          }
-          
-          .color-picker {
-            justify-content: center;
-          }
-          
-          .input-group {
-            flex-direction: column;
-          }
-          
-          .add-button {
-            width: 100%;
-            height: 40px;
-          }
-        }
-      ` })] }));
-};
-
-
-/***/ }),
-
-/***/ "./src/renderer/components/BookList.tsx":
-/*!**********************************************!*\
-  !*** ./src/renderer/components/BookList.tsx ***!
-  \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   BookList: () => (/* binding */ BookList)
-/* harmony export */ });
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/grid.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/list.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/search.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/filter.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/tag.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/arrow-up-narrow-wide.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user-plus.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/more-vertical.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/pen-square.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trash-2.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/star.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/calendar.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trending-up.mjs");
-
-
-
-const BookList = ({ books, onBorrow, onDelete }) => {
-    const [searchQuery, setSearchQuery] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
-    const [activeDropdown, setActiveDropdown] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
-    const [viewMode, setViewMode] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('grid');
-    const [sortBy, setSortBy] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('title');
-    const [filterStatus, setFilterStatus] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('all');
-    const [selectedCategory, setSelectedCategory] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('all');
-    const handleDelete = (book) => {
-        if (window.confirm(`Êtes-vous sûr de vouloir supprimer "${book.title}" ?`)) {
-            onDelete(book.id);
-        }
-        setActiveDropdown(null);
-    };
-    const getCategoryColor = (category) => {
-        const colors = {
-            'Fiction': '#3E5C49',
-            'Science-Fiction': '#C2571B',
-            'Histoire': '#6E6E6E',
-            'Biographie': '#3E5C49',
-            'Sciences': '#C2571B',
-            'Philosophie': '#6E6E6E',
-            'Romance': '#E91E63',
-            'Thriller': '#9C27B0',
-            'Jeunesse': '#FF9800',
-            'Art': '#607D8B'
-        };
-        return colors[category] || '#6E6E6E';
-    };
-    // Obtenir toutes les catégories uniques
-    const categories = Array.from(new Set(books.map(book => book.category)));
-    const filteredBooks = books.filter(book => {
-        // Filtre par statut
-        if (filterStatus === 'available')
-            return !book.isBorrowed;
-        if (filterStatus === 'borrowed')
-            return book.isBorrowed;
-        // Filtre par catégorie
-        if (selectedCategory !== 'all' && book.category !== selectedCategory)
-            return false;
-        // Filtre par recherche
-        if (searchQuery.trim()) {
-            const query = searchQuery.toLowerCase();
-            return (book.title.toLowerCase().includes(query) ||
-                book.author.toLowerCase().includes(query) ||
-                book.category.toLowerCase().includes(query) ||
-                (book.description && book.description.toLowerCase().includes(query)));
-        }
-        return true;
-    });
-    const sortedBooks = [...filteredBooks].sort((a, b) => {
-        switch (sortBy) {
-            case 'author':
-                return a.author.localeCompare(b.author);
-            case 'date':
-                return (b.publishedDate || '').localeCompare(a.publishedDate || '');
-            case 'popularity':
-                // Simuler la popularité basée sur le statut d'emprunt et la date
-                const scoreA = (a.isBorrowed ? 10 : 5) + (a.publishedDate ? parseInt(a.publishedDate) / 100 : 0);
-                const scoreB = (b.isBorrowed ? 10 : 5) + (b.publishedDate ? parseInt(b.publishedDate) / 100 : 0);
-                return scoreB - scoreA;
-            default:
-                return a.title.localeCompare(b.title);
-        }
-    });
-    const getBookStats = () => {
-        return {
-            total: books.length,
-            available: books.filter(b => !b.isBorrowed).length,
-            borrowed: books.filter(b => b.isBorrowed).length,
-            filtered: filteredBooks.length
-        };
-    };
-    const stats = getBookStats();
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "page-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-main", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "page-title", children: "Collection de documents" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "page-subtitle", children: [stats.filtered, " document(s) affich\u00E9(s) sur ", stats.total, " au total"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "quick-stats", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "quick-stat available", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: stats.available }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Disponibles" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "quick-stat borrowed", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: stats.borrowed }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Emprunt\u00E9s" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "view-controls", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: `view-button ${viewMode === 'grid' ? 'active' : ''}`, onClick: () => setViewMode('grid'), title: "Vue grille", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: `view-button ${viewMode === 'list' ? 'active' : ''}`, onClick: () => setViewMode('list'), title: "Vue liste", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16 }) })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "search-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { className: "search-icon", size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", placeholder: "Rechercher par titre, auteur, cat\u00E9gorie...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }), searchQuery && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "clear-search", onClick: () => setSearchQuery(''), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 16 }) }))] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filters-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filterStatus, onChange: (e) => setFilterStatus(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous les documents" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "available", children: "Disponibles" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "borrowed", children: "Emprunt\u00E9s" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: selectedCategory, onChange: (e) => setSelectedCategory(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Toutes les cat\u00E9gories" }), categories.map((category) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: category, children: category }, category)))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: sortBy, onChange: (e) => setSortBy(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "title", children: "Trier par titre" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "author", children: "Trier par auteur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "date", children: "Trier par date" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "popularity", children: "Trier par popularit\u00E9" })] })] })] })] }), categories.length > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "category-filters", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: `category-chip ${selectedCategory === 'all' ? 'active' : ''}`, onClick: () => setSelectedCategory('all'), children: "Toutes" }), categories.slice(0, 6).map((category) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: `category-chip ${selectedCategory === category ? 'active' : ''}`, onClick: () => setSelectedCategory(category), style: {
-                                    '--category-color': getCategoryColor(category)
-                                }, children: category }, category))), categories.length > 6 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "more-categories", children: ["+", categories.length - 6, " autres"] }))] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "books-content", children: sortedBooks.length > 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `books-container ${viewMode}`, children: sortedBooks.map((book) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "book-item card-elevated", children: viewMode === 'grid' ? (
-                        // Enhanced Grid View
-                        (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-cover", children: [book.coverUrl ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("img", { src: book.coverUrl, alt: book.title })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "book-cover-placeholder", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 32 }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `status-badge ${book.isBorrowed ? 'borrowed' : 'available'}`, children: book.isBorrowed ? 'Emprunté' : 'Disponible' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "overlay-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "overlay-button view", onClick: () => { }, title: "Voir d\u00E9tails", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }) }), !book.isBorrowed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "overlay-button borrow", onClick: () => onBorrow(book), title: "Emprunter", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "overlay-button menu", onClick: () => setActiveDropdown(activeDropdown === book.id ? null : book.id), title: "Plus d'options", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }) })] }), activeDropdown === book.id && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dropdown-menu", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "dropdown-item", onClick: () => { }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), "Voir d\u00E9tails"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "dropdown-item", onClick: () => { }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 16 }), "Modifier"] }), !book.isBorrowed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "dropdown-item primary", onClick: () => onBorrow(book), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), "Emprunter"] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "dropdown-item delete", onClick: () => handleDelete(book), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), "Supprimer"] })] }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "book-title", children: book.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-rating", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 14, fill: "currentColor" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "4.2" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-meta", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "meta-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: book.author })] }), book.publishedDate && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "meta-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: book.publishedDate })] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-category-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "category-tag", style: { backgroundColor: getCategoryColor(book.category) }, children: book.category }), book.isBorrowed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "trending-badge", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 12 }), "Populaire"] }))] }), book.description && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "book-description", children: book.description })), book.isBorrowed && book.borrowerName && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrow-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrower-avatar", children: book.borrowerName.charAt(0).toUpperCase() }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrow-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "borrow-label", children: "Emprunt\u00E9 par" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "borrower-name", children: book.borrowerName }), book.borrowDate && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "borrow-date", children: ["le ", new Date(book.borrowDate).toLocaleDateString('fr-FR')] }))] })] })), !book.isBorrowed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "primary-action-btn", onClick: () => onBorrow(book), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), "Emprunter maintenant"] }))] })] })) : (
-                        // Enhanced List View
-                        (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-list-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-list-cover", children: [book.coverUrl ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("img", { src: book.coverUrl, alt: book.title })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "book-cover-placeholder small", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `list-status-indicator ${book.isBorrowed ? 'borrowed' : 'available'}`, children: book.isBorrowed ? '●' : '●' })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-list-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-list-main", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "list-title-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "book-title", children: book.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-rating small", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 12, fill: "currentColor" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "4.2" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "book-author", children: ["par ", book.author] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-tags", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "category-tag small", style: { backgroundColor: getCategoryColor(book.category) }, children: book.category }), book.publishedDate && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "year-tag", children: book.publishedDate })), book.isBorrowed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "status-tag borrowed", children: "Emprunt\u00E9" }))] })] }), book.description && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "book-list-description", children: book.description })), book.isBorrowed && book.borrowerName && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrow-info compact", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["Emprunt\u00E9 par ", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: book.borrowerName })] }), book.borrowDate && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["le ", new Date(book.borrowDate).toLocaleDateString('fr-FR')] }))] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-list-actions", children: [!book.isBorrowed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "action-button borrow", onClick: () => onBorrow(book), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), "Emprunter"] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "action-button menu", onClick: () => setActiveDropdown(activeDropdown === book.id ? null : book.id), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }) }), activeDropdown === book.id && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dropdown-menu right", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "dropdown-item", onClick: () => { }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), "Voir d\u00E9tails"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "dropdown-item", onClick: () => { }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 16 }), "Modifier"] }), !book.isBorrowed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "dropdown-item primary", onClick: () => onBorrow(book), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), "Emprunter"] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "dropdown-item delete", onClick: () => handleDelete(book), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), "Supprimer"] })] }))] })] })) }, book.id))) })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "empty-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "empty-icon", children: searchQuery || filterStatus !== 'all' || selectedCategory !== 'all' ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 64 })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 64 })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "empty-title", children: searchQuery || filterStatus !== 'all' || selectedCategory !== 'all'
-                                ? 'Aucun document trouvé'
-                                : 'Aucun document dans la collection' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "empty-description", children: searchQuery
-                                ? `Aucun résultat pour "${searchQuery}"`
-                                : filterStatus !== 'all'
-                                    ? `Aucun document ${filterStatus === 'available' ? 'disponible' : 'emprunté'} pour le moment`
-                                    : selectedCategory !== 'all'
-                                        ? `Aucun document dans la catégorie "${selectedCategory}"`
-                                        : 'Commencez par ajouter des documents à votre collection' }), (searchQuery || filterStatus !== 'all' || selectedCategory !== 'all') && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "btn-secondary", onClick: () => {
-                                setSearchQuery('');
-                                setFilterStatus('all');
-                                setSelectedCategory('all');
-                            }, children: "Effacer tous les filtres" }))] })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
-        .book-list {
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          background: #FAF9F6;
-        }
-        
-        .page-header {
-          background: #FFFFFF;
-          padding: 32px;
-          border-bottom: 1px solid #E5DCC2;
-          position: sticky;
-          top: 0;
-          z-index: 10;
-          box-shadow: 0 2px 8px rgba(62, 92, 73, 0.04);
-        }
-        
-        .header-main {
-          display: flex;
-          align-items: flex-start;
-          justify-content: space-between;
-          margin-bottom: 24px;
-        }
-        
-        .page-title {
-          font-size: 32px;
-          font-weight: 800;
-          color: #2E2E2E;
-          margin: 0 0 8px 0;
-          letter-spacing: -0.5px;
-        }
-        
-        .page-subtitle {
-          color: #6E6E6E;
-          margin: 0;
-          font-size: 16px;
-          font-weight: 500;
-        }
-        
-        .header-actions {
-          display: flex;
-          align-items: center;
-          gap: 24px;
-        }
-        
-        .quick-stats {
-          display: flex;
-          gap: 16px;
-        }
-        
-        .quick-stat {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 12px 16px;
-          border-radius: 12px;
-          min-width: 80px;
-        }
-        
-        .quick-stat.available {
-          background: rgba(62, 92, 73, 0.1);
-          color: #3E5C49;
-        }
-        
-        .quick-stat.borrowed {
-          background: rgba(194, 87, 27, 0.1);
-          color: #C2571B;
-        }
-        
-        .stat-number {
-          font-size: 24px;
-          font-weight: 800;
-          line-height: 1;
-          margin-bottom: 4px;
-        }
-        
-        .stat-label {
-          font-size: 12px;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        
-        .view-controls {
-          display: flex;
-          background: #F3EED9;
-          border-radius: 12px;
-          padding: 4px;
-          gap: 4px;
-        }
-        
-        .view-button {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 40px;
-          height: 40px;
-          border: none;
-          background: transparent;
-          border-radius: 8px;
-          color: #6E6E6E;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-        
-        .view-button.active {
-          background: #FFFFFF;
-          color: #3E5C49;
-          box-shadow: 0 2px 8px rgba(62, 92, 73, 0.1);
-        }
-        
-        .search-section {
-          display: flex;
-          gap: 24px;
-          align-items: center;
-          margin-bottom: 20px;
-        }
-        
-        .search-container {
-          flex: 1;
-          max-width: 500px;
-        }
-        
-        .search-input-wrapper {
-          position: relative;
-          display: flex;
-          align-items: center;
-        }
-        
-        .search-icon {
-          position: absolute;
-          left: 16px;
-          color: #6E6E6E;
-          z-index: 2;
-        }
-        
-        .search-input {
-          width: 100%;
-          height: 48px;
-          padding: 0 48px 0 48px;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          font-size: 16px;
-          background: #FFFFFF;
-          color: #2E2E2E;
-          transition: all 0.2s ease;
-        }
-        
-        .search-input:focus {
-          outline: none;
-          border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
-        }
-        
-        .search-input::placeholder {
-          color: #6E6E6E;
-        }
-        
-        .clear-search {
-          position: absolute;
-          right: 16px;
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: #6E6E6E;
-          padding: 4px;
-          border-radius: 4px;
-          transition: all 0.2s ease;
-        }
-        
-        .clear-search:hover {
-          color: #2E2E2E;
-          background: #F3EED9;
-        }
-        
-        .filters-container {
-          display: flex;
-          gap: 16px;
-        }
-        
-        .filter-group {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          color: #6E6E6E;
-        }
-        
-        .filter-select {
-          border: 2px solid #E5DCC2;
-          border-radius: 8px;
-          padding: 8px 12px;
-          background: #FFFFFF;
-          color: #2E2E2E;
-          font-size: 14px;
-          cursor: pointer;
-          transition: border-color 0.2s ease;
-        }
-        
-        .filter-select:focus {
-          outline: none;
-          border-color: #3E5C49;
-        }
-        
-        .category-filters {
-          display: flex;
-          gap: 8px;
-          flex-wrap: wrap;
-          align-items: center;
-        }
-        
-        .category-chip {
-          padding: 8px 16px;
-          border: 2px solid #E5DCC2;
-          border-radius: 20px;
-          background: #FFFFFF;
-          color: #6E6E6E;
-          font-size: 14px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          white-space: nowrap;
-        }
-        
-        .category-chip:hover {
-          border-color: var(--category-color, #3E5C49);
-          color: var(--category-color, #3E5C49);
-        }
-        
-        .category-chip.active {
-          background: var(--category-color, #3E5C49);
-          border-color: var(--category-color, #3E5C49);
-          color: #FFFFFF;
-        }
-        
-        .more-categories {
-          font-size: 14px;
-          color: #6E6E6E;
-          font-weight: 500;
-        }
-        
-        .books-content {
-          flex: 1;
-          overflow-y: auto;
-          padding: 32px;
-        }
-        
-        .books-container.grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-          gap: 24px;
-        }
-        
-        .books-container.list {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-        
-        .book-item {
-          background: #FFFFFF;
-          border-radius: 20px;
-          overflow: hidden;
-          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          position: relative;
-          border: 1px solid rgba(229, 220, 194, 0.3);
-        }
-        
-        .book-item:hover {
-          transform: translateY(-6px);
-          box-shadow: 
-            0 16px 40px rgba(62, 92, 73, 0.15),
-            0 8px 24px rgba(62, 92, 73, 0.1);
-        }
-        
-        /* Enhanced Grid View */
-        .book-cover {
-          height: 240px;
-          background: linear-gradient(135deg, #F3EED9 0%, #E5DCC2 100%);
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .book-cover img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-        
-        .book-cover-placeholder {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          height: 100%;
-          color: #6E6E6E;
-        }
-        
-        .book-cover-placeholder.small {
-          width: 60px;
-          height: 80px;
-          border-radius: 8px;
-          background: linear-gradient(135deg, #F3EED9 0%, #E5DCC2 100%);
-        }
-        
-        .status-badge {
-          position: absolute;
-          top: 12px;
-          right: 12px;
-          padding: 6px 12px;
-          border-radius: 20px;
-          font-size: 12px;
-          font-weight: 600;
-          backdrop-filter: blur(10px);
-        }
-        
-        .status-badge.available {
-          background: rgba(62, 92, 73, 0.9);
-          color: #F3EED9;
-        }
-        
-        .status-badge.borrowed {
-          background: rgba(194, 87, 27, 0.9);
-          color: #F3EED9;
-        }
-        
-        .book-overlay {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
-          opacity: 0;
-          transition: opacity 0.3s ease;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          padding: 16px;
-        }
-        
-        .book-item:hover .book-overlay {
-          opacity: 1;
-        }
-        
-        .overlay-actions {
-          display: flex;
-          gap: 8px;
-          justify-content: flex-end;
-          align-self: flex-start;
-        }
-        
-        .overlay-button {
-          width: 36px;
-          height: 36px;
-          border: none;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          backdrop-filter: blur(10px);
-        }
-        
-        .overlay-button.view {
-          background: rgba(255, 255, 255, 0.2);
-          color: #FFFFFF;
-        }
-        
-        .overlay-button.borrow {
-          background: rgba(62, 92, 73, 0.9);
-          color: #F3EED9;
-        }
-        
-        .overlay-button.menu {
-          background: rgba(110, 110, 110, 0.9);
-          color: #FFFFFF;
-        }
-        
-        .overlay-button:hover {
-          transform: scale(1.1);
-        }
-        
-        .dropdown-menu {
-          position: absolute;
-          top: 100%;
-          right: 0;
-          background: #FFFFFF;
-          border: 1px solid #E5DCC2;
-          border-radius: 12px;
-          box-shadow: 0 8px 24px rgba(62, 92, 73, 0.15);
-          z-index: 20;
-          min-width: 160px;
-          overflow: hidden;
-          margin-top: 8px;
-        }
-        
-        .dropdown-menu.right {
-          right: 0;
-          left: auto;
-        }
-        
-        .dropdown-item {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px 16px;
-          border: none;
-          background: none;
-          cursor: pointer;
-          font-size: 14px;
-          color: #2E2E2E;
-          transition: background 0.2s ease;
-          text-align: left;
-        }
-        
-        .dropdown-item:hover {
-          background: #F3EED9;
-        }
-        
-        .dropdown-item.primary {
-          color: #3E5C49;
-          font-weight: 600;
-        }
-        
-        .dropdown-item.primary:hover {
-          background: rgba(62, 92, 73, 0.1);
-        }
-        
-        .dropdown-item.delete {
-          color: #C2571B;
-        }
-        
-        .dropdown-item.delete:hover {
-          background: rgba(194, 87, 27, 0.1);
-        }
-        
-        .book-content {
-          padding: 24px;
-        }
-        
-        .book-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 16px;
-        }
-        
-        .book-title {
-          font-size: 18px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 0;
-          line-height: 1.3;
-          flex: 1;
-          margin-right: 12px;
-        }
-        
-        .book-rating {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          color: #FFB400;
-          font-size: 14px;
-          font-weight: 600;
-        }
-        
-        .book-rating.small {
-          font-size: 12px;
-        }
-        
-        .book-rating.small svg {
-          width: 12px;
-          height: 12px;
-        }
-        
-        .book-meta {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          margin-bottom: 16px;
-        }
-        
-        .meta-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 14px;
-          color: #6E6E6E;
-        }
-        
-        .book-category-section {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin-bottom: 16px;
-          flex-wrap: wrap;
-        }
-        
-        .category-tag {
-          color: #FFFFFF;
-          padding: 6px 12px;
-          border-radius: 16px;
-          font-size: 12px;
-          font-weight: 600;
-        }
-        
-        .category-tag.small {
-          padding: 4px 8px;
-          font-size: 11px;
-        }
-        
-        .trending-badge {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          background: rgba(255, 180, 0, 0.1);
-          color: #FFB400;
-          padding: 4px 8px;
-          border-radius: 12px;
-          font-size: 11px;
-          font-weight: 600;
-        }
-        
-        .book-description {
-          font-size: 14px;
-          color: #6E6E6E;
-          line-height: 1.5;
-          margin: 0 0 20px 0;
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-        
-        .borrow-info {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          background: rgba(194, 87, 27, 0.05);
-          border: 1px solid rgba(194, 87, 27, 0.2);
-          border-radius: 12px;
-          padding: 12px;
-          margin-bottom: 20px;
-        }
-        
-        .borrow-info.compact {
-          background: none;
-          border: none;
-          padding: 0;
-          margin-bottom: 0;
-          font-size: 13px;
-          color: #6E6E6E;
-        }
-        
-        .borrower-avatar {
-          width: 32px;
-          height: 32px;
-          background: #C2571B;
-          color: #FFFFFF;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 700;
-          font-size: 14px;
-        }
-        
-        .borrow-details {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-        }
-        
-        .borrow-label {
-          font-size: 12px;
-          color: #6E6E6E;
-          font-weight: 500;
-        }
-        
-        .borrower-name {
-          font-size: 14px;
-          color: #C2571B;
-          font-weight: 600;
-        }
-        
-        .borrow-date {
-          font-size: 12px;
-          color: #6E6E6E;
-        }
-        
-        .primary-action-btn {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          padding: 14px 20px;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: #F3EED9;
-          border: none;
-          border-radius: 12px;
-          font-size: 14px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-        
-        .primary-action-btn:hover {
-          background: linear-gradient(135deg, #2E453A 0%, #1E2F25 100%);
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
-        }
-        
-        /* Enhanced List View */
-        .book-list-content {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          padding: 20px;
-          position: relative;
-        }
-        
-        .book-list-cover {
-          flex-shrink: 0;
-          position: relative;
-        }
-        
-        .list-status-indicator {
-          position: absolute;
-          top: -4px;
-          right: -4px;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          font-size: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .list-status-indicator.available {
-          color: #3E5C49;
-        }
-        
-        .list-status-indicator.borrowed {
-          color: #C2571B;
-        }
-        
-        .book-list-details {
-          flex: 1;
-          min-width: 0;
-        }
-        
-        .book-list-main {
-          margin-bottom: 12px;
-        }
-        
-        .list-title-section {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          margin-bottom: 4px;
-        }
-        
-        .book-author {
-          font-size: 14px;
-          color: #6E6E6E;
-          margin: 0 0 8px 0;
-        }
-        
-        .book-tags {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          flex-wrap: wrap;
-        }
-        
-        .year-tag {
-          background: #F3EED9;
-          color: #6E6E6E;
-          padding: 2px 8px;
-          border-radius: 12px;
-          font-size: 11px;
-          font-weight: 500;
-        }
-        
-        .status-tag {
-          padding: 2px 8px;
-          border-radius: 12px;
-          font-size: 11px;
-          font-weight: 600;
-        }
-        
-        .status-tag.borrowed {
-          background: #C2571B;
-          color: #FFFFFF;
-        }
-        
-        .book-list-description {
-          font-size: 14px;
-          color: #6E6E6E;
-          line-height: 1.5;
-          margin: 12px 0 0 0;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-        
-        .book-list-actions {
-          flex-shrink: 0;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          position: relative;
-        }
-        
-        .action-button {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 12px 16px;
-          border: none;
-          border-radius: 12px;
-          cursor: pointer;
-          font-size: 14px;
-          font-weight: 600;
-          transition: all 0.2s ease;
-        }
-        
-        .action-button.borrow {
-          background: #3E5C49;
-          color: #F3EED9;
-        }
-        
-        .action-button.borrow:hover {
-          background: #2E453A;
-          transform: translateY(-1px);
-        }
-        
-        .action-button.menu {
-          background: #F3EED9;
-          color: #6E6E6E;
-          padding: 12px;
-        }
-        
-        .action-button.menu:hover {
-          background: #EAEADC;
-          color: #2E2E2E;
-        }
-        
-        /* Empty State Enhanced */
-        .empty-state {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 80px 32px;
-          text-align: center;
-          color: #6E6E6E;
-        }
-        
-        .empty-icon {
-          color: #C2571B;
-          margin-bottom: 24px;
-          opacity: 0.6;
-        }
-        
-        .empty-title {
-          font-size: 24px;
-          font-weight: 700;
-          margin: 0 0 12px 0;
-          color: #2E2E2E;
-        }
-        
-        .empty-description {
-          margin: 0 0 24px 0;
-          font-size: 16px;
-          line-height: 1.5;
-          max-width: 400px;
-        }
-        
-        .btn-secondary {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 12px 24px;
-          background: #F3EED9;
-          color: #6E6E6E;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          font-size: 14px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-        
-        .btn-secondary:hover {
-          background: #EAEADC;
-          color: #2E2E2E;
-          transform: translateY(-1px);
-        }
-        
-        /* Enhanced Animations */
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .book-item {
-          animation: slideIn 0.3s ease-out;
-        }
-        
-        .book-item:nth-child(1) { animation-delay: 0ms; }
-        .book-item:nth-child(2) { animation-delay: 50ms; }
-        .book-item:nth-child(3) { animation-delay: 100ms; }
-        .book-item:nth-child(4) { animation-delay: 150ms; }
-        .book-item:nth-child(5) { animation-delay: 200ms; }
-        .book-item:nth-child(6) { animation-delay: 250ms; }
-        
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-          .books-container.grid {
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-          }
-          
-          .header-actions {
-            flex-direction: column;
-            gap: 16px;
-          }
-          
-          .quick-stats {
-            order: 2;
-          }
-          
-          .view-controls {
-            order: 1;
-          }
-        }
-        
-        @media (max-width: 768px) {
-          .page-header {
-            padding: 20px 16px;
-          }
-          
-          .header-main {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 16px;
-          }
-          
-          .search-section {
-            flex-direction: column;
-            gap: 16px;
-          }
-          
-          .filters-container {
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-          }
-          
-          .category-filters {
-            justify-content: flex-start;
-            overflow-x: auto;
-            padding-bottom: 8px;
-          }
-          
-          .books-content {
-            padding: 16px;
-          }
-          
-          .books-container.grid {
-            grid-template-columns: 1fr;
-            gap: 16px;
-          }
-          
-          .book-list-content {
-            flex-direction: column;
-            gap: 12px;
-            text-align: center;
-          }
-          
-          .book-list-cover {
-            align-self: center;
-          }
-          
-          .book-list-actions {
-            align-self: center;
-            justify-content: center;
-          }
-        }
-        
-        @media (max-width: 480px) {
-          .page-title {
-            font-size: 24px;
-          }
-          
-          .search-input {
-            height: 44px;
-            font-size: 14px;
-          }
-          
-          .view-controls {
-            order: -1;
-            align-self: flex-start;
-          }
-          
-          .filters-container {
-            flex-direction: column;
-            gap: 12px;
-          }
-          
-          .filter-group {
-            flex: 1;
-          }
-          
-          .filter-select {
-            flex: 1;
-          }
-          
-          .book-content {
-            padding: 20px;
-          }
-          
-          .book-cover {
-            height: 200px;
-          }
-          
-          .overlay-actions {
-            gap: 6px;
-          }
-          
-          .overlay-button {
-            width: 32px;
-            height: 32px;
-          }
-          
-          .primary-action-btn {
-            padding: 12px 16px;
-            font-size: 13px;
-          }
-          
-          .action-button {
-            padding: 10px 12px;
-            font-size: 13px;
-          }
-          
-          .category-chip {
-            padding: 6px 12px;
-            font-size: 13px;
-          }
-        }
-        
-        /* Performance optimizations */
-        .book-item {
-          contain: layout style paint;
-        }
-        
-        .book-cover img {
-          will-change: transform;
-        }
-        
-        .book-overlay {
-          will-change: opacity;
-        }
-        
-        /* Accessibility improvements */
-        @media (prefers-reduced-motion: reduce) {
-          .book-item,
-          .overlay-button,
-          .primary-action-btn,
-          .action-button {
-            transition: none;
-            animation: none;
-          }
-          
-          .book-item:hover {
-            transform: none;
-          }
-        }
-        
-        /* High contrast mode support */
-        @media (prefers-contrast: high) {
-          .book-item {
-            border: 2px solid;
-          }
-          
-          .search-input,
-          .filter-select {
-            border-width: 3px;
-          }
-          
-          .category-chip {
-            border-width: 3px;
-          }
-        }
-        
-        /* Dark mode support (future-proofing) */
-        @media (prefers-color-scheme: dark) {
-          .book-list {
-            background: #1a1a1a;
-          }
-          
-          .page-header,
-          .book-item {
-            background: #2d2d2d;
-            border-color: #404040;
-          }
-          
-          .page-title,
-          .book-title {
-            color: #ffffff;
-          }
-          
-          .page-subtitle,
-          .book-author,
-          .meta-item {
-            color: #a0a0a0;
-          }
-          
-          .search-input,
-          .filter-select {
-            background: #2d2d2d;
-            border-color: #404040;
-            color: #ffffff;
-          }
-        }
-      ` })] }));
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] overflow-y-auto", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h2", { className: "text-xl font-semibold text-gray-800 flex items-center gap-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { className: "w-5 h-5" }), editingDocument ? 'Modifier le document' : 'Ajouter un nouveau document'] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: onCancel, className: "p-2 hover:bg-gray-100 rounded-lg transition-colors", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { className: "w-5 h-5" }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "p-6 space-y-6", children: [errors.submit && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg", children: errors.submit })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "bg-gray-50 p-4 rounded-lg", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { className: "text-lg font-medium text-gray-800 mb-4 flex items-center gap-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { className: "w-5 h-5" }), "Informations principales"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { className: "w-4 h-4 inline mr-1" }), "Auteur *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.auteur, onChange: (e) => handleInputChange('auteur', e.target.value), className: `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.auteur ? 'border-red-300' : 'border-gray-300'}`, placeholder: "Nom de l'auteur", list: "authors-list" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("datalist", { id: "authors-list", children: authors.map(author => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: author.name }, author.id))) }), errors.auteur && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-red-500 text-sm mt-1", children: errors.auteur })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { className: "w-4 h-4 inline mr-1" }), "Titre *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.titre, onChange: (e) => handleInputChange('titre', e.target.value), className: `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.titre ? 'border-red-300' : 'border-gray-300'}`, placeholder: "Titre du document" }), errors.titre && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-red-500 text-sm mt-1", children: errors.titre })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { className: "w-4 h-4 inline mr-1" }), "\u00C9diteur *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.editeur, onChange: (e) => handleInputChange('editeur', e.target.value), className: `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.editeur ? 'border-red-300' : 'border-gray-300'}`, placeholder: "Nom de l'\u00E9diteur" }), errors.editeur && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-red-500 text-sm mt-1", children: errors.editeur })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { className: "w-4 h-4 inline mr-1" }), "Lieu d'\u00E9dition *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.lieuEdition, onChange: (e) => handleInputChange('lieuEdition', e.target.value), className: `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.lieuEdition ? 'border-red-300' : 'border-gray-300'}`, placeholder: "Ville d'\u00E9dition" }), errors.lieuEdition && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-red-500 text-sm mt-1", children: errors.lieuEdition })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { className: "w-4 h-4 inline mr-1" }), "Ann\u00E9e *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "number", value: formData.annee, onChange: (e) => handleInputChange('annee', e.target.value), className: `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.annee ? 'border-red-300' : 'border-gray-300'}`, placeholder: "Ann\u00E9e de publication", min: "1000", max: new Date().getFullYear() + 10 }), errors.annee && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-red-500 text-sm mt-1", children: errors.annee })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { className: "w-4 h-4 inline mr-1" }), "Cote *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex gap-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.cote, onChange: (e) => handleInputChange('cote', e.target.value), className: `flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.cote ? 'border-red-300' : 'border-gray-300'}`, placeholder: "Code de classification" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: generateCote, className: "px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors", title: "G\u00E9n\u00E9rer automatiquement", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { className: "w-4 h-4" }) })] }), errors.cote && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-red-500 text-sm mt-1", children: errors.cote })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "bg-gray-50 p-4 rounded-lg", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { className: "text-lg font-medium text-gray-800 mb-4 flex items-center gap-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { className: "w-5 h-5" }), "M\u00E9tadonn\u00E9es et classification"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "space-y-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: "Descripteurs / Mots-cl\u00E9s *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.descripteurs, onChange: (e) => handleInputChange('descripteurs', e.target.value), className: `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.descripteurs ? 'border-red-300' : 'border-gray-300'}`, placeholder: "ex: Fiction, Roman historique, XIXe si\u00E8cle (s\u00E9par\u00E9s par des virgules)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-sm text-gray-500 mt-1", children: "S\u00E9parez les mots-cl\u00E9s par des virgules. Ces descripteurs aideront \u00E0 la recherche et au classement." }), errors.descripteurs && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-red-500 text-sm mt-1", children: errors.descripteurs })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: "ISBN (optionnel)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.isbn, onChange: (e) => handleInputChange('isbn', e.target.value), className: `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.isbn ? 'border-red-300' : 'border-gray-300'}`, placeholder: "978-2-123456-78-9" }), errors.isbn && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-red-500 text-sm mt-1", children: errors.isbn })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { className: "w-4 h-4 inline mr-1" }), "Couverture (optionnel)"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex gap-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.couverture, onChange: (e) => handleInputChange('couverture', e.target.value), className: "flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "Chemin vers l'image", readOnly: true }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: selectCoverImage, className: "px-3 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors", children: "Parcourir" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: "Description (optionnel)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("textarea", { value: formData.description, onChange: (e) => handleInputChange('description', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", rows: 4, placeholder: "Description d\u00E9taill\u00E9e du document..." })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex justify-end gap-3 pt-4 border-t", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: onCancel, className: "px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors", children: "Annuler" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", disabled: isLoading, className: "px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { className: "w-4 h-4" }), isLoading ? 'Enregistrement...' : (editingDocument ? 'Modifier' : 'Ajouter')] })] })] })] }) }));
 };
 
 
@@ -3873,7 +2121,7 @@ const BorrowHistory = ({ onClose }) => {
         }
     };
     const stats = getFilteredStats();
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "history-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "history-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 28 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "modal-title", children: "Historique des Emprunts" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "modal-subtitle", children: [stats.total, " emprunt(s) \u2022 ", stats.active, " actif(s) \u2022 ", stats.returned, " rendu(s)"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-button", onClick: onClose, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon total", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: stats.total }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Total" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon active", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: stats.active }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "En cours" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon returned", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: stats.returned }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Rendus" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon overdue", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: stats.overdue }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "En retard" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filters-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filters-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "search-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { className: "search-icon", size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", placeholder: "Rechercher par livre, auteur, emprunteur...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }), searchQuery && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "clear-search", onClick: () => setSearchQuery(''), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 16 }) }))] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-controls", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "date", value: filters.startDate, onChange: (e) => handleFilterChange('startDate', e.target.value), className: "date-input", placeholder: "Date d\u00E9but" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "filter-separator", children: "\u00E0" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "date", value: filters.endDate, onChange: (e) => handleFilterChange('endDate', e.target.value), className: "date-input", placeholder: "Date fin" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filters.borrowerType, onChange: (e) => handleFilterChange('borrowerType', e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous les emprunteurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "staff", children: "Personnel" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "filter-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filters.status, onChange: (e) => handleFilterChange('status', e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous les statuts" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "active", children: "En cours" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "returned", children: "Rendus" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "overdue", children: "En retard" })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "reset-filters-btn", onClick: resetFilters, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 16 }), "R\u00E9initialiser"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "actions-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "results-info", children: [filteredHistory.length, " r\u00E9sultat(s) affich\u00E9(s)"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "export-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "btn-secondary", onClick: handleExport, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), "Exporter CSV"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "btn-primary", onClick: handlePrint, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), "Imprimer"] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "history-content", children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Chargement de l'historique..." })] })) : filteredHistory.length > 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "history-list", children: filteredHistory.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `history-item ${item.status}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "item-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-section", children: [getStatusIcon(item.status), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "status-label", children: getStatusLabel(item.status) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dates-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "borrow-date", children: ["Emprunt\u00E9 le ", new Date(item.borrowDate).toLocaleDateString('fr-FR')] }), item.actualReturnDate && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "return-date", children: ["Rendu le ", new Date(item.actualReturnDate).toLocaleDateString('fr-FR')] }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "item-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "book-cover", children: item.book?.coverUrl ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("img", { src: item.book.coverUrl, alt: item.book.title })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 24 })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "book-title", children: item.book?.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "book-author", children: ["par ", item.book?.author] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "book-category", children: item.book?.category })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-type", children: [item.borrower?.type === 'student' ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 16 })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: item.borrower?.type === 'student' ? 'Étudiant' : 'Personnel' })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h4", { className: "borrower-name", children: [item.borrower?.firstName, " ", item.borrower?.lastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "borrower-details", children: [item.borrower?.matricule, item.borrower?.type === 'student' && item.borrower.classe &&
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "history-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "history-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 28 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "modal-title", children: "Historique des Emprunts" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "modal-subtitle", children: [stats.total, " emprunt(s) \u2022 ", stats.active, " actif(s) \u2022 ", stats.returned, " rendu(s)"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-button", onClick: onClose, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon total", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: stats.total }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Total" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon active", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: stats.active }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "En cours" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon returned", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: stats.returned }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Rendus" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon overdue", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: stats.overdue }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "En retard" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filters-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filters-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "search-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { className: "search-icon", size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", placeholder: "Rechercher par document, auteur, emprunteur...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }), searchQuery && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "clear-search", onClick: () => setSearchQuery(''), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 16 }) }))] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-controls", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "date", value: filters.startDate, onChange: (e) => handleFilterChange('startDate', e.target.value), className: "date-input", placeholder: "Date d\u00E9but" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "filter-separator", children: "\u00E0" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "date", value: filters.endDate, onChange: (e) => handleFilterChange('endDate', e.target.value), className: "date-input", placeholder: "Date fin" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filters.borrowerType, onChange: (e) => handleFilterChange('borrowerType', e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous les emprunteurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "staff", children: "Personnel" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "filter-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filters.status, onChange: (e) => handleFilterChange('status', e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous les statuts" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "active", children: "En cours" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "returned", children: "Rendus" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "overdue", children: "En retard" })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "reset-filters-btn", onClick: resetFilters, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 16 }), "R\u00E9initialiser"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "actions-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "results-info", children: [filteredHistory.length, " r\u00E9sultat(s) affich\u00E9(s)"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "export-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "btn-secondary", onClick: handleExport, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), "Exporter CSV"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "btn-primary", onClick: handlePrint, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), "Imprimer"] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "history-content", children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Chargement de l'historique..." })] })) : filteredHistory.length > 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "history-list", children: filteredHistory.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `history-item ${item.status}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "item-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-section", children: [getStatusIcon(item.status), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "status-label", children: getStatusLabel(item.status) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dates-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "borrow-date", children: ["Emprunt\u00E9 le ", new Date(item.borrowDate).toLocaleDateString('fr-FR')] }), item.actualReturnDate && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "return-date", children: ["Rendu le ", new Date(item.actualReturnDate).toLocaleDateString('fr-FR')] }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "item-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "book-cover", children: item.book?.coverUrl ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("img", { src: item.book.coverUrl, alt: item.book.title })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 24 })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "book-title", children: item.book?.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "book-author", children: ["par ", item.book?.author] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "book-category", children: item.book?.category })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-type", children: [item.borrower?.type === 'student' ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 16 })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: item.borrower?.type === 'student' ? 'Étudiant' : 'Personnel' })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h4", { className: "borrower-name", children: [item.borrower?.firstName, " ", item.borrower?.lastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "borrower-details", children: [item.borrower?.matricule, item.borrower?.type === 'student' && item.borrower.classe &&
                                                                         ` • ${item.borrower.classe}`, item.borrower?.type === 'staff' && item.borrower.position &&
                                                                         ` • ${item.borrower.position}`] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "timeline-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "timeline-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "timeline-dot borrow" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "timeline-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "timeline-label", children: "Emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "timeline-date", children: [new Date(item.borrowDate).toLocaleDateString('fr-FR'), " \u00E0", ' ', new Date(item.borrowDate).toLocaleTimeString('fr-FR', {
                                                                                 hour: '2-digit', minute: '2-digit'
@@ -4500,775 +2748,517 @@ const BorrowHistory = ({ onClose }) => {
 
 /***/ }),
 
-/***/ "./src/renderer/components/BorrowedBooks.tsx":
-/*!***************************************************!*\
-  !*** ./src/renderer/components/BorrowedBooks.tsx ***!
-  \***************************************************/
+/***/ "./src/renderer/components/BorrowedDocuments.tsx":
+/*!*******************************************************!*\
+  !*** ./src/renderer/components/BorrowedDocuments.tsx ***!
+  \*******************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   BorrowedBooks: () => (/* binding */ BorrowedBooks)
+/* harmony export */   BorrowedDocuments: () => (/* binding */ BorrowedDocuments)
 /* harmony export */ });
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check-circle.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-triangle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-triangle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check-circle.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/search.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/filter.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/arrow-up-down.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/calendar.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/rotate-ccw.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/calendar.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/rotate-ccw.mjs");
 
 
 
-const BorrowedBooks = ({ books, onReturn }) => {
+const BorrowedDocuments = ({ documents, onReturn }) => {
     const [searchQuery, setSearchQuery] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
     const [sortBy, setSortBy] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('date');
     const [filterStatus, setFilterStatus] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('all');
-    const handleReturn = (book) => {
-        if (window.confirm(`Confirmer le retour de "${book.title}" emprunté par ${book.borrowerName} ?`)) {
-            onReturn(book.id);
+    const handleReturn = (document) => {
+        if (window.confirm(`Confirmer le retour de "${document.titre}" emprunté par ${document.nomEmprunteur} ?`)) {
+            onReturn(document.id);
         }
     };
-    const getDaysOverdue = (borrowDate) => {
-        const borrowed = new Date(borrowDate);
+    // Filter and sort documents
+    const processedDocuments = documents
+        .filter(doc => {
+        if (!searchQuery)
+            return true;
+        const query = searchQuery.toLowerCase();
+        return (doc.titre.toLowerCase().includes(query) ||
+            doc.auteur.toLowerCase().includes(query) ||
+            doc.nomEmprunteur?.toLowerCase().includes(query));
+    })
+        .filter(doc => {
+        if (filterStatus === 'all')
+            return true;
+        const borrowDate = new Date(doc.dateEmprunt);
+        const expectedDate = new Date(doc.dateRetourPrevu);
         const today = new Date();
-        const diffTime = today.getTime() - borrowed.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays;
-    };
-    const getStatusInfo = (borrowDate) => {
-        const days = getDaysOverdue(borrowDate);
-        if (days <= 14) {
+        const diffDays = Math.floor((expectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        switch (filterStatus) {
+            case 'overdue': return diffDays < 0;
+            case 'warning': return diffDays >= 0 && diffDays <= 3;
+            case 'normal': return diffDays > 3;
+            default: return true;
+        }
+    })
+        .sort((a, b) => {
+        switch (sortBy) {
+            case 'title': return a.titre.localeCompare(b.titre);
+            case 'borrower': return (a.nomEmprunteur || '').localeCompare(b.nomEmprunteur || '');
+            case 'date': return new Date(a.dateEmprunt).getTime() - new Date(b.dateEmprunt).getTime();
+            case 'status':
+                const getStatusPriority = (doc) => {
+                    const expectedDate = new Date(doc.dateRetourPrevu);
+                    const today = new Date();
+                    const diffDays = Math.floor((expectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                    if (diffDays < 0)
+                        return 3; // overdue
+                    if (diffDays <= 3)
+                        return 2; // warning
+                    return 1; // normal
+                };
+                return getStatusPriority(b) - getStatusPriority(a);
+            default: return 0;
+        }
+    });
+    const getStatusInfo = (document) => {
+        const borrowDate = new Date(document.dateEmprunt);
+        const expectedDate = new Date(document.dateRetourPrevu);
+        const today = new Date();
+        const diffDays = Math.floor((expectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        if (diffDays < 0) {
             return {
-                status: 'normal',
-                color: '#3E5C49',
-                bgColor: 'rgba(62, 92, 73, 0.1)',
-                text: `${days} jour(s)`,
-                priority: 1
+                status: 'overdue',
+                label: `En retard de ${Math.abs(diffDays)} jour(s)`,
+                className: 'status-overdue',
+                icon: lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"]
             };
         }
-        else if (days <= 30) {
+        else if (diffDays <= 3) {
             return {
                 status: 'warning',
-                color: '#C2571B',
-                bgColor: 'rgba(194, 87, 27, 0.1)',
-                text: `${days} jour(s) - À surveiller`,
-                priority: 2
+                label: diffDays === 0 ? 'À rendre aujourd\'hui' : `${diffDays} jour(s) restant(s)`,
+                className: 'status-warning',
+                icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"]
             };
         }
         else {
             return {
-                status: 'overdue',
-                color: '#DC2626',
-                bgColor: 'rgba(220, 38, 38, 0.1)',
-                text: `${days} jour(s) - En retard`,
-                priority: 3
+                status: 'normal',
+                label: `${diffDays} jour(s) restant(s)`,
+                className: 'status-normal',
+                icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"]
             };
         }
     };
-    // ✅ Filter only borrowed books and apply search/status filters
-    const borrowedBooks = books.filter(book => book.isBorrowed);
-    const filteredBooks = borrowedBooks.filter(book => {
-        // Filtre par recherche
-        const matchesSearch = !searchQuery ||
-            book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            book.borrowerName?.toLowerCase().includes(searchQuery.toLowerCase());
-        // Filtre par statut
-        if (filterStatus === 'all')
-            return matchesSearch;
-        const statusInfo = getStatusInfo(book.borrowDate);
-        return matchesSearch && statusInfo.status === filterStatus;
-    });
-    const sortedBooks = [...filteredBooks].sort((a, b) => {
-        switch (sortBy) {
-            case 'borrower':
-                return (a.borrowerName || '').localeCompare(b.borrowerName || '');
-            case 'title':
-                return a.title.localeCompare(b.title);
-            case 'status':
-                const statusA = getStatusInfo(a.borrowDate);
-                const statusB = getStatusInfo(b.borrowDate);
-                return statusB.priority - statusA.priority;
-            case 'date':
-            default:
-                return new Date(b.borrowDate).getTime() - new Date(a.borrowDate).getTime();
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrowed-documents-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "page-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "page-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-main", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 36 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "page-title", children: "Documents emprunt\u00E9s" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "page-subtitle", children: [documents.length, " document(s) actuellement en circulation"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "enhanced-controls", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "controls-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "search-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { className: "search-icon", size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", placeholder: "Rechercher par document, auteur, emprunteur...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }), searchQuery && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "clear-search", onClick: () => setSearchQuery(''), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }) }))] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-controls", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: sortBy, onChange: (e) => setSortBy(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "date", children: "Trier par date d'emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "title", children: "Trier par titre" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "borrower", children: "Trier par emprunteur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "status", children: "Trier par statut" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filterStatus, onChange: (e) => setFilterStatus(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous les statuts" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "overdue", children: "En retard" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "warning", children: "\u00C0 rendre bient\u00F4t" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "normal", children: "Dans les temps" })] })] })] }) })] }), searchQuery && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "results-summary", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "results-count", children: [processedDocuments.length, " r\u00E9sultat(s) pour \"", searchQuery, "\""] }) })), processedDocuments.length > 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "documents-grid", children: processedDocuments.map(document => {
+                            const statusInfo = getStatusInfo(document);
+                            const StatusIcon = statusInfo.icon;
+                            return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `document-card ${statusInfo.className}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "document-title", children: document.titre }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "document-author", children: document.auteur }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "document-details", children: [document.editeur, " \u2022 ", document.annee] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "document-status", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(StatusIcon, { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrower-info", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-name", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: document.nomEmprunteur })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrow-dates", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "date-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["Emprunt\u00E9 le ", new Date(document.dateEmprunt).toLocaleDateString('fr-FR')] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "date-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["\u00C0 rendre le ", new Date(document.dateRetourPrevu).toLocaleDateString('fr-FR')] })] })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "document-status-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `status-badge ${statusInfo.className}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(StatusIcon, { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: statusInfo.label })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "document-actions", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { onClick: () => handleReturn(document), className: "return-button", title: "Marquer comme rendu", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), "Retour"] }) })] }, document.id));
+                        }) })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "empty-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "empty-icon", children: searchQuery ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 80 })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 80 })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "empty-title", children: documents.length === 0 ? 'Aucun document emprunté' : 'Aucun résultat' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "empty-description", children: documents.length === 0
+                                    ? 'Tous les documents sont actuellement disponibles dans la bibliothèque.'
+                                    : searchQuery
+                                        ? `Aucun résultat pour "${searchQuery}"`
+                                        : 'Aucun document ne correspond aux filtres sélectionnés.' }), (searchQuery || filterStatus !== 'all') && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "clear-filters", onClick: () => {
+                                    setSearchQuery('');
+                                    setFilterStatus('all');
+                                }, children: "Effacer les filtres" }))] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+        .borrowed-documents-container {
+          padding: 24px;
+          background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+          min-height: 100vh;
         }
-    });
-    const getStatusCounts = () => {
-        const counts = { normal: 0, warning: 0, overdue: 0 };
-        borrowedBooks.forEach(book => {
-            if (book.borrowDate) {
-                const status = getStatusInfo(book.borrowDate).status;
-                if (status in counts)
-                    counts[status]++;
-            }
-        });
-        return counts;
-    };
-    const statusCounts = getStatusCounts();
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrowed-books", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "page-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-background", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "background-pattern" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-main", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 36 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "page-title", children: "Documents emprunt\u00E9s" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "page-subtitle", children: [books.length, " document(s) actuellement en circulation"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-overview", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-card normal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "status-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "status-count", children: statusCounts.normal }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "status-label", children: "Normal" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-card warning", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "status-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "status-count", children: statusCounts.warning }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "status-label", children: "\u00C0 surveiller" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-card overdue", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "status-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "status-count", children: statusCounts.overdue }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "status-label", children: "En retard" })] })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "controls-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "search-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { className: "search-icon", size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", placeholder: "Rechercher par titre, auteur ou emprunteur...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }), searchQuery && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "clear-search", onClick: () => setSearchQuery(''), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 16 }) }))] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filters-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filterStatus, onChange: (e) => setFilterStatus(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous les statuts" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "normal", children: "Normal (\u226414 jours)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "warning", children: "\u00C0 surveiller (15-30 jours)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "overdue", children: "En retard (>30 jours)" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: sortBy, onChange: (e) => setSortBy(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "date", children: "Trier par date d'emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "borrower", children: "Trier par emprunteur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "title", children: "Trier par titre" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "status", children: "Trier par statut" })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "books-content", children: sortedBooks.length > 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrowed-list", children: sortedBooks.map((book) => {
-                        const statusInfo = getStatusInfo(book.borrowDate);
-                        return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `borrowed-card ${statusInfo.status}`, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "book-cover", children: book.coverUrl ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("img", { src: book.coverUrl, alt: book.title })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "book-cover-placeholder", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 24 }) })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-main", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "book-title", children: book.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "book-author", children: ["par ", book.author] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "book-category", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "category-badge", children: book.category }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrow-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "borrower-name", children: book.borrowerName })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["Emprunt\u00E9 le ", new Date(book.borrowDate).toLocaleDateString('fr-FR')] })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-indicator", style: {
-                                                    backgroundColor: statusInfo.bgColor,
-                                                    color: statusInfo.color
-                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "status-dot", style: { backgroundColor: statusInfo.color } }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "status-text", children: statusInfo.text })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "action-button view", title: "Voir d\u00E9tails", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "action-button return", onClick: () => handleReturn(book), title: "Marquer comme rendu", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Retour" })] })] })] })] }) }, book.id));
-                    }) })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "empty-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "empty-illustration", children: books.length === 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 80 })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 80 })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "empty-title", children: books.length === 0 ? 'Aucun document emprunté' : 'Aucun résultat' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "empty-description", children: books.length === 0
-                                ? 'Tous les documents sont actuellement disponibles dans la bibliothèque.'
-                                : searchQuery
-                                    ? `Aucun résultat pour "${searchQuery}"`
-                                    : 'Aucun document ne correspond aux filtres sélectionnés.' }), (searchQuery || filterStatus !== 'all') && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "btn-secondary", onClick: () => {
-                                setSearchQuery('');
-                                setFilterStatus('all');
-                            }, children: "Effacer les filtres" }))] })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
-        .borrowed-books {
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          background: #FAF9F6;
-        }
-        
-        .page-header {
-          position: relative;
-          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
-          color: #F3EED9;
-          padding: 40px 32px;
-          overflow: hidden;
-        }
-        
-        .header-background {
-          position: absolute;
-          inset: 0;
-          overflow: hidden;
-        }
-        
-        .background-pattern {
-          position: absolute;
-          inset: 0;
-          background-image: 
-            radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(243, 238, 217, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 40% 40%, rgba(243, 238, 217, 0.05) 0%, transparent 50%);
-          animation: float 15s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(30px, -30px) scale(1.05); }
-          66% { transform: translate(-20px, 20px) scale(0.95); }
-        }
-        
-        .header-content {
-          position: relative;
-          z-index: 1;
+
+        .page-content {
           max-width: 1200px;
           margin: 0 auto;
         }
-        
+
+        .page-header {
+          background: white;
+          border-radius: 16px;
+          padding: 32px;
+          margin-bottom: 24px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+
         .header-main {
           display: flex;
           align-items: center;
           gap: 24px;
           margin-bottom: 32px;
         }
-        
+
         .header-icon {
           width: 72px;
           height: 72px;
-          background: rgba(243, 238, 217, 0.2);
+          background: linear-gradient(135deg, #C2571B 0%, #E65100 100%);
           border-radius: 20px;
           display: flex;
           align-items: center;
           justify-content: center;
-          backdrop-filter: blur(10px);
+          color: white;
+          box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
         }
-        
+
         .page-title {
-          font-size: 36px;
-          font-weight: 800;
+          font-size: 28px;
+          font-weight: 700;
+          color: #2E2E2E;
           margin: 0 0 8px 0;
-          line-height: 1.2;
           letter-spacing: -0.5px;
         }
-        
+
         .page-subtitle {
-          font-size: 18px;
-          opacity: 0.9;
+          font-size: 16px;
+          color: #6E6E6E;
           margin: 0;
-          line-height: 1.4;
         }
-        
-        .status-overview {
-          display: flex;
-          gap: 20px;
+
+        .enhanced-controls {
+          border-top: 1px solid #E5DCC2;
+          padding-top: 24px;
         }
-        
-        .status-card {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          background: rgba(243, 238, 217, 0.15);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(243, 238, 217, 0.3);
-          border-radius: 16px;
-          padding: 20px 24px;
-          transition: all 0.3s ease;
-        }
-        
-        .status-card:hover {
-          background: rgba(243, 238, 217, 0.25);
-          transform: translateY(-2px);
-        }
-        
-        .status-icon {
-          width: 40px;
-          height: 40px;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #F3EED9;
-        }
-        
-        .status-card.normal .status-icon {
-          background: rgba(62, 92, 73, 0.3);
-        }
-        
-        .status-card.warning .status-icon {
-          background: rgba(194, 87, 27, 0.3);
-        }
-        
-        .status-card.overdue .status-icon {
-          background: rgba(220, 38, 38, 0.3);
-        }
-        
-        .status-count {
-          font-size: 24px;
-          font-weight: 800;
-          line-height: 1;
-          margin-bottom: 4px;
-          display: block;
-        }
-        
-        .status-label {
-          font-size: 12px;
-          opacity: 0.9;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        
-        .controls-section {
-          background: #FFFFFF;
-          padding: 24px 32px;
-          border-bottom: 1px solid #E5DCC2;
+
+        .controls-row {
           display: flex;
           gap: 24px;
           align-items: center;
-          box-shadow: 0 2px 8px rgba(62, 92, 73, 0.04);
+          justify-content: space-between;
+          flex-wrap: wrap;
         }
-        
+
         .search-container {
           flex: 1;
-          max-width: 500px;
+          min-width: 300px;
         }
-        
+
         .search-input-wrapper {
           position: relative;
           display: flex;
           align-items: center;
         }
-        
+
         .search-icon {
           position: absolute;
           left: 16px;
           color: #6E6E6E;
           z-index: 2;
         }
-        
+
         .search-input {
           width: 100%;
-          height: 48px;
-          padding: 0 48px 0 48px;
+          padding: 16px 16px 16px 48px;
           border: 2px solid #E5DCC2;
           border-radius: 12px;
-          font-size: 16px;
-          background: #FFFFFF;
-          color: #2E2E2E;
+          font-size: 14px;
+          background: white;
           transition: all 0.2s ease;
         }
-        
+
         .search-input:focus {
           outline: none;
           border-color: #C2571B;
           box-shadow: 0 0 0 3px rgba(194, 87, 27, 0.1);
         }
-        
-        .search-input::placeholder {
-          color: #6E6E6E;
-        }
-        
+
         .clear-search {
           position: absolute;
-          right: 16px;
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: #6E6E6E;
+          right: 12px;
           padding: 4px;
+          border: none;
+          background: transparent;
+          color: #6E6E6E;
+          cursor: pointer;
           border-radius: 4px;
           transition: all 0.2s ease;
         }
-        
+
         .clear-search:hover {
+          background: #f5f5f5;
           color: #2E2E2E;
-          background: #F3EED9;
         }
-        
-        .filters-container {
+
+        .filter-controls {
           display: flex;
-          gap: 16px;
+          gap: 12px;
         }
-        
-        .filter-group {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          color: #6E6E6E;
-        }
-        
+
         .filter-select {
+          padding: 12px 16px;
           border: 2px solid #E5DCC2;
           border-radius: 8px;
-          padding: 8px 12px;
-          background: #FFFFFF;
-          color: #2E2E2E;
+          background: white;
           font-size: 14px;
+          color: #2E2E2E;
           cursor: pointer;
-          transition: border-color 0.2s ease;
+          transition: all 0.2s ease;
+          min-width: 180px;
         }
-        
+
         .filter-select:focus {
           outline: none;
           border-color: #C2571B;
+          box-shadow: 0 0 0 3px rgba(194, 87, 27, 0.1);
         }
-        
-        .books-content {
-          flex: 1;
-          overflow-y: auto;
-          padding: 32px;
-        }
-        
-        .borrowed-list {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-        
-        .borrowed-card {
-          background: #FFFFFF;
-          border-radius: 20px;
-          overflow: hidden;
-          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          border: 1px solid #E5DCC2;
-          position: relative;
-        }
-        
-        .borrowed-card::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 0;
-          bottom: 0;
-          width: 4px;
-          background: #3E5C49;
-          transition: background 0.3s ease;
-        }
-        
-        .borrowed-card.warning::before {
-          background: #C2571B;
-        }
-        
-        .borrowed-card.overdue::before {
-          background: #DC2626;
-        }
-        
-        .borrowed-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 
-            0 12px 32px rgba(62, 92, 73, 0.12),
-            0 4px 16px rgba(62, 92, 73, 0.08);
-        }
-        
-        .card-content {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 24px;
-          gap: 24px;
-        }
-        
-        .book-info {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          flex: 1;
-          min-width: 0;
-        }
-        
-        .book-cover {
-          width: 64px;
-          height: 88px;
+
+        .results-summary {
+          background: white;
           border-radius: 12px;
-          overflow: hidden;
-          flex-shrink: 0;
-          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.2);
-        }
-        
-        .book-cover img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-        
-        .book-cover-placeholder {
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(135deg, #F3EED9 0%, #E5DCC2 100%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #6E6E6E;
-        }
-        
-        .book-details {
-          flex: 1;
-          min-width: 0;
-        }
-        
-        .book-main {
+          padding: 16px 24px;
           margin-bottom: 16px;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
         }
-        
-        .book-title {
-          font-size: 20px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 0 0 4px 0;
-          line-height: 1.3;
-        }
-        
-        .book-author {
+
+        .results-count {
           font-size: 14px;
           color: #6E6E6E;
-          margin: 0 0 8px 0;
+          font-weight: 500;
         }
-        
-        .category-badge {
-          background: #3E5C49;
-          color: #F3EED9;
-          padding: 4px 12px;
+
+        .documents-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+          gap: 20px;
+        }
+
+        .document-card {
+          background: white;
+          border-radius: 16px;
+          padding: 24px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+          transition: all 0.3s ease;
+          border-left: 4px solid #E5DCC2;
+        }
+
+        .document-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .document-card.status-overdue {
+          border-left-color: #DC2626;
+          background: linear-gradient(135deg, #FEF2F2 0%, #FFFFFF 100%);
+        }
+
+        .document-card.status-warning {
+          border-left-color: #F59E0B;
+          background: linear-gradient(135deg, #FFFBEB 0%, #FFFFFF 100%);
+        }
+
+        .document-card.status-normal {
+          border-left-color: #10B981;
+          background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%);
+        }
+
+        .document-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 20px;
+        }
+
+        .document-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 8px 0;
+          line-height: 1.3;
+        }
+
+        .document-author {
+          font-size: 14px;
+          color: #3E5C49;
+          font-weight: 600;
+          margin: 0 0 4px 0;
+        }
+
+        .document-details {
+          font-size: 12px;
+          color: #6E6E6E;
+          margin: 0;
+        }
+
+        .document-status {
+          padding: 8px;
+          border-radius: 8px;
+          background: rgba(243, 238, 217, 0.5);
+        }
+
+        .borrower-info {
+          padding: 16px;
+          background: rgba(243, 238, 217, 0.3);
           border-radius: 12px;
+          margin-bottom: 16px;
+        }
+
+        .borrower-name {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin-bottom: 12px;
+        }
+
+        .borrow-dates {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .date-info {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 13px;
+          color: #6E6E6E;
+        }
+
+        .document-status-bar {
+          margin-bottom: 16px;
+        }
+
+        .status-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          border-radius: 20px;
           font-size: 12px;
           font-weight: 600;
         }
-        
-        .borrow-details {
+
+        .status-badge.status-overdue {
+          background: #FEE2E2;
+          color: #DC2626;
+        }
+
+        .status-badge.status-warning {
+          background: #FEF3C7;
+          color: #F59E0B;
+        }
+
+        .status-badge.status-normal {
+          background: #D1FAE5;
+          color: #10B981;
+        }
+
+        .document-actions {
           display: flex;
-          flex-direction: column;
-          gap: 8px;
+          justify-content: flex-end;
         }
-        
-        .detail-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 14px;
-          color: #6E6E6E;
-        }
-        
-        .borrower-name {
-          font-weight: 600;
-          color: #2E2E2E;
-        }
-        
-        .status-section {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 16px;
-          flex-shrink: 0;
-        }
-        
-        .status-indicator {
+
+        .return-button {
           display: flex;
           align-items: center;
           gap: 8px;
-          padding: 8px 16px;
-          border-radius: 20px;
-          font-size: 14px;
-          font-weight: 600;
-          border: 1px solid currentColor;
-        }
-        
-        .status-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          animation: pulse 2s infinite;
-        }
-        
-        .card-actions {
-          display: flex;
-          gap: 8px;
-        }
-        
-        .action-button {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 12px 16px;
+          padding: 10px 16px;
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: white;
           border: none;
-          border-radius: 12px;
-          cursor: pointer;
+          border-radius: 8px;
           font-size: 14px;
           font-weight: 600;
+          cursor: pointer;
           transition: all 0.2s ease;
         }
-        
-        .action-button.view {
-          background: #F3EED9;
-          color: #6E6E6E;
-          padding: 12px;
-        }
-        
-        .action-button.view:hover {
-          background: #EAEADC;
-          color: #2E2E2E;
-        }
-        
-        .action-button.return {
-          background: #3E5C49;
-          color: #F3EED9;
-        }
-        
-        .action-button.return:hover {
-          background: #2E453A;
+
+        .return-button:hover {
+          background: linear-gradient(135deg, #2E453A 0%, #1E2F25 100%);
           transform: translateY(-1px);
           box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
         }
-        
-        /* Empty State */
+
         .empty-state {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 80px 32px;
           text-align: center;
-          max-width: 600px;
-          margin: 0 auto;
+          padding: 80px 40px;
+          background: white;
+          border-radius: 16px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
         }
-        
-        .empty-illustration {
-          color: #C2571B;
-          margin-bottom: 32px;
-          opacity: 0.6;
+
+        .empty-icon {
+          margin-bottom: 24px;
+          color: #E5DCC2;
         }
-        
+
         .empty-title {
-          font-size: 28px;
+          font-size: 24px;
           font-weight: 700;
-          margin: 0 0 16px 0;
           color: #2E2E2E;
+          margin: 0 0 16px 0;
         }
-        
+
         .empty-description {
-          margin: 0 0 32px 0;
           font-size: 16px;
-          line-height: 1.6;
           color: #6E6E6E;
+          margin: 0 0 32px 0;
+          line-height: 1.5;
         }
-        
-        .btn-secondary {
-          display: flex;
-          align-items: center;
-          gap: 8px;
+
+        .clear-filters {
           padding: 12px 24px;
-          background: #F3EED9;
-          color: #6E6E6E;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
+          color: white;
+          border: none;
+          border-radius: 8px;
           font-size: 14px;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        
-        .btn-secondary:hover {
-          background: #EAEADC;
-          color: #2E2E2E;
+
+        .clear-filters:hover {
+          background: linear-gradient(135deg, #A8481A 0%, #8A3C18 100%);
           transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(194, 87, 27, 0.3);
         }
-        
-        /* Animations */
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 1;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 0.7;
-            transform: scale(1.1);
-          }
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-          .status-overview {
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 16px;
-          }
-          
-          .controls-section {
-            flex-direction: column;
-            gap: 16px;
-            align-items: stretch;
-          }
-          
-          .search-container {
-            max-width: none;
-          }
-          
-          .filters-container {
-            justify-content: space-between;
-          }
-        }
-        
+
         @media (max-width: 768px) {
-          .page-header {
-            padding: 24px 16px;
+          .borrowed-documents-container {
+            padding: 16px;
           }
-          
+
+          .page-header {
+            padding: 20px;
+          }
+
           .header-main {
             flex-direction: column;
             text-align: center;
             gap: 16px;
           }
-          
-          .page-title {
-            font-size: 28px;
-          }
-          
-          .page-subtitle {
-            font-size: 16px;
-          }
-          
-          .status-overview {
-            justify-content: center;
-            flex-wrap: wrap;
-          }
-          
-          .status-card {
-            padding: 16px 20px;
-          }
-          
-          .controls-section {
-            padding: 16px;
-          }
-          
-          .books-content {
-            padding: 16px;
-          }
-          
-          .card-content {
+
+          .controls-row {
             flex-direction: column;
-            align-items: stretch;
-            gap: 20px;
+            gap: 16px;
           }
-          
-          .book-info {
-            flex-direction: column;
-            text-align: center;
+
+          .search-container {
+            min-width: unset;
           }
-          
-          .status-section {
-            align-items: center;
-            flex-direction: row;
-            justify-content: space-between;
-          }
-          
-          .borrow-details {
-            align-items: center;
-          }
-        }
-        
-        @media (max-width: 480px) {
-          .header-icon {
-            width: 56px;
-            height: 56px;
-          }
-          
-          .status-overview {
-            flex-direction: column;
-            gap: 12px;
-          }
-          
-          .status-card {
-            padding: 12px 16px;
-          }
-          
-          .status-count {
-            font-size: 20px;
-          }
-          
-          .filters-container {
-            flex-direction: column;
-            gap: 12px;
-          }
-          
-          .filter-group {
-            flex: 1;
-          }
-          
-          .filter-select {
-            flex: 1;
-          }
-          
-          .borrowed-card {
-            border-radius: 16px;
-          }
-          
-          .card-content {
-            padding: 20px 16px;
-          }
-          
-          .book-cover {
-            width: 56px;
-            height: 76px;
-          }
-          
-          .book-title {
-            font-size: 18px;
-          }
-          
-          .card-actions {
+
+          .filter-controls {
             width: 100%;
             justify-content: space-between;
           }
-          
-          .action-button.return {
+
+          .filter-select {
             flex: 1;
-            justify-content: center;
+            min-width: unset;
+          }
+
+          .documents-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .document-card {
+            padding: 20px;
           }
         }
       ` })] }));
@@ -6202,21 +4192,21 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const Dashboard = ({ stats, onNavigate, books = [], categories = [] }) => {
+const Dashboard = ({ stats, onNavigate, documents = [], categories = [] }) => {
     const [showPrintManager, setShowPrintManager] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const heroActions = [
         {
             title: 'Ajouter un document',
             description: 'Enrichissez votre collection',
             icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"],
-            action: () => onNavigate('add-book'),
+            action: () => onNavigate('add-document'),
             primary: true
         },
         {
             title: 'Parcourir la collection',
             description: 'Explorer tous les documents',
             icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"],
-            action: () => onNavigate('books'),
+            action: () => onNavigate('documents'),
             primary: false
         }
     ];
@@ -6225,7 +4215,7 @@ const Dashboard = ({ stats, onNavigate, books = [], categories = [] }) => {
             title: 'Collection complète',
             description: `${stats.totalBooks} documents disponibles`,
             icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"],
-            action: () => onNavigate('books'),
+            action: () => onNavigate('documents'),
             color: '#3E5C49'
         },
         {
@@ -6298,7 +4288,7 @@ const Dashboard = ({ stats, onNavigate, books = [], categories = [] }) => {
         }
     ];
     const borrowRate = stats.totalBooks > 0 ? (stats.borrowedBooks / stats.totalBooks * 100).toFixed(1) : 0;
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dashboard", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-section", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "hero-title", children: "Bienvenue dans votre biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "hero-subtitle", children: ["G\u00E9rez votre collection de ", stats.totalBooks, " documents avec facilit\u00E9 et \u00E9l\u00E9gance"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-actions", children: heroActions.map((action, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `hero-button ${action.primary ? 'primary' : 'secondary'}`, onClick: action.action, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(action.icon, { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: action.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-visual", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Collection" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-stats", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: stats.totalBooks }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Documents" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: stats.borrowedBooks }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Emprunt\u00E9s" })] })] })] }) })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dashboard-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "section-title", children: "Vue d'ensemble" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-subtitle", children: "Statistiques de votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stats-grid", children: mainStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card card-elevated", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-header", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 24 }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [stat.trend && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-trend", children: stat.trend }), stat.percentage && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "stat-percentage", children: [stat.percentage, "%"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-title", children: stat.title })] })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dashboard-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "quick-actions-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-header", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Actions rapides" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "actions-grid", children: quickActions.map((action, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "action-card card-elevated", onClick: action.action, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-icon", style: { backgroundColor: action.color }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(action.icon, { size: 20 }), action.badge && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-badge" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-title", children: action.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-description", children: action.description })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16, className: "action-arrow" })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-header", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Utilisation" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-card card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "progress-label", children: "Taux d'emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "progress-value", children: [borrowRate, "%"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-fill", style: { width: `${borrowRate}%` } }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-metrics", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metric", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Tendance stable" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metric", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Mis \u00E0 jour maintenant" })] })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Activit\u00E9 r\u00E9cente" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "view-all-button", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), "Voir tout"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-list card", children: recentActivity.map((activity, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(activity.icon, { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-title", children: activity.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-description", children: activity.description })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-time", children: activity.time })] }, index))) })] })] }), showPrintManager && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_PrintManager__WEBPACK_IMPORTED_MODULE_2__.PrintManager, { books: books, stats: stats, categories: categories, onClose: () => setShowPrintManager(false) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dashboard", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-section", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "hero-title", children: "Bienvenue dans votre biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "hero-subtitle", children: ["G\u00E9rez votre collection de ", stats.totalBooks, " documents avec facilit\u00E9 et \u00E9l\u00E9gance"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-actions", children: heroActions.map((action, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `hero-button ${action.primary ? 'primary' : 'secondary'}`, onClick: action.action, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(action.icon, { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: action.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-visual", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Collection" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-stats", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: stats.totalBooks }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Documents" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: stats.borrowedBooks }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Emprunt\u00E9s" })] })] })] }) })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dashboard-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "section-title", children: "Vue d'ensemble" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-subtitle", children: "Statistiques de votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stats-grid", children: mainStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card card-elevated", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-header", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 24 }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [stat.trend && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-trend", children: stat.trend }), stat.percentage && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "stat-percentage", children: [stat.percentage, "%"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-title", children: stat.title })] })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dashboard-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "quick-actions-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-header", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Actions rapides" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "actions-grid", children: quickActions.map((action, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "action-card card-elevated", onClick: action.action, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-icon", style: { backgroundColor: action.color }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(action.icon, { size: 20 }), action.badge && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-badge" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-title", children: action.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-description", children: action.description })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16, className: "action-arrow" })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-header", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Utilisation" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-card card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "progress-label", children: "Taux d'emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "progress-value", children: [borrowRate, "%"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-fill", style: { width: `${borrowRate}%` } }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-metrics", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metric", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Tendance stable" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metric", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Mis \u00E0 jour maintenant" })] })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Activit\u00E9 r\u00E9cente" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "view-all-button", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), "Voir tout"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-list card", children: recentActivity.map((activity, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(activity.icon, { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-title", children: activity.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-description", children: activity.description })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-time", children: activity.time })] }, index))) })] })] }), showPrintManager && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_PrintManager__WEBPACK_IMPORTED_MODULE_2__.PrintManager, { books: documents, stats: stats, categories: categories, onClose: () => setShowPrintManager(false) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .dashboard {
           height: 100%;
           overflow-y: auto;
@@ -6809,6 +4799,107 @@ const Dashboard = ({ stats, onNavigate, books = [], categories = [] }) => {
           }
         }
       ` })] }));
+};
+
+
+/***/ }),
+
+/***/ "./src/renderer/components/DocumentList.tsx":
+/*!**************************************************!*\
+  !*** ./src/renderer/components/DocumentList.tsx ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   DocumentList: () => (/* binding */ DocumentList)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check-circle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-circle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/wifi.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/wifi-off.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/loader-2.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/search.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/building.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/map-pin.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/calendar.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/hash.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/tag.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/pen-square.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trash-2.mjs");
+
+
+
+const DocumentList = ({ documents, onAdd, onEdit, onDelete, onRefresh, syncStatus, networkStatus }) => {
+    const [searchTerm, setSearchTerm] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
+    const [selectedCategory, setSelectedCategory] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('all');
+    const [selectedSyncStatus, setSelectedSyncStatus] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('all');
+    const [filteredDocuments, setFilteredDocuments] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
+    (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+        filterDocuments();
+    }, [documents, searchTerm, selectedCategory, selectedSyncStatus]);
+    const filterDocuments = () => {
+        let filtered = documents;
+        // Filtrage par terme de recherche
+        if (searchTerm) {
+            const term = searchTerm.toLowerCase();
+            filtered = filtered.filter(doc => doc.titre.toLowerCase().includes(term) ||
+                doc.auteur.toLowerCase().includes(term) ||
+                doc.editeur.toLowerCase().includes(term) ||
+                doc.descripteurs.toLowerCase().includes(term) ||
+                doc.cote.toLowerCase().includes(term) ||
+                (doc.isbn && doc.isbn.toLowerCase().includes(term)));
+        }
+        // Filtrage par catégorie (utilise les descripteurs)
+        if (selectedCategory !== 'all') {
+            filtered = filtered.filter(doc => doc.descripteurs.toLowerCase().includes(selectedCategory.toLowerCase()));
+        }
+        // Filtrage par statut de sync
+        if (selectedSyncStatus !== 'all') {
+            filtered = filtered.filter(doc => doc.syncStatus === selectedSyncStatus);
+        }
+        setFilteredDocuments(filtered);
+    };
+    const getUniqueCategories = () => {
+        const categories = new Set();
+        documents.forEach(doc => {
+            doc.descripteurs.split(',').forEach(desc => {
+                categories.add(desc.trim());
+            });
+        });
+        return Array.from(categories).sort();
+    };
+    const getSyncStatusIcon = (status) => {
+        switch (status) {
+            case 'synced':
+                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { className: "w-4 h-4 text-green-500" });
+            case 'pending':
+                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { className: "w-4 h-4 text-yellow-500" });
+            case 'error':
+                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { className: "w-4 h-4 text-red-500" });
+            case 'conflict':
+                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { className: "w-4 h-4 text-orange-500" });
+            default:
+                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { className: "w-4 h-4 text-gray-500" });
+        }
+    };
+    const getNetworkStatusDisplay = () => {
+        return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center gap-2 text-sm", children: [networkStatus.isOnline ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center gap-1 text-green-600", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { className: "w-4 h-4" }), "En ligne"] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center gap-1 text-red-600", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { className: "w-4 h-4" }), "Hors ligne"] })), syncStatus.syncInProgress && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center gap-1 text-blue-600", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { className: "w-4 h-4 animate-spin" }), "Synchronisation..."] })), syncStatus.pendingOperations > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "text-orange-600", children: [syncStatus.pendingOperations, " en attente"] }))] }));
+    };
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "space-y-6", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "bg-white rounded-lg shadow-sm border p-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h1", { className: "text-2xl font-bold text-gray-800 flex items-center gap-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { className: "w-6 h-6 text-blue-500" }), "Documents (", filteredDocuments.length, ")"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-gray-600 mt-1", children: "Gestion de la collection documentaire" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex flex-col sm:flex-row items-start sm:items-center gap-4", children: [getNetworkStatusDisplay(), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { onClick: onAdd, className: "bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { className: "w-4 h-4" }), "Nouveau document"] })] })] }), syncStatus.lastSync && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mt-2 text-sm text-gray-500", children: ["Derni\u00E8re synchronisation: ", new Date(syncStatus.lastSync).toLocaleString('fr-FR')] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "bg-white rounded-lg shadow-sm border p-4", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "grid grid-cols-1 md:grid-cols-4 gap-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "md:col-span-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: "Rechercher" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "relative", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { className: "absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: searchTerm, onChange: (e) => setSearchTerm(e.target.value), className: "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "Titre, auteur, \u00E9diteur, cote, ISBN..." })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: "Cat\u00E9gorie" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: selectedCategory, onChange: (e) => setSelectedCategory(e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Toutes les cat\u00E9gories" }), getUniqueCategories().map(category => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: category, children: category }, category)))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: "Statut sync" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: selectedSyncStatus, onChange: (e) => setSelectedSyncStatus(e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous les statuts" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "synced", children: "Synchronis\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "pending", children: "En attente" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "error", children: "Erreur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "conflict", children: "Conflit" })] })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6", children: filteredDocuments.map((document) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow", children: [document.couverture && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "h-48 bg-gray-100 rounded-t-lg overflow-hidden", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("img", { src: document.couverture, alt: `Couverture de ${document.titre}`, className: "w-full h-full object-cover", onError: (e) => {
+                                    e.currentTarget.style.display = 'none';
+                                } }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "p-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-start justify-between mb-3", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex-1 min-w-0", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "font-semibold text-gray-800 truncate", title: document.titre, children: document.titre }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "text-sm text-gray-600 truncate", title: document.auteur, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { className: "w-3 h-3 inline mr-1" }), document.auteur] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center gap-1 ml-2", children: [getSyncStatusIcon(document.syncStatus), document.estEmprunte && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "w-2 h-2 bg-orange-500 rounded-full", title: "Emprunt\u00E9" }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "space-y-2 text-sm text-gray-600", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center gap-1 truncate", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { className: "w-3 h-3 flex-shrink-0" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "truncate", children: document.editeur })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center gap-1 truncate", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { className: "w-3 h-3 flex-shrink-0" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "truncate", children: document.lieuEdition })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center gap-1", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { className: "w-3 h-3 flex-shrink-0" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: document.annee })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center gap-1 truncate", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { className: "w-3 h-3 flex-shrink-0" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "font-mono text-xs truncate", children: document.cote })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-start gap-1", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { className: "w-3 h-3 flex-shrink-0 mt-0.5" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex flex-wrap gap-1 min-w-0", children: [document.descripteurs.split(',').slice(0, 3).map((desc, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "inline-block bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full truncate max-w-20", title: desc.trim(), children: desc.trim() }, index))), document.descripteurs.split(',').length > 3 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "text-xs text-gray-500", children: ["+", document.descripteurs.split(',').length - 3] }))] })] })] }), document.description && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-sm text-gray-600 mt-3 line-clamp-2", title: document.description, children: document.description })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex justify-between items-center mt-4 pt-3 border-t", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "text-xs text-gray-500", children: ["v", document.version, " \u2022 ", new Date(document.lastModified).toLocaleDateString('fr-FR')] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex gap-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => onEdit(document), className: "p-1.5 text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded transition-colors", title: "Modifier", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { className: "w-4 h-4" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => document.id && onDelete(document.id), className: "p-1.5 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded transition-colors", title: "Supprimer", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { className: "w-4 h-4" }) })] })] })] })] }, document.id))) }), filteredDocuments.length === 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "text-center py-12", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { className: "w-16 h-16 text-gray-300 mx-auto mb-4" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "text-lg font-medium text-gray-600 mb-2", children: searchTerm || selectedCategory !== 'all' || selectedSyncStatus !== 'all'
+                            ? 'Aucun document trouvé'
+                            : 'Aucun document dans la collection' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-gray-500 mb-6", children: searchTerm || selectedCategory !== 'all' || selectedSyncStatus !== 'all'
+                            ? 'Essayez de modifier vos critères de recherche'
+                            : 'Commencez par ajouter votre premier document à la bibliothèque' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { onClick: onAdd, className: "bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2 mx-auto", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { className: "w-4 h-4" }), "Ajouter un document"] })] }))] }));
 };
 
 
@@ -11322,7 +9413,7 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
             gradient: 'linear-gradient(135deg, #3E5C49 0%, #2E453A 100%)'
         },
         {
-            id: 'books',
+            id: 'documents',
             label: 'Ma Collection',
             icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"],
             description: 'Parcourir tous les documents',
@@ -11342,7 +9433,7 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
     ];
     const actionItems = [
         {
-            id: 'add-book',
+            id: 'add-document',
             label: 'Nouveau Document',
             icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"],
             description: 'Ajouter à la collection',
@@ -12793,6 +10884,31 @@ class SupabaseService {
         console.log('searchBooks appelé avec query:', query);
         return [];
     }
+    // Documents Management - Nouvelles méthodes pour le modèle Document
+    async getDocuments() {
+        console.log('getDocuments appelé - retour de données de test');
+        return [];
+    }
+    async addDocument(document) {
+        console.log('addDocument appelé avec:', document);
+        return 1; // ID fictif pour le test
+    }
+    async updateDocument(document) {
+        console.log('updateDocument appelé avec:', document);
+        return true;
+    }
+    async deleteDocument(id) {
+        console.log('deleteDocument appelé avec ID:', id);
+        return true;
+    }
+    async searchDocuments(query) {
+        console.log('searchDocuments appelé avec query:', query);
+        return [];
+    }
+    async borrowDocument(documentId, borrowerId, expectedReturnDate) {
+        console.log('borrowDocument appelé avec:', { documentId, borrowerId, expectedReturnDate });
+        return 1; // ID de l'emprunt fictif
+    }
     // Borrowers Management - Méthodes simplifiées
     async getBorrowers() {
         console.log('getBorrowers appelé');
@@ -12903,14 +11019,6 @@ class SupabaseService {
         console.log('createDocument appelé avec:', document);
         return null;
     }
-    async updateDocument(document) {
-        console.log('updateDocument appelé avec:', document);
-        return true;
-    }
-    async deleteDocument(id) {
-        console.log('deleteDocument appelé avec ID:', id);
-        return true;
-    }
     async createAuthor(author) {
         console.log('createAuthor appelé avec:', author);
         return null;
@@ -12951,38 +11059,6 @@ class SupabaseService {
         console.log('deleteBorrowHistory appelé avec ID:', id);
         return true;
     }
-}
-
-
-/***/ }),
-
-/***/ "./src/types/index.ts":
-/*!****************************!*\
-  !*** ./src/types/index.ts ***!
-  \****************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   createBookFromDocument: () => (/* binding */ createBookFromDocument)
-/* harmony export */ });
-// Fonction utilitaire pour créer un Book depuis un Document
-function createBookFromDocument(doc) {
-    const book = {
-        ...doc,
-        get title() { return this.titre; },
-        get author() { return this.auteur; },
-        get category() { return this.descripteurs; },
-        get publishedDate() { return this.annee; },
-        get coverUrl() { return this.couverture; },
-        get isBorrowed() { return this.estEmprunte; },
-        get borrowerId() { return this.emprunteurId; },
-        get borrowDate() { return this.dateEmprunt; },
-        get expectedReturnDate() { return this.dateRetourPrevu; },
-        get returnDate() { return this.dateRetour; },
-        get borrowerName() { return this.nomEmprunteur; },
-    };
-    return book;
 }
 
 

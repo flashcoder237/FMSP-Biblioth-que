@@ -173,47 +173,53 @@ export const AddDocument: React.FC<AddDocumentProps> = ({ onAdd, onCancel, editi
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-            <BookOpen className="w-5 h-5" />
-            {editingDocument ? 'Modifier le document' : 'Ajouter un nouveau document'}
-          </h2>
-          <button
-            onClick={onCancel}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5" />
+    <div className="add-document-overlay">
+      <div className="add-document-modal">
+        <div className="modal-header">
+          <div className="header-content">
+            <div className="header-icon">
+              <Plus size={24} />
+            </div>
+            <div className="header-text">
+              <h2 className="modal-title">
+                {editingDocument ? 'Modifier le document' : 'Ajouter un nouveau document'}
+              </h2>
+              <p className="modal-subtitle">Enrichissez votre collection bibliothèque</p>
+            </div>
+          </div>
+          <button onClick={onCancel} className="close-button">
+            <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="modal-content">
           {errors.submit && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+            <div className="error-alert">
               {errors.submit}
             </div>
           )}
 
           {/* Section 1: Informations principales */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
-              <FileText className="w-5 h-5" />
-              Informations principales
-            </h3>
+          <div className="form-section">
+            <div className="section-header">
+              <div className="section-icon">
+                <FileText size={20} />
+              </div>
+              <h3 className="section-title">Informations principales</h3>
+            </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <User className="w-4 h-4 inline mr-1" />
+            <div className="form-grid">
+              <div className="form-field">
+                <label className="field-label">
+                  <User size={16} />
                   Auteur *
                 </label>
                 <input
                   type="text"
                   value={formData.auteur}
                   onChange={(e) => handleInputChange('auteur', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.auteur ? 'border-red-300' : 'border-gray-300'
+                  className={`form-input ${
+                    errors.auteur ? 'error' : ''
                   }`}
                   placeholder="Nom de l'auteur"
                   list="authors-list"
@@ -223,170 +229,172 @@ export const AddDocument: React.FC<AddDocumentProps> = ({ onAdd, onCancel, editi
                     <option key={author.id} value={author.name} />
                   ))}
                 </datalist>
-                {errors.auteur && <p className="text-red-500 text-sm mt-1">{errors.auteur}</p>}
+                {errors.auteur && <p className="field-error">{errors.auteur}</p>}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <BookOpen className="w-4 h-4 inline mr-1" />
+              <div className="form-field">
+                <label className="field-label">
+                  <BookOpen size={16} />
                   Titre *
                 </label>
                 <input
                   type="text"
                   value={formData.titre}
                   onChange={(e) => handleInputChange('titre', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.titre ? 'border-red-300' : 'border-gray-300'
+                  className={`form-input ${
+                    errors.titre ? 'error' : ''
                   }`}
                   placeholder="Titre du document"
                 />
-                {errors.titre && <p className="text-red-500 text-sm mt-1">{errors.titre}</p>}
+                {errors.titre && <p className="field-error">{errors.titre}</p>}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Building className="w-4 h-4 inline mr-1" />
+              <div className="form-field">
+                <label className="field-label">
+                  <Building size={16} />
                   Éditeur *
                 </label>
                 <input
                   type="text"
                   value={formData.editeur}
                   onChange={(e) => handleInputChange('editeur', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.editeur ? 'border-red-300' : 'border-gray-300'
+                  className={`form-input ${
+                    errors.editeur ? 'error' : ''
                   }`}
                   placeholder="Nom de l'éditeur"
                 />
-                {errors.editeur && <p className="text-red-500 text-sm mt-1">{errors.editeur}</p>}
+                {errors.editeur && <p className="field-error">{errors.editeur}</p>}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <MapPin className="w-4 h-4 inline mr-1" />
+              <div className="form-field">
+                <label className="field-label">
+                  <MapPin size={16} />
                   Lieu d'édition *
                 </label>
                 <input
                   type="text"
                   value={formData.lieuEdition}
                   onChange={(e) => handleInputChange('lieuEdition', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.lieuEdition ? 'border-red-300' : 'border-gray-300'
+                  className={`form-input ${
+                    errors.lieuEdition ? 'error' : ''
                   }`}
                   placeholder="Ville d'édition"
                 />
-                {errors.lieuEdition && <p className="text-red-500 text-sm mt-1">{errors.lieuEdition}</p>}
+                {errors.lieuEdition && <p className="field-error">{errors.lieuEdition}</p>}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Calendar className="w-4 h-4 inline mr-1" />
+              <div className="form-field">
+                <label className="field-label">
+                  <Calendar size={16} />
                   Année *
                 </label>
                 <input
                   type="number"
                   value={formData.annee}
                   onChange={(e) => handleInputChange('annee', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.annee ? 'border-red-300' : 'border-gray-300'
+                  className={`form-input ${
+                    errors.annee ? 'error' : ''
                   }`}
                   placeholder="Année de publication"
                   min="1000"
                   max={new Date().getFullYear() + 10}
                 />
-                {errors.annee && <p className="text-red-500 text-sm mt-1">{errors.annee}</p>}
+                {errors.annee && <p className="field-error">{errors.annee}</p>}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Hash className="w-4 h-4 inline mr-1" />
+              <div className="form-field">
+                <label className="field-label">
+                  <Hash size={16} />
                   Cote *
                 </label>
-                <div className="flex gap-2">
+                <div className="input-with-button">
                   <input
                     type="text"
                     value={formData.cote}
                     onChange={(e) => handleInputChange('cote', e.target.value)}
-                    className={`flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      errors.cote ? 'border-red-300' : 'border-gray-300'
+                    className={`form-input flex-1 ${
+                      errors.cote ? 'error' : ''
                     }`}
                     placeholder="Code de classification"
                   />
                   <button
                     type="button"
                     onClick={generateCote}
-                    className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    className="generate-button"
                     title="Générer automatiquement"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus size={16} />
                   </button>
                 </div>
-                {errors.cote && <p className="text-red-500 text-sm mt-1">{errors.cote}</p>}
+                {errors.cote && <p className="field-error">{errors.cote}</p>}
               </div>
             </div>
           </div>
 
           {/* Section 2: Métadonnées */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
-              <Tag className="w-5 h-5" />
-              Métadonnées et classification
-            </h3>
+          <div className="form-section">
+            <div className="section-header">
+              <div className="section-icon">
+                <Tag size={20} />
+              </div>
+              <h3 className="section-title">Métadonnées et classification</h3>
+            </div>
             
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="section-content">
+              <div className="form-field full-width">
+                <label className="field-label">
                   Descripteurs / Mots-clés *
                 </label>
                 <input
                   type="text"
                   value={formData.descripteurs}
                   onChange={(e) => handleInputChange('descripteurs', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.descripteurs ? 'border-red-300' : 'border-gray-300'
+                  className={`form-input ${
+                    errors.descripteurs ? 'error' : ''
                   }`}
                   placeholder="ex: Fiction, Roman historique, XIXe siècle (séparés par des virgules)"
                 />
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="field-help">
                   Séparez les mots-clés par des virgules. Ces descripteurs aideront à la recherche et au classement.
                 </p>
-                {errors.descripteurs && <p className="text-red-500 text-sm mt-1">{errors.descripteurs}</p>}
+                {errors.descripteurs && <p className="field-error">{errors.descripteurs}</p>}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="form-grid">
+                <div className="form-field">
+                  <label className="field-label">
                     ISBN (optionnel)
                   </label>
                   <input
                     type="text"
                     value={formData.isbn}
                     onChange={(e) => handleInputChange('isbn', e.target.value)}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      errors.isbn ? 'border-red-300' : 'border-gray-300'
+                    className={`form-input ${
+                      errors.isbn ? 'error' : ''
                     }`}
                     placeholder="978-2-123456-78-9"
                   />
-                  {errors.isbn && <p className="text-red-500 text-sm mt-1">{errors.isbn}</p>}
+                  {errors.isbn && <p className="field-error">{errors.isbn}</p>}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <Image className="w-4 h-4 inline mr-1" />
+                <div className="form-field">
+                  <label className="field-label">
+                    <Image size={16} />
                     Couverture (optionnel)
                   </label>
-                  <div className="flex gap-2">
+                  <div className="input-with-button">
                     <input
                       type="text"
                       value={formData.couverture}
                       onChange={(e) => handleInputChange('couverture', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="form-input flex-1"
                       placeholder="Chemin vers l'image"
                       readOnly
                     />
                     <button
                       type="button"
                       onClick={selectCoverImage}
-                      className="px-3 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                      className="browse-button"
                     >
                       Parcourir
                     </button>
@@ -394,14 +402,14 @@ export const AddDocument: React.FC<AddDocumentProps> = ({ onAdd, onCancel, editi
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="form-field full-width">
+                <label className="field-label">
                   Description (optionnel)
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="form-textarea"
                   rows={4}
                   placeholder="Description détaillée du document..."
                 />
@@ -410,25 +418,399 @@ export const AddDocument: React.FC<AddDocumentProps> = ({ onAdd, onCancel, editi
           </div>
 
           {/* Boutons d'action */}
-          <div className="flex justify-end gap-3 pt-4 border-t">
+          <div className="modal-actions">
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              className="cancel-button"
             >
               Annuler
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="submit-button"
             >
-              <Save className="w-4 h-4" />
+              <Save size={16} />
               {isLoading ? 'Enregistrement...' : (editingDocument ? 'Modifier' : 'Ajouter')}
             </button>
           </div>
         </form>
       </div>
+      
+      <style>{`
+        .add-document-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 50;
+          padding: 16px;
+          backdrop-filter: blur(8px);
+        }
+        
+        .add-document-modal {
+          background: #FFFFFF;
+          border-radius: 20px;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+          width: 100%;
+          max-width: 900px;
+          max-height: 95vh;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          border: 1px solid rgba(229, 220, 194, 0.3);
+        }
+        
+        .modal-header {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+          padding: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          position: relative;
+        }
+        
+        .modal-header::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.1) 0%, transparent 50%);
+          pointer-events: none;
+        }
+        
+        .header-content {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          position: relative;
+          z-index: 1;
+        }
+        
+        .header-icon {
+          width: 56px;
+          height: 56px;
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #F3EED9;
+          box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
+        }
+        
+        .header-text {
+          flex: 1;
+        }
+        
+        .modal-title {
+          font-size: 24px;
+          font-weight: 700;
+          margin: 0 0 4px 0;
+          line-height: 1.2;
+          letter-spacing: -0.3px;
+        }
+        
+        .modal-subtitle {
+          font-size: 14px;
+          opacity: 0.8;
+          margin: 0;
+        }
+        
+        .close-button {
+          width: 44px;
+          height: 44px;
+          border: none;
+          background: rgba(243, 238, 217, 0.1);
+          color: #F3EED9;
+          border-radius: 12px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+          position: relative;
+          z-index: 1;
+        }
+        
+        .close-button:hover {
+          background: rgba(243, 238, 217, 0.2);
+          transform: scale(1.05);
+        }
+        
+        .modal-content {
+          padding: 32px;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 32px;
+        }
+        
+        .error-alert {
+          background: linear-gradient(135deg, #FEF2F2 0%, #FFFFFF 100%);
+          border: 1px solid #FCA5A5;
+          color: #DC2626;
+          padding: 16px 20px;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 500;
+        }
+        
+        .form-section {
+          background: rgba(243, 238, 217, 0.1);
+          border-radius: 16px;
+          padding: 24px;
+          border: 1px solid rgba(243, 238, 217, 0.2);
+        }
+        
+        .section-header {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 24px;
+        }
+        
+        .section-icon {
+          width: 40px;
+          height: 40px;
+          background: rgba(62, 92, 73, 0.1);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #3E5C49;
+        }
+        
+        .section-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0;
+        }
+        
+        .form-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 20px;
+        }
+        
+        .section-content {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+        
+        .form-field {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .form-field.full-width {
+          grid-column: 1 / -1;
+        }
+        
+        .field-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0;
+        }
+        
+        .form-input, .form-textarea {
+          width: 100%;
+          padding: 12px 16px;
+          border: 2px solid #E5DCC2;
+          border-radius: 8px;
+          font-size: 14px;
+          background: #FFFFFF;
+          color: #2E2E2E;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .form-input:focus, .form-textarea:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+        
+        .form-input.error {
+          border-color: #DC2626;
+          background: #FEF2F2;
+        }
+        
+        .form-input.error:focus {
+          border-color: #DC2626;
+          box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+        
+        .form-textarea {
+          resize: vertical;
+          min-height: 100px;
+        }
+        
+        .input-with-button {
+          display: flex;
+          gap: 8px;
+        }
+        
+        .generate-button, .browse-button {
+          padding: 12px 16px;
+          border: none;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        
+        .generate-button {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+        }
+        
+        .generate-button:hover {
+          background: linear-gradient(135deg, #2E453A 0%, #1E2F25 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
+        }
+        
+        .browse-button {
+          background: linear-gradient(135deg, #6E6E6E 0%, #5A5A5A 100%);
+          color: #F3EED9;
+        }
+        
+        .browse-button:hover {
+          background: linear-gradient(135deg, #5A5A5A 0%, #4A4A4A 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(110, 110, 110, 0.3);
+        }
+        
+        .field-help {
+          font-size: 12px;
+          color: #6E6E6E;
+          margin: 0;
+          line-height: 1.4;
+        }
+        
+        .field-error {
+          color: #DC2626;
+          font-size: 12px;
+          font-weight: 500;
+          margin: 0;
+        }
+        
+        .modal-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 16px;
+          padding-top: 24px;
+          border-top: 1px solid rgba(243, 238, 217, 0.3);
+        }
+        
+        .cancel-button {
+          padding: 12px 24px;
+          background: rgba(110, 110, 110, 0.1);
+          color: #6E6E6E;
+          border: 2px solid #E5DCC2;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .cancel-button:hover {
+          background: rgba(110, 110, 110, 0.2);
+          border-color: #6E6E6E;
+          transform: translateY(-1px);
+        }
+        
+        .submit-button {
+          padding: 12px 24px;
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
+          color: #F3EED9;
+          border: none;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        
+        .submit-button:hover {
+          background: linear-gradient(135deg, #A8481A 0%, #8A3C18 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
+        }
+        
+        .submit-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+        
+        @media (max-width: 768px) {
+          .add-document-overlay {
+            padding: 8px;
+          }
+          
+          .modal-header {
+            padding: 20px;
+          }
+          
+          .header-content {
+            flex-direction: column;
+            text-align: center;
+            gap: 12px;
+          }
+          
+          .modal-title {
+            font-size: 20px;
+          }
+          
+          .modal-content {
+            padding: 20px;
+            gap: 24px;
+          }
+          
+          .form-section {
+            padding: 16px;
+          }
+          
+          .form-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+          
+          .modal-actions {
+            flex-direction: column;
+            gap: 12px;
+          }
+          
+          .cancel-button,
+          .submit-button {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+      `}</style>
     </div>
   );
 };

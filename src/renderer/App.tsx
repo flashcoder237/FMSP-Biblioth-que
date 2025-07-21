@@ -3,9 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { TitleBar } from './components/TitleBar';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
-import { BookList } from './components/BookList';
-import { BorrowedBooks } from './components/BorrowedBooks';
-import { AddBook } from './components/AddBook';
+import { DocumentList } from './components/DocumentList';
+import { BorrowedDocuments } from './components/BorrowedDocuments';
+import { AddDocument } from './components/AddDocument';
 import { Borrowers } from './components/Borrowers';
 import { BorrowHistory } from './components/BorrowHistory';
 import { Settings } from './components/Settings';
@@ -13,10 +13,10 @@ import { Donation } from './components/Donation';
 import { About } from './components/About';
 import { EnhancedAuthentication } from './components/EnhancedAuthentication';
 import { InstitutionSetup } from './components/InstitutionSetup';
-import { Book, Author, Category, Stats, Borrower, BorrowHistory as BorrowHistoryType } from '../types';
+import { Document, Author, Category, Stats, Borrower, BorrowHistory as BorrowHistoryType } from '../types';
 import { SupabaseService, Institution, User } from '../services/SupabaseService';
 
-type ViewType = 'dashboard' | 'books' | 'borrowed' | 'add-book' | 'borrowers' | 'history' | 'settings' | 'donation' | 'about' | 'auth' | 'institution_setup';
+type ViewType = 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'settings' | 'donation' | 'about' | 'auth' | 'institution_setup';
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewType>('auth');
@@ -26,7 +26,7 @@ export const App: React.FC = () => {
   const [institutionCode, setInstitutionCode] = useState<string>('');
   
   // Data states
-  const [books, setBooks] = useState<Book[]>([]);
+  const [documents, setDocuments] = useState<Document[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [borrowers, setBorrowers] = useState<Borrower[]>([]);
@@ -46,7 +46,7 @@ export const App: React.FC = () => {
   // Services
   const [supabaseService] = useState(() => new SupabaseService());
   const [showBorrowModal, setShowBorrowModal] = useState(false);
-  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
 
@@ -80,14 +80,14 @@ export const App: React.FC = () => {
     try {
       setIsLoading(true);
       const [
-        booksData, 
+        documentsData, 
         authorsData, 
         categoriesData, 
         borrowersData,
         borrowedBooksData,
         statsData
       ] = await Promise.all([
-        supabaseService.getBooks(),
+        supabaseService.getDocuments(),
         supabaseService.getAuthors(),
         supabaseService.getCategories(),
         supabaseService.getBorrowers(),
@@ -95,7 +95,7 @@ export const App: React.FC = () => {
         supabaseService.getStats()
       ]);
 
-      setBooks(booksData);
+      setDocuments(documentsData);
       setAuthors(authorsData);
       setCategories(categoriesData);
       setBorrowers(borrowersData);
@@ -249,7 +249,7 @@ export const App: React.FC = () => {
       setCurrentView('auth');
       
       // Réinitialiser les données
-      setBooks([]);
+      setDocuments([]);
       setAuthors([]);
       setCategories([]);
       setBorrowers([]);
@@ -270,27 +270,27 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleAddBook = async (book: Omit<Book, 'id'>) => {
+  const handleAddDocument = async (document: Omit<Document, 'id'>) => {
     try {
-      await supabaseService.addBook(book);
+      await supabaseService.addDocument(document);
       await loadData();
-      setCurrentView('books');
+      setCurrentView('documents');
     } catch (error: any) {
-      console.error('Erreur lors de l\'ajout du livre:', error);
+      console.error('Erreur lors de l\'ajout du document:', error);
       throw error;
     }
   };
 
-  const handleBorrowBook = async (bookId: number, borrowerId: number, expectedReturnDate: string) => {
-    if (bookId === undefined || borrowerId === undefined || !expectedReturnDate) {
-      console.error('Invalid arguments for borrowBook:', { bookId, borrowerId, expectedReturnDate });
+  const handleBorrowDocument = async (documentId: number, borrowerId: number, expectedReturnDate: string) => {
+    if (documentId === undefined || borrowerId === undefined || !expectedReturnDate) {
+      console.error('Invalid arguments for borrowDocument:', { documentId, borrowerId, expectedReturnDate });
       return;
     }
     try {
-      await supabaseService.borrowBook(bookId, borrowerId, expectedReturnDate);
+      await supabaseService.borrowDocument(documentId, borrowerId, expectedReturnDate);
       await loadData();
       setShowBorrowModal(false);
-      setSelectedBook(null);
+      setSelectedDocument(null);
     } catch (error: any) {
       console.error('Erreur lors de l\'emprunt:', error);
       throw error;
@@ -311,9 +311,9 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleDeleteBook = async (bookId: number) => {
+  const handleDeleteDocument = async (documentId: number) => {
     try {
-      await supabaseService.deleteBook(bookId);
+      await supabaseService.deleteDocument(documentId);
       await loadData();
     } catch (error: any) {
       console.error('Erreur lors de la suppression:', error);
@@ -321,14 +321,14 @@ export const App: React.FC = () => {
     }
   };
 
-  const openBorrowModal = (book: Book) => {
-    setSelectedBook(book);
+  const openBorrowModal = (document: Document) => {
+    setSelectedDocument(document);
     setShowBorrowModal(true);
   };
 
   const closeBorrowModal = () => {
     setShowBorrowModal(false);
-    setSelectedBook(null);
+    setSelectedDocument(null);
   };
 
   const refreshData = async () => {
@@ -360,43 +360,44 @@ export const App: React.FC = () => {
           <Dashboard 
             stats={stats} 
             onNavigate={setCurrentView}
-            books={books}
+            documents={documents}
             categories={categories}
           />
         );
-      case 'books':
+      case 'documents':
         return (
-          <BookList
-            books={books}
-            onBorrow={openBorrowModal}
-            onDelete={handleDeleteBook}
+          <DocumentList
+            documents={documents}
+            onAdd={() => setCurrentView('add-document')}
+            onEdit={openBorrowModal}
+            onDelete={handleDeleteDocument}
+            onRefresh={refreshData}
+            syncStatus={{} as any}
+            networkStatus={{} as any}
           />
         );
       case 'borrowed':
         return (
-          <BorrowedBooks
-            books={borrowedBooks.map(bh => ({
+          <BorrowedDocuments
+            documents={borrowedBooks.map(bh => ({
               ...bh.book!,
-              isBorrowed: true,
-              borrowerId: bh.borrowerId,
-              borrowDate: bh.borrowDate,
-              borrowerName: `${bh.borrower?.firstName} ${bh.borrower?.lastName}`
+              nomEmprunteur: `${bh.borrower?.firstName} ${bh.borrower?.lastName}`,
+              dateEmprunt: bh.borrowDate,
+              dateRetourPrevu: bh.expectedReturnDate
             }))}
-            onReturn={(bookId) => {
-              const borrowHistory = borrowedBooks.find(bh => bh.bookId === bookId);
+            onReturn={(documentId) => {
+              const borrowHistory = borrowedBooks.find(bh => bh.bookId === documentId);
               if (borrowHistory) {
                 handleReturnBook(borrowHistory.id!, undefined);
               }
             }}
           />
         );
-      case 'add-book':
+      case 'add-document':
         return (
-          <AddBook
-            authors={authors}
-            categories={categories}
-            onAddBook={handleAddBook}
-            onCancel={() => setCurrentView('books')}
+          <AddDocument
+            onAdd={handleAddDocument}
+            onCancel={() => setCurrentView('documents')}
           />
         );
       case 'borrowers':
@@ -437,7 +438,7 @@ export const App: React.FC = () => {
           <Dashboard 
             stats={stats} 
             onNavigate={setCurrentView}
-            books={books}
+            documents={documents}
             categories={categories}
           />
         );
@@ -475,7 +476,7 @@ export const App: React.FC = () => {
       </div>
 
       {/* Enhanced Borrow Modal - utilise le service Supabase */}
-      {showBorrowModal && selectedBook && (
+      {showBorrowModal && selectedDocument && (
         <div className="borrow-modal-overlay">
           <div className="borrow-modal">
             <div className="modal-header">
@@ -499,9 +500,9 @@ export const App: React.FC = () => {
             </div>
             
             <EnhancedBorrowForm
-              book={selectedBook}
+              document={selectedDocument}
               borrowers={borrowers}
-              onSubmit={handleBorrowBook}
+              onSubmit={handleBorrowDocument}
               onCancel={closeBorrowModal}
               onRefreshBorrowers={refreshData}
               supabaseService={supabaseService}
@@ -784,16 +785,16 @@ export const App: React.FC = () => {
 
 // Enhanced Borrow Form Component avec Supabase
 interface EnhancedBorrowFormProps {
-  book: Book;
+  document: Document;
   borrowers: Borrower[];
-  onSubmit: (bookId: number, borrowerId: number, expectedReturnDate: string) => Promise<void>;
+  onSubmit: (documentId: number, borrowerId: number, expectedReturnDate: string) => Promise<void>;
   onCancel: () => void;
   onRefreshBorrowers: () => Promise<void>;
   supabaseService: SupabaseService;
 }
 
 const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ 
-  book, 
+  document, 
   borrowers, 
   onSubmit, 
   onCancel, 
@@ -912,7 +913,7 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({
 
     setIsLoading(true);
     try {
-      await onSubmit(book.id!, selectedBorrower, expectedReturnDate);
+      await onSubmit(document.id!, selectedBorrower, expectedReturnDate);
     } catch (error) {
       console.error('Erreur:', error);
     } finally {
@@ -924,25 +925,25 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({
 
   return (
     <div className="enhanced-borrow-form">
-      {/* Book Info Enhanced */}
-      <div className="book-info-section">
-        <div className="book-cover">
-          {book.coverUrl ? (
-            <img src={book.coverUrl} alt={book.title} />
+      {/* Document Info Enhanced */}
+      <div className="document-info-section">
+        <div className="document-cover">
+          {document.couverture ? (
+            <img src={document.couverture} alt={document.titre} />
           ) : (
-            <div className="book-placeholder">
+            <div className="document-placeholder">
               <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
                 <path d="M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2ZM18 20H6V4H18V20Z"/>
               </svg>
             </div>
           )}
         </div>
-        <div className="book-details">
-          <h4 className="book-title">"{book.title}"</h4>
-          <p className="book-author">par {book.author}</p>
-          <div className="book-meta">
-            <span className="book-category">{book.category}</span>
-            {book.publishedDate && <span className="book-year">{book.publishedDate}</span>}
+        <div className="document-details">
+          <h4 className="document-title">"{document.titre}"</h4>
+          <p className="document-author">par {document.auteur}</p>
+          <div className="document-meta">
+            <span className="document-category">{document.descripteurs}</span>
+            {document.annee && <span className="document-year">{document.annee}</span>}
           </div>
         </div>
       </div>
@@ -1100,9 +1101,9 @@ const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({
                 </svg>
               </div>
               <div className="summary-content">
-                <div className="summary-label">Livre</div>
-                <div className="summary-value">{book.title}</div>
-                <div className="summary-sub">par {book.author}</div>
+                <div className="summary-label">Document</div>
+                <div className="summary-value">{document.titre}</div>
+                <div className="summary-sub">par {document.auteur}</div>
               </div>
             </div>
             

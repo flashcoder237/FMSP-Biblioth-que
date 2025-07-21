@@ -20,15 +20,15 @@ import { PrintManager } from './PrintManager';
 
 interface DashboardProps {
   stats: Stats;
-  onNavigate: (view: 'dashboard' | 'books' | 'borrowed' | 'add-book') => void;
-  books?: any[];
+  onNavigate: (view: 'dashboard' | 'documents' | 'borrowed' | 'add-document') => void;
+  documents?: any[];
   categories?: any[];
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ 
   stats, 
   onNavigate, 
-  books = [], 
+  documents = [], 
   categories = [] 
 }) => {
   const [showPrintManager, setShowPrintManager] = useState(false);
@@ -38,14 +38,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
       title: 'Ajouter un document',
       description: 'Enrichissez votre collection',
       icon: Plus,
-      action: () => onNavigate('add-book'),
+      action: () => onNavigate('add-document'),
       primary: true
     },
     {
       title: 'Parcourir la collection',
       description: 'Explorer tous les documents',
       icon: Search,
-      action: () => onNavigate('books'),
+      action: () => onNavigate('documents'),
       primary: false
     }
   ];
@@ -55,7 +55,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       title: 'Collection complète',
       description: `${stats.totalBooks} documents disponibles`,
       icon: Book,
-      action: () => onNavigate('books'),
+      action: () => onNavigate('documents'),
       color: '#3E5C49'
     },
     {
@@ -297,7 +297,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       {showPrintManager && (
         <PrintManager
-          books={books}
+          books={documents}
           stats={stats}
           categories={categories}
           onClose={() => setShowPrintManager(false)}

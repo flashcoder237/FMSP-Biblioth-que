@@ -4711,6 +4711,31 @@ class SupabaseService {
         console.log('searchBooks appelé avec query:', query);
         return [];
     }
+    // Documents Management - Nouvelles méthodes pour le modèle Document
+    async getDocuments() {
+        console.log('getDocuments appelé - retour de données de test');
+        return [];
+    }
+    async addDocument(document) {
+        console.log('addDocument appelé avec:', document);
+        return 1; // ID fictif pour le test
+    }
+    async updateDocument(document) {
+        console.log('updateDocument appelé avec:', document);
+        return true;
+    }
+    async deleteDocument(id) {
+        console.log('deleteDocument appelé avec ID:', id);
+        return true;
+    }
+    async searchDocuments(query) {
+        console.log('searchDocuments appelé avec query:', query);
+        return [];
+    }
+    async borrowDocument(documentId, borrowerId, expectedReturnDate) {
+        console.log('borrowDocument appelé avec:', { documentId, borrowerId, expectedReturnDate });
+        return 1; // ID de l'emprunt fictif
+    }
     // Borrowers Management - Méthodes simplifiées
     async getBorrowers() {
         console.log('getBorrowers appelé');
@@ -4820,14 +4845,6 @@ class SupabaseService {
     async createDocument(document) {
         console.log('createDocument appelé avec:', document);
         return null;
-    }
-    async updateDocument(document) {
-        console.log('updateDocument appelé avec:', document);
-        return true;
-    }
-    async deleteDocument(id) {
-        console.log('deleteDocument appelé avec ID:', id);
-        return true;
     }
     async createAuthor(author) {
         console.log('createAuthor appelé avec:', author);

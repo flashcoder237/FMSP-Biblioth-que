@@ -25,7 +25,7 @@ import { SupabaseService, User, Institution } from '../../services/SupabaseServi
 
 interface SidebarProps {
   currentView: string;
-  onNavigate: (view: 'dashboard' | 'books' | 'borrowed' | 'add-book' | 'borrowers' | 'history' | 'donation' | 'about') => void;
+  onNavigate: (view: 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'donation' | 'about') => void;
   stats: Stats;
   currentUser: User | null;
   currentInstitution: Institution | null;
@@ -61,7 +61,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
       gradient: 'linear-gradient(135deg, #3E5C49 0%, #2E453A 100%)'
     },
     { 
-      id: 'books', 
+      id: 'documents', 
       label: 'Ma Collection', 
       icon: Book,
       description: 'Parcourir tous les documents',
@@ -82,7 +82,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
 
   const actionItems: MenuItem[] = [
     { 
-      id: 'add-book', 
+      id: 'add-document', 
       label: 'Nouveau Document', 
       icon: Plus,
       description: 'Ajouter à la collection',

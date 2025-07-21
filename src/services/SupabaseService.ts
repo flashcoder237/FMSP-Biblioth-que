@@ -309,6 +309,37 @@ export class SupabaseService {
     return [];
   }
 
+  // Documents Management - Nouvelles méthodes pour le modèle Document
+  async getDocuments(): Promise<Document[]> {
+    console.log('getDocuments appelé - retour de données de test');
+    return [];
+  }
+
+  async addDocument(document: Omit<Document, 'id'>): Promise<number> {
+    console.log('addDocument appelé avec:', document);
+    return 1; // ID fictif pour le test
+  }
+
+  async updateDocument(document: Document): Promise<boolean> {
+    console.log('updateDocument appelé avec:', document);
+    return true;
+  }
+
+  async deleteDocument(id: number): Promise<boolean> {
+    console.log('deleteDocument appelé avec ID:', id);
+    return true;
+  }
+
+  async searchDocuments(query: string): Promise<Document[]> {
+    console.log('searchDocuments appelé avec query:', query);
+    return [];
+  }
+
+  async borrowDocument(documentId: number, borrowerId: number, expectedReturnDate: string): Promise<number> {
+    console.log('borrowDocument appelé avec:', { documentId, borrowerId, expectedReturnDate });
+    return 1; // ID de l'emprunt fictif
+  }
+
   // Borrowers Management - Méthodes simplifiées
   async getBorrowers(): Promise<Borrower[]> {
     console.log('getBorrowers appelé');
@@ -439,15 +470,6 @@ export class SupabaseService {
     return null;
   }
 
-  async updateDocument(document: Document): Promise<boolean> {
-    console.log('updateDocument appelé avec:', document);
-    return true;
-  }
-
-  async deleteDocument(id: string): Promise<boolean> {
-    console.log('deleteDocument appelé avec ID:', id);
-    return true;
-  }
 
   async createAuthor(author: Omit<Author, 'id'>): Promise<Author | null> {
     console.log('createAuthor appelé avec:', author);
