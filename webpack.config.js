@@ -5,9 +5,11 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // Configuration pour le processus main
 const mainConfig = {
+  name: 'main', // ← Ajouter le nom
   mode: isDevelopment ? 'development' : 'production',
   entry: './src/main.ts',
   target: 'electron-main',
+  devtool: isDevelopment ? 'source-map' : false,
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'main.js',
@@ -19,6 +21,7 @@ const mainConfig = {
     'archiver': 'commonjs archiver',
     'extract-zip': 'commonjs extract-zip',
     'yauzl': 'commonjs yauzl',
+    '@supabase/supabase-js': 'commonjs @supabase/supabase-js',
   },
   node: {
     __dirname: false,
@@ -40,9 +43,11 @@ const mainConfig = {
 
 // Configuration pour preload
 const preloadConfig = {
+  name: 'preload', // ← Ajouter le nom
   mode: isDevelopment ? 'development' : 'production',
   entry: './src/preload.ts',
   target: 'electron-preload',
+  devtool: isDevelopment ? 'source-map' : false,
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'preload.js',
@@ -59,18 +64,29 @@ const preloadConfig = {
     rules: [
       {
         test: /\.ts$/,
-        use: 'ts-loader',
+        use: {
+          loader: 'ts-loader',
+          options: {
+            configFile: path.resolve(__dirname, 'tsconfig.json')
+          }
+        },
         exclude: /node_modules/,
       },
     ],
+  },
+  // Optimisations pour preload
+  optimization: {
+    minimize: !isDevelopment,
   },
 };
 
 // Configuration pour renderer
 const rendererConfig = {
+  name: 'renderer', // ← Ajouter le nom
   mode: isDevelopment ? 'development' : 'production',
   entry: './src/renderer/index.tsx',
   target: 'electron-renderer',
+  devtool: isDevelopment ? 'source-map' : false,
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'renderer.js',
@@ -86,12 +102,22 @@ const rendererConfig = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        use: {
+          loader: 'ts-loader',
+          options: {
+            configFile: path.resolve(__dirname, 'tsconfig.renderer.json'),
+            transpileOnly: false,
+          }
+        },
         exclude: /node_modules/,
       },
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg)$/,
+        type: 'asset/resource',
       },
     ],
   },
@@ -99,8 +125,15 @@ const rendererConfig = {
     new HtmlWebpackPlugin({
       template: './src/renderer/index.html',
       filename: 'index.html',
+      inject: true,
     }),
   ],
+  // Optimisations pour renderer
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
+  },
 };
 
 module.exports = [mainConfig, preloadConfig, rendererConfig];
