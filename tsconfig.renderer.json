@@ -16,16 +16,20 @@
     "paths": {
       "@/*": ["*"]
     },
-    "types": ["node", "react", "react-dom"]
+    "types": ["node", "react", "react-dom"],
+    "resolveJsonModule": true,
+    "declaration": false,
+    "removeComments": false,
+    "sourceMap": true
   },
   "include": [
     "src/renderer/**/*",
-    "src/preload.ts"
+    "src/preload.ts",
+    "src/services/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "src/main.ts",
-    "src/services/**/*"
+    "src/main.ts"
   ]
 }

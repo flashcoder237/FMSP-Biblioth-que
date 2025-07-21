@@ -33,7 +33,12 @@ const mainConfig = {
     rules: [
       {
         test: /\.ts$/,
-        use: 'ts-loader',
+        use: {
+          loader: 'ts-loader',
+          options: {
+            configFile: path.resolve(__dirname, 'tsconfig.main.json')
+          }
+        },
         exclude: /node_modules/,
       },
     ],
@@ -78,7 +83,7 @@ const preloadConfig = {
   },
 };
 
-// Configuration pour renderer avec babel-loader
+// Configuration pour renderer - CORRIGÉE POUR JSX
 const rendererConfig = {
   name: 'renderer',
   mode: isDevelopment ? 'development' : 'production',
@@ -102,21 +107,12 @@ const rendererConfig = {
       {
         test: /\.(ts|tsx)$/,
         exclude: /node_modules/,
-        use: [
-          {
-            loader: 'babel-loader',
-            options: {
-              presets: [
-                ['@babel/preset-env', { targets: 'defaults' }],
-                ['@babel/preset-react', { runtime: 'automatic' }],
-                '@babel/preset-typescript'
-              ],
-              plugins: [
-                '@babel/plugin-proposal-class-properties'
-              ]
-            }
+        use: {
+          loader: 'ts-loader',
+          options: {
+            configFile: path.resolve(__dirname, 'tsconfig.renderer.json')
           }
-        ]
+        }
       },
       {
         test: /\.css$/,
