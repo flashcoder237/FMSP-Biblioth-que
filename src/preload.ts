@@ -1,13 +1,34 @@
+// src/preload.ts - Version corrigée pour Electron
 import { contextBridge, ipcRenderer } from 'electron';
 
-// Debug: Check if contextBridge is available
-console.log('Preload script loaded');
+// Debug amélioré
+console.log('=== Preload Script Debug ===');
+console.log('Process type:', process?.type);
+console.log('Process versions:', process?.versions);
 console.log('contextBridge available:', typeof contextBridge !== 'undefined');
 console.log('ipcRenderer available:', typeof ipcRenderer !== 'undefined');
+console.log('sandbox:', process?.sandboxed);
 
+// Vérification plus robuste du contexte
 if (typeof contextBridge === 'undefined') {
-  console.error('contextBridge is undefined - this indicates the preload script is not running in the correct Electron context');
-  throw new Error('contextBridge is not available. Make sure this script is loaded as a preload script in an Electron BrowserWindow.');
+  console.error('❌ contextBridge is undefined');
+  console.error('Current context:', {
+    nodeIntegration: process?.env?.ELECTRON_ENABLE_NODE_INTEGRATION,
+    contextIsolation: process?.env?.ELECTRON_CONTEXT_ISOLATION,
+    sandbox: process?.sandboxed,
+    type: process?.type
+  });
+  
+  // Ne pas lancer d'erreur fatale, permettre de continuer
+  console.warn('⚠️ Running without contextBridge - this may indicate a configuration issue');
+} else {
+  console.log('✅ contextBridge is available');
+}
+
+if (typeof ipcRenderer === 'undefined') {
+  console.error('❌ ipcRenderer is undefined');
+} else {
+  console.log('✅ ipcRenderer is available');
 }
 
 export interface Document {
@@ -341,240 +362,185 @@ export const createDocumentFromBook = (book: Partial<Book>): Omit<Document, 'id'
   };
 };
 
-contextBridge.exposeInMainWorld('electronAPI', {
+// API Definition
+const electronAPI = {
   // Window controls
-  minimizeWindow: () => ipcRenderer.invoke('window-controls:minimize'),
-  maximizeWindow: () => ipcRenderer.invoke('window-controls:maximize'),
-  closeWindow: () => ipcRenderer.invoke('window-controls:close'),
+  minimizeWindow: () => ipcRenderer?.invoke('window-controls:minimize'),
+  maximizeWindow: () => ipcRenderer?.invoke('window-controls:maximize'),
+  closeWindow: () => ipcRenderer?.invoke('window-controls:close'),
 
   // Authentication
-  getAuthStatus: (): Promise<boolean> => ipcRenderer.invoke('auth:status'),
-  login: (credentials: AuthCredentials): Promise<AuthResponse> => ipcRenderer.invoke('auth:login', credentials),
-  logout: (): Promise<void> => ipcRenderer.invoke('auth:logout'),
+  getAuthStatus: (): Promise<boolean> => ipcRenderer?.invoke('auth:status') || Promise.resolve(false),
+  login: (credentials: AuthCredentials): Promise<AuthResponse> => ipcRenderer?.invoke('auth:login', credentials) || Promise.resolve({ success: false, error: 'IPC not available' }),
+  logout: (): Promise<void> => ipcRenderer?.invoke('auth:logout') || Promise.resolve(),
 
   // Database operations - Books (avec compatibilité Document)
   getBooks: (): Promise<Book[]> => 
-    ipcRenderer.invoke('db:getBooks').then((documents: Document[]) => 
+    ipcRenderer?.invoke('db:getBooks').then((documents: Document[]) => 
       documents.map(createBookFromDocument)
-    ),
+    ) || Promise.resolve([]),
   addBook: (book: Omit<Book, 'id'>): Promise<number> => 
-    ipcRenderer.invoke('db:addBook', createDocumentFromBook(book)),
+    ipcRenderer?.invoke('db:addBook', createDocumentFromBook(book)) || Promise.resolve(0),
   updateBook: (book: Book): Promise<boolean> => 
-    ipcRenderer.invoke('db:updateBook', { ...createDocumentFromBook(book), id: book.id }),
-  deleteBook: (id: number): Promise<boolean> => ipcRenderer.invoke('db:deleteBook', id),
+    ipcRenderer?.invoke('db:updateBook', { ...createDocumentFromBook(book), id: book.id }) || Promise.resolve(false),
+  deleteBook: (id: number): Promise<boolean> => ipcRenderer?.invoke('db:deleteBook', id) || Promise.resolve(false),
   searchBooks: (query: string): Promise<Book[]> => 
-    ipcRenderer.invoke('db:searchBooks', query).then((documents: Document[]) => 
+    ipcRenderer?.invoke('db:searchBooks', query).then((documents: Document[]) => 
       documents.map(createBookFromDocument)
-    ),
+    ) || Promise.resolve([]),
   
   // Database operations - Documents (nouveau)
-  getDocuments: (): Promise<Document[]> => ipcRenderer.invoke('db:getDocuments'),
-  addDocument: (document: Omit<Document, 'id'>): Promise<number> => ipcRenderer.invoke('db:addDocument', document),
-  updateDocument: (document: Document): Promise<boolean> => ipcRenderer.invoke('db:updateDocument', document),
-  deleteDocument: (id: number): Promise<boolean> => ipcRenderer.invoke('db:deleteDocument', id),
-  searchDocuments: (query: string): Promise<Document[]> => ipcRenderer.invoke('db:searchDocuments', query),
+  getDocuments: (): Promise<Document[]> => ipcRenderer?.invoke('db:getDocuments') || Promise.resolve([]),
+  addDocument: (document: Omit<Document, 'id'>): Promise<number> => ipcRenderer?.invoke('db:addDocument', document) || Promise.resolve(0),
+  updateDocument: (document: Document): Promise<boolean> => ipcRenderer?.invoke('db:updateDocument', document) || Promise.resolve(false),
+  deleteDocument: (id: number): Promise<boolean> => ipcRenderer?.invoke('db:deleteDocument', id) || Promise.resolve(false),
+  searchDocuments: (query: string): Promise<Document[]> => ipcRenderer?.invoke('db:searchDocuments', query) || Promise.resolve([]),
   
   // Database operations - Authors
-  getAuthors: (): Promise<Author[]> => ipcRenderer.invoke('db:getAuthors'),
-  addAuthor: (author: Omit<Author, 'id'>): Promise<number> => ipcRenderer.invoke('db:addAuthor', {
+  getAuthors: (): Promise<Author[]> => ipcRenderer?.invoke('db:getAuthors') || Promise.resolve([]),
+  addAuthor: (author: Omit<Author, 'id'>): Promise<number> => ipcRenderer?.invoke('db:addAuthor', {
     ...author,
     localId: author.localId || `author_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     syncStatus: author.syncStatus || 'pending',
     lastModified: author.lastModified || new Date().toISOString(),
     version: author.version || 1,
     createdAt: author.createdAt || new Date().toISOString()
-  }),
+  }) || Promise.resolve(0),
   
   // Database operations - Categories
-  getCategories: (): Promise<Category[]> => ipcRenderer.invoke('db:getCategories'),
-  addCategory: (category: Omit<Category, 'id'>): Promise<number> => ipcRenderer.invoke('db:addCategory', {
+  getCategories: (): Promise<Category[]> => ipcRenderer?.invoke('db:getCategories') || Promise.resolve([]),
+  addCategory: (category: Omit<Category, 'id'>): Promise<number> => ipcRenderer?.invoke('db:addCategory', {
     ...category,
     localId: category.localId || `category_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     syncStatus: category.syncStatus || 'pending',
     lastModified: category.lastModified || new Date().toISOString(),
     version: category.version || 1,
     createdAt: category.createdAt || new Date().toISOString()
-  }),
+  }) || Promise.resolve(0),
   
   // Database operations - Borrowers
-  getBorrowers: (): Promise<Borrower[]> => ipcRenderer.invoke('db:getBorrowers'),
-  addBorrower: (borrower: Omit<Borrower, 'id'>): Promise<number> => ipcRenderer.invoke('db:addBorrower', {
+  getBorrowers: (): Promise<Borrower[]> => ipcRenderer?.invoke('db:getBorrowers') || Promise.resolve([]),
+  addBorrower: (borrower: Omit<Borrower, 'id'>): Promise<number> => ipcRenderer?.invoke('db:addBorrower', {
     ...borrower,
     localId: borrower.localId || `borrower_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     syncStatus: borrower.syncStatus || 'pending',
     lastModified: borrower.lastModified || new Date().toISOString(),
     version: borrower.version || 1,
     createdAt: borrower.createdAt || new Date().toISOString()
-  }),
-  updateBorrower: (borrower: Borrower): Promise<boolean> => ipcRenderer.invoke('db:updateBorrower', {
+  }) || Promise.resolve(0),
+  updateBorrower: (borrower: Borrower): Promise<boolean> => ipcRenderer?.invoke('db:updateBorrower', {
     ...borrower,
     lastModified: new Date().toISOString(),
     version: (borrower.version || 1) + 1,
     syncStatus: 'pending'
-  }),
-  deleteBorrower: (id: number): Promise<boolean> => ipcRenderer.invoke('db:deleteBorrower', id),
-  searchBorrowers: (query: string): Promise<Borrower[]> => ipcRenderer.invoke('db:searchBorrowers', query),
+  }) || Promise.resolve(false),
+  deleteBorrower: (id: number): Promise<boolean> => ipcRenderer?.invoke('db:deleteBorrower', id) || Promise.resolve(false),
+  searchBorrowers: (query: string): Promise<Borrower[]> => ipcRenderer?.invoke('db:searchBorrowers', query) || Promise.resolve([]),
   
   // Borrow operations
-  getBorrowedBooks: (): Promise<BorrowHistory[]> => ipcRenderer.invoke('db:getBorrowedBooks'),
+  getBorrowedBooks: (): Promise<BorrowHistory[]> => ipcRenderer?.invoke('db:getBorrowedBooks') || Promise.resolve([]),
   borrowBook: (bookId: number, borrowerId: number, expectedReturnDate: string): Promise<number> => 
-    ipcRenderer.invoke('db:borrowBook', bookId, borrowerId, expectedReturnDate),
+    ipcRenderer?.invoke('db:borrowBook', bookId, borrowerId, expectedReturnDate) || Promise.resolve(0),
   returnBook: (borrowHistoryId: number, notes?: string): Promise<boolean> => 
-    ipcRenderer.invoke('db:returnBook', borrowHistoryId, notes),
+    ipcRenderer?.invoke('db:returnBook', borrowHistoryId, notes) || Promise.resolve(false),
   getBorrowHistory: (filter?: HistoryFilter): Promise<BorrowHistory[]> => 
-    ipcRenderer.invoke('db:getBorrowHistory', filter),
+    ipcRenderer?.invoke('db:getBorrowHistory', filter) || Promise.resolve([]),
   
   // Statistics
-  getStats: (): Promise<Stats> => ipcRenderer.invoke('db:getStats'),
-  getAdvancedStats: (): Promise<any> => ipcRenderer.invoke('stats:advanced'),
+  getStats: (): Promise<Stats> => ipcRenderer?.invoke('db:getStats') || Promise.resolve({
+    totalBooks: 0,
+    borrowedBooks: 0,
+    availableBooks: 0,
+    totalAuthors: 0,
+    totalCategories: 0,
+    totalBorrowers: 0,
+    totalStudents: 0,
+    totalStaff: 0,
+    overdueBooks: 0
+  }),
+  getAdvancedStats: (): Promise<any> => ipcRenderer?.invoke('stats:advanced') || Promise.resolve({}),
   
   // Settings management
-  getSettings: (): Promise<ApplicationSettings | null> => ipcRenderer.invoke('settings:get'),
-  saveSettings: (settings: ApplicationSettings): Promise<boolean> => ipcRenderer.invoke('settings:save', settings),
+  getSettings: (): Promise<ApplicationSettings | null> => ipcRenderer?.invoke('settings:get') || Promise.resolve(null),
+  saveSettings: (settings: ApplicationSettings): Promise<boolean> => ipcRenderer?.invoke('settings:save', settings) || Promise.resolve(false),
   
   // Backup and restore operations
-  createBackup: (): Promise<string> => ipcRenderer.invoke('backup:create'),
-  restoreBackup: (): Promise<boolean> => ipcRenderer.invoke('backup:restore'),
-  clearAllData: (): Promise<boolean> => ipcRenderer.invoke('db:clearAll'),
+  createBackup: (): Promise<string> => ipcRenderer?.invoke('backup:create') || Promise.resolve(''),
+  restoreBackup: (): Promise<boolean> => ipcRenderer?.invoke('backup:restore') || Promise.resolve(false),
+  clearAllData: (): Promise<boolean> => ipcRenderer?.invoke('db:clearAll') || Promise.resolve(false),
   
   // Export/Import operations
-  exportDatabase: (filePath: string): Promise<void> => ipcRenderer.invoke('db:export', filePath),
-  importDatabase: (filePath: string): Promise<boolean> => ipcRenderer.invoke('db:import', filePath),
+  exportDatabase: (filePath: string): Promise<void> => ipcRenderer?.invoke('db:export', filePath) || Promise.resolve(),
+  importDatabase: (filePath: string): Promise<boolean> => ipcRenderer?.invoke('db:import', filePath) || Promise.resolve(false),
   
   // Print operations
-  printInventory: (data: any): Promise<boolean> => ipcRenderer.invoke('print:inventory', data),
-  printAvailableBooks: (data: any): Promise<boolean> => ipcRenderer.invoke('print:available-books', data),
-  printBorrowedBooks: (data: any): Promise<boolean> => ipcRenderer.invoke('print:borrowed-books', data),
-  printBorrowHistory: (data: any): Promise<boolean> => ipcRenderer.invoke('print:borrow-history', data),
+  printInventory: (data: any): Promise<boolean> => ipcRenderer?.invoke('print:inventory', data) || Promise.resolve(false),
+  printAvailableBooks: (data: any): Promise<boolean> => ipcRenderer?.invoke('print:available-books', data) || Promise.resolve(false),
+  printBorrowedBooks: (data: any): Promise<boolean> => ipcRenderer?.invoke('print:borrowed-books', data) || Promise.resolve(false),
+  printBorrowHistory: (data: any): Promise<boolean> => ipcRenderer?.invoke('print:borrow-history', data) || Promise.resolve(false),
   
   // Export operations
-  exportCSV: (data: any): Promise<string | null> => ipcRenderer.invoke('export:csv', data),
+  exportCSV: (data: any): Promise<string | null> => ipcRenderer?.invoke('export:csv', data) || Promise.resolve(null),
   
   // File operations
-  selectFile: (options?: any): Promise<string | null> => ipcRenderer.invoke('file:select', options),
-  selectDirectory: (): Promise<string | null> => ipcRenderer.invoke('file:selectDirectory'),
+  selectFile: (options?: any): Promise<string | null> => ipcRenderer?.invoke('file:select', options) || Promise.resolve(null),
+  selectDirectory: (): Promise<string | null> => ipcRenderer?.invoke('file:selectDirectory') || Promise.resolve(null),
   
   // Notification operations
   showNotification: (title: string, body: string): Promise<void> => 
-    ipcRenderer.invoke('notification:show', title, body),
+    ipcRenderer?.invoke('notification:show', title, body) || Promise.resolve(),
   
   // System information
-  getSystemInfo: (): Promise<any> => ipcRenderer.invoke('system:info'),
+  getSystemInfo: (): Promise<any> => ipcRenderer?.invoke('system:info') || Promise.resolve({}),
   
   // Application updates
-  checkForUpdates: (): Promise<any> => ipcRenderer.invoke('system:checkUpdates'),
+  checkForUpdates: (): Promise<any> => ipcRenderer?.invoke('system:checkUpdates') || Promise.resolve({}),
   
   // Theme operations
-  setTheme: (theme: string): Promise<void> => ipcRenderer.invoke('theme:set', theme),
-  getTheme: (): Promise<string> => ipcRenderer.invoke('theme:get'),
+  setTheme: (theme: string): Promise<void> => ipcRenderer?.invoke('theme:set', theme) || Promise.resolve(),
+  getTheme: (): Promise<string> => ipcRenderer?.invoke('theme:get') || Promise.resolve('light'),
   
   // Synchronization operations
-  getSyncStatus: (): Promise<SyncStatus> => ipcRenderer.invoke('sync:status'),
-  startSync: (): Promise<void> => ipcRenderer.invoke('sync:start'),
-  pauseSync: (): Promise<void> => ipcRenderer.invoke('sync:pause'),
-  getNetworkStatus: (): Promise<NetworkStatus> => ipcRenderer.invoke('network:status'),
-  resolveConflict: (resolution: ConflictResolution): Promise<boolean> => ipcRenderer.invoke('sync:resolve-conflict', resolution),
-  getSyncErrors: (): Promise<SyncError[]> => ipcRenderer.invoke('sync:errors'),
-  retrySyncOperation: (operationId: string): Promise<boolean> => ipcRenderer.invoke('sync:retry', operationId),
-  clearSyncErrors: (): Promise<void> => ipcRenderer.invoke('sync:clear-errors')
-});
+  getSyncStatus: (): Promise<SyncStatus> => ipcRenderer?.invoke('sync:status') || Promise.resolve({
+    isOnline: false,
+    lastSync: null,
+    pendingOperations: 0,
+    syncInProgress: false,
+    errors: []
+  }),
+  startSync: (): Promise<void> => ipcRenderer?.invoke('sync:start') || Promise.resolve(),
+  pauseSync: (): Promise<void> => ipcRenderer?.invoke('sync:pause') || Promise.resolve(),
+  getNetworkStatus: (): Promise<NetworkStatus> => ipcRenderer?.invoke('network:status') || Promise.resolve({
+    isOnline: false,
+    connectionType: 'none',
+    lastChecked: new Date().toISOString()
+  }),
+  resolveConflict: (resolution: ConflictResolution): Promise<boolean> => ipcRenderer?.invoke('sync:resolve-conflict', resolution) || Promise.resolve(false),
+  getSyncErrors: (): Promise<SyncError[]> => ipcRenderer?.invoke('sync:errors') || Promise.resolve([]),
+  retrySyncOperation: (operationId: string): Promise<boolean> => ipcRenderer?.invoke('sync:retry', operationId) || Promise.resolve(false),
+  clearSyncErrors: (): Promise<void> => ipcRenderer?.invoke('sync:clear-errors') || Promise.resolve()
+};
+
+// Exposer l'API seulement si contextBridge est disponible
+if (typeof contextBridge !== 'undefined' && typeof ipcRenderer !== 'undefined') {
+  try {
+    contextBridge.exposeInMainWorld('electronAPI', electronAPI);
+    console.log('✅ electronAPI exposed via contextBridge');
+  } catch (error) {
+    console.error('❌ Failed to expose electronAPI:', error);
+    // Fallback: exposer directement sur window (moins sécurisé mais fonctionnel)
+    (window as any).electronAPI = electronAPI;
+    console.log('⚠️ electronAPI exposed directly on window (fallback)');
+  }
+} else {
+  console.warn('⚠️ contextBridge or ipcRenderer not available, using fallback');
+  // Fallback pour les environnements où contextBridge n'est pas disponible
+  (window as any).electronAPI = electronAPI;
+  console.log('⚠️ electronAPI exposed directly on window (no contextBridge)');
+}
 
 declare global {
   interface Window {
-    electronAPI: {
-      // Window controls
-      minimizeWindow: () => Promise<void>;
-      maximizeWindow: () => Promise<void>;
-      closeWindow: () => Promise<void>;
-      
-      // Authentication
-      getAuthStatus: () => Promise<boolean>;
-      login: (credentials: AuthCredentials) => Promise<AuthResponse>;
-      logout: () => Promise<void>;
-      
-      // Books (avec compatibilité Document)
-      getBooks: () => Promise<Book[]>;
-      addBook: (book: Omit<Book, 'id'>) => Promise<number>;
-      updateBook: (book: Book) => Promise<boolean>;
-      deleteBook: (id: number) => Promise<boolean>;
-      searchBooks: (query: string) => Promise<Book[]>;
-      
-      // Documents (nouveau modèle)
-      getDocuments: () => Promise<Document[]>;
-      addDocument: (document: Omit<Document, 'id'>) => Promise<number>;
-      updateDocument: (document: Document) => Promise<boolean>;
-      deleteDocument: (id: number) => Promise<boolean>;
-      searchDocuments: (query: string) => Promise<Document[]>;
-      
-      // Authors
-      getAuthors: () => Promise<Author[]>;
-      addAuthor: (author: Omit<Author, 'id'>) => Promise<number>;
-      
-      // Categories
-      getCategories: () => Promise<Category[]>;
-      addCategory: (category: Omit<Category, 'id'>) => Promise<number>;
-      
-      // Borrowers
-      getBorrowers: () => Promise<Borrower[]>;
-      addBorrower: (borrower: Omit<Borrower, 'id'>) => Promise<number>;
-      updateBorrower: (borrower: Borrower) => Promise<boolean>;
-      deleteBorrower: (id: number) => Promise<boolean>;
-      searchBorrowers: (query: string) => Promise<Borrower[]>;
-      
-      // Borrow operations
-      getBorrowedBooks: () => Promise<BorrowHistory[]>;
-      borrowBook: (bookId: number, borrowerId: number, expectedReturnDate: string) => Promise<number>;
-      returnBook: (borrowHistoryId: number, notes?: string) => Promise<boolean>;
-      getBorrowHistory: (filter?: HistoryFilter) => Promise<BorrowHistory[]>;
-      
-      // Statistics
-      getStats: () => Promise<Stats>;
-      getAdvancedStats: () => Promise<any>;
-      
-      // Settings
-      getSettings: () => Promise<ApplicationSettings | null>;
-      saveSettings: (settings: ApplicationSettings) => Promise<boolean>;
-      
-      // Backup operations
-      createBackup: () => Promise<string>;
-      restoreBackup: () => Promise<boolean>;
-      clearAllData: () => Promise<boolean>;
-      exportDatabase: (filePath: string) => Promise<void>;
-      importDatabase: (filePath: string) => Promise<boolean>;
-      
-      // Print operations
-      printInventory: (data: any) => Promise<boolean>;
-      printAvailableBooks: (data: any) => Promise<boolean>;
-      printBorrowedBooks: (data: any) => Promise<boolean>;
-      printBorrowHistory: (data: any) => Promise<boolean>;
-      
-      // Export
-      exportCSV: (data: any) => Promise<string | null>;
-      
-      // File operations
-      selectFile: (options?: any) => Promise<string | null>;
-      selectDirectory: () => Promise<string | null>;
-      
-      // Notifications
-      showNotification: (title: string, body: string) => Promise<void>;
-      
-      // System
-      getSystemInfo: () => Promise<any>;
-      checkForUpdates: () => Promise<any>;
-      
-      // Theme
-      setTheme: (theme: string) => Promise<void>;
-      getTheme: () => Promise<string>;
-      
-      // Synchronization
-      getSyncStatus: () => Promise<SyncStatus>;
-      startSync: () => Promise<void>;
-      pauseSync: () => Promise<void>;
-      getNetworkStatus: () => Promise<NetworkStatus>;
-      resolveConflict: (resolution: ConflictResolution) => Promise<boolean>;
-      getSyncErrors: () => Promise<SyncError[]>;
-      retrySyncOperation: (operationId: string) => Promise<boolean>;
-      clearSyncErrors: () => Promise<void>;
-    };
+    electronAPI: typeof electronAPI;
   }
 }

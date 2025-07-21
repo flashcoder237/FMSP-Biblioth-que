@@ -12,7 +12,10 @@
     "build:webpack": "webpack --mode production",
     "build:watch": "concurrently \"npm run build:main -- --watch\" \"npm run build:preload -- --watch\" \"npm run build:webpack -- --mode development --watch\"",
     "clean": "rimraf dist",
-    "package": "npm run build && electron-builder"
+    "package": "npm run build && electron-builder",
+    "rebuild": "electron-rebuild -f -w sqlite3",
+    "rebuild:all": "electron-rebuild",
+    "postinstall": "electron-builder install-app-deps && npm run rebuild"
   },
   "devDependencies": {
     "@types/archiver": "^6.0.3",
@@ -31,6 +34,7 @@
     "css-loader": "^6.8.1",
     "electron": "^37.2.3",
     "electron-builder": "^24.6.3",
+    "electron-rebuild": "^3.2.9",
     "html-webpack-plugin": "^5.5.3",
     "rimraf": "^5.0.10",
     "style-loader": "^3.3.3",
@@ -48,7 +52,7 @@
     "lucide-react": "^0.263.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sqlite3": "^5.1.6"
+    "sqlite3": "^5.1.7"
   },
   "build": {
     "appId": "com.bibliotheque.app",
@@ -59,6 +63,10 @@
     "files": [
       "dist/**/*",
       "node_modules/**/*"
-    ]
+    ],
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }

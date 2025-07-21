@@ -1,4 +1,4 @@
-// src/main.ts - Configuration corrigée
+// src/main.ts - Configuration corrigée pour SQLite3
 import { app, BrowserWindow, ipcMain, dialog, Notification } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -23,12 +23,13 @@ function createWindow(): void {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      // ENLEVER sandbox: false ou le mettre à true
-      sandbox: true,  // ← CHANGEMENT PRINCIPAL
+      // IMPORTANT: Désactiver sandbox pour SQLite3
+      sandbox: false,
       preload: path.join(__dirname, 'preload.js'),
-      // Ajout pour plus de sécurité
+      // Sécurité adaptée pour les modules natifs
       allowRunningInsecureContent: false,
-      experimentalFeatures: false
+      experimentalFeatures: false,
+      webSecurity: true
     },
     titleBarStyle: 'hiddenInset',
     frame: false,
@@ -67,68 +68,24 @@ function createWindow(): void {
   });
 }
 
-// Alternative avec webPreferences plus permissives si le sandbox pose problème
-function createWindowAlternative(): void {
-  mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    minWidth: 800,
-    minHeight: 600,
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-      // Pas de sandbox si cela pose problème
-      enableRemoteModule: false,
-      preload: path.join(__dirname, 'preload.js'),
-      // Sécurité supplémentaire
-      allowRunningInsecureContent: false,
-      experimentalFeatures: false,
-      // Ajout pour compatibilité
-      webSecurity: true
-    },
-    titleBarStyle: 'hiddenInset',
-    frame: false,
-    show: false,
-    icon: path.join(__dirname, '../assets/icon.png'),
-  });
-
-  if (process.env.NODE_ENV === 'development') {
-    mainWindow.loadURL('http://localhost:8080');
-    mainWindow.webContents.openDevTools();
-  } else {
-    mainWindow.loadFile(path.join(__dirname, 'index.html'));
-  }
-
-  mainWindow.once('ready-to-show', () => {
-    mainWindow.show();
-  });
-
-  // Gestion de la fermeture de l'application
-  mainWindow.on('close', async (event) => {
-    if (backupService && settingsService) {
-      const settings = await settingsService.getSettings();
-      if (settings?.backup.autoBackup) {
-        // Créer une sauvegarde automatique à la fermeture
-        try {
-          await backupService.createBackup();
-        } catch (error) {
-          console.error('Erreur lors de la sauvegarde automatique:', error);
-        }
-      }
-    }
-  });
-}
-
 app.whenReady().then(async () => {
   // Initialiser les services
-  dbService = new DatabaseService();
-  await dbService.initialize();
-  
-  backupService = new BackupService(dbService);
-  authService = new AuthService();
-  settingsService = new SettingsService();
-  
-  createWindow();
+  try {
+    dbService = new DatabaseService();
+    await dbService.initialize();
+    
+    backupService = new BackupService(dbService);
+    authService = new AuthService();
+    settingsService = new SettingsService();
+    
+    console.log('Services initialisés avec succès');
+    
+    createWindow();
+  } catch (error) {
+    console.error('Erreur lors de l\'initialisation des services:', error);
+    // Créer la fenêtre même en cas d'erreur pour afficher l'erreur
+    createWindow();
+  }
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -162,88 +119,198 @@ ipcMain.handle('window-controls:close', () => {
 
 // Database Operations - Books
 ipcMain.handle('db:getBooks', async () => {
-  return await dbService.getBooks();
+  try {
+    return await dbService.getBooks();
+  } catch (error) {
+    console.error('Erreur getBooks:', error);
+    return [];
+  }
 });
 
 ipcMain.handle('db:addBook', async (_, book) => {
-  return await dbService.addDocument(book);
+  try {
+    return await dbService.addDocument(book);
+  } catch (error) {
+    console.error('Erreur addBook:', error);
+    throw error;
+  }
 });
 
 ipcMain.handle('db:updateBook', async (_, book) => {
-  return await dbService.updateDocument(book);
+  try {
+    return await dbService.updateDocument(book);
+  } catch (error) {
+    console.error('Erreur updateBook:', error);
+    throw error;
+  }
 });
 
 ipcMain.handle('db:deleteBook', async (_, id) => {
-  return await dbService.deleteDocument(id);
+  try {
+    return await dbService.deleteDocument(id);
+  } catch (error) {
+    console.error('Erreur deleteBook:', error);
+    throw error;
+  }
 });
 
 ipcMain.handle('db:searchBooks', async (_, query) => {
-  return await dbService.searchBooks(query);
+  try {
+    return await dbService.searchBooks(query);
+  } catch (error) {
+    console.error('Erreur searchBooks:', error);
+    return [];
+  }
 });
 
 // Database Operations - Authors
 ipcMain.handle('db:getAuthors', async () => {
-  return await dbService.getAuthors();
+  try {
+    return await dbService.getAuthors();
+  } catch (error) {
+    console.error('Erreur getAuthors:', error);
+    return [];
+  }
 });
 
 ipcMain.handle('db:addAuthor', async (_, author) => {
-  return await dbService.addAuthor(author);
+  try {
+    return await dbService.addAuthor(author);
+  } catch (error) {
+    console.error('Erreur addAuthor:', error);
+    throw error;
+  }
 });
 
 // Database Operations - Categories
 ipcMain.handle('db:getCategories', async () => {
-  return await dbService.getCategories();
+  try {
+    return await dbService.getCategories();
+  } catch (error) {
+    console.error('Erreur getCategories:', error);
+    return [];
+  }
 });
 
 ipcMain.handle('db:addCategory', async (_, category) => {
-  return await dbService.addCategory(category);
+  try {
+    return await dbService.addCategory(category);
+  } catch (error) {
+    console.error('Erreur addCategory:', error);
+    throw error;
+  }
 });
 
 // Database Operations - Borrowers
 ipcMain.handle('db:getBorrowers', async () => {
-  return await dbService.getBorrowers();
+  try {
+    return await dbService.getBorrowers();
+  } catch (error) {
+    console.error('Erreur getBorrowers:', error);
+    return [];
+  }
 });
 
 ipcMain.handle('db:addBorrower', async (_, borrower) => {
-  return await dbService.addBorrower(borrower);
+  try {
+    return await dbService.addBorrower(borrower);
+  } catch (error) {
+    console.error('Erreur addBorrower:', error);
+    throw error;
+  }
 });
 
 ipcMain.handle('db:updateBorrower', async (_, borrower) => {
-  return await dbService.updateBorrower(borrower);
+  try {
+    return await dbService.updateBorrower(borrower);
+  } catch (error) {
+    console.error('Erreur updateBorrower:', error);
+    throw error;
+  }
 });
 
 ipcMain.handle('db:deleteBorrower', async (_, id) => {
-  return await dbService.deleteBorrower(id);
+  try {
+    return await dbService.deleteBorrower(id);
+  } catch (error) {
+    console.error('Erreur deleteBorrower:', error);
+    throw error;
+  }
 });
 
 ipcMain.handle('db:searchBorrowers', async (_, query) => {
-  return await dbService.searchBorrowers(query);
+  try {
+    return await dbService.searchBorrowers(query);
+  } catch (error) {
+    console.error('Erreur searchBorrowers:', error);
+    return [];
+  }
 });
 
 // Database Operations - Borrow Management
 ipcMain.handle('db:getBorrowedBooks', async () => {
-  return await dbService.getBorrowedBooks();
+  try {
+    return await dbService.getBorrowedBooks();
+  } catch (error) {
+    console.error('Erreur getBorrowedBooks:', error);
+    return [];
+  }
 });
 
 ipcMain.handle('db:borrowBook', async (_, bookId, borrowerId, expectedReturnDate) => {
-  return await dbService.borrowBook(bookId, borrowerId, expectedReturnDate);
+  try {
+    return await dbService.borrowBook(bookId, borrowerId, expectedReturnDate);
+  } catch (error) {
+    console.error('Erreur borrowBook:', error);
+    throw error;
+  }
 });
 
 ipcMain.handle('db:returnBook', async (_, borrowHistoryId, notes) => {
-  return await dbService.returnBook(borrowHistoryId, notes);
+  try {
+    return await dbService.returnBook(borrowHistoryId, notes);
+  } catch (error) {
+    console.error('Erreur returnBook:', error);
+    throw error;
+  }
 });
 
 ipcMain.handle('db:getBorrowHistory', async (_, filter) => {
-  return await dbService.getBorrowHistory(filter);
+  try {
+    return await dbService.getBorrowHistory(filter);
+  } catch (error) {
+    console.error('Erreur getBorrowHistory:', error);
+    return [];
+  }
 });
 
 ipcMain.handle('db:getStats', async () => {
-  return await dbService.getStats();
+  try {
+    return await dbService.getStats();
+  } catch (error) {
+    console.error('Erreur getStats:', error);
+    return {
+      totalBooks: 0,
+      borrowedBooks: 0,
+      availableBooks: 0,
+      totalAuthors: 0,
+      totalCategories: 0,
+      totalBorrowers: 0,
+      totalStudents: 0,
+      totalStaff: 0,
+      overdueBooks: 0
+    };
+  }
 });
 
 // Nouvelles opérations de base de données
 ipcMain.handle('db:clearAll', async () => {
-  return await dbService.clearDatabase();
+  try {
+    return await dbService.clearDatabase();
+  } catch (error) {
+    console.error('Erreur clearAll:', error);
+    throw error;
+  }
 });
 
 ipcMain.handle('db:export', async () => {
@@ -279,16 +346,31 @@ ipcMain.handle('db:import', async (_, filePath) => {
 
 // Settings Operations
 ipcMain.handle('settings:get', async () => {
-  return await settingsService.getSettings();
+  try {
+    return await settingsService.getSettings();
+  } catch (error) {
+    console.error('Erreur settings:get:', error);
+    return null;
+  }
 });
 
 ipcMain.handle('settings:save', async (_, settings: ApplicationSettings) => {
-  return settingsService.saveUserSettings(settings);
+  try {
+    return settingsService.saveUserSettings(settings);
+  } catch (error) {
+    console.error('Erreur settings:save:', error);
+    return false;
+  }
 });
 
 // Backup Operations
 ipcMain.handle('backup:create', async () => {
-  return await backupService.createBackup();
+  try {
+    return await backupService.createBackup();
+  } catch (error) {
+    console.error('Erreur backup:create:', error);
+    throw error;
+  }
 });
 
 ipcMain.handle('backup:restore', async () => {
@@ -314,15 +396,30 @@ ipcMain.handle('backup:restore', async () => {
 
 // Authentication Operations
 ipcMain.handle('auth:status', async () => {
-  return authService.isAuthenticated();
+  try {
+    return authService.isAuthenticated();
+  } catch (error) {
+    console.error('Erreur auth:status:', error);
+    return false;
+  }
 });
 
 ipcMain.handle('auth:login', async (_, credentials: AuthCredentials) => {
-  return await authService.login(credentials);
+  try {
+    return await authService.login(credentials);
+  } catch (error) {
+    console.error('Erreur auth:login:', error);
+    return { success: false, error: 'Erreur de connexion' };
+  }
 });
 
 ipcMain.handle('auth:logout', async () => {
-  return authService.logout();
+  try {
+    return authService.logout();
+  } catch (error) {
+    console.error('Erreur auth:logout:', error);
+    return false;
+  }
 });
 
 // File Operations
@@ -346,27 +443,6 @@ ipcMain.handle('file:selectDirectory', async () => {
   });
 
   return result.canceled ? null : result.filePaths[0];
-});
-
-// Print Operations
-ipcMain.handle('print:inventory', async (_, data) => {
-  return await createPrintWindow(data, 'inventory');
-});
-
-ipcMain.handle('print:available-books', async (_, data) => {
-  return await createPrintWindow(data, 'available');
-});
-
-ipcMain.handle('print:borrowed-books', async (_, data) => {
-  return await createPrintWindow(data, 'borrowed');
-});
-
-ipcMain.handle('print:borrow-history', async (_, data) => {
-  return await createPrintWindow(data, 'history');
-});
-
-ipcMain.handle('export:csv', async (_, data) => {
-  return await exportToCSV(data);
 });
 
 // Notification Operations
@@ -404,11 +480,20 @@ ipcMain.handle('system:checkUpdates', async () => {
 
 // Theme Operations
 ipcMain.handle('theme:set', async (_, theme: 'light' | 'dark' | 'auto') => {
-  await settingsService.setTheme(theme);
+  try {
+    await settingsService.setTheme(theme);
+  } catch (error) {
+    console.error('Erreur theme:set:', error);
+  }
 });
 
 ipcMain.handle('theme:get', async () => {
-  return await settingsService.getTheme();
+  try {
+    return await settingsService.getTheme();
+  } catch (error) {
+    console.error('Erreur theme:get:', error);
+    return 'light';
+  }
 });
 
 // Statistics Operations

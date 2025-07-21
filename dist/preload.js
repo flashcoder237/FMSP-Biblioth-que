@@ -1,14 +1,35 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createDocumentFromBook = exports.createBookFromDocument = void 0;
+// src/preload.ts - Version corrigée pour Electron
 const electron_1 = require("electron");
-// Debug: Check if contextBridge is available
-console.log('Preload script loaded');
+// Debug amélioré
+console.log('=== Preload Script Debug ===');
+console.log('Process type:', process?.type);
+console.log('Process versions:', process?.versions);
 console.log('contextBridge available:', typeof electron_1.contextBridge !== 'undefined');
 console.log('ipcRenderer available:', typeof electron_1.ipcRenderer !== 'undefined');
+console.log('sandbox:', process?.sandboxed);
+// Vérification plus robuste du contexte
 if (typeof electron_1.contextBridge === 'undefined') {
-    console.error('contextBridge is undefined - this indicates the preload script is not running in the correct Electron context');
-    throw new Error('contextBridge is not available. Make sure this script is loaded as a preload script in an Electron BrowserWindow.');
+    console.error('❌ contextBridge is undefined');
+    console.error('Current context:', {
+        nodeIntegration: process?.env?.ELECTRON_ENABLE_NODE_INTEGRATION,
+        contextIsolation: process?.env?.ELECTRON_CONTEXT_ISOLATION,
+        sandbox: process?.sandboxed,
+        type: process?.type
+    });
+    // Ne pas lancer d'erreur fatale, permettre de continuer
+    console.warn('⚠️ Running without contextBridge - this may indicate a configuration issue');
+}
+else {
+    console.log('✅ contextBridge is available');
+}
+if (typeof electron_1.ipcRenderer === 'undefined') {
+    console.error('❌ ipcRenderer is undefined');
+}
+else {
+    console.log('✅ ipcRenderer is available');
 }
 // Fonctions utilitaires pour la compatibilité Book/Document
 const createBookFromDocument = (document) => {
@@ -92,110 +113,150 @@ const createDocumentFromBook = (book) => {
     };
 };
 exports.createDocumentFromBook = createDocumentFromBook;
-electron_1.contextBridge.exposeInMainWorld('electronAPI', {
+// API Definition
+const electronAPI = {
     // Window controls
-    minimizeWindow: () => electron_1.ipcRenderer.invoke('window-controls:minimize'),
-    maximizeWindow: () => electron_1.ipcRenderer.invoke('window-controls:maximize'),
-    closeWindow: () => electron_1.ipcRenderer.invoke('window-controls:close'),
+    minimizeWindow: () => electron_1.ipcRenderer?.invoke('window-controls:minimize'),
+    maximizeWindow: () => electron_1.ipcRenderer?.invoke('window-controls:maximize'),
+    closeWindow: () => electron_1.ipcRenderer?.invoke('window-controls:close'),
     // Authentication
-    getAuthStatus: () => electron_1.ipcRenderer.invoke('auth:status'),
-    login: (credentials) => electron_1.ipcRenderer.invoke('auth:login', credentials),
-    logout: () => electron_1.ipcRenderer.invoke('auth:logout'),
+    getAuthStatus: () => electron_1.ipcRenderer?.invoke('auth:status') || Promise.resolve(false),
+    login: (credentials) => electron_1.ipcRenderer?.invoke('auth:login', credentials) || Promise.resolve({ success: false, error: 'IPC not available' }),
+    logout: () => electron_1.ipcRenderer?.invoke('auth:logout') || Promise.resolve(),
     // Database operations - Books (avec compatibilité Document)
-    getBooks: () => electron_1.ipcRenderer.invoke('db:getBooks').then((documents) => documents.map(exports.createBookFromDocument)),
-    addBook: (book) => electron_1.ipcRenderer.invoke('db:addBook', (0, exports.createDocumentFromBook)(book)),
-    updateBook: (book) => electron_1.ipcRenderer.invoke('db:updateBook', { ...(0, exports.createDocumentFromBook)(book), id: book.id }),
-    deleteBook: (id) => electron_1.ipcRenderer.invoke('db:deleteBook', id),
-    searchBooks: (query) => electron_1.ipcRenderer.invoke('db:searchBooks', query).then((documents) => documents.map(exports.createBookFromDocument)),
+    getBooks: () => electron_1.ipcRenderer?.invoke('db:getBooks').then((documents) => documents.map(exports.createBookFromDocument)) || Promise.resolve([]),
+    addBook: (book) => electron_1.ipcRenderer?.invoke('db:addBook', (0, exports.createDocumentFromBook)(book)) || Promise.resolve(0),
+    updateBook: (book) => electron_1.ipcRenderer?.invoke('db:updateBook', { ...(0, exports.createDocumentFromBook)(book), id: book.id }) || Promise.resolve(false),
+    deleteBook: (id) => electron_1.ipcRenderer?.invoke('db:deleteBook', id) || Promise.resolve(false),
+    searchBooks: (query) => electron_1.ipcRenderer?.invoke('db:searchBooks', query).then((documents) => documents.map(exports.createBookFromDocument)) || Promise.resolve([]),
     // Database operations - Documents (nouveau)
-    getDocuments: () => electron_1.ipcRenderer.invoke('db:getDocuments'),
-    addDocument: (document) => electron_1.ipcRenderer.invoke('db:addDocument', document),
-    updateDocument: (document) => electron_1.ipcRenderer.invoke('db:updateDocument', document),
-    deleteDocument: (id) => electron_1.ipcRenderer.invoke('db:deleteDocument', id),
-    searchDocuments: (query) => electron_1.ipcRenderer.invoke('db:searchDocuments', query),
+    getDocuments: () => electron_1.ipcRenderer?.invoke('db:getDocuments') || Promise.resolve([]),
+    addDocument: (document) => electron_1.ipcRenderer?.invoke('db:addDocument', document) || Promise.resolve(0),
+    updateDocument: (document) => electron_1.ipcRenderer?.invoke('db:updateDocument', document) || Promise.resolve(false),
+    deleteDocument: (id) => electron_1.ipcRenderer?.invoke('db:deleteDocument', id) || Promise.resolve(false),
+    searchDocuments: (query) => electron_1.ipcRenderer?.invoke('db:searchDocuments', query) || Promise.resolve([]),
     // Database operations - Authors
-    getAuthors: () => electron_1.ipcRenderer.invoke('db:getAuthors'),
-    addAuthor: (author) => electron_1.ipcRenderer.invoke('db:addAuthor', {
+    getAuthors: () => electron_1.ipcRenderer?.invoke('db:getAuthors') || Promise.resolve([]),
+    addAuthor: (author) => electron_1.ipcRenderer?.invoke('db:addAuthor', {
         ...author,
         localId: author.localId || `author_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         syncStatus: author.syncStatus || 'pending',
         lastModified: author.lastModified || new Date().toISOString(),
         version: author.version || 1,
         createdAt: author.createdAt || new Date().toISOString()
-    }),
+    }) || Promise.resolve(0),
     // Database operations - Categories
-    getCategories: () => electron_1.ipcRenderer.invoke('db:getCategories'),
-    addCategory: (category) => electron_1.ipcRenderer.invoke('db:addCategory', {
+    getCategories: () => electron_1.ipcRenderer?.invoke('db:getCategories') || Promise.resolve([]),
+    addCategory: (category) => electron_1.ipcRenderer?.invoke('db:addCategory', {
         ...category,
         localId: category.localId || `category_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         syncStatus: category.syncStatus || 'pending',
         lastModified: category.lastModified || new Date().toISOString(),
         version: category.version || 1,
         createdAt: category.createdAt || new Date().toISOString()
-    }),
+    }) || Promise.resolve(0),
     // Database operations - Borrowers
-    getBorrowers: () => electron_1.ipcRenderer.invoke('db:getBorrowers'),
-    addBorrower: (borrower) => electron_1.ipcRenderer.invoke('db:addBorrower', {
+    getBorrowers: () => electron_1.ipcRenderer?.invoke('db:getBorrowers') || Promise.resolve([]),
+    addBorrower: (borrower) => electron_1.ipcRenderer?.invoke('db:addBorrower', {
         ...borrower,
         localId: borrower.localId || `borrower_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         syncStatus: borrower.syncStatus || 'pending',
         lastModified: borrower.lastModified || new Date().toISOString(),
         version: borrower.version || 1,
         createdAt: borrower.createdAt || new Date().toISOString()
-    }),
-    updateBorrower: (borrower) => electron_1.ipcRenderer.invoke('db:updateBorrower', {
+    }) || Promise.resolve(0),
+    updateBorrower: (borrower) => electron_1.ipcRenderer?.invoke('db:updateBorrower', {
         ...borrower,
         lastModified: new Date().toISOString(),
         version: (borrower.version || 1) + 1,
         syncStatus: 'pending'
-    }),
-    deleteBorrower: (id) => electron_1.ipcRenderer.invoke('db:deleteBorrower', id),
-    searchBorrowers: (query) => electron_1.ipcRenderer.invoke('db:searchBorrowers', query),
+    }) || Promise.resolve(false),
+    deleteBorrower: (id) => electron_1.ipcRenderer?.invoke('db:deleteBorrower', id) || Promise.resolve(false),
+    searchBorrowers: (query) => electron_1.ipcRenderer?.invoke('db:searchBorrowers', query) || Promise.resolve([]),
     // Borrow operations
-    getBorrowedBooks: () => electron_1.ipcRenderer.invoke('db:getBorrowedBooks'),
-    borrowBook: (bookId, borrowerId, expectedReturnDate) => electron_1.ipcRenderer.invoke('db:borrowBook', bookId, borrowerId, expectedReturnDate),
-    returnBook: (borrowHistoryId, notes) => electron_1.ipcRenderer.invoke('db:returnBook', borrowHistoryId, notes),
-    getBorrowHistory: (filter) => electron_1.ipcRenderer.invoke('db:getBorrowHistory', filter),
+    getBorrowedBooks: () => electron_1.ipcRenderer?.invoke('db:getBorrowedBooks') || Promise.resolve([]),
+    borrowBook: (bookId, borrowerId, expectedReturnDate) => electron_1.ipcRenderer?.invoke('db:borrowBook', bookId, borrowerId, expectedReturnDate) || Promise.resolve(0),
+    returnBook: (borrowHistoryId, notes) => electron_1.ipcRenderer?.invoke('db:returnBook', borrowHistoryId, notes) || Promise.resolve(false),
+    getBorrowHistory: (filter) => electron_1.ipcRenderer?.invoke('db:getBorrowHistory', filter) || Promise.resolve([]),
     // Statistics
-    getStats: () => electron_1.ipcRenderer.invoke('db:getStats'),
-    getAdvancedStats: () => electron_1.ipcRenderer.invoke('stats:advanced'),
+    getStats: () => electron_1.ipcRenderer?.invoke('db:getStats') || Promise.resolve({
+        totalBooks: 0,
+        borrowedBooks: 0,
+        availableBooks: 0,
+        totalAuthors: 0,
+        totalCategories: 0,
+        totalBorrowers: 0,
+        totalStudents: 0,
+        totalStaff: 0,
+        overdueBooks: 0
+    }),
+    getAdvancedStats: () => electron_1.ipcRenderer?.invoke('stats:advanced') || Promise.resolve({}),
     // Settings management
-    getSettings: () => electron_1.ipcRenderer.invoke('settings:get'),
-    saveSettings: (settings) => electron_1.ipcRenderer.invoke('settings:save', settings),
+    getSettings: () => electron_1.ipcRenderer?.invoke('settings:get') || Promise.resolve(null),
+    saveSettings: (settings) => electron_1.ipcRenderer?.invoke('settings:save', settings) || Promise.resolve(false),
     // Backup and restore operations
-    createBackup: () => electron_1.ipcRenderer.invoke('backup:create'),
-    restoreBackup: () => electron_1.ipcRenderer.invoke('backup:restore'),
-    clearAllData: () => electron_1.ipcRenderer.invoke('db:clearAll'),
+    createBackup: () => electron_1.ipcRenderer?.invoke('backup:create') || Promise.resolve(''),
+    restoreBackup: () => electron_1.ipcRenderer?.invoke('backup:restore') || Promise.resolve(false),
+    clearAllData: () => electron_1.ipcRenderer?.invoke('db:clearAll') || Promise.resolve(false),
     // Export/Import operations
-    exportDatabase: (filePath) => electron_1.ipcRenderer.invoke('db:export', filePath),
-    importDatabase: (filePath) => electron_1.ipcRenderer.invoke('db:import', filePath),
+    exportDatabase: (filePath) => electron_1.ipcRenderer?.invoke('db:export', filePath) || Promise.resolve(),
+    importDatabase: (filePath) => electron_1.ipcRenderer?.invoke('db:import', filePath) || Promise.resolve(false),
     // Print operations
-    printInventory: (data) => electron_1.ipcRenderer.invoke('print:inventory', data),
-    printAvailableBooks: (data) => electron_1.ipcRenderer.invoke('print:available-books', data),
-    printBorrowedBooks: (data) => electron_1.ipcRenderer.invoke('print:borrowed-books', data),
-    printBorrowHistory: (data) => electron_1.ipcRenderer.invoke('print:borrow-history', data),
+    printInventory: (data) => electron_1.ipcRenderer?.invoke('print:inventory', data) || Promise.resolve(false),
+    printAvailableBooks: (data) => electron_1.ipcRenderer?.invoke('print:available-books', data) || Promise.resolve(false),
+    printBorrowedBooks: (data) => electron_1.ipcRenderer?.invoke('print:borrowed-books', data) || Promise.resolve(false),
+    printBorrowHistory: (data) => electron_1.ipcRenderer?.invoke('print:borrow-history', data) || Promise.resolve(false),
     // Export operations
-    exportCSV: (data) => electron_1.ipcRenderer.invoke('export:csv', data),
+    exportCSV: (data) => electron_1.ipcRenderer?.invoke('export:csv', data) || Promise.resolve(null),
     // File operations
-    selectFile: (options) => electron_1.ipcRenderer.invoke('file:select', options),
-    selectDirectory: () => electron_1.ipcRenderer.invoke('file:selectDirectory'),
+    selectFile: (options) => electron_1.ipcRenderer?.invoke('file:select', options) || Promise.resolve(null),
+    selectDirectory: () => electron_1.ipcRenderer?.invoke('file:selectDirectory') || Promise.resolve(null),
     // Notification operations
-    showNotification: (title, body) => electron_1.ipcRenderer.invoke('notification:show', title, body),
+    showNotification: (title, body) => electron_1.ipcRenderer?.invoke('notification:show', title, body) || Promise.resolve(),
     // System information
-    getSystemInfo: () => electron_1.ipcRenderer.invoke('system:info'),
+    getSystemInfo: () => electron_1.ipcRenderer?.invoke('system:info') || Promise.resolve({}),
     // Application updates
-    checkForUpdates: () => electron_1.ipcRenderer.invoke('system:checkUpdates'),
+    checkForUpdates: () => electron_1.ipcRenderer?.invoke('system:checkUpdates') || Promise.resolve({}),
     // Theme operations
-    setTheme: (theme) => electron_1.ipcRenderer.invoke('theme:set', theme),
-    getTheme: () => electron_1.ipcRenderer.invoke('theme:get'),
+    setTheme: (theme) => electron_1.ipcRenderer?.invoke('theme:set', theme) || Promise.resolve(),
+    getTheme: () => electron_1.ipcRenderer?.invoke('theme:get') || Promise.resolve('light'),
     // Synchronization operations
-    getSyncStatus: () => electron_1.ipcRenderer.invoke('sync:status'),
-    startSync: () => electron_1.ipcRenderer.invoke('sync:start'),
-    pauseSync: () => electron_1.ipcRenderer.invoke('sync:pause'),
-    getNetworkStatus: () => electron_1.ipcRenderer.invoke('network:status'),
-    resolveConflict: (resolution) => electron_1.ipcRenderer.invoke('sync:resolve-conflict', resolution),
-    getSyncErrors: () => electron_1.ipcRenderer.invoke('sync:errors'),
-    retrySyncOperation: (operationId) => electron_1.ipcRenderer.invoke('sync:retry', operationId),
-    clearSyncErrors: () => electron_1.ipcRenderer.invoke('sync:clear-errors')
-});
+    getSyncStatus: () => electron_1.ipcRenderer?.invoke('sync:status') || Promise.resolve({
+        isOnline: false,
+        lastSync: null,
+        pendingOperations: 0,
+        syncInProgress: false,
+        errors: []
+    }),
+    startSync: () => electron_1.ipcRenderer?.invoke('sync:start') || Promise.resolve(),
+    pauseSync: () => electron_1.ipcRenderer?.invoke('sync:pause') || Promise.resolve(),
+    getNetworkStatus: () => electron_1.ipcRenderer?.invoke('network:status') || Promise.resolve({
+        isOnline: false,
+        connectionType: 'none',
+        lastChecked: new Date().toISOString()
+    }),
+    resolveConflict: (resolution) => electron_1.ipcRenderer?.invoke('sync:resolve-conflict', resolution) || Promise.resolve(false),
+    getSyncErrors: () => electron_1.ipcRenderer?.invoke('sync:errors') || Promise.resolve([]),
+    retrySyncOperation: (operationId) => electron_1.ipcRenderer?.invoke('sync:retry', operationId) || Promise.resolve(false),
+    clearSyncErrors: () => electron_1.ipcRenderer?.invoke('sync:clear-errors') || Promise.resolve()
+};
+// Exposer l'API seulement si contextBridge est disponible
+if (typeof electron_1.contextBridge !== 'undefined' && typeof electron_1.ipcRenderer !== 'undefined') {
+    try {
+        electron_1.contextBridge.exposeInMainWorld('electronAPI', electronAPI);
+        console.log('✅ electronAPI exposed via contextBridge');
+    }
+    catch (error) {
+        console.error('❌ Failed to expose electronAPI:', error);
+        // Fallback: exposer directement sur window (moins sécurisé mais fonctionnel)
+        window.electronAPI = electronAPI;
+        console.log('⚠️ electronAPI exposed directly on window (fallback)');
+    }
+}
+else {
+    console.warn('⚠️ contextBridge or ipcRenderer not available, using fallback');
+    // Fallback pour les environnements où contextBridge n'est pas disponible
+    window.electronAPI = electronAPI;
+    console.log('⚠️ electronAPI exposed directly on window (no contextBridge)');
+}
 //# sourceMappingURL=preload.js.map
