@@ -33,6 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+// src/main.ts - Configuration corrigée
 const electron_1 = require("electron");
 const path = __importStar(require("path"));
 const fs = __importStar(require("fs"));
@@ -54,13 +55,70 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            sandbox: false,
+            // ENLEVER sandbox: false ou le mettre à true
+            sandbox: true, // ← CHANGEMENT PRINCIPAL
             preload: path.join(__dirname, 'preload.js'),
+            // Ajout pour plus de sécurité
+            allowRunningInsecureContent: false,
+            experimentalFeatures: false
         },
         titleBarStyle: 'hiddenInset',
         frame: false,
         show: false,
-        icon: path.join(__dirname, '../assets/icon.png'), // Ajout d'une icône
+        icon: path.join(__dirname, '../assets/icon.png'),
+    });
+    // Vérifier que le fichier preload existe
+    const preloadPath = path.join(__dirname, 'preload.js');
+    console.log('Preload path:', preloadPath);
+    console.log('Preload exists:', fs.existsSync(preloadPath));
+    if (process.env.NODE_ENV === 'development') {
+        mainWindow.loadURL('http://localhost:8080');
+        mainWindow.webContents.openDevTools();
+    }
+    else {
+        mainWindow.loadFile(path.join(__dirname, 'index.html'));
+    }
+    mainWindow.once('ready-to-show', () => {
+        mainWindow.show();
+    });
+    // Gestion de la fermeture de l'application
+    mainWindow.on('close', async (event) => {
+        if (backupService && settingsService) {
+            const settings = await settingsService.getSettings();
+            if (settings?.backup.autoBackup) {
+                try {
+                    await backupService.createBackup();
+                }
+                catch (error) {
+                    console.error('Erreur lors de la sauvegarde automatique:', error);
+                }
+            }
+        }
+    });
+}
+// Alternative avec webPreferences plus permissives si le sandbox pose problème
+function createWindowAlternative() {
+    mainWindow = new electron_1.BrowserWindow({
+        width: 1200,
+        height: 800,
+        minWidth: 800,
+        minHeight: 600,
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true,
+            // Pas de sandbox si cela pose problème
+            enableRemoteModule: false,
+            preload: path.join(__dirname, 'preload.js'),
+            // Sécurité supplémentaire
+            allowRunningInsecureContent: false,
+            experimentalFeatures: false,
+            // Ajout pour compatibilité
+            webSecurity: true
+        },
+        titleBarStyle: 'hiddenInset',
+        frame: false,
+        show: false,
+        icon: path.join(__dirname, '../assets/icon.png'),
     });
     if (process.env.NODE_ENV === 'development') {
         mainWindow.loadURL('http://localhost:8080');
