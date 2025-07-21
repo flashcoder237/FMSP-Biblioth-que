@@ -98,6 +98,10 @@ export class SyncService {
       this.syncStatus.isOnline = isOnline;
 
       // Si on vient de se reconnecter, démarrer la sync
+      if (isOnline && !wasOnline && !this.syncStatus.syncInProgress) {
+        console.log('Connexion rétablie - démarrage de la synchronisation');
+        this.startSync();
+      }
       if (isOnline && !wasOnline && this.syncQueue.length > 0) {
         console.log('Connexion rétablie, démarrage de la synchronisation...');
         await this.processSyncQueue();
@@ -363,6 +367,35 @@ export class SyncService {
     // Limiter le nombre d'erreurs stockées
     if (this.syncStatus.errors.length > 100) {
       this.syncStatus.errors = this.syncStatus.errors.slice(-100);
+    }
+  }
+
+  async getStatus(): Promise<SyncStatus> {
+    await this.loadPendingOperations();
+    return {
+      ...this.syncStatus,
+      pendingOperations: this.syncQueue.length
+    };
+  }
+
+  async startSync(): Promise<void> {
+    if (this.networkStatus.isOnline && !this.syncStatus.syncInProgress) {
+      await this.processSyncQueue();
+    }
+  }
+
+  async clearErrors(): Promise<void> {
+    this.syncStatus.errors = [];
+    // Optionnel: supprimer aussi de la base de données si nécessaire
+  }
+
+  async retryOperation(operationId: string): Promise<void> {
+    const operation = this.syncQueue.find(op => op.id === operationId);
+    if (operation) {
+      operation.retryCount = 0; // Reset les tentatives
+      if (this.networkStatus.isOnline && !this.syncStatus.syncInProgress) {
+        await this.processSyncQueue();
+      }
     }
   }
 

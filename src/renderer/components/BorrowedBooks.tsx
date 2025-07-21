@@ -13,7 +13,7 @@ import {
   Eye,
   RotateCcw
 } from 'lucide-react';
-import { Book as BookType } from '../../preload';
+import { Book as BookType } from '../../types';
 
 interface BorrowedBooksProps {
   books: BookType[]; // Array of books (already filtered to borrowed ones)
@@ -128,9 +128,9 @@ export const BorrowedBooks: React.FC<BorrowedBooksProps> = ({ books, onReturn })
               <Clock size={36} />
             </div>
             <div className="header-text">
-              <h1 className="page-title">Livres empruntés</h1>
+              <h1 className="page-title">Documents empruntés</h1>
               <p className="page-subtitle">
-                {books.length} livre(s) actuellement en circulation
+                {books.length} document(s) actuellement en circulation
               </p>
             </div>
           </div>
@@ -308,14 +308,14 @@ export const BorrowedBooks: React.FC<BorrowedBooksProps> = ({ books, onReturn })
               )}
             </div>
             <h3 className="empty-title">
-              {books.length === 0 ? 'Aucun livre emprunté' : 'Aucun résultat'}
+              {books.length === 0 ? 'Aucun document emprunté' : 'Aucun résultat'}
             </h3>
             <p className="empty-description">
               {books.length === 0 
-                ? 'Tous les livres sont actuellement disponibles dans la bibliothèque.'
+                ? 'Tous les documents sont actuellement disponibles dans la bibliothèque.'
                 : searchQuery 
                 ? `Aucun résultat pour "${searchQuery}"`
-                : 'Aucun livre ne correspond aux filtres sélectionnés.'
+                : 'Aucun document ne correspond aux filtres sélectionnés.'
               }
             </p>
             {(searchQuery || filterStatus !== 'all') && (

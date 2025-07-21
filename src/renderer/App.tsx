@@ -13,7 +13,7 @@ import { Donation } from './components/Donation';
 import { About } from './components/About';
 import { EnhancedAuthentication } from './components/EnhancedAuthentication';
 import { InstitutionSetup } from './components/InstitutionSetup';
-import { Book, Author, Category, Stats, Borrower, BorrowHistory as BorrowHistoryType } from '../preload';
+import { Book, Author, Category, Stats, Borrower, BorrowHistory as BorrowHistoryType } from '../types';
 import { SupabaseService, Institution, User } from '../services/SupabaseService';
 
 type ViewType = 'dashboard' | 'books' | 'borrowed' | 'add-book' | 'borrowers' | 'history' | 'settings' | 'donation' | 'about' | 'auth' | 'institution_setup';
@@ -121,7 +121,55 @@ export const App: React.FC = () => {
       setError('');
 
       if (credentials.mode === 'login') {
-        // Connexion normale
+        // Mode développement - connexion simplifiée
+        if (credentials.email === 'admin@bibliotheque-dev.local' && 
+            credentials.password === 'dev123456' && 
+            credentials.institutionCode === 'DEV-BIBLIO') {
+          
+          // Simulation d'authentification réussie en mode dev
+          const devUser: User = {
+            id: 'dev-user-1',
+            email: 'admin@bibliotheque-dev.local',
+            first_name: 'Admin',
+            last_name: 'Dev',
+            role: 'admin',
+            institution_id: 'dev-institution',
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            last_login: new Date().toISOString()
+          };
+
+          const devInstitution: Institution = {
+            id: 'dev-institution',
+            name: 'Bibliothèque de Développement',
+            code: 'DEV-BIBLIO',
+            address: '123 Rue du Code',
+            city: 'DevVille',
+            country: 'France',
+            phone: '+33 1 23 45 67 89',
+            email: 'contact@dev-biblio.local',
+            website: 'https://dev-biblio.local',
+            logo: '',
+            description: 'Bibliothèque de développement pour tests',
+            type: 'school',
+            status: 'active',
+            subscription_plan: 'enterprise',
+            max_books: 10000,
+            max_users: 100,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+
+          setCurrentUser(devUser);
+          setCurrentInstitution(devInstitution);
+          setIsAuthenticated(true);
+          setCurrentView('dashboard');
+          await loadData();
+          return;
+        }
+
+        // Connexion normale via Supabase
         const result = await supabaseService.signIn(credentials.email, credentials.password);
         if (!result.success) {
           throw new Error(result.error);

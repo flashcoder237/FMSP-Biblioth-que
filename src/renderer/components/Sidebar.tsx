@@ -19,7 +19,7 @@ import {
   History,
   Settings
 } from 'lucide-react';
-import { Stats } from '../../preload';
+import { Stats } from '../../types';
 
 import { SupabaseService, User, Institution } from '../../services/SupabaseService';
 
@@ -64,7 +64,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
       id: 'books', 
       label: 'Ma Collection', 
       icon: Book,
-      description: 'Parcourir tous les livres',
+      description: 'Parcourir tous les documents',
       count: stats.totalBooks,
       gradient: 'linear-gradient(135deg, #3E5C49 0%, #4A6B57 100%)'
     },
@@ -72,7 +72,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
       id: 'borrowed', 
       label: 'Emprunts Actifs', 
       icon: BookOpen,
-      description: 'Livres actuellement empruntés',
+      description: 'Documents actuellement empruntés',
       count: stats.borrowedBooks,
       badge: stats.borrowedBooks > 0,
       urgent: stats.overdueBooks > 0,
@@ -83,7 +83,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
   const actionItems: MenuItem[] = [
     { 
       id: 'add-book', 
-      label: 'Nouveau Livre', 
+      label: 'Nouveau Document', 
       icon: Plus,
       description: 'Ajouter à la collection',
       accent: true,
@@ -426,7 +426,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
               <div className="activity-summary">
                 <div className="activity-item">
                   <div className="activity-dot available"></div>
-                  <span>{stats.availableBooks} livres prêts à emprunter</span>
+                  <span>{stats.availableBooks} documents prêts à emprunter</span>
                 </div>
                 <div className="activity-item">
                   <div className="activity-dot borrowed"></div>
@@ -435,7 +435,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
                 {stats.overdueBooks > 0 && (
                   <div className="activity-item urgent">
                     <div className="activity-dot overdue"></div>
-                    <span>{stats.overdueBooks} livre(s) en retard</span>
+                    <span>{stats.overdueBooks} document(s) en retard</span>
                   </div>
                 )}
               </div>
@@ -1273,7 +1273,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           <div className="alert-content">
             <div className="alert-title">Action requise</div>
             <div className="alert-message">
-              {stats.overdueBooks} livre(s) en retard
+              {stats.overdueBooks} document(s) en retard
             </div>
           </div>
         </div>

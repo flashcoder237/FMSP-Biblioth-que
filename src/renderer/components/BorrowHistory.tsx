@@ -15,7 +15,7 @@ import {
   GraduationCap,
   Briefcase
 } from 'lucide-react';
-import { BorrowHistory as BorrowHistoryType, HistoryFilter } from '../../preload';
+import { BorrowHistory as BorrowHistoryType, HistoryFilter } from '../../types';
 
 import { SupabaseService } from '../../services/SupabaseService';
 
@@ -254,7 +254,7 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
                 <Search className="search-icon" size={20} />
                 <input
                   type="text"
-                  placeholder="Rechercher par livre, auteur, emprunteur..."
+                  placeholder="Rechercher par document, auteur, emprunteur..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="search-input"

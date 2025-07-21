@@ -4369,7 +4369,7 @@ var getGlobal = function() {
     // However, this causes CSP violations in Chrome apps.
     if (typeof self !== 'undefined') { return self; }
     if (typeof window !== 'undefined') { return window; }
-    if (typeof global !== 'undefined') { return global; }
+    if (typeof __webpack_require__.g !== 'undefined') { return __webpack_require__.g; }
     throw new Error('unable to locate global object');
 }
 
@@ -46612,4 +46612,4 @@ if (false) // removed by dead control flow
 /***/ })
 
 }]);
-//# sourceMappingURL=vendors.2335b4208fe0a6301509.js.map
+//# sourceMappingURL=vendors.f50159338317d3f94993.js.map

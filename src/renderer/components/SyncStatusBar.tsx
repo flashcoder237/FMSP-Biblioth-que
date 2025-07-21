@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SyncStatus, NetworkStatus, SyncError } from '../../preload';
+import { SyncStatus, NetworkStatus, SyncError } from '../../types';
 import { 
   Wifi, 
   WifiOff, 

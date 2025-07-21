@@ -37,7 +37,13 @@
       background: #64748b;
     }
   </style>
-<script defer src="vendors.2335b4208fe0a6301509.js"></script><script defer src="main.bundle.js"></script></head>
+  <script>
+    // Polyfill for global object in Electron renderer process
+    if (typeof global === 'undefined') {
+      window.global = window;
+    }
+  </script>
+<script defer src="vendors.f50159338317d3f94993.js"></script><script defer src="main.bundle.js"></script></head>
 <body>
   <div id="root"></div>
 </body>

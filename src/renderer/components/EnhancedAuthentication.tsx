@@ -92,6 +92,27 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
     };
   }, []);
 
+  // Connexion rapide pour le développement
+  const handleDevLogin = async () => {
+    setError('');
+    setSuccess('');
+    setIsLoading(true);
+
+    try {
+      await onLogin({
+        email: 'admin@bibliotheque-dev.local',
+        password: 'dev123456',
+        institutionCode: 'DEV-BIBLIO',
+        mode: 'login'
+      });
+    } catch (error) {
+      console.error('Connexion dev échouée:', error);
+      setError('Erreur de connexion développement');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -380,6 +401,37 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
                     </>
                   )}
                 </button>
+
+                {/* Bouton de développement - affiché uniquement en mode dev */}
+                {process.env.NODE_ENV !== 'production' && (
+                  <div className="dev-section">
+                    <div className="dev-separator">
+                      <span>MODE DÉVELOPPEMENT</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleDevLogin}
+                      className="auth-button dev-button"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <div className="loading-spinner"></div>
+                          Connexion...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles size={18} />
+                          Connexion rapide (Dev)
+                          <ArrowRight size={16} />
+                        </>
+                      )}
+                    </button>
+                    <small className="dev-hint">
+                      Compte : admin@bibliotheque-dev.local | Code : DEV-BIBLIO
+                    </small>
+                  </div>
+                )}
               </form>
             )}
 
@@ -1323,6 +1375,65 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+
+        /* Styles pour le mode développement */
+        .dev-section {
+          margin-top: 24px;
+          padding-top: 20px;
+          border-top: 1px solid rgba(62, 92, 73, 0.1);
+        }
+
+        .dev-separator {
+          text-align: center;
+          margin-bottom: 16px;
+          position: relative;
+        }
+
+        .dev-separator span {
+          background: #F3EED9;
+          padding: 0 12px;
+          font-size: 11px;
+          font-weight: 600;
+          color: #C2571B;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+
+        .dev-separator::before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, #C2571B, transparent);
+          z-index: -1;
+        }
+
+        .auth-button.dev-button {
+          background: linear-gradient(135deg, #C2571B 0%, #A3461A 100%);
+          color: #F3EED9;
+          box-shadow: 0 4px 16px rgba(194, 87, 27, 0.3);
+          border: 2px solid rgba(194, 87, 27, 0.2);
+        }
+
+        .auth-button.dev-button:hover:not(:disabled) {
+          background: linear-gradient(135deg, #A3461A 0%, #8A3C18 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(194, 87, 27, 0.4);
+        }
+
+        .dev-hint {
+          display: block;
+          text-align: center;
+          margin-top: 8px;
+          font-size: 10px;
+          color: #6E6E6E;
+          background: rgba(194, 87, 27, 0.05);
+          padding: 6px 12px;
+          border-radius: 16px;
+          border: 1px solid rgba(194, 87, 27, 0.1);
         }
         
         .institution-step,

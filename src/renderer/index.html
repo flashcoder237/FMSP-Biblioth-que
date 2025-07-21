@@ -37,6 +37,12 @@
       background: #64748b;
     }
   </style>
+  <script>
+    // Polyfill for global object in Electron renderer process
+    if (typeof global === 'undefined') {
+      window.global = window;
+    }
+  </script>
 </head>
 <body>
   <div id="root"></div>

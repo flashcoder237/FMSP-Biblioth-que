@@ -230,24 +230,16 @@ const electronAPI = {
     setTheme: (theme) => electron_1.ipcRenderer?.invoke('theme:set', theme) || Promise.resolve(),
     getTheme: () => electron_1.ipcRenderer?.invoke('theme:get') || Promise.resolve('light'),
     // Synchronization operations
-    getSyncStatus: () => electron_1.ipcRenderer?.invoke('sync:status') || Promise.resolve({
+    getSyncStatus: () => electron_1.ipcRenderer?.invoke('sync:getStatus') || Promise.resolve({
         isOnline: false,
         lastSync: null,
         pendingOperations: 0,
         syncInProgress: false,
         errors: []
     }),
-    startSync: () => electron_1.ipcRenderer?.invoke('sync:start') || Promise.resolve(),
-    pauseSync: () => electron_1.ipcRenderer?.invoke('sync:pause') || Promise.resolve(),
-    getNetworkStatus: () => electron_1.ipcRenderer?.invoke('network:status') || Promise.resolve({
-        isOnline: false,
-        connectionType: 'none',
-        lastChecked: new Date().toISOString()
-    }),
-    resolveConflict: (resolution) => electron_1.ipcRenderer?.invoke('sync:resolve-conflict', resolution) || Promise.resolve(false),
-    getSyncErrors: () => electron_1.ipcRenderer?.invoke('sync:errors') || Promise.resolve([]),
-    retrySyncOperation: (operationId) => electron_1.ipcRenderer?.invoke('sync:retry', operationId) || Promise.resolve(false),
-    clearSyncErrors: () => electron_1.ipcRenderer?.invoke('sync:clear-errors') || Promise.resolve()
+    triggerSync: () => electron_1.ipcRenderer?.invoke('sync:trigger') || Promise.resolve(false),
+    clearSyncErrors: () => electron_1.ipcRenderer?.invoke('sync:clearErrors') || Promise.resolve(false),
+    retrySyncOperation: (operationId) => electron_1.ipcRenderer?.invoke('sync:retry', operationId) || Promise.resolve(false)
 };
 // Type guard pour vérifier si nous sommes dans un environnement qui a accès à la fenêtre
 function hasWindowAccess() {

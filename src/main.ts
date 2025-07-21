@@ -6,6 +6,7 @@ import { DatabaseService } from './services/DatabaseService';
 import { BackupService } from './services/BackupService';
 import { AuthService } from './services/AuthService';
 import { ApplicationSettings, SettingsService } from './services/SettingsService';
+import { SyncService } from './services/SyncService';
 import { AuthCredentials } from './preload';
 import { RunResult } from 'sqlite3';
 
@@ -14,6 +15,7 @@ let dbService: DatabaseService;
 let backupService: BackupService;
 let authService: AuthService;
 let settingsService: SettingsService;
+let syncService: SyncService;
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -43,12 +45,9 @@ function createWindow(): void {
   console.log('Preload path:', preloadPath);
   console.log('Preload exists:', fs.existsSync(preloadPath));
 
-  if (process.env.NODE_ENV === 'development') {
-    mainWindow.loadURL('http://localhost:8080');
-    mainWindow.webContents.openDevTools();
-  } else {
-    mainWindow.loadFile(path.join(__dirname, 'index.html'));
-  }
+  // Always use the built files
+  mainWindow.loadFile(path.join(__dirname, 'index.html'));
+  mainWindow.webContents.openDevTools();
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
@@ -78,6 +77,10 @@ app.whenReady().then(async () => {
     backupService = new BackupService(dbService);
     authService = new AuthService();
     settingsService = new SettingsService();
+    syncService = new SyncService(dbService);
+    
+    // Initialiser le service de synchronisation
+    await syncService.initialize();
     
     console.log('Services initialisés avec succès');
     
@@ -556,6 +559,67 @@ async function getTopBorrowers() {
     .slice(0, 5)
     .map(([borrower, count]) => ({ borrower, count }));
 }
+
+// Synchronization Operations
+ipcMain.handle('sync:getStatus', async () => {
+  try {
+    return syncService ? await syncService.getStatus() : {
+      isOnline: false,
+      lastSync: null,
+      pendingOperations: 0,
+      syncInProgress: false,
+      errors: []
+    };
+  } catch (error) {
+    console.error('Erreur sync:getStatus:', error);
+    return {
+      isOnline: false,
+      lastSync: null,
+      pendingOperations: 0,
+      syncInProgress: false,
+      errors: []
+    };
+  }
+});
+
+ipcMain.handle('sync:trigger', async () => {
+  try {
+    if (syncService) {
+      await syncService.startSync();
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Erreur sync:trigger:', error);
+    return false;
+  }
+});
+
+ipcMain.handle('sync:clearErrors', async () => {
+  try {
+    if (syncService) {
+      await syncService.clearErrors();
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Erreur sync:clearErrors:', error);
+    return false;
+  }
+});
+
+ipcMain.handle('sync:retry', async (_, operationId: string) => {
+  try {
+    if (syncService) {
+      await syncService.retryOperation(operationId);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Erreur sync:retry:', error);
+    return false;
+  }
+});
 
 async function createPrintWindow(data: any, type: string): Promise<boolean> {
   return new Promise((resolve) => {

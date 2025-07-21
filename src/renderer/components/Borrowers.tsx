@@ -18,7 +18,7 @@ import {
   Eye,
   Filter
 } from 'lucide-react';
-import { Borrower } from '../../preload';
+import { Borrower } from '../../types';
 
 import { SupabaseService } from '../../services/SupabaseService';
 

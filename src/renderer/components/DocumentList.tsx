@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Document, SyncStatus, NetworkStatus } from '../../preload';
+import { Document, SyncStatus, NetworkStatus } from '../../types';
 import { 
   Search, 
   Plus, 

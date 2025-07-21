@@ -156,6 +156,18 @@ const rendererConfig = {
       },
     },
   },
+  // Fix for "global is not defined" and "require is not defined" errors
+  node: {
+    global: true,
+    __dirname: false,
+    __filename: false,
+  },
+  // Remove Node.js modules from renderer externals to prevent require issues
+  externals: {
+    'electron': 'require("electron")',
+    'fs': 'require("fs")',
+    'path': 'require("path")',
+  },
 };
 
 module.exports = [mainConfig, preloadConfig, rendererConfig];

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Document, Author, Category } from '../../preload';
+import { Document, Author, Category } from '../../types';
 import { Save, X, Plus, BookOpen, User, Building, MapPin, Calendar, Tag, Hash, FileText, Image } from 'lucide-react';
 
 interface AddDocumentProps {

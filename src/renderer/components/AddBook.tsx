@@ -14,7 +14,7 @@ import {
   Check,
   Sparkles
 } from 'lucide-react';
-import { Book as BookType, Author, Category, createBookFromDocument } from '../../preload';
+import { Book as BookType, Author, Category, createBookFromDocument } from '../../types';
 
 interface AddBookProps {
   authors: Author[];

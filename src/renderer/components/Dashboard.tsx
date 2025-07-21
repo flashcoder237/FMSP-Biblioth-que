@@ -15,7 +15,7 @@ import {
   Calendar,
   Eye
 } from 'lucide-react';
-import { Stats } from '../../preload';
+import { Stats } from '../../types';
 import { PrintManager } from './PrintManager';
 
 interface DashboardProps {
@@ -35,7 +35,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const heroActions = [
     {
-      title: 'Ajouter un livre',
+      title: 'Ajouter un document',
       description: 'Enrichissez votre collection',
       icon: Plus,
       action: () => onNavigate('add-book'),
@@ -43,7 +43,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     },
     {
       title: 'Parcourir la collection',
-      description: 'Explorer tous les livres',
+      description: 'Explorer tous les documents',
       icon: Search,
       action: () => onNavigate('books'),
       primary: false
@@ -53,14 +53,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const quickActions = [
     {
       title: 'Collection complète',
-      description: `${stats.totalBooks} livres disponibles`,
+      description: `${stats.totalBooks} documents disponibles`,
       icon: Book,
       action: () => onNavigate('books'),
       color: '#3E5C49'
     },
     {
       title: 'Gérer les emprunts',
-      description: `${stats.borrowedBooks} livre(s) emprunté(s)`,
+      description: `${stats.borrowedBooks} document(s) emprunté(s)`,
       icon: BookOpen,
       action: () => onNavigate('borrowed'),
       color: '#C2571B',
@@ -77,7 +77,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const mainStats = [
     {
-      title: 'Total des livres',
+      title: 'Total des documents',
       value: stats.totalBooks,
       icon: Book,
       color: '#3E5C49',
@@ -109,21 +109,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const recentActivity = [
     {
       type: 'add',
-      title: 'Nouveau livre ajouté',
+      title: 'Nouveau document ajouté',
       description: 'Les Misérables par Victor Hugo',
       time: 'Il y a 2 heures',
       icon: Plus
     },
     {
       type: 'borrow',
-      title: 'Livre emprunté',
+      title: 'Document emprunté',
       description: 'Fondation par Isaac Asimov',
       time: 'Il y a 1 jour',
       icon: BookOpen
     },
     {
       type: 'return',
-      title: 'Livre rendu',
+      title: 'Document rendu',
       description: 'L\'Étranger par Albert Camus',
       time: 'Il y a 2 jours',
       icon: Activity
@@ -140,7 +140,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="hero-text">
             <h1 className="hero-title">Bienvenue dans votre bibliothèque</h1>
             <p className="hero-subtitle">
-              Gérez votre collection de {stats.totalBooks} livres avec facilité et élégance
+              Gérez votre collection de {stats.totalBooks} documents avec facilité et élégance
             </p>
             <div className="hero-actions">
               {heroActions.map((action, index) => (
@@ -166,7 +166,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <div className="card-stats">
                 <div className="stat">
                   <span className="stat-number">{stats.totalBooks}</span>
-                  <span className="stat-label">Livres</span>
+                  <span className="stat-label">Documents</span>
                 </div>
                 <div className="stat">
                   <span className="stat-number">{stats.borrowedBooks}</span>

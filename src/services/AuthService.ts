@@ -119,6 +119,29 @@ export class AuthService {
         id: this.users.length + 1
       });
 
+      // Créer aussi un utilisateur de développement
+      const devUser: Omit<User, 'id'> = {
+        username: 'dev',
+        passwordHash: '',
+        salt: '',
+        role: 'admin',
+        email: 'admin@bibliotheque-dev.local',
+        firstName: 'Développement',
+        lastName: 'Admin',
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        loginAttempts: 0
+      };
+
+      const devPasswordData = this.hashPassword('dev123456');
+      devUser.passwordHash = devPasswordData.hash;
+      devUser.salt = devPasswordData.salt;
+
+      this.users.push({
+        ...devUser,
+        id: this.users.length + 1
+      });
+
       // Créer aussi un utilisateur démo
       const demoUser: Omit<User, 'id'> = {
         username: 'demo',
@@ -237,7 +260,7 @@ export class AuthService {
       this.cleanExpiredSessions();
 
       const user = this.users.find(u => 
-        u.username === credentials.username && u.isActive
+        (u.username === credentials.username || u.email === credentials.username) && u.isActive
       );
 
       if (!user) {

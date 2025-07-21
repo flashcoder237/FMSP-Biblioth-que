@@ -12,7 +12,7 @@ import {
   Zap,
   BarChart3
 } from 'lucide-react';
-import { Book, Stats, Category } from '../../preload';
+import { Book, Stats, Category } from '../../types';
 
 interface PrintManagerProps {
   books: Book[];
@@ -37,7 +37,7 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
     {
       id: 'inventory' as PrintType,
       title: 'Inventaire Complet',
-      description: 'Liste détaillée de tous les livres avec statuts',
+      description: 'Liste détaillée de tous les documents avec statuts',
       icon: FileText,
       color: '#3E5C49',
       gradient: 'linear-gradient(135deg, #3E5C49 0%, #2E453A 100%)',
@@ -46,17 +46,17 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
     },
     {
       id: 'available' as PrintType,
-      title: 'Livres Disponibles',
+      title: 'Documents Disponibles',
       description: 'Collection des ouvrages disponibles à l\'emprunt',
       icon: BookOpen,
       color: '#3E5C49',
       gradient: 'linear-gradient(135deg, #3E5C49 0%, #4A6B57 100%)',
       count: stats.availableBooks,
-      features: ['Livres en rayon', 'Prêts à emprunter', 'Tri par catégorie']
+      features: ['Documents en rayon', 'Prêts à emprunter', 'Tri par catégorie']
     },
     {
       id: 'borrowed' as PrintType,
-      title: 'Livres Empruntés',
+      title: 'Documents Empruntés',
       description: 'Suivi des emprunts en cours avec emprunteurs',
       icon: Clock,
       color: '#C2571B',
@@ -127,21 +127,21 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
         return {
           title: 'Inventaire Complet',
           items: books,
-          description: `${stats.totalBooks} livre(s) au total`,
+          description: `${stats.totalBooks} document(s) au total`,
           icon: BarChart3
         };
       case 'available':
         return {
-          title: 'Livres Disponibles',
+          title: 'Documents Disponibles',
           items: books.filter(book => !book.isBorrowed),
-          description: `${stats.availableBooks} livre(s) disponible(s)`,
+          description: `${stats.availableBooks} document(s) disponible(s)`,
           icon: BookOpen
         };
       case 'borrowed':
         return {
-          title: 'Livres Empruntés',
+          title: 'Documents Empruntés',
           items: books.filter(book => book.isBorrowed),
-          description: `${stats.borrowedBooks} livre(s) emprunté(s)`,
+          description: `${stats.borrowedBooks} document(s) emprunté(s)`,
           icon: Clock
         };
     }

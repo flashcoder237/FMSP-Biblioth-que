@@ -51,11 +51,13 @@ const DatabaseService_1 = __webpack_require__(/*! ./services/DatabaseService */ 
 const BackupService_1 = __webpack_require__(/*! ./services/BackupService */ "./src/services/BackupService.ts");
 const AuthService_1 = __webpack_require__(/*! ./services/AuthService */ "./src/services/AuthService.ts");
 const SettingsService_1 = __webpack_require__(/*! ./services/SettingsService */ "./src/services/SettingsService.ts");
+const SyncService_1 = __webpack_require__(/*! ./services/SyncService */ "./src/services/SyncService.ts");
 let mainWindow;
 let dbService;
 let backupService;
 let authService;
 let settingsService;
+let syncService;
 function createWindow() {
     mainWindow = new electron_1.BrowserWindow({
         width: 1200,
@@ -82,12 +84,9 @@ function createWindow() {
     const preloadPath = path.join(__dirname, 'preload.js');
     console.log('Preload path:', preloadPath);
     console.log('Preload exists:', fs.existsSync(preloadPath));
-    if (true) {
-        mainWindow.loadURL('http://localhost:8080');
-        mainWindow.webContents.openDevTools();
-    }
-    else // removed by dead control flow
-{}
+    // Always use the built files
+    mainWindow.loadFile(path.join(__dirname, 'index.html'));
+    mainWindow.webContents.openDevTools();
     mainWindow.once('ready-to-show', () => {
         mainWindow.show();
     });
@@ -114,6 +113,9 @@ electron_1.app.whenReady().then(async () => {
         backupService = new BackupService_1.BackupService(dbService);
         authService = new AuthService_1.AuthService();
         settingsService = new SettingsService_1.SettingsService();
+        syncService = new SyncService_1.SyncService(dbService);
+        // Initialiser le service de synchronisation
+        await syncService.initialize();
         console.log('Services initialisés avec succès');
         createWindow();
     }
@@ -569,6 +571,67 @@ async function getTopBorrowers() {
         .slice(0, 5)
         .map(([borrower, count]) => ({ borrower, count }));
 }
+// Synchronization Operations
+electron_1.ipcMain.handle('sync:getStatus', async () => {
+    try {
+        return syncService ? await syncService.getStatus() : {
+            isOnline: false,
+            lastSync: null,
+            pendingOperations: 0,
+            syncInProgress: false,
+            errors: []
+        };
+    }
+    catch (error) {
+        console.error('Erreur sync:getStatus:', error);
+        return {
+            isOnline: false,
+            lastSync: null,
+            pendingOperations: 0,
+            syncInProgress: false,
+            errors: []
+        };
+    }
+});
+electron_1.ipcMain.handle('sync:trigger', async () => {
+    try {
+        if (syncService) {
+            await syncService.startSync();
+            return true;
+        }
+        return false;
+    }
+    catch (error) {
+        console.error('Erreur sync:trigger:', error);
+        return false;
+    }
+});
+electron_1.ipcMain.handle('sync:clearErrors', async () => {
+    try {
+        if (syncService) {
+            await syncService.clearErrors();
+            return true;
+        }
+        return false;
+    }
+    catch (error) {
+        console.error('Erreur sync:clearErrors:', error);
+        return false;
+    }
+});
+electron_1.ipcMain.handle('sync:retry', async (_, operationId) => {
+    try {
+        if (syncService) {
+            await syncService.retryOperation(operationId);
+            return true;
+        }
+        return false;
+    }
+    catch (error) {
+        console.error('Erreur sync:retry:', error);
+        return false;
+    }
+});
 async function createPrintWindow(data, type) {
     return new Promise((resolve) => {
         const printWindow = new electron_1.BrowserWindow({
@@ -1397,24 +1460,16 @@ const electronAPI = {
     setTheme: (theme) => electron_1.ipcRenderer?.invoke('theme:set', theme) || Promise.resolve(),
     getTheme: () => electron_1.ipcRenderer?.invoke('theme:get') || Promise.resolve('light'),
     // Synchronization operations
-    getSyncStatus: () => electron_1.ipcRenderer?.invoke('sync:status') || Promise.resolve({
+    getSyncStatus: () => electron_1.ipcRenderer?.invoke('sync:getStatus') || Promise.resolve({
         isOnline: false,
         lastSync: null,
         pendingOperations: 0,
         syncInProgress: false,
         errors: []
     }),
-    startSync: () => electron_1.ipcRenderer?.invoke('sync:start') || Promise.resolve(),
-    pauseSync: () => electron_1.ipcRenderer?.invoke('sync:pause') || Promise.resolve(),
-    getNetworkStatus: () => electron_1.ipcRenderer?.invoke('network:status') || Promise.resolve({
-        isOnline: false,
-        connectionType: 'none',
-        lastChecked: new Date().toISOString()
-    }),
-    resolveConflict: (resolution) => electron_1.ipcRenderer?.invoke('sync:resolve-conflict', resolution) || Promise.resolve(false),
-    getSyncErrors: () => electron_1.ipcRenderer?.invoke('sync:errors') || Promise.resolve([]),
-    retrySyncOperation: (operationId) => electron_1.ipcRenderer?.invoke('sync:retry', operationId) || Promise.resolve(false),
-    clearSyncErrors: () => electron_1.ipcRenderer?.invoke('sync:clear-errors') || Promise.resolve()
+    triggerSync: () => electron_1.ipcRenderer?.invoke('sync:trigger') || Promise.resolve(false),
+    clearSyncErrors: () => electron_1.ipcRenderer?.invoke('sync:clearErrors') || Promise.resolve(false),
+    retrySyncOperation: (operationId) => electron_1.ipcRenderer?.invoke('sync:retry', operationId) || Promise.resolve(false)
 };
 // Type guard pour vérifier si nous sommes dans un environnement qui a accès à la fenêtre
 function hasWindowAccess() {
@@ -1582,6 +1637,26 @@ class AuthService {
                 ...defaultAdmin,
                 id: this.users.length + 1
             });
+            // Créer aussi un utilisateur de développement
+            const devUser = {
+                username: 'dev',
+                passwordHash: '',
+                salt: '',
+                role: 'admin',
+                email: 'admin@bibliotheque-dev.local',
+                firstName: 'Développement',
+                lastName: 'Admin',
+                isActive: true,
+                createdAt: new Date().toISOString(),
+                loginAttempts: 0
+            };
+            const devPasswordData = this.hashPassword('dev123456');
+            devUser.passwordHash = devPasswordData.hash;
+            devUser.salt = devPasswordData.salt;
+            this.users.push({
+                ...devUser,
+                id: this.users.length + 1
+            });
             // Créer aussi un utilisateur démo
             const demoUser = {
                 username: 'demo',
@@ -1682,7 +1757,7 @@ class AuthService {
         try {
             // Nettoyer les sessions expirées
             this.cleanExpiredSessions();
-            const user = this.users.find(u => u.username === credentials.username && u.isActive);
+            const user = this.users.find(u => (u.username === credentials.username || u.email === credentials.username) && u.isActive);
             if (!user) {
                 return {
                     success: false,
@@ -4414,6 +4489,844 @@ class SettingsService {
 }
 exports.SettingsService = SettingsService;
 
+
+/***/ }),
+
+/***/ "./src/services/SupabaseService.ts":
+/*!*****************************************!*\
+  !*** ./src/services/SupabaseService.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SupabaseService = void 0;
+// src/services/SupabaseService.ts
+const supabase_js_1 = __webpack_require__(/*! @supabase/supabase-js */ "@supabase/supabase-js");
+// Service Supabase pour la gestion de la bibliothèque
+class SupabaseService {
+    constructor() {
+        this.currentUser = null;
+        this.currentInstitution = null;
+        // Configuration Supabase avec les vraies clés
+        const supabaseUrl = 'https://krojphsvzuwtgxxkjklj.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtyb2pwaHN2enV3dGd4eGtqa2xqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0NzMwMTMsImV4cCI6MjA2ODA0OTAxM30.U8CvDXnn84ow2984GIiZqMcAE1-Pc6lGavTVqm_fLtQ';
+        this.supabase = (0, supabase_js_1.createClient)(supabaseUrl, supabaseKey);
+        this.initializeAuth();
+    }
+    async initializeAuth() {
+        try {
+            const { data: { session } } = await this.supabase.auth.getSession();
+            if (session?.user) {
+                await this.loadUserProfile(session.user.id);
+            }
+        }
+        catch (error) {
+            console.error('Erreur lors de l\'initialisation de l\'authentification:', error);
+        }
+    }
+    // Authentication
+    async signUp(email, password, userData) {
+        try {
+            const { data, error } = await this.supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        first_name: userData.firstName,
+                        last_name: userData.lastName,
+                        role: userData.role || 'user'
+                    }
+                }
+            });
+            if (error)
+                throw error;
+            if (data.user) {
+                // Si un code d'établissement est fourni, associer l'utilisateur
+                if (userData.institutionCode) {
+                    const institution = await this.getInstitutionByCode(userData.institutionCode);
+                    if (!institution) {
+                        throw new Error('Code d\'établissement invalide');
+                    }
+                }
+                // Créer le profil utilisateur
+                const userProfile = await this.createUserProfile(data.user.id, {
+                    email: data.user.email,
+                    first_name: userData.firstName,
+                    last_name: userData.lastName,
+                    role: userData.role || 'user',
+                    institution_id: userData.institutionCode ? (await this.getInstitutionByCode(userData.institutionCode))?.id : undefined,
+                    is_active: true
+                });
+                return { success: true, user: userProfile };
+            }
+            return { success: false, error: 'Erreur lors de la création du compte' };
+        }
+        catch (error) {
+            return { success: false, error: error.message };
+        }
+    }
+    async signIn(email, password) {
+        try {
+            const { data, error } = await this.supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+            if (error)
+                throw error;
+            if (data.user) {
+                const userProfile = await this.loadUserProfile(data.user.id);
+                if (userProfile && userProfile.institution_id) {
+                    this.currentInstitution = await this.getInstitution(userProfile.institution_id);
+                }
+                return {
+                    success: true,
+                    user: userProfile,
+                    institution: this.currentInstitution || undefined
+                };
+            }
+            return { success: false, error: 'Erreur de connexion' };
+        }
+        catch (error) {
+            return { success: false, error: error.message };
+        }
+    }
+    async signOut() {
+        try {
+            const { error } = await this.supabase.auth.signOut();
+            if (error)
+                throw error;
+            this.currentUser = null;
+            this.currentInstitution = null;
+            return true;
+        }
+        catch (error) {
+            console.error('Erreur lors de la déconnexion:', error);
+            return false;
+        }
+    }
+    // Institution Management
+    async createInstitution(institutionData) {
+        const code = this.generateInstitutionCode();
+        const { data, error } = await this.supabase
+            .from('institutions')
+            .insert({
+            ...institutionData,
+            code,
+            status: 'active',
+            subscription_plan: 'basic',
+            max_books: 1000,
+            max_users: 10
+        })
+            .select()
+            .single();
+        if (error)
+            throw error;
+        // Associer l'utilisateur actuel comme admin de cette institution
+        if (this.currentUser) {
+            await this.supabase
+                .from('users')
+                .update({
+                institution_id: data.id,
+                role: 'admin'
+            })
+                .eq('id', this.currentUser.id);
+        }
+        return { institution: data, code };
+    }
+    generateInstitutionCode() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = '';
+        for (let i = 0; i < 8; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+    async getInstitutionByCode(code) {
+        const { data, error } = await this.supabase
+            .from('institutions')
+            .select('*')
+            .eq('code', code.toUpperCase())
+            .eq('status', 'active')
+            .single();
+        if (error)
+            return null;
+        return data;
+    }
+    async getInstitution(id) {
+        const { data, error } = await this.supabase
+            .from('institutions')
+            .select('*')
+            .eq('id', id)
+            .single();
+        if (error)
+            return null;
+        return data;
+    }
+    // User Profile Management
+    async createUserProfile(userId, profileData) {
+        const { data, error } = await this.supabase
+            .from('users')
+            .insert({
+            id: userId,
+            ...profileData,
+            is_active: true
+        })
+            .select()
+            .single();
+        if (error)
+            throw error;
+        return data;
+    }
+    async loadUserProfile(userId) {
+        const { data, error } = await this.supabase
+            .from('users')
+            .select('*')
+            .eq('id', userId)
+            .single();
+        if (error)
+            return null;
+        this.currentUser = data;
+        return data;
+    }
+    // Books Management - Méthodes simplifiées pour le test
+    async getBooks() {
+        // Pour l'instant, retourner un tableau vide pour éviter les erreurs de table manquante
+        console.log('getBooks appelé - retour de données de test');
+        return [];
+    }
+    async addBook(book) {
+        console.log('addBook appelé avec:', book);
+        return 1; // ID fictif pour le test
+    }
+    async updateBook(book) {
+        console.log('updateBook appelé avec:', book);
+        return true;
+    }
+    async deleteBook(id) {
+        console.log('deleteBook appelé avec ID:', id);
+        return true;
+    }
+    async searchBooks(query) {
+        console.log('searchBooks appelé avec query:', query);
+        return [];
+    }
+    // Borrowers Management - Méthodes simplifiées
+    async getBorrowers() {
+        console.log('getBorrowers appelé');
+        return [];
+    }
+    async addBorrower(borrower) {
+        console.log('addBorrower appelé avec:', borrower);
+        return 1;
+    }
+    async updateBorrower(borrower) {
+        console.log('updateBorrower appelé avec:', borrower);
+        return true;
+    }
+    async deleteBorrower(id) {
+        console.log('deleteBorrower appelé avec ID:', id);
+        return true;
+    }
+    async searchBorrowers(query) {
+        console.log('searchBorrowers appelé avec query:', query);
+        return [];
+    }
+    // Borrow Management - Méthodes simplifiées
+    async borrowBook(bookId, borrowerId, expectedReturnDate) {
+        console.log('borrowBook appelé avec:', { bookId, borrowerId, expectedReturnDate });
+        return 1;
+    }
+    async returnBook(borrowHistoryId, notes) {
+        console.log('returnBook appelé avec:', { borrowHistoryId, notes });
+        return true;
+    }
+    async getBorrowedBooks() {
+        console.log('getBorrowedBooks appelé');
+        return [];
+    }
+    async getBorrowHistory(filter) {
+        console.log('getBorrowHistory appelé avec filter:', filter);
+        return [];
+    }
+    // Authors and Categories - Méthodes simplifiées
+    async getAuthors() {
+        console.log('getAuthors appelé');
+        return [];
+    }
+    async addAuthor(author) {
+        console.log('addAuthor appelé avec:', author);
+        return 1;
+    }
+    async getCategories() {
+        console.log('getCategories appelé');
+        return [];
+    }
+    async addCategory(category) {
+        console.log('addCategory appelé avec:', category);
+        return 1;
+    }
+    // Statistics - Méthodes simplifiées
+    async getStats() {
+        console.log('getStats appelé');
+        return {
+            totalBooks: 0,
+            borrowedBooks: 0,
+            availableBooks: 0,
+            totalAuthors: 0,
+            totalCategories: 0,
+            totalBorrowers: 0,
+            totalStudents: 0,
+            totalStaff: 0,
+            overdueBooks: 0
+        };
+    }
+    // Getters
+    getCurrentUser() {
+        return this.currentUser;
+    }
+    getCurrentInstitution() {
+        return this.currentInstitution;
+    }
+    // Utility methods
+    isAuthenticated() {
+        return this.currentUser !== null;
+    }
+    async switchInstitution(institutionCode) {
+        try {
+            const institution = await this.getInstitutionByCode(institutionCode);
+            if (!institution)
+                return false;
+            // Vérifier que l'utilisateur a accès à cette institution
+            if (this.currentUser && this.currentUser.institution_id !== institution.id) {
+                // Seuls les super_admin peuvent changer d'institution
+                if (this.currentUser.role !== 'super_admin') {
+                    return false;
+                }
+            }
+            this.currentInstitution = institution;
+            return true;
+        }
+        catch (error) {
+            console.error('Erreur lors du changement d\'institution:', error);
+            return false;
+        }
+    }
+    async clearAllData() {
+        console.log('clearAllData appelé');
+        return true;
+    }
+    // Méthodes CRUD supplémentaires pour la compatibilité
+    async createDocument(document) {
+        console.log('createDocument appelé avec:', document);
+        return null;
+    }
+    async updateDocument(document) {
+        console.log('updateDocument appelé avec:', document);
+        return true;
+    }
+    async deleteDocument(id) {
+        console.log('deleteDocument appelé avec ID:', id);
+        return true;
+    }
+    async createAuthor(author) {
+        console.log('createAuthor appelé avec:', author);
+        return null;
+    }
+    async updateAuthor(author) {
+        console.log('updateAuthor appelé avec:', author);
+        return true;
+    }
+    async deleteAuthor(id) {
+        console.log('deleteAuthor appelé avec ID:', id);
+        return true;
+    }
+    async createCategory(category) {
+        console.log('createCategory appelé avec:', category);
+        return null;
+    }
+    async updateCategory(category) {
+        console.log('updateCategory appelé avec:', category);
+        return true;
+    }
+    async deleteCategory(id) {
+        console.log('deleteCategory appelé avec ID:', id);
+        return true;
+    }
+    async createBorrower(borrower) {
+        console.log('createBorrower appelé avec:', borrower);
+        return null;
+    }
+    async createBorrowHistory(borrowHistory) {
+        console.log('createBorrowHistory appelé avec:', borrowHistory);
+        return null;
+    }
+    async updateBorrowHistory(borrowHistory) {
+        console.log('updateBorrowHistory appelé avec:', borrowHistory);
+        return true;
+    }
+    async deleteBorrowHistory(id) {
+        console.log('deleteBorrowHistory appelé avec ID:', id);
+        return true;
+    }
+}
+exports.SupabaseService = SupabaseService;
+
+
+/***/ }),
+
+/***/ "./src/services/SyncService.ts":
+/*!*************************************!*\
+  !*** ./src/services/SyncService.ts ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SyncService = void 0;
+const SupabaseService_1 = __webpack_require__(/*! ./SupabaseService */ "./src/services/SupabaseService.ts");
+class SyncService {
+    constructor(databaseService) {
+        this.syncQueue = [];
+        this.isInitialized = false;
+        this.syncInterval = null;
+        this.networkCheckInterval = null;
+        this.retryTimeout = null;
+        this.databaseService = databaseService;
+        this.supabaseService = new SupabaseService_1.SupabaseService();
+        this.syncStatus = {
+            isOnline: false,
+            lastSync: null,
+            pendingOperations: 0,
+            syncInProgress: false,
+            errors: []
+        };
+        this.networkStatus = {
+            isOnline: false,
+            connectionType: 'none',
+            lastChecked: new Date().toISOString()
+        };
+    }
+    async initialize() {
+        if (this.isInitialized)
+            return;
+        // Charger les opérations en attente depuis la base de données
+        await this.loadPendingOperations();
+        // Démarrer la surveillance réseau
+        this.startNetworkMonitoring();
+        // Démarrer la synchronisation automatique
+        this.startAutoSync();
+        this.isInitialized = true;
+        console.log('SyncService initialisé');
+    }
+    async loadPendingOperations() {
+        try {
+            // Charger les opérations depuis une table sync_queue dans la base
+            const operations = await this.databaseService.getSyncQueue();
+            this.syncQueue = operations;
+            this.syncStatus.pendingOperations = operations.length;
+        }
+        catch (error) {
+            console.error('Erreur lors du chargement des opérations en attente:', error);
+        }
+    }
+    startNetworkMonitoring() {
+        // Vérifier la connectivité toutes les 30 secondes
+        this.networkCheckInterval = setInterval(async () => {
+            await this.checkNetworkStatus();
+        }, 30000);
+        // Vérification initiale
+        this.checkNetworkStatus();
+    }
+    async checkNetworkStatus() {
+        try {
+            // Test de connectivité vers Supabase
+            const isOnline = await this.testConnectivity();
+            const wasOnline = this.networkStatus.isOnline;
+            this.networkStatus = {
+                isOnline,
+                connectionType: isOnline ? 'wifi' : 'none', // Simplification
+                lastChecked: new Date().toISOString()
+            };
+            this.syncStatus.isOnline = isOnline;
+            // Si on vient de se reconnecter, démarrer la sync
+            if (isOnline && !wasOnline && !this.syncStatus.syncInProgress) {
+                console.log('Connexion rétablie - démarrage de la synchronisation');
+                this.startSync();
+            }
+            if (isOnline && !wasOnline && this.syncQueue.length > 0) {
+                console.log('Connexion rétablie, démarrage de la synchronisation...');
+                await this.processSyncQueue();
+            }
+        }
+        catch (error) {
+            console.error('Erreur lors de la vérification réseau:', error);
+            this.networkStatus.isOnline = false;
+            this.syncStatus.isOnline = false;
+        }
+    }
+    async testConnectivity() {
+        try {
+            // Test simple de ping vers Supabase
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+            const response = await fetch('https://google.com', {
+                method: 'HEAD',
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            return response.ok;
+        }
+        catch {
+            return false;
+        }
+    }
+    startAutoSync() {
+        // Synchronisation automatique toutes les 5 minutes si en ligne
+        this.syncInterval = setInterval(async () => {
+            if (this.networkStatus.isOnline && !this.syncStatus.syncInProgress) {
+                await this.processSyncQueue();
+            }
+        }, 5 * 60 * 1000); // 5 minutes
+    }
+    async addOperation(operation) {
+        const syncOp = {
+            ...operation,
+            id: this.generateOperationId(),
+            timestamp: new Date().toISOString(),
+            retryCount: 0
+        };
+        this.syncQueue.push(syncOp);
+        this.syncStatus.pendingOperations = this.syncQueue.length;
+        // Sauvegarder dans la base
+        await this.databaseService.addSyncOperation(syncOp);
+        // Si en ligne, essayer de synchroniser immédiatement
+        if (this.networkStatus.isOnline && !this.syncStatus.syncInProgress) {
+            await this.processSyncQueue();
+        }
+    }
+    async processSyncQueue() {
+        if (this.syncStatus.syncInProgress || !this.networkStatus.isOnline) {
+            return;
+        }
+        this.syncStatus.syncInProgress = true;
+        console.log(`Démarrage de la synchronisation: ${this.syncQueue.length} opérations en attente`);
+        const processedOperations = [];
+        const failedOperations = [];
+        for (const operation of this.syncQueue) {
+            try {
+                const success = await this.processOperation(operation);
+                if (success) {
+                    processedOperations.push(operation.id);
+                    // Supprimer de la base
+                    await this.databaseService.removeSyncOperation(operation.id);
+                }
+                else {
+                    operation.retryCount++;
+                    if (operation.retryCount >= operation.maxRetries) {
+                        // Ajouter à la liste des erreurs
+                        this.addSyncError(operation, 'Nombre maximum de tentatives atteint');
+                        processedOperations.push(operation.id);
+                        await this.databaseService.removeSyncOperation(operation.id);
+                    }
+                    else {
+                        failedOperations.push(operation);
+                        await this.databaseService.updateSyncOperation(operation);
+                    }
+                }
+            }
+            catch (error) {
+                console.error(`Erreur lors du traitement de l'opération ${operation.id}:`, error);
+                operation.retryCount++;
+                failedOperations.push(operation);
+                this.addSyncError(operation, error instanceof Error ? error.message : String(error));
+                await this.databaseService.updateSyncOperation(operation);
+            }
+        }
+        // Mettre à jour la queue
+        this.syncQueue = this.syncQueue.filter(op => !processedOperations.includes(op.id));
+        this.syncStatus.pendingOperations = this.syncQueue.length;
+        this.syncStatus.lastSync = new Date().toISOString();
+        this.syncStatus.syncInProgress = false;
+        console.log(`Synchronisation terminée. Réussies: ${processedOperations.length}, Échouées: ${failedOperations.length}`);
+    }
+    async processOperation(operation) {
+        try {
+            switch (operation.type) {
+                case 'document':
+                    return await this.syncDocument(operation);
+                case 'author':
+                    return await this.syncAuthor(operation);
+                case 'category':
+                    return await this.syncCategory(operation);
+                case 'borrower':
+                    return await this.syncBorrower(operation);
+                case 'history':
+                    return await this.syncBorrowHistory(operation);
+                default:
+                    console.error(`Type d'opération inconnu: ${operation.type}`);
+                    return false;
+            }
+        }
+        catch (error) {
+            console.error(`Erreur lors de la synchronisation de ${operation.type}:`, error);
+            return false;
+        }
+    }
+    async syncDocument(operation) {
+        const { operation: op, data } = operation;
+        switch (op) {
+            case 'create':
+                const createdDoc = await this.supabaseService.createDocument(data);
+                if (createdDoc) {
+                    // Mettre à jour l'ID distant local
+                    await this.databaseService.updateDocumentRemoteId(data.localId, createdDoc.id?.toString() || '');
+                    return true;
+                }
+                return false;
+            case 'update':
+                return await this.supabaseService.updateDocument(data);
+            case 'delete':
+                return await this.supabaseService.deleteDocument(data.remoteId);
+            default:
+                return false;
+        }
+    }
+    async syncAuthor(operation) {
+        // Implémentation similaire pour les auteurs
+        const { operation: op, data } = operation;
+        switch (op) {
+            case 'create':
+                const createdAuthor = await this.supabaseService.createAuthor(data);
+                if (createdAuthor) {
+                    await this.databaseService.updateAuthorRemoteId(data.localId, createdAuthor.id?.toString() || '');
+                    return true;
+                }
+                return false;
+            case 'update':
+                return await this.supabaseService.updateAuthor(data);
+            case 'delete':
+                return await this.supabaseService.deleteAuthor(data.remoteId);
+            default:
+                return false;
+        }
+    }
+    async syncCategory(operation) {
+        // Implémentation similaire pour les catégories
+        const { operation: op, data } = operation;
+        switch (op) {
+            case 'create':
+                const createdCategory = await this.supabaseService.createCategory(data);
+                if (createdCategory) {
+                    await this.databaseService.updateCategoryRemoteId(data.localId, createdCategory.id?.toString() || '');
+                    return true;
+                }
+                return false;
+            case 'update':
+                return await this.supabaseService.updateCategory(data);
+            case 'delete':
+                return await this.supabaseService.deleteCategory(data.remoteId);
+            default:
+                return false;
+        }
+    }
+    async syncBorrower(operation) {
+        // Implémentation similaire pour les emprunteurs
+        const { operation: op, data } = operation;
+        switch (op) {
+            case 'create':
+                const createdBorrower = await this.supabaseService.createBorrower(data);
+                if (createdBorrower) {
+                    await this.databaseService.updateBorrowerRemoteId(data.localId, createdBorrower.id?.toString() || '');
+                    return true;
+                }
+                return false;
+            case 'update':
+                return await this.supabaseService.updateBorrower(data);
+            case 'delete':
+                return await this.supabaseService.deleteBorrower(data.remoteId);
+            default:
+                return false;
+        }
+    }
+    async syncBorrowHistory(operation) {
+        // Implémentation similaire pour l'historique
+        const { operation: op, data } = operation;
+        switch (op) {
+            case 'create':
+                const createdHistory = await this.supabaseService.createBorrowHistory(data);
+                if (createdHistory) {
+                    await this.databaseService.updateBorrowHistoryRemoteId(data.localId, createdHistory.id?.toString() || '');
+                    return true;
+                }
+                return false;
+            case 'update':
+                return await this.supabaseService.updateBorrowHistory(data);
+            case 'delete':
+                return await this.supabaseService.deleteBorrowHistory(data.remoteId);
+            default:
+                return false;
+        }
+    }
+    addSyncError(operation, errorMessage) {
+        const error = {
+            id: this.generateOperationId(),
+            type: operation.type,
+            operation: operation.operation,
+            entityId: operation.data.localId || operation.data.id,
+            error: errorMessage,
+            timestamp: new Date().toISOString(),
+            retryCount: operation.retryCount
+        };
+        this.syncStatus.errors.push(error);
+        // Limiter le nombre d'erreurs stockées
+        if (this.syncStatus.errors.length > 100) {
+            this.syncStatus.errors = this.syncStatus.errors.slice(-100);
+        }
+    }
+    async getStatus() {
+        await this.loadPendingOperations();
+        return {
+            ...this.syncStatus,
+            pendingOperations: this.syncQueue.length
+        };
+    }
+    async startSync() {
+        if (this.networkStatus.isOnline && !this.syncStatus.syncInProgress) {
+            await this.processSyncQueue();
+        }
+    }
+    async clearErrors() {
+        this.syncStatus.errors = [];
+        // Optionnel: supprimer aussi de la base de données si nécessaire
+    }
+    async retryOperation(operationId) {
+        const operation = this.syncQueue.find(op => op.id === operationId);
+        if (operation) {
+            operation.retryCount = 0; // Reset les tentatives
+            if (this.networkStatus.isOnline && !this.syncStatus.syncInProgress) {
+                await this.processSyncQueue();
+            }
+        }
+    }
+    generateOperationId() {
+        return `sync_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+    // Méthodes publiques pour l'API
+    getSyncStatus() {
+        return { ...this.syncStatus };
+    }
+    getNetworkStatus() {
+        return { ...this.networkStatus };
+    }
+    async startManualSync() {
+        if (this.networkStatus.isOnline) {
+            await this.processSyncQueue();
+        }
+        else {
+            throw new Error('Aucune connexion réseau disponible');
+        }
+    }
+    pauseSync() {
+        if (this.syncInterval) {
+            clearInterval(this.syncInterval);
+            this.syncInterval = null;
+        }
+    }
+    resumeSync() {
+        if (!this.syncInterval) {
+            this.startAutoSync();
+        }
+    }
+    async retrySyncOperation(operationId) {
+        const operation = this.syncQueue.find(op => op.id === operationId);
+        if (!operation)
+            return false;
+        operation.retryCount = 0; // Reset retry count
+        if (this.networkStatus.isOnline) {
+            const success = await this.processOperation(operation);
+            if (success) {
+                this.syncQueue = this.syncQueue.filter(op => op.id !== operationId);
+                this.syncStatus.pendingOperations = this.syncQueue.length;
+                await this.databaseService.removeSyncOperation(operationId);
+            }
+            return success;
+        }
+        return false;
+    }
+    getSyncErrors() {
+        return [...this.syncStatus.errors];
+    }
+    clearSyncErrors() {
+        this.syncStatus.errors = [];
+    }
+    async resolveConflict(resolution) {
+        try {
+            // Implémentation de la résolution de conflits
+            // Cette méthode sera appelée quand l'utilisateur choisit comment résoudre un conflit
+            switch (resolution.resolution) {
+                case 'use_local':
+                    // Utiliser la version locale et forcer la sync
+                    return await this.forceUpdateRemote(resolution);
+                case 'use_remote':
+                    // Utiliser la version distante et mettre à jour local
+                    return await this.forceUpdateLocal(resolution);
+                case 'merge':
+                    // Fusionner les données (logique spécifique selon le type)
+                    return await this.mergeVersions(resolution);
+                case 'manual':
+                    // L'utilisateur a fourni une version résolue manuellement
+                    return await this.applyManualResolution(resolution);
+                default:
+                    return false;
+            }
+        }
+        catch (error) {
+            console.error('Erreur lors de la résolution de conflit:', error);
+            return false;
+        }
+    }
+    async forceUpdateRemote(resolution) {
+        // Implémenter la mise à jour forcée du distant
+        return true;
+    }
+    async forceUpdateLocal(resolution) {
+        // Implémenter la mise à jour forcée du local
+        return true;
+    }
+    async mergeVersions(resolution) {
+        // Implémenter la fusion automatique
+        return true;
+    }
+    async applyManualResolution(resolution) {
+        // Appliquer la résolution manuelle fournie par l'utilisateur
+        return true;
+    }
+    async shutdown() {
+        if (this.syncInterval) {
+            clearInterval(this.syncInterval);
+        }
+        if (this.networkCheckInterval) {
+            clearInterval(this.networkCheckInterval);
+        }
+        if (this.retryTimeout) {
+            clearTimeout(this.retryTimeout);
+        }
+        console.log('SyncService arrêté');
+    }
+}
+exports.SyncService = SyncService;
+
+
+/***/ }),
+
+/***/ "@supabase/supabase-js":
+/*!****************************************!*\
+  !*** external "@supabase/supabase-js" ***!
+  \****************************************/
+/***/ ((module) => {
+
+module.exports = require("@supabase/supabase-js");
 
 /***/ }),
 

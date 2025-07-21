@@ -19,7 +19,7 @@ import {
   Star,
   TrendingUp
 } from 'lucide-react';
-import { Book as BookType } from '../../preload';
+import { Book as BookType } from '../../types';
 
 interface BookListProps {
   books: BookType[];
@@ -120,9 +120,9 @@ export const BookList: React.FC<BookListProps> = ({
       <div className="page-header">
         <div className="header-main">
           <div className="header-text">
-            <h1 className="page-title">Collection de livres</h1>
+            <h1 className="page-title">Collection de documents</h1>
             <p className="page-subtitle">
-              {stats.filtered} livre(s) affiché(s) sur {stats.total} au total
+              {stats.filtered} document(s) affiché(s) sur {stats.total} au total
             </p>
           </div>
           
@@ -188,7 +188,7 @@ export const BookList: React.FC<BookListProps> = ({
                 onChange={(e) => setFilterStatus(e.target.value as any)}
                 className="filter-select"
               >
-                <option value="all">Tous les livres</option>
+                <option value="all">Tous les documents</option>
                 <option value="available">Disponibles</option>
                 <option value="borrowed">Empruntés</option>
               </select>
@@ -523,18 +523,18 @@ export const BookList: React.FC<BookListProps> = ({
             </div>
             <h3 className="empty-title">
               {searchQuery || filterStatus !== 'all' || selectedCategory !== 'all' 
-                ? 'Aucun livre trouvé' 
-                : 'Aucun livre dans la collection'
+                ? 'Aucun document trouvé' 
+                : 'Aucun document dans la collection'
               }
             </h3>
             <p className="empty-description">
               {searchQuery 
                 ? `Aucun résultat pour "${searchQuery}"`
                 : filterStatus !== 'all'
-                ? `Aucun livre ${filterStatus === 'available' ? 'disponible' : 'emprunté'} pour le moment`
+                ? `Aucun document ${filterStatus === 'available' ? 'disponible' : 'emprunté'} pour le moment`
                 : selectedCategory !== 'all'
-                ? `Aucun livre dans la catégorie "${selectedCategory}"`
-                : 'Commencez par ajouter des livres à votre collection'
+                ? `Aucun document dans la catégorie "${selectedCategory}"`
+                : 'Commencez par ajouter des documents à votre collection'
               }
             </p>
             {(searchQuery || filterStatus !== 'all' || selectedCategory !== 'all') && (

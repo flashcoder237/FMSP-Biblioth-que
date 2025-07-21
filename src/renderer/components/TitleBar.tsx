@@ -3,15 +3,43 @@ import { Minus, Square, X, BookOpen } from 'lucide-react';
 
 export const TitleBar: React.FC = () => {
   const handleMinimize = () => {
-    window.electronAPI.minimizeWindow();
+    try {
+      if (window.electronAPI && window.electronAPI.minimizeWindow) {
+        window.electronAPI.minimizeWindow();
+      } else {
+        console.warn('electronAPI.minimizeWindow non disponible');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la minimisation:', error);
+    }
   };
 
   const handleMaximize = () => {
-    window.electronAPI.maximizeWindow();
+    try {
+      if (window.electronAPI && window.electronAPI.maximizeWindow) {
+        window.electronAPI.maximizeWindow();
+      } else {
+        console.warn('electronAPI.maximizeWindow non disponible');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la maximisation:', error);
+    }
   };
 
   const handleClose = () => {
-    window.electronAPI.closeWindow();
+    try {
+      if (window.electronAPI && window.electronAPI.closeWindow) {
+        window.electronAPI.closeWindow();
+      } else {
+        console.warn('electronAPI.closeWindow non disponible');
+        // Fallback pour fermer la fenêtre
+        if (window.close) {
+          window.close();
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors de la fermeture:', error);
+    }
   };
 
   return (
