@@ -1,29 +1,242 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Clock, 
   User, 
   Calendar, 
-  Book,
   CheckCircle,
   AlertTriangle,
-  Filter,
   Search,
   X,
-  ArrowUpDown,
-  Eye,
   RotateCcw
 } from 'lucide-react';
-import { Document } from '../../types';
 
-interface BorrowedDocumentsProps {
-  documents: Document[]; // Array of documents (already filtered to borrowed ones)
-  onReturn: (documentId: number) => void; // Simplified callback
+// Types
+interface Document {
+  id?: number;
+  titre: string;
+  auteur: string;
+  editeur: string;
+  annee: string;
+  nomEmprunteur?: string;
+  dateEmprunt?: string;
+  dateRetourPrevu?: string;
 }
 
+interface BorrowedDocumentsProps {
+  documents: Document[];
+  onReturn: (documentId: number) => void;
+}
+
+type SortBy = 'borrower' | 'date' | 'title' | 'status';
+type FilterStatus = 'all' | 'normal' | 'warning' | 'overdue';
+
+interface StatusInfo {
+  status: string;
+  label: string;
+  className: string;
+  icon: React.ComponentType<any>;
+}
+
+// Utility functions
+const getStatusInfo = (document: Document): StatusInfo => {
+  const expectedDate = new Date(document.dateRetourPrevu!);
+  const today = new Date();
+  const diffDays = Math.floor((expectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  
+  if (diffDays < 0) {
+    return {
+      status: 'overdue',
+      label: `En retard de ${Math.abs(diffDays)} jour(s)`,
+      className: 'status-overdue',
+      icon: AlertTriangle
+    };
+  } else if (diffDays <= 3) {
+    return {
+      status: 'warning', 
+      label: diffDays === 0 ? 'À rendre aujourd\'hui' : `${diffDays} jour(s) restant(s)`,
+      className: 'status-warning',
+      icon: Clock
+    };
+  } else {
+    return {
+      status: 'normal',
+      label: `${diffDays} jour(s) restant(s)`,
+      className: 'status-normal', 
+      icon: CheckCircle
+    };
+  }
+};
+
+const getStatusPriority = (doc: Document): number => {
+  const expectedDate = new Date(doc.dateRetourPrevu!);
+  const today = new Date();
+  const diffDays = Math.floor((expectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  if (diffDays < 0) return 3; // overdue
+  if (diffDays <= 3) return 2; // warning
+  return 1; // normal
+};
+
+// Sub-components
+const SearchBar: React.FC<{
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+}> = ({ searchQuery, onSearchChange }) => (
+  <div className="search-container">
+    <div className="search-input-wrapper">
+      <Search className="search-icon" size={20} />
+      <input
+        type="text"
+        placeholder="Rechercher par document, auteur, emprunteur..."
+        value={searchQuery}
+        onChange={(e) => onSearchChange(e.target.value)}
+        className="search-input"
+      />
+      {searchQuery && (
+        <button 
+          className="clear-search"
+          onClick={() => onSearchChange('')}
+        >
+          <X size={18} />
+        </button>
+      )}
+    </div>
+  </div>
+);
+
+const FilterControls: React.FC<{
+  sortBy: SortBy;
+  filterStatus: FilterStatus;
+  onSortChange: (sort: SortBy) => void;
+  onFilterChange: (filter: FilterStatus) => void;
+}> = ({ sortBy, filterStatus, onSortChange, onFilterChange }) => (
+  <div className="filter-controls">
+    <select 
+      value={sortBy} 
+      onChange={(e) => onSortChange(e.target.value as SortBy)}
+      className="filter-select"
+    >
+      <option value="date">Trier par date d'emprunt</option>
+      <option value="title">Trier par titre</option>
+      <option value="borrower">Trier par emprunteur</option>
+      <option value="status">Trier par statut</option>
+    </select>
+
+    <select 
+      value={filterStatus} 
+      onChange={(e) => onFilterChange(e.target.value as FilterStatus)}
+      className="filter-select"
+    >
+      <option value="all">Tous les statuts</option>
+      <option value="overdue">En retard</option>
+      <option value="warning">À rendre bientôt</option>
+      <option value="normal">Dans les temps</option>
+    </select>
+  </div>
+);
+
+const DocumentCard: React.FC<{
+  document: Document;
+  onReturn: (doc: Document) => void;
+}> = ({ document, onReturn }) => {
+  const statusInfo = getStatusInfo(document);
+  const StatusIcon = statusInfo.icon;
+  
+  return (
+    <div className={`document-card ${statusInfo.className}`}>
+      <div className="document-header">
+        <div className="document-info">
+          <h3 className="document-title">{document.titre}</h3>
+          <p className="document-author">{document.auteur}</p>
+          <p className="document-details">
+            {document.editeur} • {document.annee}
+          </p>
+        </div>
+        <div className="document-status">
+          <StatusIcon size={20} />
+        </div>
+      </div>
+
+      <div className="borrower-info">
+        <div className="borrower-details">
+          <div className="borrower-name">
+            <User size={16} />
+            <span>{document.nomEmprunteur}</span>
+          </div>
+          <div className="borrow-dates">
+            <div className="date-info">
+              <Calendar size={14} />
+              <span>Emprunté le {new Date(document.dateEmprunt!).toLocaleDateString('fr-FR')}</span>
+            </div>
+            <div className="date-info">
+              <Clock size={14} />
+              <span>À rendre le {new Date(document.dateRetourPrevu!).toLocaleDateString('fr-FR')}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="document-status-bar">
+        <div className={`status-badge ${statusInfo.className}`}>
+          <StatusIcon size={16} />
+          <span>{statusInfo.label}</span>
+        </div>
+      </div>
+
+      <div className="document-actions">
+        <button
+          onClick={() => onReturn(document)}
+          className="return-button"
+          title="Marquer comme rendu"
+        >
+          <RotateCcw size={16} />
+          Retour
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const EmptyState: React.FC<{
+  hasDocuments: boolean;
+  searchQuery: string;
+  filterStatus: FilterStatus;
+  onClearFilters: () => void;
+}> = ({ hasDocuments, searchQuery, filterStatus, onClearFilters }) => (
+  <div className="empty-state">
+    <div className="empty-icon">
+      {searchQuery ? (
+        <Search size={80} />
+      ) : (
+        <Clock size={80} />
+      )}
+    </div>
+    <h3 className="empty-title">
+      {!hasDocuments ? 'Aucun document emprunté' : 'Aucun résultat'}
+    </h3>
+    <p className="empty-description">
+      {!hasDocuments 
+        ? 'Tous les documents sont actuellement disponibles dans la bibliothèque.'
+        : searchQuery 
+        ? `Aucun résultat pour "${searchQuery}"`
+        : 'Aucun document ne correspond aux filtres sélectionnés.'
+      }
+    </p>
+    {(searchQuery || filterStatus !== 'all') && (
+      <button 
+        className="clear-filters"
+        onClick={onClearFilters}
+      >
+        Effacer les filtres
+      </button>
+    )}
+  </div>
+);
+
+// Main Component
 export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents, onReturn }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'borrower' | 'date' | 'title' | 'status'>('date');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'normal' | 'warning' | 'overdue'>('all');
+  const [sortBy, setSortBy] = useState<SortBy>('date');
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
 
   const handleReturn = (document: Document) => {
     if (window.confirm(`Confirmer le retour de "${document.titre}" emprunté par ${document.nomEmprunteur} ?`)) {
@@ -31,85 +244,52 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
     }
   };
 
-  // Filter and sort documents
-  const processedDocuments = documents
-    .filter(doc => {
-      if (!searchQuery) return true;
-      const query = searchQuery.toLowerCase();
-      return (
-        doc.titre.toLowerCase().includes(query) ||
-        doc.auteur.toLowerCase().includes(query) ||
-        doc.nomEmprunteur?.toLowerCase().includes(query)
-      );
-    })
-    .filter(doc => {
-      if (filterStatus === 'all') return true;
-      
-      const borrowDate = new Date(doc.dateEmprunt!);
-      const expectedDate = new Date(doc.dateRetourPrevu!);
-      const today = new Date();
-      const diffDays = Math.floor((expectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      
-      switch (filterStatus) {
-        case 'overdue': return diffDays < 0;
-        case 'warning': return diffDays >= 0 && diffDays <= 3;
-        case 'normal': return diffDays > 3;
-        default: return true;
-      }
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'title': return a.titre.localeCompare(b.titre);
-        case 'borrower': return (a.nomEmprunteur || '').localeCompare(b.nomEmprunteur || '');
-        case 'date': return new Date(a.dateEmprunt!).getTime() - new Date(b.dateEmprunt!).getTime();
-        case 'status':
-          const getStatusPriority = (doc: Document) => {
-            const expectedDate = new Date(doc.dateRetourPrevu!);
-            const today = new Date();
-            const diffDays = Math.floor((expectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-            if (diffDays < 0) return 3; // overdue
-            if (diffDays <= 3) return 2; // warning
-            return 1; // normal
-          };
-          return getStatusPriority(b) - getStatusPriority(a);
-        default: return 0;
-      }
-    });
-
-  const getStatusInfo = (document: Document) => {
-    const borrowDate = new Date(document.dateEmprunt!);
-    const expectedDate = new Date(document.dateRetourPrevu!);
-    const today = new Date();
-    const diffDays = Math.floor((expectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) {
-      return {
-        status: 'overdue',
-        label: `En retard de ${Math.abs(diffDays)} jour(s)`,
-        className: 'status-overdue',
-        icon: AlertTriangle
-      };
-    } else if (diffDays <= 3) {
-      return {
-        status: 'warning', 
-        label: diffDays === 0 ? 'À rendre aujourd\'hui' : `${diffDays} jour(s) restant(s)`,
-        className: 'status-warning',
-        icon: Clock
-      };
-    } else {
-      return {
-        status: 'normal',
-        label: `${diffDays} jour(s) restant(s)`,
-        className: 'status-normal', 
-        icon: CheckCircle
-      };
-    }
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setFilterStatus('all');
   };
+
+  // Processed documents with memoization for performance
+  const processedDocuments = useMemo(() => {
+    return documents
+      .filter(doc => {
+        if (!searchQuery) return true;
+        const query = searchQuery.toLowerCase();
+        return (
+          doc.titre.toLowerCase().includes(query) ||
+          doc.auteur.toLowerCase().includes(query) ||
+          doc.nomEmprunteur?.toLowerCase().includes(query)
+        );
+      })
+      .filter(doc => {
+        if (filterStatus === 'all') return true;
+        
+        const expectedDate = new Date(doc.dateRetourPrevu!);
+        const today = new Date();
+        const diffDays = Math.floor((expectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        
+        switch (filterStatus) {
+          case 'overdue': return diffDays < 0;
+          case 'warning': return diffDays >= 0 && diffDays <= 3;
+          case 'normal': return diffDays > 3;
+          default: return true;
+        }
+      })
+      .sort((a, b) => {
+        switch (sortBy) {
+          case 'title': return a.titre.localeCompare(b.titre);
+          case 'borrower': return (a.nomEmprunteur || '').localeCompare(b.nomEmprunteur || '');
+          case 'date': return new Date(a.dateEmprunt!).getTime() - new Date(b.dateEmprunt!).getTime();
+          case 'status': return getStatusPriority(b) - getStatusPriority(a);
+          default: return 0;
+        }
+      });
+  }, [documents, searchQuery, filterStatus, sortBy]);
 
   return (
     <div className="borrowed-documents-container">
       <div className="page-content">
-        {/* Enhanced Header */}
+        {/* Header Section */}
         <div className="page-header">
           <div className="header-main">
             <div className="header-icon">
@@ -123,53 +303,19 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
             </div>
           </div>
           
-          {/* Enhanced Controls */}
+          {/* Controls Section */}
           <div className="enhanced-controls">
             <div className="controls-row">
-              <div className="search-container">
-                <div className="search-input-wrapper">
-                  <Search className="search-icon" size={20} />
-                  <input
-                    type="text"
-                    placeholder="Rechercher par document, auteur, emprunteur..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="search-input"
-                  />
-                  {searchQuery && (
-                    <button 
-                      className="clear-search"
-                      onClick={() => setSearchQuery('')}
-                    >
-                      <X size={18} />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="filter-controls">
-                <select 
-                  value={sortBy} 
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="filter-select"
-                >
-                  <option value="date">Trier par date d'emprunt</option>
-                  <option value="title">Trier par titre</option>
-                  <option value="borrower">Trier par emprunteur</option>
-                  <option value="status">Trier par statut</option>
-                </select>
-
-                <select 
-                  value={filterStatus} 
-                  onChange={(e) => setFilterStatus(e.target.value as any)}
-                  className="filter-select"
-                >
-                  <option value="all">Tous les statuts</option>
-                  <option value="overdue">En retard</option>
-                  <option value="warning">À rendre bientôt</option>
-                  <option value="normal">Dans les temps</option>
-                </select>
-              </div>
+              <SearchBar 
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+              />
+              <FilterControls
+                sortBy={sortBy}
+                filterStatus={filterStatus}
+                onSortChange={setSortBy}
+                onFilterChange={setFilterStatus}
+              />
             </div>
           </div>
         </div>
@@ -183,100 +329,24 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
           </div>
         )}
 
-        {/* Documents List */}
+        {/* Content Section */}
         {processedDocuments.length > 0 ? (
           <div className="documents-grid">
-            {processedDocuments.map(document => {
-              const statusInfo = getStatusInfo(document);
-              const StatusIcon = statusInfo.icon;
-              
-              return (
-                <div key={document.id} className={`document-card ${statusInfo.className}`}>
-                  <div className="document-header">
-                    <div className="document-info">
-                      <h3 className="document-title">{document.titre}</h3>
-                      <p className="document-author">{document.auteur}</p>
-                      <p className="document-details">
-                        {document.editeur} • {document.annee}
-                      </p>
-                    </div>
-                    <div className="document-status">
-                      <StatusIcon size={20} />
-                    </div>
-                  </div>
-
-                  <div className="borrower-info">
-                    <div className="borrower-details">
-                      <div className="borrower-name">
-                        <User size={16} />
-                        <span>{document.nomEmprunteur}</span>
-                      </div>
-                      <div className="borrow-dates">
-                        <div className="date-info">
-                          <Calendar size={14} />
-                          <span>Emprunté le {new Date(document.dateEmprunt!).toLocaleDateString('fr-FR')}</span>
-                        </div>
-                        <div className="date-info">
-                          <Clock size={14} />
-                          <span>À rendre le {new Date(document.dateRetourPrevu!).toLocaleDateString('fr-FR')}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="document-status-bar">
-                    <div className={`status-badge ${statusInfo.className}`}>
-                      <StatusIcon size={16} />
-                      <span>{statusInfo.label}</span>
-                    </div>
-                  </div>
-
-                  <div className="document-actions">
-                    <button
-                      onClick={() => handleReturn(document)}
-                      className="return-button"
-                      title="Marquer comme rendu"
-                    >
-                      <RotateCcw size={16} />
-                      Retour
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+            {processedDocuments.map(document => (
+              <DocumentCard
+                key={document.id}
+                document={document}
+                onReturn={handleReturn}
+              />
+            ))}
           </div>
         ) : (
-          <div className="empty-state">
-            <div className="empty-icon">
-              {searchQuery ? (
-                <Search size={80} />
-              ) : (
-                <Clock size={80} />
-              )}
-            </div>
-            <h3 className="empty-title">
-              {documents.length === 0 ? 'Aucun document emprunté' : 'Aucun résultat'}
-            </h3>
-            <p className="empty-description">
-              {documents.length === 0 
-                ? 'Tous les documents sont actuellement disponibles dans la bibliothèque.'
-                : searchQuery 
-                ? `Aucun résultat pour "${searchQuery}"`
-                : 'Aucun document ne correspond aux filtres sélectionnés.'
-              }
-            </p>
-            {(searchQuery || filterStatus !== 'all') && (
-              <button 
-                className="clear-filters"
-                onClick={() => {
-                  setSearchQuery('');
-                  setFilterStatus('all');
-                }}
-              >
-                Effacer les filtres
-              </button>
-            )}
-          </div>
+          <EmptyState
+            hasDocuments={documents.length > 0}
+            searchQuery={searchQuery}
+            filterStatus={filterStatus}
+            onClearFilters={handleClearFilters}
+          />
         )}
       </div>
 
@@ -293,6 +363,7 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
           margin: 0 auto;
         }
 
+        /* Header Styles */
         .page-header {
           background: #FFFFFF;
           border-radius: 16px;
@@ -335,6 +406,7 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
           margin: 0;
         }
 
+        /* Controls Styles */
         .enhanced-controls {
           border-top: 1px solid rgba(243, 238, 217, 0.3);
           padding-top: 24px;
@@ -423,6 +495,7 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
           box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
         }
 
+        /* Results Summary */
         .results-summary {
           background: #FFFFFF;
           border-radius: 12px;
@@ -438,12 +511,14 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
           font-weight: 500;
         }
 
+        /* Documents Grid */
         .documents-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
           gap: 20px;
         }
 
+        /* Document Card Styles */
         .document-card {
           background: #FFFFFF;
           border-radius: 16px;
@@ -594,6 +669,7 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
           box-shadow: 0 8px 24px rgba(62, 92, 73, 0.3);
         }
 
+        /* Empty State */
         .empty-state {
           text-align: center;
           padding: 80px 40px;
@@ -640,6 +716,7 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
           box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
         }
 
+        /* Responsive Design */
         @media (max-width: 768px) {
           .page-content {
             padding: 16px;

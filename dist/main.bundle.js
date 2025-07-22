@@ -1786,15 +1786,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/file-text.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/building.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/map-pin.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/calendar.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/hash.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/building.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/map-pin.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/calendar.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/hash.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/tag.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/image.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/save.mjs");
@@ -1954,7 +1954,414 @@ const AddDocument = ({ onAdd, onCancel, editingDocument }) => {
             console.error('Erreur lors de la sélection de l\'image:', error);
         }
     };
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] overflow-y-auto", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h2", { className: "text-xl font-semibold text-gray-800 flex items-center gap-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { className: "w-5 h-5" }), editingDocument ? 'Modifier le document' : 'Ajouter un nouveau document'] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: onCancel, className: "p-2 hover:bg-gray-100 rounded-lg transition-colors", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { className: "w-5 h-5" }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "p-6 space-y-6", children: [errors.submit && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg", children: errors.submit })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "bg-gray-50 p-4 rounded-lg", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { className: "text-lg font-medium text-gray-800 mb-4 flex items-center gap-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { className: "w-5 h-5" }), "Informations principales"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { className: "w-4 h-4 inline mr-1" }), "Auteur *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.auteur, onChange: (e) => handleInputChange('auteur', e.target.value), className: `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.auteur ? 'border-red-300' : 'border-gray-300'}`, placeholder: "Nom de l'auteur", list: "authors-list" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("datalist", { id: "authors-list", children: authors.map(author => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: author.name }, author.id))) }), errors.auteur && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-red-500 text-sm mt-1", children: errors.auteur })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { className: "w-4 h-4 inline mr-1" }), "Titre *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.titre, onChange: (e) => handleInputChange('titre', e.target.value), className: `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.titre ? 'border-red-300' : 'border-gray-300'}`, placeholder: "Titre du document" }), errors.titre && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-red-500 text-sm mt-1", children: errors.titre })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { className: "w-4 h-4 inline mr-1" }), "\u00C9diteur *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.editeur, onChange: (e) => handleInputChange('editeur', e.target.value), className: `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.editeur ? 'border-red-300' : 'border-gray-300'}`, placeholder: "Nom de l'\u00E9diteur" }), errors.editeur && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-red-500 text-sm mt-1", children: errors.editeur })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { className: "w-4 h-4 inline mr-1" }), "Lieu d'\u00E9dition *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.lieuEdition, onChange: (e) => handleInputChange('lieuEdition', e.target.value), className: `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.lieuEdition ? 'border-red-300' : 'border-gray-300'}`, placeholder: "Ville d'\u00E9dition" }), errors.lieuEdition && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-red-500 text-sm mt-1", children: errors.lieuEdition })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { className: "w-4 h-4 inline mr-1" }), "Ann\u00E9e *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "number", value: formData.annee, onChange: (e) => handleInputChange('annee', e.target.value), className: `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.annee ? 'border-red-300' : 'border-gray-300'}`, placeholder: "Ann\u00E9e de publication", min: "1000", max: new Date().getFullYear() + 10 }), errors.annee && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-red-500 text-sm mt-1", children: errors.annee })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { className: "w-4 h-4 inline mr-1" }), "Cote *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex gap-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.cote, onChange: (e) => handleInputChange('cote', e.target.value), className: `flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.cote ? 'border-red-300' : 'border-gray-300'}`, placeholder: "Code de classification" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: generateCote, className: "px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors", title: "G\u00E9n\u00E9rer automatiquement", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { className: "w-4 h-4" }) })] }), errors.cote && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-red-500 text-sm mt-1", children: errors.cote })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "bg-gray-50 p-4 rounded-lg", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { className: "text-lg font-medium text-gray-800 mb-4 flex items-center gap-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { className: "w-5 h-5" }), "M\u00E9tadonn\u00E9es et classification"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "space-y-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: "Descripteurs / Mots-cl\u00E9s *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.descripteurs, onChange: (e) => handleInputChange('descripteurs', e.target.value), className: `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.descripteurs ? 'border-red-300' : 'border-gray-300'}`, placeholder: "ex: Fiction, Roman historique, XIXe si\u00E8cle (s\u00E9par\u00E9s par des virgules)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-sm text-gray-500 mt-1", children: "S\u00E9parez les mots-cl\u00E9s par des virgules. Ces descripteurs aideront \u00E0 la recherche et au classement." }), errors.descripteurs && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-red-500 text-sm mt-1", children: errors.descripteurs })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: "ISBN (optionnel)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.isbn, onChange: (e) => handleInputChange('isbn', e.target.value), className: `w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.isbn ? 'border-red-300' : 'border-gray-300'}`, placeholder: "978-2-123456-78-9" }), errors.isbn && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-red-500 text-sm mt-1", children: errors.isbn })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { className: "w-4 h-4 inline mr-1" }), "Couverture (optionnel)"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex gap-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.couverture, onChange: (e) => handleInputChange('couverture', e.target.value), className: "flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "Chemin vers l'image", readOnly: true }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: selectCoverImage, className: "px-3 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors", children: "Parcourir" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: "Description (optionnel)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("textarea", { value: formData.description, onChange: (e) => handleInputChange('description', e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", rows: 4, placeholder: "Description d\u00E9taill\u00E9e du document..." })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex justify-end gap-3 pt-4 border-t", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: onCancel, className: "px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors", children: "Annuler" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", disabled: isLoading, className: "px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { className: "w-4 h-4" }), isLoading ? 'Enregistrement...' : (editingDocument ? 'Modifier' : 'Ajouter')] })] })] })] }) }));
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "add-document-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "add-document-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "modal-title", children: editingDocument ? 'Modifier le document' : 'Ajouter un nouveau document' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "modal-subtitle", children: "Enrichissez votre collection biblioth\u00E8que" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: onCancel, className: "close-button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "modal-content", children: [errors.submit && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "error-alert", children: errors.submit })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Informations principales" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-field", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "field-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 16 }), "Auteur *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.auteur, onChange: (e) => handleInputChange('auteur', e.target.value), className: `form-input ${errors.auteur ? 'error' : ''}`, placeholder: "Nom de l'auteur", list: "authors-list" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("datalist", { id: "authors-list", children: authors.map(author => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: author.name }, author.id))) }), errors.auteur && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "field-error", children: errors.auteur })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-field", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "field-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 16 }), "Titre *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.titre, onChange: (e) => handleInputChange('titre', e.target.value), className: `form-input ${errors.titre ? 'error' : ''}`, placeholder: "Titre du document" }), errors.titre && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "field-error", children: errors.titre })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-field", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "field-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 16 }), "\u00C9diteur *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.editeur, onChange: (e) => handleInputChange('editeur', e.target.value), className: `form-input ${errors.editeur ? 'error' : ''}`, placeholder: "Nom de l'\u00E9diteur" }), errors.editeur && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "field-error", children: errors.editeur })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-field", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "field-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }), "Lieu d'\u00E9dition *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.lieuEdition, onChange: (e) => handleInputChange('lieuEdition', e.target.value), className: `form-input ${errors.lieuEdition ? 'error' : ''}`, placeholder: "Ville d'\u00E9dition" }), errors.lieuEdition && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "field-error", children: errors.lieuEdition })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-field", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "field-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), "Ann\u00E9e *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "number", value: formData.annee, onChange: (e) => handleInputChange('annee', e.target.value), className: `form-input ${errors.annee ? 'error' : ''}`, placeholder: "Ann\u00E9e de publication", min: "1000", max: new Date().getFullYear() + 10 }), errors.annee && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "field-error", children: errors.annee })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-field", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "field-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), "Cote *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-with-button", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.cote, onChange: (e) => handleInputChange('cote', e.target.value), className: `form-input flex-1 ${errors.cote ? 'error' : ''}`, placeholder: "Code de classification" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: generateCote, className: "generate-button", title: "G\u00E9n\u00E9rer automatiquement", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 16 }) })] }), errors.cote && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "field-error", children: errors.cote })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "M\u00E9tadonn\u00E9es et classification" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-field full-width", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "field-label", children: "Descripteurs / Mots-cl\u00E9s *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.descripteurs, onChange: (e) => handleInputChange('descripteurs', e.target.value), className: `form-input ${errors.descripteurs ? 'error' : ''}`, placeholder: "ex: Fiction, Roman historique, XIXe si\u00E8cle (s\u00E9par\u00E9s par des virgules)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "field-help", children: "S\u00E9parez les mots-cl\u00E9s par des virgules. Ces descripteurs aideront \u00E0 la recherche et au classement." }), errors.descripteurs && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "field-error", children: errors.descripteurs })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-field", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "field-label", children: "ISBN (optionnel)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.isbn, onChange: (e) => handleInputChange('isbn', e.target.value), className: `form-input ${errors.isbn ? 'error' : ''}`, placeholder: "978-2-123456-78-9" }), errors.isbn && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "field-error", children: errors.isbn })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-field", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "field-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }), "Couverture (optionnel)"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-with-button", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: formData.couverture, onChange: (e) => handleInputChange('couverture', e.target.value), className: "form-input flex-1", placeholder: "Chemin vers l'image", readOnly: true }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: selectCoverImage, className: "browse-button", children: "Parcourir" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-field full-width", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "field-label", children: "Description (optionnel)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("textarea", { value: formData.description, onChange: (e) => handleInputChange('description', e.target.value), className: "form-textarea", rows: 4, placeholder: "Description d\u00E9taill\u00E9e du document..." })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: onCancel, className: "cancel-button", children: "Annuler" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", disabled: isLoading, className: "submit-button", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 16 }), isLoading ? 'Enregistrement...' : (editingDocument ? 'Modifier' : 'Ajouter')] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+        .add-document-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 50;
+          padding: 16px;
+          backdrop-filter: blur(8px);
+        }
+        
+        .add-document-modal {
+          background: #FFFFFF;
+          border-radius: 20px;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+          width: 100%;
+          max-width: 900px;
+          max-height: 95vh;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          border: 1px solid rgba(229, 220, 194, 0.3);
+        }
+        
+        .modal-header {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+          padding: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          position: relative;
+        }
+        
+        .modal-header::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.1) 0%, transparent 50%);
+          pointer-events: none;
+        }
+        
+        .header-content {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          position: relative;
+          z-index: 1;
+        }
+        
+        .header-icon {
+          width: 56px;
+          height: 56px;
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #F3EED9;
+          box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
+        }
+        
+        .header-text {
+          flex: 1;
+        }
+        
+        .modal-title {
+          font-size: 24px;
+          font-weight: 700;
+          margin: 0 0 4px 0;
+          line-height: 1.2;
+          letter-spacing: -0.3px;
+        }
+        
+        .modal-subtitle {
+          font-size: 14px;
+          opacity: 0.8;
+          margin: 0;
+        }
+        
+        .close-button {
+          width: 44px;
+          height: 44px;
+          border: none;
+          background: rgba(243, 238, 217, 0.1);
+          color: #F3EED9;
+          border-radius: 12px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+          position: relative;
+          z-index: 1;
+        }
+        
+        .close-button:hover {
+          background: rgba(243, 238, 217, 0.2);
+          transform: scale(1.05);
+        }
+        
+        .modal-content {
+          padding: 32px;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 32px;
+        }
+        
+        .error-alert {
+          background: linear-gradient(135deg, #FEF2F2 0%, #FFFFFF 100%);
+          border: 1px solid #FCA5A5;
+          color: #DC2626;
+          padding: 16px 20px;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 500;
+        }
+        
+        .form-section {
+          background: rgba(243, 238, 217, 0.1);
+          border-radius: 16px;
+          padding: 24px;
+          border: 1px solid rgba(243, 238, 217, 0.2);
+        }
+        
+        .section-header {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 24px;
+        }
+        
+        .section-icon {
+          width: 40px;
+          height: 40px;
+          background: rgba(62, 92, 73, 0.1);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #3E5C49;
+        }
+        
+        .section-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0;
+        }
+        
+        .form-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 20px;
+        }
+          .form-grid .form-field {
+          min-width: 0; /* Évite que les flex/grid items dépassent leur conteneur */
+        }
+        
+        .section-content {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+        
+        .form-field {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .form-field.full-width {
+          grid-column: 1 / -1;
+        }
+        
+        .field-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0;
+        }
+        
+        .form-input, .form-textarea {
+          width: 100%;
+          padding: 12px 16px;
+          border: 2px solid #E5DCC2;
+          border-radius: 8px;
+          font-size: 14px;
+          background: #FFFFFF;
+          color: #2E2E2E;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          
+          /* FIX: Ajoutez ces propriétés pour éviter le chevauchement */
+          box-sizing: border-box;
+          min-width: 0; /* Permet au flexbox/grid de réduire la taille si nécessaire */
+        }
+        
+        .form-input:focus, .form-textarea:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+        
+        .form-input.error {
+          border-color: #DC2626;
+          background: #FEF2F2;
+        }
+        
+        .form-input.error:focus {
+          border-color: #DC2626;
+          box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+        
+        .form-textarea {
+          resize: vertical;
+          min-height: 100px;
+        }
+        
+        .input-with-button {
+          display: flex;
+          gap: 8px;
+          width: 100%;
+        }
+        .input-with-button .form-input {
+  flex: 1;
+  min-width: 0; /* Permet à l'input de se rétrécir si nécessaire */
+}
+        .generate-button, .browse-button {
+          padding: 12px 16px;
+          border: none;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        
+        .generate-button {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+        }
+        
+        .generate-button:hover {
+          background: linear-gradient(135deg, #2E453A 0%, #1E2F25 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
+        }
+        
+        .browse-button {
+          background: linear-gradient(135deg, #6E6E6E 0%, #5A5A5A 100%);
+          color: #F3EED9;
+        }
+        
+        .browse-button:hover {
+          background: linear-gradient(135deg, #5A5A5A 0%, #4A4A4A 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(110, 110, 110, 0.3);
+        }
+        
+        .field-help {
+          font-size: 12px;
+          color: #6E6E6E;
+          margin: 0;
+          line-height: 1.4;
+        }
+        
+        .field-error {
+          color: #DC2626;
+          font-size: 12px;
+          font-weight: 500;
+          margin: 0;
+        }
+        
+        .modal-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 16px;
+          padding-top: 24px;
+          border-top: 1px solid rgba(243, 238, 217, 0.3);
+        }
+        
+        .cancel-button {
+          padding: 12px 24px;
+          background: rgba(110, 110, 110, 0.1);
+          color: #6E6E6E;
+          border: 2px solid #E5DCC2;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .cancel-button:hover {
+          background: rgba(110, 110, 110, 0.2);
+          border-color: #6E6E6E;
+          transform: translateY(-1px);
+        }
+        
+        .submit-button {
+          padding: 12px 24px;
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
+          color: #F3EED9;
+          border: none;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        
+        .submit-button:hover {
+          background: linear-gradient(135deg, #A8481A 0%, #8A3C18 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
+        }
+        
+        .submit-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+        
+        @media (max-width: 768px) {
+          .add-document-overlay {
+            padding: 8px;
+          }
+          
+          .modal-header {
+            padding: 20px;
+          }
+          
+          .header-content {
+            flex-direction: column;
+            text-align: center;
+            gap: 12px;
+          }
+          
+          .modal-title {
+            font-size: 20px;
+          }
+          
+          .modal-content {
+            padding: 20px;
+            gap: 24px;
+          }
+          
+          .form-section {
+            padding: 16px;
+          }
+          
+          .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%; /* Assure que la grille prend toute la largeur disponible */
+          }
+          
+          .modal-actions {
+            flex-direction: column;
+            gap: 12px;
+          }
+          
+          .cancel-button,
+          .submit-button {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+          @media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .input-with-button {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .input-with-button .form-input {
+    flex: none;
+  }
+}
+      ` })] }));
 };
 
 
@@ -2772,6 +3179,60 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+// Utility functions
+const getStatusInfo = (document) => {
+    const expectedDate = new Date(document.dateRetourPrevu);
+    const today = new Date();
+    const diffDays = Math.floor((expectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) {
+        return {
+            status: 'overdue',
+            label: `En retard de ${Math.abs(diffDays)} jour(s)`,
+            className: 'status-overdue',
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"]
+        };
+    }
+    else if (diffDays <= 3) {
+        return {
+            status: 'warning',
+            label: diffDays === 0 ? 'À rendre aujourd\'hui' : `${diffDays} jour(s) restant(s)`,
+            className: 'status-warning',
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"]
+        };
+    }
+    else {
+        return {
+            status: 'normal',
+            label: `${diffDays} jour(s) restant(s)`,
+            className: 'status-normal',
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"]
+        };
+    }
+};
+const getStatusPriority = (doc) => {
+    const expectedDate = new Date(doc.dateRetourPrevu);
+    const today = new Date();
+    const diffDays = Math.floor((expectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays < 0)
+        return 3; // overdue
+    if (diffDays <= 3)
+        return 2; // warning
+    return 1; // normal
+};
+// Sub-components
+const SearchBar = ({ searchQuery, onSearchChange }) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "search-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { className: "search-icon", size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", placeholder: "Rechercher par document, auteur, emprunteur...", value: searchQuery, onChange: (e) => onSearchChange(e.target.value), className: "search-input" }), searchQuery && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "clear-search", onClick: () => onSearchChange(''), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }) }))] }) }));
+const FilterControls = ({ sortBy, filterStatus, onSortChange, onFilterChange }) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-controls", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: sortBy, onChange: (e) => onSortChange(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "date", children: "Trier par date d'emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "title", children: "Trier par titre" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "borrower", children: "Trier par emprunteur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "status", children: "Trier par statut" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filterStatus, onChange: (e) => onFilterChange(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous les statuts" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "overdue", children: "En retard" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "warning", children: "\u00C0 rendre bient\u00F4t" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "normal", children: "Dans les temps" })] })] }));
+const DocumentCard = ({ document, onReturn }) => {
+    const statusInfo = getStatusInfo(document);
+    const StatusIcon = statusInfo.icon;
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `document-card ${statusInfo.className}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "document-title", children: document.titre }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "document-author", children: document.auteur }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "document-details", children: [document.editeur, " \u2022 ", document.annee] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "document-status", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(StatusIcon, { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrower-info", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-name", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: document.nomEmprunteur })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrow-dates", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "date-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["Emprunt\u00E9 le ", new Date(document.dateEmprunt).toLocaleDateString('fr-FR')] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "date-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["\u00C0 rendre le ", new Date(document.dateRetourPrevu).toLocaleDateString('fr-FR')] })] })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "document-status-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `status-badge ${statusInfo.className}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(StatusIcon, { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: statusInfo.label })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "document-actions", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { onClick: () => onReturn(document), className: "return-button", title: "Marquer comme rendu", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), "Retour"] }) })] }));
+};
+const EmptyState = ({ hasDocuments, searchQuery, filterStatus, onClearFilters }) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "empty-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "empty-icon", children: searchQuery ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 80 })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 80 })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "empty-title", children: !hasDocuments ? 'Aucun document emprunté' : 'Aucun résultat' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "empty-description", children: !hasDocuments
+                ? 'Tous les documents sont actuellement disponibles dans la bibliothèque.'
+                : searchQuery
+                    ? `Aucun résultat pour "${searchQuery}"`
+                    : 'Aucun document ne correspond aux filtres sélectionnés.' }), (searchQuery || filterStatus !== 'all') && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "clear-filters", onClick: onClearFilters, children: "Effacer les filtres" }))] }));
+// Main Component
 const BorrowedDocuments = ({ documents, onReturn }) => {
     const [searchQuery, setSearchQuery] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
     const [sortBy, setSortBy] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('date');
@@ -2781,109 +3242,65 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
             onReturn(document.id);
         }
     };
-    // Filter and sort documents
-    const processedDocuments = documents
-        .filter(doc => {
-        if (!searchQuery)
-            return true;
-        const query = searchQuery.toLowerCase();
-        return (doc.titre.toLowerCase().includes(query) ||
-            doc.auteur.toLowerCase().includes(query) ||
-            doc.nomEmprunteur?.toLowerCase().includes(query));
-    })
-        .filter(doc => {
-        if (filterStatus === 'all')
-            return true;
-        const borrowDate = new Date(doc.dateEmprunt);
-        const expectedDate = new Date(doc.dateRetourPrevu);
-        const today = new Date();
-        const diffDays = Math.floor((expectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        switch (filterStatus) {
-            case 'overdue': return diffDays < 0;
-            case 'warning': return diffDays >= 0 && diffDays <= 3;
-            case 'normal': return diffDays > 3;
-            default: return true;
-        }
-    })
-        .sort((a, b) => {
-        switch (sortBy) {
-            case 'title': return a.titre.localeCompare(b.titre);
-            case 'borrower': return (a.nomEmprunteur || '').localeCompare(b.nomEmprunteur || '');
-            case 'date': return new Date(a.dateEmprunt).getTime() - new Date(b.dateEmprunt).getTime();
-            case 'status':
-                const getStatusPriority = (doc) => {
-                    const expectedDate = new Date(doc.dateRetourPrevu);
-                    const today = new Date();
-                    const diffDays = Math.floor((expectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-                    if (diffDays < 0)
-                        return 3; // overdue
-                    if (diffDays <= 3)
-                        return 2; // warning
-                    return 1; // normal
-                };
-                return getStatusPriority(b) - getStatusPriority(a);
-            default: return 0;
-        }
-    });
-    const getStatusInfo = (document) => {
-        const borrowDate = new Date(document.dateEmprunt);
-        const expectedDate = new Date(document.dateRetourPrevu);
-        const today = new Date();
-        const diffDays = Math.floor((expectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        if (diffDays < 0) {
-            return {
-                status: 'overdue',
-                label: `En retard de ${Math.abs(diffDays)} jour(s)`,
-                className: 'status-overdue',
-                icon: lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"]
-            };
-        }
-        else if (diffDays <= 3) {
-            return {
-                status: 'warning',
-                label: diffDays === 0 ? 'À rendre aujourd\'hui' : `${diffDays} jour(s) restant(s)`,
-                className: 'status-warning',
-                icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"]
-            };
-        }
-        else {
-            return {
-                status: 'normal',
-                label: `${diffDays} jour(s) restant(s)`,
-                className: 'status-normal',
-                icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"]
-            };
-        }
+    const handleClearFilters = () => {
+        setSearchQuery('');
+        setFilterStatus('all');
     };
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrowed-documents-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "page-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "page-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-main", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 36 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "page-title", children: "Documents emprunt\u00E9s" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "page-subtitle", children: [documents.length, " document(s) actuellement en circulation"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "enhanced-controls", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "controls-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "search-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { className: "search-icon", size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", placeholder: "Rechercher par document, auteur, emprunteur...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }), searchQuery && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "clear-search", onClick: () => setSearchQuery(''), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }) }))] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-controls", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: sortBy, onChange: (e) => setSortBy(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "date", children: "Trier par date d'emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "title", children: "Trier par titre" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "borrower", children: "Trier par emprunteur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "status", children: "Trier par statut" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filterStatus, onChange: (e) => setFilterStatus(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous les statuts" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "overdue", children: "En retard" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "warning", children: "\u00C0 rendre bient\u00F4t" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "normal", children: "Dans les temps" })] })] })] }) })] }), searchQuery && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "results-summary", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "results-count", children: [processedDocuments.length, " r\u00E9sultat(s) pour \"", searchQuery, "\""] }) })), processedDocuments.length > 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "documents-grid", children: processedDocuments.map(document => {
-                            const statusInfo = getStatusInfo(document);
-                            const StatusIcon = statusInfo.icon;
-                            return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `document-card ${statusInfo.className}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "document-title", children: document.titre }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "document-author", children: document.auteur }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "document-details", children: [document.editeur, " \u2022 ", document.annee] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "document-status", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(StatusIcon, { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrower-info", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-name", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: document.nomEmprunteur })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrow-dates", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "date-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["Emprunt\u00E9 le ", new Date(document.dateEmprunt).toLocaleDateString('fr-FR')] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "date-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["\u00C0 rendre le ", new Date(document.dateRetourPrevu).toLocaleDateString('fr-FR')] })] })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "document-status-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `status-badge ${statusInfo.className}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(StatusIcon, { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: statusInfo.label })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "document-actions", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { onClick: () => handleReturn(document), className: "return-button", title: "Marquer comme rendu", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), "Retour"] }) })] }, document.id));
-                        }) })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "empty-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "empty-icon", children: searchQuery ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 80 })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 80 })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "empty-title", children: documents.length === 0 ? 'Aucun document emprunté' : 'Aucun résultat' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "empty-description", children: documents.length === 0
-                                    ? 'Tous les documents sont actuellement disponibles dans la bibliothèque.'
-                                    : searchQuery
-                                        ? `Aucun résultat pour "${searchQuery}"`
-                                        : 'Aucun document ne correspond aux filtres sélectionnés.' }), (searchQuery || filterStatus !== 'all') && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "clear-filters", onClick: () => {
-                                    setSearchQuery('');
-                                    setFilterStatus('all');
-                                }, children: "Effacer les filtres" }))] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+    // Processed documents with memoization for performance
+    const processedDocuments = (0,react__WEBPACK_IMPORTED_MODULE_1__.useMemo)(() => {
+        return documents
+            .filter(doc => {
+            if (!searchQuery)
+                return true;
+            const query = searchQuery.toLowerCase();
+            return (doc.titre.toLowerCase().includes(query) ||
+                doc.auteur.toLowerCase().includes(query) ||
+                doc.nomEmprunteur?.toLowerCase().includes(query));
+        })
+            .filter(doc => {
+            if (filterStatus === 'all')
+                return true;
+            const expectedDate = new Date(doc.dateRetourPrevu);
+            const today = new Date();
+            const diffDays = Math.floor((expectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+            switch (filterStatus) {
+                case 'overdue': return diffDays < 0;
+                case 'warning': return diffDays >= 0 && diffDays <= 3;
+                case 'normal': return diffDays > 3;
+                default: return true;
+            }
+        })
+            .sort((a, b) => {
+            switch (sortBy) {
+                case 'title': return a.titre.localeCompare(b.titre);
+                case 'borrower': return (a.nomEmprunteur || '').localeCompare(b.nomEmprunteur || '');
+                case 'date': return new Date(a.dateEmprunt).getTime() - new Date(b.dateEmprunt).getTime();
+                case 'status': return getStatusPriority(b) - getStatusPriority(a);
+                default: return 0;
+            }
+        });
+    }, [documents, searchQuery, filterStatus, sortBy]);
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrowed-documents-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "page-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "page-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-main", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 36 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "page-title", children: "Documents emprunt\u00E9s" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "page-subtitle", children: [documents.length, " document(s) actuellement en circulation"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "enhanced-controls", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "controls-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(SearchBar, { searchQuery: searchQuery, onSearchChange: setSearchQuery }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(FilterControls, { sortBy: sortBy, filterStatus: filterStatus, onSortChange: setSortBy, onFilterChange: setFilterStatus })] }) })] }), searchQuery && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "results-summary", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "results-count", children: [processedDocuments.length, " r\u00E9sultat(s) pour \"", searchQuery, "\""] }) })), processedDocuments.length > 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "documents-grid", children: processedDocuments.map(document => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(DocumentCard, { document: document, onReturn: handleReturn }, document.id))) })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(EmptyState, { hasDocuments: documents.length > 0, searchQuery: searchQuery, filterStatus: filterStatus, onClearFilters: handleClearFilters }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .borrowed-documents-container {
-          padding: 24px;
-          background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-          min-height: 100vh;
+          height: 100%;
+          overflow-y: auto;
+          background: #FAF9F6;
         }
 
         .page-content {
+          padding: 32px;
           max-width: 1200px;
           margin: 0 auto;
         }
 
+        /* Header Styles */
         .page-header {
-          background: white;
+          background: #FFFFFF;
           border-radius: 16px;
           padding: 32px;
           margin-bottom: 24px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+          border: 1px solid rgba(229, 220, 194, 0.3);
         }
 
         .header-main {
@@ -2896,12 +3313,12 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
         .header-icon {
           width: 72px;
           height: 72px;
-          background: linear-gradient(135deg, #C2571B 0%, #E65100 100%);
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
           border-radius: 20px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #F3EED9;
           box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
         }
 
@@ -2919,8 +3336,9 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
           margin: 0;
         }
 
+        /* Controls Styles */
         .enhanced-controls {
-          border-top: 1px solid #E5DCC2;
+          border-top: 1px solid rgba(243, 238, 217, 0.3);
           padding-top: 24px;
         }
 
@@ -2956,14 +3374,15 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
           border: 2px solid #E5DCC2;
           border-radius: 12px;
           font-size: 14px;
-          background: white;
-          transition: all 0.2s ease;
+          background: #FFFFFF;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          color: #2E2E2E;
         }
 
         .search-input:focus {
           outline: none;
-          border-color: #C2571B;
-          box-shadow: 0 0 0 3px rgba(194, 87, 27, 0.1);
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
         }
 
         .clear-search {
@@ -2992,26 +3411,28 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
           padding: 12px 16px;
           border: 2px solid #E5DCC2;
           border-radius: 8px;
-          background: white;
+          background: #FFFFFF;
           font-size: 14px;
           color: #2E2E2E;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           min-width: 180px;
         }
 
         .filter-select:focus {
           outline: none;
-          border-color: #C2571B;
-          box-shadow: 0 0 0 3px rgba(194, 87, 27, 0.1);
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
         }
 
+        /* Results Summary */
         .results-summary {
-          background: white;
+          background: #FFFFFF;
           border-radius: 12px;
           padding: 16px 24px;
           margin-bottom: 16px;
           box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+          border: 1px solid rgba(243, 238, 217, 0.2);
         }
 
         .results-count {
@@ -3020,24 +3441,27 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
           font-weight: 500;
         }
 
+        /* Documents Grid */
         .documents-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
           gap: 20px;
         }
 
+        /* Document Card Styles */
         .document-card {
-          background: white;
+          background: #FFFFFF;
           border-radius: 16px;
           padding: 24px;
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
-          transition: all 0.3s ease;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           border-left: 4px solid #E5DCC2;
+          border: 1px solid rgba(229, 220, 194, 0.2);
         }
 
         .document-card:hover {
           transform: translateY(-2px);
-          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
         }
 
         .document-card.status-overdue {
@@ -3091,9 +3515,10 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
 
         .borrower-info {
           padding: 16px;
-          background: rgba(243, 238, 217, 0.3);
+          background: rgba(243, 238, 217, 0.2);
           border-radius: 12px;
           margin-bottom: 16px;
+          border: 1px solid rgba(243, 238, 217, 0.3);
         }
 
         .borrower-name {
@@ -3157,29 +3582,31 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
           display: flex;
           align-items: center;
           gap: 8px;
-          padding: 10px 16px;
+          padding: 12px 20px;
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: white;
+          color: #F3EED9;
           border: none;
           border-radius: 8px;
           font-size: 14px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         .return-button:hover {
           background: linear-gradient(135deg, #2E453A 0%, #1E2F25 100%);
           transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
+          box-shadow: 0 8px 24px rgba(62, 92, 73, 0.3);
         }
 
+        /* Empty State */
         .empty-state {
           text-align: center;
           padding: 80px 40px;
-          background: white;
+          background: #FFFFFF;
           border-radius: 16px;
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+          border: 1px solid rgba(229, 220, 194, 0.2);
         }
 
         .empty-icon {
@@ -3204,23 +3631,24 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
         .clear-filters {
           padding: 12px 24px;
           background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
-          color: white;
+          color: #F3EED9;
           border: none;
           border-radius: 8px;
           font-size: 14px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         .clear-filters:hover {
           background: linear-gradient(135deg, #A8481A 0%, #8A3C18 100%);
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(194, 87, 27, 0.3);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
         }
 
+        /* Responsive Design */
         @media (max-width: 768px) {
-          .borrowed-documents-container {
+          .page-content {
             padding: 16px;
           }
 
@@ -4825,15 +5253,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/loader-2.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/search.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/building.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/map-pin.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/calendar.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/hash.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/tag.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/pen-square.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trash-2.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/filter.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/search.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/tag.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/building.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/map-pin.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/calendar.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/hash.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/pen-square.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trash-2.mjs");
 
 
 
@@ -4879,27 +5308,854 @@ const DocumentList = ({ documents, onAdd, onEdit, onDelete, onRefresh, syncStatu
     const getSyncStatusIcon = (status) => {
         switch (status) {
             case 'synced':
-                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { className: "w-4 h-4 text-green-500" });
+                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { className: "sync-icon synced" });
             case 'pending':
-                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { className: "w-4 h-4 text-yellow-500" });
+                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { className: "sync-icon pending" });
             case 'error':
-                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { className: "w-4 h-4 text-red-500" });
+                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { className: "sync-icon error" });
             case 'conflict':
-                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { className: "w-4 h-4 text-orange-500" });
+                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { className: "sync-icon conflict" });
             default:
-                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { className: "w-4 h-4 text-gray-500" });
+                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { className: "sync-icon default" });
         }
     };
     const getNetworkStatusDisplay = () => {
-        return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center gap-2 text-sm", children: [networkStatus.isOnline ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center gap-1 text-green-600", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { className: "w-4 h-4" }), "En ligne"] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center gap-1 text-red-600", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { className: "w-4 h-4" }), "Hors ligne"] })), syncStatus.syncInProgress && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center gap-1 text-blue-600", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { className: "w-4 h-4 animate-spin" }), "Synchronisation..."] })), syncStatus.pendingOperations > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "text-orange-600", children: [syncStatus.pendingOperations, " en attente"] }))] }));
+        return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "network-status", children: [networkStatus.isOnline ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-item online", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 16 }), "En ligne"] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-item offline", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 16 }), "Hors ligne"] })), syncStatus.syncInProgress && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-item syncing", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 16, className: "animate-spin" }), "Synchronisation..."] })), syncStatus.pendingOperations > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-item pending-ops", children: [syncStatus.pendingOperations, " en attente"] }))] }));
     };
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "space-y-6", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "bg-white rounded-lg shadow-sm border p-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h1", { className: "text-2xl font-bold text-gray-800 flex items-center gap-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { className: "w-6 h-6 text-blue-500" }), "Documents (", filteredDocuments.length, ")"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-gray-600 mt-1", children: "Gestion de la collection documentaire" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex flex-col sm:flex-row items-start sm:items-center gap-4", children: [getNetworkStatusDisplay(), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { onClick: onAdd, className: "bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { className: "w-4 h-4" }), "Nouveau document"] })] })] }), syncStatus.lastSync && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mt-2 text-sm text-gray-500", children: ["Derni\u00E8re synchronisation: ", new Date(syncStatus.lastSync).toLocaleString('fr-FR')] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "bg-white rounded-lg shadow-sm border p-4", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "grid grid-cols-1 md:grid-cols-4 gap-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "md:col-span-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: "Rechercher" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "relative", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { className: "absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: searchTerm, onChange: (e) => setSearchTerm(e.target.value), className: "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "Titre, auteur, \u00E9diteur, cote, ISBN..." })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: "Cat\u00E9gorie" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: selectedCategory, onChange: (e) => setSelectedCategory(e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Toutes les cat\u00E9gories" }), getUniqueCategories().map(category => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: category, children: category }, category)))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: "Statut sync" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: selectedSyncStatus, onChange: (e) => setSelectedSyncStatus(e.target.value), className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous les statuts" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "synced", children: "Synchronis\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "pending", children: "En attente" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "error", children: "Erreur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "conflict", children: "Conflit" })] })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6", children: filteredDocuments.map((document) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow", children: [document.couverture && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "h-48 bg-gray-100 rounded-t-lg overflow-hidden", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("img", { src: document.couverture, alt: `Couverture de ${document.titre}`, className: "w-full h-full object-cover", onError: (e) => {
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-list-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "page-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-main", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 28 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "page-title", children: "Biblioth\u00E8que Num\u00E9rique" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "page-subtitle", children: [filteredDocuments.length, " document", filteredDocuments.length !== 1 ? 's' : '', " dans votre collection"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-actions", children: [getNetworkStatusDisplay(), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { onClick: onAdd, className: "add-button", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 18 }), "Nouveau document"] })] })] }), syncStatus.lastSync && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sync-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 14 }), "Derni\u00E8re synchronisation: ", new Date(syncStatus.lastSync).toLocaleString('fr-FR')] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filters-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Filtres et recherche" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filters-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-field search-field", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "filter-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), "Rechercher"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: searchTerm, onChange: (e) => setSearchTerm(e.target.value), className: "filter-input", placeholder: "Titre, auteur, \u00E9diteur, cote, ISBN..." })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-field", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "filter-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }), "Cat\u00E9gorie"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: selectedCategory, onChange: (e) => setSelectedCategory(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Toutes les cat\u00E9gories" }), getUniqueCategories().map(category => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: category, children: category }, category)))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-field", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "filter-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 16 }), "Statut sync"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: selectedSyncStatus, onChange: (e) => setSelectedSyncStatus(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous les statuts" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "synced", children: "Synchronis\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "pending", children: "En attente" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "error", children: "Erreur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "conflict", children: "Conflit" })] })] })] })] }), filteredDocuments.length > 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "documents-grid", children: filteredDocuments.map((document) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-card", children: [document.couverture && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "document-cover", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("img", { src: document.couverture, alt: `Couverture de ${document.titre}`, className: "cover-image", onError: (e) => {
                                     e.currentTarget.style.display = 'none';
-                                } }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "p-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-start justify-between mb-3", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex-1 min-w-0", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "font-semibold text-gray-800 truncate", title: document.titre, children: document.titre }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "text-sm text-gray-600 truncate", title: document.auteur, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { className: "w-3 h-3 inline mr-1" }), document.auteur] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center gap-1 ml-2", children: [getSyncStatusIcon(document.syncStatus), document.estEmprunte && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "w-2 h-2 bg-orange-500 rounded-full", title: "Emprunt\u00E9" }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "space-y-2 text-sm text-gray-600", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center gap-1 truncate", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { className: "w-3 h-3 flex-shrink-0" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "truncate", children: document.editeur })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center gap-1 truncate", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { className: "w-3 h-3 flex-shrink-0" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "truncate", children: document.lieuEdition })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center gap-1", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { className: "w-3 h-3 flex-shrink-0" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: document.annee })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center gap-1 truncate", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { className: "w-3 h-3 flex-shrink-0" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "font-mono text-xs truncate", children: document.cote })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-start gap-1", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { className: "w-3 h-3 flex-shrink-0 mt-0.5" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex flex-wrap gap-1 min-w-0", children: [document.descripteurs.split(',').slice(0, 3).map((desc, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "inline-block bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full truncate max-w-20", title: desc.trim(), children: desc.trim() }, index))), document.descripteurs.split(',').length > 3 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "text-xs text-gray-500", children: ["+", document.descripteurs.split(',').length - 3] }))] })] })] }), document.description && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-sm text-gray-600 mt-3 line-clamp-2", title: document.description, children: document.description })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex justify-between items-center mt-4 pt-3 border-t", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "text-xs text-gray-500", children: ["v", document.version, " \u2022 ", new Date(document.lastModified).toLocaleDateString('fr-FR')] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex gap-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => onEdit(document), className: "p-1.5 text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded transition-colors", title: "Modifier", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { className: "w-4 h-4" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => document.id && onDelete(document.id), className: "p-1.5 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded transition-colors", title: "Supprimer", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { className: "w-4 h-4" }) })] })] })] })] }, document.id))) }), filteredDocuments.length === 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "text-center py-12", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { className: "w-16 h-16 text-gray-300 mx-auto mb-4" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "text-lg font-medium text-gray-600 mb-2", children: searchTerm || selectedCategory !== 'all' || selectedSyncStatus !== 'all'
+                                } }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-title-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "document-title", title: document.titre, children: document.titre }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "document-author", title: document.auteur, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 14 }), document.auteur] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-status", children: [getSyncStatusIcon(document.syncStatus), document.estEmprunte && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrowed-indicator", title: "Emprunt\u00E9" }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "detail-text", children: document.editeur })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "detail-text", children: document.lieuEdition })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "detail-text", children: document.annee })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "detail-text document-cote", children: document.cote })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item tags-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tags-container", children: [document.descripteurs.split(',').slice(0, 3).map((desc, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "tag-badge", title: desc.trim(), children: desc.trim() }, index))), document.descripteurs.split(',').length > 3 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "tags-more", children: ["+", document.descripteurs.split(',').length - 3] }))] })] })] }), document.description && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "document-description", title: document.description, children: document.description })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-footer", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-meta", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "version-info", children: ["v", document.version] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "date-info", children: new Date(document.lastModified).toLocaleDateString('fr-FR') })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => onEdit(document), className: "action-button edit-button", title: "Modifier", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => document.id && onDelete(document.id), className: "action-button delete-button", title: "Supprimer", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 16 }) })] })] })] })] }, document.id))) })) : (
+            /* Message vide */
+            (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "empty-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "empty-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 64 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "empty-title", children: searchTerm || selectedCategory !== 'all' || selectedSyncStatus !== 'all'
                             ? 'Aucun document trouvé'
-                            : 'Aucun document dans la collection' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-gray-500 mb-6", children: searchTerm || selectedCategory !== 'all' || selectedSyncStatus !== 'all'
-                            ? 'Essayez de modifier vos critères de recherche'
-                            : 'Commencez par ajouter votre premier document à la bibliothèque' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { onClick: onAdd, className: "bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2 mx-auto", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { className: "w-4 h-4" }), "Ajouter un document"] })] }))] }));
+                            : 'Votre bibliothèque est vide' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "empty-description", children: searchTerm || selectedCategory !== 'all' || selectedSyncStatus !== 'all'
+                            ? 'Essayez de modifier vos critères de recherche pour trouver ce que vous cherchez.'
+                            : 'Commencez par ajouter votre premier document pour enrichir votre collection.' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { onClick: onAdd, className: "empty-action-button", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 18 }), "Ajouter un document"] })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+        .document-list-container {
+          padding: 24px;
+          background: linear-gradient(135deg, #F8F6F0 0%, #FFFFFF 100%);
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+
+        /* En-tête principal */
+        .page-header {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          border-radius: 20px;
+          padding: 32px;
+          color: #F3EED9;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 0 12px 32px rgba(62, 92, 73, 0.15);
+        }
+
+        .page-header::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: radial-gradient(circle at 80% 20%, rgba(243, 238, 217, 0.1) 0%, transparent 50%);
+          pointer-events: none;
+        }
+
+        .header-content {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          position: relative;
+          z-index: 1;
+          gap: 24px;
+        }
+
+        .header-main {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+        }
+
+        .header-icon {
+          width: 64px;
+          height: 64px;
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
+          border-radius: 18px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #F3EED9;
+          box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
+        }
+
+        .header-text {
+          flex: 1;
+        }
+
+        .page-title {
+          font-size: 28px;
+          font-weight: 700;
+          margin: 0 0 6px 0;
+          line-height: 1.2;
+          letter-spacing: -0.4px;
+        }
+
+        .page-subtitle {
+          font-size: 16px;
+          opacity: 0.9;
+          margin: 0;
+          font-weight: 400;
+        }
+
+        .header-actions {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+
+        .network-status {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 14px;
+        }
+
+        .status-item {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          border-radius: 8px;
+          background: rgba(243, 238, 217, 0.1);
+          font-weight: 500;
+        }
+
+        .status-item.online { color: #10B981; }
+        .status-item.offline { color: #EF4444; }
+        .status-item.syncing { color: #3B82F6; }
+        .status-item.pending-ops { color: #F59E0B; }
+
+        .add-button {
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
+          color: #F3EED9;
+          border: none;
+          padding: 12px 20px;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          box-shadow: 0 4px 16px rgba(194, 87, 27, 0.2);
+        }
+
+        .add-button:hover {
+          background: linear-gradient(135deg, #A8481A 0%, #8A3C18 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
+        }
+
+        .sync-info {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-top: 16px;
+          font-size: 13px;
+          opacity: 0.8;
+          position: relative;
+          z-index: 1;
+        }
+
+        /* Section des filtres */
+        .filters-section {
+          background: #FFFFFF;
+          border-radius: 16px;
+          padding: 24px;
+          border: 1px solid rgba(229, 220, 194, 0.3);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+        }
+
+        .section-header {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 20px;
+        }
+
+        .section-icon {
+          width: 40px;
+          height: 40px;
+          background: rgba(62, 92, 73, 0.1);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #3E5C49;
+        }
+
+        .section-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0;
+        }
+
+        .filters-grid {
+          display: grid;
+          grid-template-columns: 2fr 1fr 1fr;
+          gap: 20px;
+        }
+
+        .filter-field {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .filter-field.search-field {
+          position: relative;
+        }
+
+        .filter-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          color: #2E2E2E;
+        }
+
+        .filter-input,
+        .filter-select {
+          padding: 12px 16px;
+          border: 2px solid #E5DCC2;
+          border-radius: 8px;
+          font-size: 14px;
+          background: #FFFFFF;
+          color: #2E2E2E;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          box-sizing: border-box;
+        }
+
+        .filter-input:focus,
+        .filter-select:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+
+        /* Grille des documents */
+        .documents-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+          gap: 24px;
+        }
+
+        .document-card {
+          background: #FFFFFF;
+          border-radius: 16px;
+          overflow: hidden;
+          border: 1px solid rgba(229, 220, 194, 0.3);
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+          display: flex;
+          flex-direction: column;
+        }
+
+        .document-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+          border-color: rgba(62, 92, 73, 0.2);
+        }
+
+        .document-cover {
+          height: 200px;
+          background: linear-gradient(135deg, #F8F6F0 0%, #E5DCC2 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+        }
+
+        .cover-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.3s ease;
+        }
+
+        .document-card:hover .cover-image {
+          transform: scale(1.05);
+        }
+
+        .document-content {
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          flex: 1;
+        }
+
+        .document-header {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 12px;
+        }
+
+        .document-title-section {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .document-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0 0 6px 0;
+          line-height: 1.3;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+        }
+
+        .document-author {
+          font-size: 14px;
+          color: #6E6E6E;
+          margin: 0;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .document-status {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+
+        .sync-icon {
+          width: 16px;
+          height: 16px;
+        }
+
+        .sync-icon.synced { color: #10B981; }
+        .sync-icon.pending { color: #F59E0B; }
+        .sync-icon.error { color: #EF4444; }
+        .sync-icon.conflict { color: #F97316; }
+        .sync-icon.default { color: #6B7280; }
+
+        .borrowed-indicator {
+          width: 8px;
+          height: 8px;
+          background: #F97316;
+          border-radius: 50%;
+        }
+
+        .document-details {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .detail-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 8px;
+          font-size: 13px;
+          color: #6E6E6E;
+          min-height: 20px;
+        }
+
+        .detail-item svg {
+          flex-shrink: 0;
+          margin-top: 1px;
+        }
+
+        .detail-text {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          flex: 1;
+        }
+
+        .document-cote {
+          font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+          font-size: 12px;
+          font-weight: 500;
+        }
+
+        .tags-item {
+          align-items: flex-start;
+        }
+
+        .tags-container {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          flex: 1;
+        }
+
+        .tag-badge {
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+          font-size: 11px;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-weight: 500;
+          max-width: 80px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .tags-more {
+          font-size: 11px;
+          color: #9CA3AF;
+          font-weight: 500;
+        }
+
+        .document-description {
+          font-size: 13px;
+          color: #6E6E6E;
+          line-height: 1.4;
+          margin: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+        }
+
+        .document-footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding-top: 16px;
+          border-top: 1px solid rgba(229, 220, 194, 0.3);
+          margin-top: auto;
+        }
+
+        .document-meta {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 11px;
+          color: #9CA3AF;
+        }
+
+        .version-info {
+          font-weight: 600;
+        }
+
+        .document-actions {
+          display: flex;
+          gap: 8px;
+        }
+
+        .action-button {
+          width: 32px;
+          height: 32px;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .edit-button {
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+        }
+
+        .edit-button:hover {
+          background: rgba(62, 92, 73, 0.2);
+          transform: translateY(-1px);
+        }
+
+        .delete-button {
+          background: rgba(239, 68, 68, 0.1);
+          color: #EF4444;
+        }
+
+        .delete-button:hover {
+          background: rgba(239, 68, 68, 0.2);
+          transform: translateY(-1px);
+        }
+
+        /* État vide */
+        .empty-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          padding: 60px 20px;
+          background: #FFFFFF;
+          border-radius: 16px;
+          border: 1px solid rgba(229, 220, 194, 0.3);
+        }
+
+        .empty-icon {
+          width: 80px;
+          height: 80px;
+          background: rgba(62, 92, 73, 0.1);
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #3E5C49;
+          margin-bottom: 24px;
+        }
+
+        .empty-title {
+          font-size: 20px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0 0 12px 0;
+        }
+
+        .empty-description {
+          font-size: 16px;
+          color: #6E6E6E;
+          margin: 0 0 32px 0;
+          max-width: 480px;
+          line-height: 1.5;
+        }
+
+        .empty-action-button {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+          border: none;
+          padding: 14px 28px;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          box-shadow: 0 4px 16px rgba(62, 92, 73, 0.2);
+        }
+
+        .empty-action-button:hover {
+          background: linear-gradient(135deg, #2E453A 0%, #1E2F25 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(62, 92, 73, 0.3);
+        }
+
+        /* Animation de rotation */
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        .animate-spin {
+          animation: spin 1s linear infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+          .filters-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+
+          .documents-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .document-list-container {
+            padding: 16px;
+            gap: 16px;
+          }
+
+          .page-header {
+            padding: 24px;
+          }
+
+          .header-content {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 20px;
+          }
+
+          .header-main {
+            flex-direction: column;
+            text-align: center;
+            gap: 16px;
+          }
+
+          .header-actions {
+            justify-content: center;
+            flex-wrap: wrap;
+          }
+
+          .network-status {
+            justify-content: center;
+            flex-wrap: wrap;
+          }
+
+          .filters-section {
+            padding: 20px;
+          }
+
+          .documents-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+
+          .document-card {
+            border-radius: 12px;
+          }
+
+          .document-content {
+            padding: 16px;
+            gap: 12px;
+          }
+
+          .document-title {
+            font-size: 15px;
+          }
+
+          .empty-state {
+            padding: 40px 16px;
+          }
+
+          .empty-title {
+            font-size: 18px;
+          }
+
+          .empty-description {
+            font-size: 14px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .document-list-container {
+            padding: 12px;
+          }
+
+          .page-header {
+            padding: 20px;
+            border-radius: 16px;
+          }
+
+          .header-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+          }
+
+          .page-title {
+            font-size: 24px;
+          }
+
+          .page-subtitle {
+            font-size: 14px;
+          }
+
+          .add-button {
+            padding: 10px 16px;
+            font-size: 13px;
+          }
+
+          .section-title {
+            font-size: 16px;
+          }
+
+          .filters-section {
+            padding: 16px;
+          }
+
+          .document-cover {
+            height: 160px;
+          }
+
+          .document-content {
+            padding: 14px;
+          }
+
+          .document-title {
+            font-size: 14px;
+          }
+
+          .document-author {
+            font-size: 13px;
+          }
+
+          .detail-item {
+            font-size: 12px;
+          }
+
+          .tag-badge {
+            font-size: 10px;
+            padding: 3px 6px;
+            max-width: 60px;
+          }
+
+          .empty-state {
+            padding: 32px 12px;
+          }
+
+          .empty-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+          }
+
+          .empty-title {
+            font-size: 16px;
+          }
+
+          .empty-description {
+            font-size: 13px;
+            margin-bottom: 24px;
+          }
+
+          .empty-action-button {
+            padding: 12px 20px;
+            font-size: 14px;
+          }
+        }
+
+        /* États de focus pour accessibilité */
+        .add-button:focus-visible,
+        .empty-action-button:focus-visible,
+        .action-button:focus-visible {
+          outline: 2px solid #3E5C49;
+          outline-offset: 2px;
+        }
+
+        .filter-input:focus-visible,
+        .filter-select:focus-visible {
+          outline: none;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.2);
+        }
+
+        /* Animation d'entrée pour les cartes */
+        @keyframes cardSlideIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .document-card {
+          animation: cardSlideIn 0.4s ease-out forwards;
+        }
+
+        .document-card:nth-child(1) { animation-delay: 0ms; }
+        .document-card:nth-child(2) { animation-delay: 50ms; }
+        .document-card:nth-child(3) { animation-delay: 100ms; }
+        .document-card:nth-child(4) { animation-delay: 150ms; }
+        .document-card:nth-child(5) { animation-delay: 200ms; }
+        .document-card:nth-child(6) { animation-delay: 250ms; }
+
+        /* Animation pour les filtres */
+        .filters-section {
+          animation: cardSlideIn 0.3s ease-out;
+        }
+
+        /* Amélioration du contraste pour l'accessibilité */
+        @media (prefers-contrast: high) {
+          .document-card {
+            border: 2px solid #2E2E2E;
+          }
+
+          .tag-badge {
+            background: #3E5C49;
+            color: #FFFFFF;
+          }
+
+          .detail-item {
+            color: #2E2E2E;
+          }
+        }
+
+        /* Respect des préférences de mouvement réduit */
+        @media (prefers-reduced-motion: reduce) {
+          .document-card,
+          .filters-section,
+          .add-button,
+          .empty-action-button,
+          .action-button,
+          .cover-image {
+            animation: none;
+            transition: none;
+          }
+
+          .animate-spin {
+            animation: none;
+          }
+        }
+
+        /* Dark mode support (optionnel) */
+        @media (prefers-color-scheme: dark) {
+          .document-list-container {
+            background: linear-gradient(135deg, #1A1A1A 0%, #2D2D2D 100%);
+          }
+
+          .page-header {
+            background: linear-gradient(135deg, #2E453A 0%, #1E2F25 100%);
+          }
+
+          .filters-section,
+          .document-card,
+          .empty-state {
+            background: #2D2D2D;
+            border-color: rgba(255, 255, 255, 0.1);
+          }
+
+          .document-title,
+          .section-title,
+          .empty-title {
+            color: #FFFFFF;
+          }
+
+          .document-author,
+          .detail-item,
+          .document-description,
+          .empty-description {
+            color: #B0B0B0;
+          }
+
+          .filter-input,
+          .filter-select {
+            background: #2D2D2D;
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #FFFFFF;
+          }
+
+          .filter-label {
+            color: #FFFFFF;
+          }
+
+          .tag-badge {
+            background: rgba(62, 92, 73, 0.3);
+            color: #A8D5BA;
+          }
+        }
+      ` })] }));
 };
 
 

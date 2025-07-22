@@ -599,6 +599,9 @@ export const AddDocument: React.FC<AddDocumentProps> = ({ onAdd, onCancel, editi
           grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
           gap: 20px;
         }
+          .form-grid .form-field {
+          min-width: 0; /* Évite que les flex/grid items dépassent leur conteneur */
+        }
         
         .section-content {
           display: flex;
@@ -635,6 +638,10 @@ export const AddDocument: React.FC<AddDocumentProps> = ({ onAdd, onCancel, editi
           background: #FFFFFF;
           color: #2E2E2E;
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          
+          /* FIX: Ajoutez ces propriétés pour éviter le chevauchement */
+          box-sizing: border-box;
+          min-width: 0; /* Permet au flexbox/grid de réduire la taille si nécessaire */
         }
         
         .form-input:focus, .form-textarea:focus {
@@ -661,8 +668,12 @@ export const AddDocument: React.FC<AddDocumentProps> = ({ onAdd, onCancel, editi
         .input-with-button {
           display: flex;
           gap: 8px;
+          width: 100%;
         }
-        
+        .input-with-button .form-input {
+  flex: 1;
+  min-width: 0; /* Permet à l'input de se rétrécir si nécessaire */
+}
         .generate-button, .browse-button {
           padding: 12px 16px;
           border: none;
@@ -795,8 +806,10 @@ export const AddDocument: React.FC<AddDocumentProps> = ({ onAdd, onCancel, editi
           }
           
           .form-grid {
-            grid-template-columns: 1fr;
-            gap: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%; /* Assure que la grille prend toute la largeur disponible */
           }
           
           .modal-actions {
@@ -810,6 +823,28 @@ export const AddDocument: React.FC<AddDocumentProps> = ({ onAdd, onCancel, editi
             justify-content: center;
           }
         }
+          @media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .input-with-button {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .input-with-button .form-input {
+    flex: none;
+  }
+}
       `}</style>
     </div>
   );
