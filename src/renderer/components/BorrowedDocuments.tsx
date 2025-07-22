@@ -441,18 +441,19 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
         .search-input {
           width: 100%;
           padding: 16px 16px 16px 48px;
-          border: 2px solid #E5DCC2;
+          border: 2px solid #B8A678;
           border-radius: 12px;
           font-size: 14px;
           background: #FFFFFF;
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          color: #2E2E2E;
+          color: #1A1A1A;
         }
 
         .search-input:focus {
           outline: none;
           border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.25);
+          background: #FEFEFE;
         }
 
         .clear-search {
@@ -479,11 +480,11 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
 
         .filter-select {
           padding: 12px 16px;
-          border: 2px solid #E5DCC2;
+          border: 2px solid #B8A678;
           border-radius: 8px;
           background: #FFFFFF;
           font-size: 14px;
-          color: #2E2E2E;
+          color: #1A1A1A;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           min-width: 180px;
@@ -492,7 +493,8 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
         .filter-select:focus {
           outline: none;
           border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.25);
+          background: #FEFEFE;
         }
 
         /* Results Summary */
@@ -559,7 +561,7 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
         .document-title {
           font-size: 18px;
           font-weight: 700;
-          color: #2E2E2E;
+          color: #1A1A1A;
           margin: 0 0 8px 0;
           line-height: 1.3;
         }
@@ -596,7 +598,7 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
           align-items: center;
           gap: 8px;
           font-weight: 600;
-          color: #2E2E2E;
+          color: #1A1A1A;
           margin-bottom: 12px;
         }
 
@@ -611,7 +613,7 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
           align-items: center;
           gap: 8px;
           font-size: 13px;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
 
         .document-status-bar {

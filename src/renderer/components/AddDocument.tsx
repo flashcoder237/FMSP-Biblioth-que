@@ -625,7 +625,7 @@ export const AddDocument: React.FC<AddDocumentProps> = ({ onAdd, onCancel, editi
           gap: 8px;
           font-size: 14px;
           font-weight: 600;
-          color: #2E2E2E;
+          color: #1A1A1A;
           margin: 0;
         }
         
@@ -638,16 +638,18 @@ export const AddDocument: React.FC<AddDocumentProps> = ({ onAdd, onCancel, editi
           background: #FFFFFF;
           color: #2E2E2E;
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          
-          /* FIX: Ajoutez ces propriétés pour éviter le chevauchement */
           box-sizing: border-box;
-          min-width: 0; /* Permet au flexbox/grid de réduire la taille si nécessaire */
+          min-width: 0;
+          
+          /* Amélioration du contraste pour accessibilité */
+          border-color: #B8A678;
         }
         
         .form-input:focus, .form-textarea:focus {
           outline: none;
           border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.25);
+          background: #FEFEFE;
         }
         
         .form-input.error {
@@ -712,16 +714,24 @@ export const AddDocument: React.FC<AddDocumentProps> = ({ onAdd, onCancel, editi
         
         .field-help {
           font-size: 12px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0;
           line-height: 1.4;
+          background: #F8F6F0;
+          padding: 6px 10px;
+          border-radius: 4px;
+          border-left: 3px solid #E5DCC2;
         }
         
         .field-error {
-          color: #DC2626;
+          color: #B91C1C;
           font-size: 12px;
-          font-weight: 500;
+          font-weight: 600;
           margin: 0;
+          background: #FEF2F2;
+          padding: 4px 8px;
+          border-radius: 4px;
+          border-left: 3px solid #DC2626;
         }
         
         .modal-actions {

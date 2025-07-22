@@ -29,8 +29,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_EnhancedAuthentication__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./components/EnhancedAuthentication */ "./src/renderer/components/EnhancedAuthentication.tsx");
 /* harmony import */ var _components_InstitutionSetup__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./components/InstitutionSetup */ "./src/renderer/components/InstitutionSetup.tsx");
 /* harmony import */ var _services_SupabaseService__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../services/SupabaseService */ "./src/services/SupabaseService.ts");
+/* harmony import */ var _components_ContrastChecker__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./components/ContrastChecker */ "./src/renderer/components/ContrastChecker.tsx");
 
 // src/renderer/App.tsx - Version modifiée pour Supabase
+
 
 
 
@@ -633,7 +635,7 @@ const App = () => {
             font-size: 20px;
           }
         }
-      ` })] }));
+      ` }), isAuthenticated && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ContrastChecker__WEBPACK_IMPORTED_MODULE_16__.ContrastChecker, { autoFix: false, showPanel: false })] }));
 };
 const EnhancedBorrowForm = ({ document, borrowers, onSubmit, onCancel, onRefreshBorrowers, supabaseService }) => {
     const [selectedBorrower, setSelectedBorrower] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
@@ -2141,7 +2143,7 @@ const AddDocument = ({ onAdd, onCancel, editingDocument }) => {
           gap: 8px;
           font-size: 14px;
           font-weight: 600;
-          color: #2E2E2E;
+          color: #1A1A1A;
           margin: 0;
         }
         
@@ -2154,16 +2156,18 @@ const AddDocument = ({ onAdd, onCancel, editingDocument }) => {
           background: #FFFFFF;
           color: #2E2E2E;
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          
-          /* FIX: Ajoutez ces propriétés pour éviter le chevauchement */
           box-sizing: border-box;
-          min-width: 0; /* Permet au flexbox/grid de réduire la taille si nécessaire */
+          min-width: 0;
+          
+          /* Amélioration du contraste pour accessibilité */
+          border-color: #B8A678;
         }
         
         .form-input:focus, .form-textarea:focus {
           outline: none;
           border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.25);
+          background: #FEFEFE;
         }
         
         .form-input.error {
@@ -2228,16 +2232,24 @@ const AddDocument = ({ onAdd, onCancel, editingDocument }) => {
         
         .field-help {
           font-size: 12px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0;
           line-height: 1.4;
+          background: #F8F6F0;
+          padding: 6px 10px;
+          border-radius: 4px;
+          border-left: 3px solid #E5DCC2;
         }
         
         .field-error {
-          color: #DC2626;
+          color: #B91C1C;
           font-size: 12px;
-          font-weight: 500;
+          font-weight: 600;
           margin: 0;
+          background: #FEF2F2;
+          padding: 4px 8px;
+          border-radius: 4px;
+          border-left: 3px solid #DC2626;
         }
         
         .modal-actions {
@@ -2362,6 +2374,166 @@ const AddDocument = ({ onAdd, onCancel, editingDocument }) => {
   }
 }
       ` })] }));
+};
+
+
+/***/ }),
+
+/***/ "./src/renderer/components/AnimatedBackground.tsx":
+/*!********************************************************!*\
+  !*** ./src/renderer/components/AnimatedBackground.tsx ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   AnimatedBackground: () => (/* binding */ AnimatedBackground)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+
+
+const AnimatedBackground = ({ variant = 'books', intensity = 'medium' }) => {
+    const canvasRef = (0,react__WEBPACK_IMPORTED_MODULE_1__.useRef)(null);
+    (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+        const canvas = canvasRef.current;
+        if (!canvas)
+            return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx)
+            return;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        // Floating books animation
+        if (variant === 'books') {
+            const books = [];
+            const bookCount = intensity === 'low' ? 8 : intensity === 'medium' ? 15 : 25;
+            // Initialize books
+            for (let i = 0; i < bookCount; i++) {
+                books.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 20 + 15,
+                    speed: Math.random() * 0.5 + 0.2,
+                    opacity: Math.random() * 0.3 + 0.1,
+                    rotation: Math.random() * Math.PI * 2,
+                    rotationSpeed: (Math.random() - 0.5) * 0.02
+                });
+            }
+            const animate = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                books.forEach(book => {
+                    ctx.save();
+                    ctx.translate(book.x, book.y);
+                    ctx.rotate(book.rotation);
+                    ctx.globalAlpha = book.opacity;
+                    // Draw book shape
+                    const gradient = ctx.createLinearGradient(-book.size / 2, -book.size / 2, book.size / 2, book.size / 2);
+                    gradient.addColorStop(0, '#3E5C49');
+                    gradient.addColorStop(0.5, '#4A6A55');
+                    gradient.addColorStop(1, '#2E453A');
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(-book.size / 2, -book.size / 1.5, book.size, book.size * 1.3);
+                    // Book spine
+                    ctx.fillStyle = '#2E453A';
+                    ctx.fillRect(-book.size / 2, -book.size / 1.5, book.size * 0.1, book.size * 1.3);
+                    // Book pages
+                    ctx.fillStyle = 'rgba(243, 238, 217, 0.8)';
+                    ctx.fillRect(-book.size / 2 + book.size * 0.1, -book.size / 1.5 + 2, book.size * 0.8, book.size * 1.2);
+                    ctx.restore();
+                    // Update position
+                    book.y -= book.speed;
+                    book.rotation += book.rotationSpeed;
+                    if (book.y < -book.size) {
+                        book.y = canvas.height + book.size;
+                        book.x = Math.random() * canvas.width;
+                    }
+                });
+                requestAnimationFrame(animate);
+            };
+            animate();
+        }
+        // Particle system
+        if (variant === 'particles') {
+            const particles = [];
+            const particleCount = intensity === 'low' ? 30 : intensity === 'medium' ? 60 : 100;
+            const addParticle = () => {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: canvas.height + 10,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: -Math.random() * 3 - 1,
+                    size: Math.random() * 3 + 1,
+                    life: 0,
+                    maxLife: Math.random() * 200 + 100
+                });
+            };
+            // Initialize particles
+            for (let i = 0; i < particleCount; i++) {
+                addParticle();
+            }
+            const animate = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach((particle, index) => {
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.life++;
+                    const alpha = 1 - (particle.life / particle.maxLife);
+                    ctx.globalAlpha = alpha * 0.6;
+                    const gradient = ctx.createRadialGradient(particle.x, particle.y, 0, particle.x, particle.y, particle.size);
+                    gradient.addColorStop(0, '#3E5C49');
+                    gradient.addColorStop(1, 'transparent');
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    if (particle.life >= particle.maxLife || particle.y < -10) {
+                        particles.splice(index, 1);
+                        addParticle();
+                    }
+                });
+                requestAnimationFrame(animate);
+            };
+            animate();
+        }
+        // Dynamic gradient
+        if (variant === 'gradient') {
+            let time = 0;
+            const animate = () => {
+                time += 0.005;
+                const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                const hue1 = Math.sin(time) * 30 + 210; // Blue-green range
+                const hue2 = Math.sin(time + Math.PI / 3) * 30 + 150; // Green range
+                const hue3 = Math.sin(time + Math.PI) * 30 + 45; // Yellow-orange range
+                gradient.addColorStop(0, `hsla(${hue1}, 40%, 25%, 0.1)`);
+                gradient.addColorStop(0.5, `hsla(${hue2}, 35%, 30%, 0.05)`);
+                gradient.addColorStop(1, `hsla(${hue3}, 45%, 35%, 0.1)`);
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                requestAnimationFrame(animate);
+            };
+            animate();
+        }
+        const handleResize = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, [variant, intensity]);
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("canvas", { ref: canvasRef, style: {
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            pointerEvents: 'none',
+            zIndex: -1,
+            opacity: 0.6
+        } }));
 };
 
 
@@ -3371,18 +3543,19 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
         .search-input {
           width: 100%;
           padding: 16px 16px 16px 48px;
-          border: 2px solid #E5DCC2;
+          border: 2px solid #B8A678;
           border-radius: 12px;
           font-size: 14px;
           background: #FFFFFF;
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          color: #2E2E2E;
+          color: #1A1A1A;
         }
 
         .search-input:focus {
           outline: none;
           border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.25);
+          background: #FEFEFE;
         }
 
         .clear-search {
@@ -3409,11 +3582,11 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
 
         .filter-select {
           padding: 12px 16px;
-          border: 2px solid #E5DCC2;
+          border: 2px solid #B8A678;
           border-radius: 8px;
           background: #FFFFFF;
           font-size: 14px;
-          color: #2E2E2E;
+          color: #1A1A1A;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           min-width: 180px;
@@ -3422,7 +3595,8 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
         .filter-select:focus {
           outline: none;
           border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.25);
+          background: #FEFEFE;
         }
 
         /* Results Summary */
@@ -3489,7 +3663,7 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
         .document-title {
           font-size: 18px;
           font-weight: 700;
-          color: #2E2E2E;
+          color: #1A1A1A;
           margin: 0 0 8px 0;
           line-height: 1.3;
         }
@@ -3526,7 +3700,7 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
           align-items: center;
           gap: 8px;
           font-weight: 600;
-          color: #2E2E2E;
+          color: #1A1A1A;
           margin-bottom: 12px;
         }
 
@@ -3541,7 +3715,7 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
           align-items: center;
           gap: 8px;
           font-size: 13px;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
 
         .document-status-bar {
@@ -4590,6 +4764,557 @@ const Borrowers = ({ onClose, onRefreshData }) => {
 
 /***/ }),
 
+/***/ "./src/renderer/components/ContrastChecker.tsx":
+/*!*****************************************************!*\
+  !*** ./src/renderer/components/ContrastChecker.tsx ***!
+  \*****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ContrastChecker: () => (/* binding */ ContrastChecker)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-triangle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check-circle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/palette.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye-off.mjs");
+
+
+
+const ContrastChecker = ({ autoFix = false, showPanel = false, onIssuesFound }) => {
+    const [issues, setIssues] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
+    const [isScanning, setIsScanning] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [isPanelOpen, setIsPanelOpen] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(showPanel);
+    const [fixedCount, setFixedCount] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
+    // Function to get computed styles
+    const getComputedColor = (element, property) => {
+        const style = window.getComputedStyle(element);
+        return style.getPropertyValue(property);
+    };
+    // Convert RGB to relative luminance
+    const getLuminance = (r, g, b) => {
+        const [rs, gs, bs] = [r, g, b].map(c => {
+            c = c / 255;
+            return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+        });
+        return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+    };
+    // Parse RGB color string
+    const parseRGB = (color) => {
+        const match = color.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)(?:,\\s*[\\d.]+)?\\)/);
+        if (match) {
+            return [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
+        }
+        // Handle hex colors
+        if (color.startsWith('#')) {
+            const hex = color.slice(1);
+            if (hex.length === 3) {
+                return [
+                    parseInt(hex[0] + hex[0], 16),
+                    parseInt(hex[1] + hex[1], 16),
+                    parseInt(hex[2] + hex[2], 16)
+                ];
+            }
+            else if (hex.length === 6) {
+                return [
+                    parseInt(hex.slice(0, 2), 16),
+                    parseInt(hex.slice(2, 4), 16),
+                    parseInt(hex.slice(4, 6), 16)
+                ];
+            }
+        }
+        // Handle named colors - basic set
+        const namedColors = {
+            'white': [255, 255, 255],
+            'black': [0, 0, 0],
+            'red': [255, 0, 0],
+            'green': [0, 128, 0],
+            'blue': [0, 0, 255],
+            'transparent': [255, 255, 255], // Treat as white for calculation
+        };
+        if (namedColors[color]) {
+            return namedColors[color];
+        }
+        return null;
+    };
+    // Calculate contrast ratio
+    const getContrastRatio = (foreground, background) => {
+        const fg = parseRGB(foreground);
+        const bg = parseRGB(background);
+        if (!fg || !bg)
+            return 1; // Default to failing ratio
+        const l1 = getLuminance(fg[0], fg[1], fg[2]);
+        const l2 = getLuminance(bg[0], bg[1], bg[2]);
+        const lighter = Math.max(l1, l2);
+        const darker = Math.min(l1, l2);
+        return (lighter + 0.05) / (darker + 0.05);
+    };
+    // Get the effective background color by walking up the DOM tree
+    const getEffectiveBackgroundColor = (element) => {
+        let current = element;
+        while (current) {
+            const bgColor = getComputedColor(current, 'backgroundColor');
+            const rgb = parseRGB(bgColor);
+            // If we found a non-transparent background
+            if (rgb && !(rgb[0] === 0 && rgb[1] === 0 && rgb[2] === 0) && !bgColor.includes('transparent')) {
+                return bgColor;
+            }
+            current = current.parentElement;
+        }
+        return 'rgb(255, 255, 255)'; // Default to white
+    };
+    // Generate CSS selector for an element
+    const generateSelector = (element) => {
+        if (element.id) {
+            return `#${element.id}`;
+        }
+        if (element.className) {
+            const classes = element.className.split(' ').filter(c => c.trim());
+            if (classes.length > 0) {
+                return `.${classes[0]}`;
+            }
+        }
+        return element.tagName.toLowerCase();
+    };
+    // Fix contrast issues automatically
+    const fixContrastIssue = (issue) => {
+        const element = issue.element;
+        // Try to fix by adjusting text color
+        if (issue.ratio < 4.5) {
+            const bg = parseRGB(issue.backgroundColor);
+            if (bg) {
+                const luminance = getLuminance(bg[0], bg[1], bg[2]);
+                // If background is dark, use light text; if light, use dark text
+                const newColor = luminance > 0.5 ? '#1A1A1A' : '#FFFFFF';
+                element.style.color = newColor;
+                // Verify the fix worked
+                const newRatio = getContrastRatio(newColor, issue.backgroundColor);
+                if (newRatio >= 4.5) {
+                    setFixedCount(prev => prev + 1);
+                }
+            }
+        }
+    };
+    // Scan the DOM for contrast issues
+    const scanForContrastIssues = () => {
+        setIsScanning(true);
+        const foundIssues = [];
+        // Get all text-containing elements
+        const textElements = document.querySelectorAll('*:not(script):not(style)');
+        textElements.forEach((element) => {
+            const htmlElement = element;
+            // Skip if element has no text content or is hidden
+            if (!htmlElement.textContent?.trim() ||
+                htmlElement.offsetParent === null ||
+                window.getComputedStyle(htmlElement).display === 'none') {
+                return;
+            }
+            // Skip if text is too short to be meaningful
+            if (htmlElement.textContent.trim().length < 3) {
+                return;
+            }
+            const foregroundColor = getComputedColor(htmlElement, 'color');
+            const backgroundColor = getEffectiveBackgroundColor(htmlElement);
+            const ratio = getContrastRatio(foregroundColor, backgroundColor);
+            // WCAG standards: AA requires 4.5:1, AAA requires 7:1
+            let level;
+            if (ratio >= 7) {
+                level = 'AAA';
+            }
+            else if (ratio >= 4.5) {
+                level = 'AA';
+            }
+            else {
+                level = 'fail';
+            }
+            // Only report issues that fail AA standards
+            if (level === 'fail') {
+                foundIssues.push({
+                    element: htmlElement,
+                    foregroundColor,
+                    backgroundColor,
+                    ratio: Math.round(ratio * 100) / 100,
+                    level,
+                    selector: generateSelector(htmlElement),
+                    text: htmlElement.textContent.trim().substring(0, 100)
+                });
+            }
+        });
+        setIssues(foundIssues);
+        setIsScanning(false);
+        if (onIssuesFound) {
+            onIssuesFound(foundIssues);
+        }
+        // Auto-fix if enabled
+        if (autoFix) {
+            foundIssues.forEach(fixContrastIssue);
+        }
+    };
+    // Auto-scan on mount
+    (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+        // Wait for DOM to be fully loaded
+        const timer = setTimeout(() => {
+            scanForContrastIssues();
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, []);
+    // Re-scan when DOM changes
+    (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+        const observer = new MutationObserver(() => {
+            // Debounce the scanning
+            const timer = setTimeout(() => {
+                scanForContrastIssues();
+            }, 2000);
+            return () => clearTimeout(timer);
+        });
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['style', 'class']
+        });
+        return () => observer.disconnect();
+    }, []);
+    const scrollToElement = (issue) => {
+        issue.element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+        // Highlight the element temporarily
+        const originalOutline = issue.element.style.outline;
+        issue.element.style.outline = '3px solid #DC2626';
+        issue.element.style.outlineOffset = '2px';
+        setTimeout(() => {
+            issue.element.style.outline = originalOutline;
+            issue.element.style.outlineOffset = '';
+        }, 3000);
+    };
+    const getIssueIcon = (level) => {
+        switch (level) {
+            case 'fail':
+                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 16, className: "text-red-500" });
+            case 'AA':
+                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16, className: "text-yellow-500" });
+            case 'AAA':
+                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16, className: "text-green-500" });
+            default:
+                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 16, className: "text-gray-500" });
+        }
+    };
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "contrast-checker-toggle", onClick: () => setIsPanelOpen(!isPanelOpen), title: "V\u00E9rificateur de contraste", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }), issues.length > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "issue-badge", children: issues.length }))] }), isPanelOpen && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "contrast-panel", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "panel-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "panel-title", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Contraste & Accessibilit\u00E9" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-button", onClick: () => setIsPanelOpen(false), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "panel-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: issues.length }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Probl\u00E8mes d\u00E9tect\u00E9s" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: fixedCount }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Corrig\u00E9s automatiquement" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "actions-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "action-button primary", onClick: scanForContrastIssues, disabled: isScanning, children: isScanning ? 'Analyse...' : 'Ré-analyser' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "action-button secondary", onClick: () => issues.forEach(fixContrastIssue), disabled: issues.length === 0, children: "Corriger tout" })] }), issues.length === 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "no-issues", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 48, className: "success-icon" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Excellent !" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Aucun probl\u00E8me de contraste d\u00E9tect\u00E9. Votre interface est accessible !" })] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "issues-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Probl\u00E8mes de contraste :" }), issues.map((issue, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "issue-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "issue-header", children: [getIssueIcon(issue.level), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "issue-ratio", children: ["Ratio: ", issue.ratio, ":1"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "locate-button", onClick: () => scrollToElement(issue), title: "Localiser l'\u00E9l\u00E9ment", children: "Localiser" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "issue-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "issue-selector", children: issue.selector }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "issue-text", children: ["\"", issue.text, "\""] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "color-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "color-sample", style: { backgroundColor: issue.backgroundColor } }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "color-sample", style: { backgroundColor: issue.foregroundColor } })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "fix-button", onClick: () => fixContrastIssue(issue), children: "Corriger" })] }, index)))] }))] })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+        .contrast-checker-toggle {
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          width: 56px;
+          height: 56px;
+          background: #3E5C49;
+          border: none;
+          border-radius: 50%;
+          color: white;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
+          z-index: 10000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+        }
+
+        .contrast-checker-toggle:hover {
+          transform: scale(1.1);
+          box-shadow: 0 6px 20px rgba(62, 92, 73, 0.4);
+        }
+
+        .issue-badge {
+          position: absolute;
+          top: -5px;
+          right: -5px;
+          background: #DC2626;
+          color: white;
+          border-radius: 10px;
+          padding: 2px 6px;
+          font-size: 10px;
+          font-weight: bold;
+          min-width: 18px;
+          text-align: center;
+        }
+
+        .contrast-panel {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          width: 400px;
+          max-height: 80vh;
+          background: white;
+          border-radius: 16px;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+          z-index: 10001;
+          overflow: hidden;
+          border: 1px solid rgba(229, 220, 194, 0.4);
+        }
+
+        .panel-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 20px;
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: white;
+        }
+
+        .panel-title {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 600;
+        }
+
+        .close-button {
+          background: rgba(255, 255, 255, 0.2);
+          border: none;
+          border-radius: 8px;
+          color: white;
+          padding: 8px;
+          cursor: pointer;
+          transition: background 0.2s ease;
+        }
+
+        .close-button:hover {
+          background: rgba(255, 255, 255, 0.3);
+        }
+
+        .panel-content {
+          padding: 20px;
+          max-height: calc(80vh - 80px);
+          overflow-y: auto;
+        }
+
+        .stats-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+          margin-bottom: 20px;
+        }
+
+        .stat {
+          text-align: center;
+          padding: 16px;
+          background: rgba(248, 246, 240, 0.8);
+          border-radius: 12px;
+        }
+
+        .stat-value {
+          display: block;
+          font-size: 24px;
+          font-weight: 700;
+          color: #3E5C49;
+          margin-bottom: 4px;
+        }
+
+        .stat-label {
+          font-size: 12px;
+          color: #6B7280;
+        }
+
+        .actions-row {
+          display: flex;
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+
+        .action-button {
+          flex: 1;
+          padding: 12px 16px;
+          border: none;
+          border-radius: 10px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .action-button.primary {
+          background: #3E5C49;
+          color: white;
+        }
+
+        .action-button.primary:hover:not(:disabled) {
+          background: #2E453A;
+        }
+
+        .action-button.secondary {
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+        }
+
+        .action-button.secondary:hover:not(:disabled) {
+          background: rgba(62, 92, 73, 0.2);
+        }
+
+        .action-button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .no-issues {
+          text-align: center;
+          padding: 40px 20px;
+        }
+
+        .success-icon {
+          color: #10B981;
+          margin-bottom: 16px;
+        }
+
+        .no-issues h3 {
+          margin: 0 0 8px 0;
+          color: #1F2937;
+        }
+
+        .no-issues p {
+          margin: 0;
+          color: #6B7280;
+          font-size: 14px;
+        }
+
+        .issues-list h4 {
+          margin: 0 0 16px 0;
+          color: #1F2937;
+          font-size: 16px;
+        }
+
+        .issue-item {
+          background: rgba(248, 246, 240, 0.6);
+          border-radius: 12px;
+          padding: 16px;
+          margin-bottom: 12px;
+          border-left: 4px solid #DC2626;
+        }
+
+        .issue-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 12px;
+        }
+
+        .issue-ratio {
+          font-weight: 600;
+          color: #DC2626;
+          font-size: 14px;
+        }
+
+        .locate-button {
+          background: rgba(59, 130, 246, 0.1);
+          border: 1px solid #3B82F6;
+          color: #3B82F6;
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-size: 12px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .locate-button:hover {
+          background: #3B82F6;
+          color: white;
+        }
+
+        .issue-details {
+          margin-bottom: 12px;
+        }
+
+        .issue-selector {
+          font-family: monospace;
+          font-size: 12px;
+          color: #6B7280;
+          margin-bottom: 4px;
+        }
+
+        .issue-text {
+          font-size: 13px;
+          color: #374151;
+          margin-bottom: 8px;
+          max-height: 40px;
+          overflow: hidden;
+        }
+
+        .color-info {
+          display: flex;
+          gap: 8px;
+        }
+
+        .color-sample {
+          width: 20px;
+          height: 20px;
+          border-radius: 4px;
+          border: 1px solid #E5E7EB;
+        }
+
+        .fix-button {
+          background: #10B981;
+          border: none;
+          color: white;
+          padding: 8px 16px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.2s ease;
+        }
+
+        .fix-button:hover {
+          background: #059669;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+          .contrast-panel {
+            top: 10px;
+            right: 10px;
+            left: 10px;
+            width: auto;
+          }
+
+          .stats-row {
+            grid-template-columns: 1fr;
+          }
+
+          .actions-row {
+            flex-direction: column;
+          }
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+          .contrast-panel {
+            border: 2px solid #000;
+          }
+
+          .issue-item {
+            border: 1px solid #000;
+          }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+          .contrast-checker-toggle,
+          .action-button,
+          .locate-button,
+          .fix-button {
+            transition: none;
+          }
+        }
+      ` })] }));
+};
+
+
+/***/ }),
+
 /***/ "./src/renderer/components/Dashboard.tsx":
 /*!***********************************************!*\
   !*** ./src/renderer/components/Dashboard.tsx ***!
@@ -4603,19 +5328,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/search.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/printer.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/activity.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/arrow-right.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trending-up.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/calendar.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/search.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/printer.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/activity.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/arrow-right.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trending-up.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/calendar.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye.mjs");
 /* harmony import */ var _PrintManager__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PrintManager */ "./src/renderer/components/PrintManager.tsx");
+/* harmony import */ var _EnhancedStats__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./EnhancedStats */ "./src/renderer/components/EnhancedStats.tsx");
+/* harmony import */ var _SmartSearch__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./SmartSearch */ "./src/renderer/components/SmartSearch.tsx");
+/* harmony import */ var _AnimatedBackground__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./AnimatedBackground */ "./src/renderer/components/AnimatedBackground.tsx");
+
+
+
 
 
 
@@ -4626,14 +5357,14 @@ const Dashboard = ({ stats, onNavigate, documents = [], categories = [] }) => {
         {
             title: 'Ajouter un document',
             description: 'Enrichissez votre collection',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"],
             action: () => onNavigate('add-document'),
             primary: true
         },
         {
             title: 'Parcourir la collection',
             description: 'Explorer tous les documents',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"],
             action: () => onNavigate('documents'),
             primary: false
         }
@@ -4642,14 +5373,14 @@ const Dashboard = ({ stats, onNavigate, documents = [], categories = [] }) => {
         {
             title: 'Collection complète',
             description: `${stats.totalBooks} documents disponibles`,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"],
             action: () => onNavigate('documents'),
             color: '#3E5C49'
         },
         {
             title: 'Gérer les emprunts',
             description: `${stats.borrowedBooks} document(s) emprunté(s)`,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"],
             action: () => onNavigate('borrowed'),
             color: '#C2571B',
             badge: stats.borrowedBooks > 0
@@ -4657,7 +5388,7 @@ const Dashboard = ({ stats, onNavigate, documents = [], categories = [] }) => {
         {
             title: 'Rapports & Export',
             description: 'Imprimer les inventaires',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"],
             action: () => setShowPrintManager(true),
             color: '#6E6E6E'
         }
@@ -4666,28 +5397,28 @@ const Dashboard = ({ stats, onNavigate, documents = [], categories = [] }) => {
         {
             title: 'Total des documents',
             value: stats.totalBooks,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"],
             color: '#3E5C49',
             trend: '+2 ce mois'
         },
         {
             title: 'Disponibles',
             value: stats.availableBooks,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"],
             color: '#3E5C49',
             percentage: stats.totalBooks > 0 ? ((stats.availableBooks / stats.totalBooks) * 100).toFixed(0) : 0
         },
         {
             title: 'Empruntés',
             value: stats.borrowedBooks,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"],
             color: '#C2571B',
             percentage: stats.totalBooks > 0 ? ((stats.borrowedBooks / stats.totalBooks) * 100).toFixed(0) : 0
         },
         {
             title: 'Auteurs',
             value: stats.totalAuthors,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"],
             color: '#6E6E6E',
             trend: 'Actifs'
         }
@@ -4698,25 +5429,28 @@ const Dashboard = ({ stats, onNavigate, documents = [], categories = [] }) => {
             title: 'Nouveau document ajouté',
             description: 'Les Misérables par Victor Hugo',
             time: 'Il y a 2 heures',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"]
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"]
         },
         {
             type: 'borrow',
             title: 'Document emprunté',
             description: 'Fondation par Isaac Asimov',
             time: 'Il y a 1 jour',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"]
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"]
         },
         {
             type: 'return',
             title: 'Document rendu',
             description: 'L\'Étranger par Albert Camus',
             time: 'Il y a 2 jours',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"]
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"]
         }
     ];
     const borrowRate = stats.totalBooks > 0 ? (stats.borrowedBooks / stats.totalBooks * 100).toFixed(1) : 0;
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dashboard", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-section", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "hero-title", children: "Bienvenue dans votre biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "hero-subtitle", children: ["G\u00E9rez votre collection de ", stats.totalBooks, " documents avec facilit\u00E9 et \u00E9l\u00E9gance"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-actions", children: heroActions.map((action, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `hero-button ${action.primary ? 'primary' : 'secondary'}`, onClick: action.action, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(action.icon, { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: action.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-visual", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Collection" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-stats", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: stats.totalBooks }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Documents" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: stats.borrowedBooks }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Emprunt\u00E9s" })] })] })] }) })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dashboard-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "section-title", children: "Vue d'ensemble" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-subtitle", children: "Statistiques de votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stats-grid", children: mainStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card card-elevated", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-header", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 24 }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [stat.trend && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-trend", children: stat.trend }), stat.percentage && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "stat-percentage", children: [stat.percentage, "%"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-title", children: stat.title })] })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dashboard-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "quick-actions-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-header", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Actions rapides" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "actions-grid", children: quickActions.map((action, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "action-card card-elevated", onClick: action.action, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-icon", style: { backgroundColor: action.color }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(action.icon, { size: 20 }), action.badge && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-badge" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-title", children: action.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-description", children: action.description })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16, className: "action-arrow" })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-header", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Utilisation" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-card card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "progress-label", children: "Taux d'emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "progress-value", children: [borrowRate, "%"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-fill", style: { width: `${borrowRate}%` } }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-metrics", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metric", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Tendance stable" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metric", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Mis \u00E0 jour maintenant" })] })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Activit\u00E9 r\u00E9cente" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "view-all-button", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), "Voir tout"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-list card", children: recentActivity.map((activity, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(activity.icon, { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-title", children: activity.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-description", children: activity.description })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-time", children: activity.time })] }, index))) })] })] }), showPrintManager && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_PrintManager__WEBPACK_IMPORTED_MODULE_2__.PrintManager, { books: documents, stats: stats, categories: categories, onClose: () => setShowPrintManager(false) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dashboard", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_AnimatedBackground__WEBPACK_IMPORTED_MODULE_5__.AnimatedBackground, { variant: "books", intensity: "low" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-section", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "hero-title", children: "Bienvenue dans votre biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "hero-subtitle", children: ["G\u00E9rez votre collection de ", stats.totalBooks, " documents avec facilit\u00E9 et \u00E9l\u00E9gance"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-search", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_SmartSearch__WEBPACK_IMPORTED_MODULE_4__.SmartSearch, { onSearch: (query, filters) => {
+                                            console.log('Recherche:', query, filters);
+                                            onNavigate('documents');
+                                        }, data: documents, placeholder: "Rechercher un document, auteur, cat\u00E9gorie..." }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-actions", children: heroActions.map((action, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `hero-button ${action.primary ? 'primary' : 'secondary'}`, onClick: action.action, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(action.icon, { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: action.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-visual", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Collection" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-stats", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: stats.totalBooks }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Documents" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: stats.borrowedBooks }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Emprunt\u00E9s" })] })] })] }) })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dashboard-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "section-title", children: "Vue d'ensemble" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-subtitle", children: "Statistiques avanc\u00E9es de votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_EnhancedStats__WEBPACK_IMPORTED_MODULE_3__.EnhancedStats, { stats: stats })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dashboard-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "quick-actions-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-header", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Actions rapides" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "actions-grid", children: quickActions.map((action, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "action-card card-elevated", onClick: action.action, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-icon", style: { backgroundColor: action.color }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(action.icon, { size: 20 }), action.badge && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-badge" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-title", children: action.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-description", children: action.description })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16, className: "action-arrow" })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-header", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Utilisation" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-card card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "progress-label", children: "Taux d'emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "progress-value", children: [borrowRate, "%"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-fill", style: { width: `${borrowRate}%` } }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-metrics", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metric", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Tendance stable" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metric", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Mis \u00E0 jour maintenant" })] })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Activit\u00E9 r\u00E9cente" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "view-all-button", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 16 }), "Voir tout"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-list card", children: recentActivity.map((activity, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(activity.icon, { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-title", children: activity.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-description", children: activity.description })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-time", children: activity.time })] }, index))) })] })] }), showPrintManager && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_PrintManager__WEBPACK_IMPORTED_MODULE_2__.PrintManager, { books: documents, stats: stats, categories: categories, onClose: () => setShowPrintManager(false) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .dashboard {
           height: 100%;
           overflow-y: auto;
@@ -4763,9 +5497,14 @@ const Dashboard = ({ stats, onNavigate, documents = [], categories = [] }) => {
         
         .hero-subtitle {
           font-size: 18px;
-          opacity: 0.9;
+          color: rgba(243, 238, 217, 0.9);
           margin: 0 0 32px 0;
           line-height: 1.5;
+        }
+
+        .hero-search {
+          margin: 0 0 32px 0;
+          max-width: 600px;
         }
         
         .hero-actions {
@@ -4791,24 +5530,28 @@ const Dashboard = ({ stats, onNavigate, documents = [], categories = [] }) => {
         
         .hero-button.primary {
           background: #C2571B;
-          color: #F3EED9;
+          color: #FFFFFF;
+          border: 2px solid #C2571B;
         }
         
         .hero-button.primary:hover {
           background: #A8481A;
           transform: translateY(-2px);
           box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
+          border-color: #A8481A;
         }
         
         .hero-button.secondary {
-          background: rgba(243, 238, 217, 0.15);
-          color: #F3EED9;
-          border: 1px solid rgba(243, 238, 217, 0.3);
+          background: rgba(255, 255, 255, 0.1);
+          color: #FFFFFF;
+          border: 2px solid rgba(255, 255, 255, 0.5);
+          backdrop-filter: blur(10px);
         }
         
         .hero-button.secondary:hover {
-          background: rgba(243, 238, 217, 0.25);
+          background: rgba(255, 255, 255, 0.2);
           transform: translateY(-2px);
+          border-color: rgba(255, 255, 255, 0.8);
         }
         
         .hero-visual {
@@ -4969,16 +5712,19 @@ const Dashboard = ({ stats, onNavigate, documents = [], categories = [] }) => {
           gap: 20px;
           padding: 20px;
           background: #FFFFFF;
-          border: none;
+          border: 2px solid rgba(229, 220, 194, 0.4);
           border-radius: 16px;
           cursor: pointer;
           text-align: left;
           transition: all 0.3s ease;
           position: relative;
+          color: #1A1A1A;
         }
         
         .action-card:hover {
           transform: translateX(4px);
+          border-color: #3E5C49;
+          box-shadow: 0 8px 24px rgba(62, 92, 73, 0.15);
         }
         
         .action-icon {
@@ -5012,22 +5758,23 @@ const Dashboard = ({ stats, onNavigate, documents = [], categories = [] }) => {
         .action-title {
           font-size: 16px;
           font-weight: 600;
-          color: #2E2E2E;
+          color: #1A1A1A;
           margin-bottom: 4px;
         }
         
         .action-description {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
         
         .action-arrow {
-          color: #6E6E6E;
+          color: #4A4A4A;
           transition: transform 0.2s ease;
         }
         
         .action-card:hover .action-arrow {
           transform: translateX(4px);
+          color: #3E5C49;
         }
         
         .progress-card {
@@ -5531,11 +6278,11 @@ const DocumentList = ({ documents, onAdd, onEdit, onDelete, onRefresh, syncStatu
         .filter-input,
         .filter-select {
           padding: 12px 16px;
-          border: 2px solid #E5DCC2;
+          border: 2px solid #B8A678;
           border-radius: 8px;
           font-size: 14px;
           background: #FFFFFF;
-          color: #2E2E2E;
+          color: #1A1A1A;
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           box-sizing: border-box;
         }
@@ -5544,7 +6291,8 @@ const DocumentList = ({ documents, onAdd, onEdit, onDelete, onRefresh, syncStatu
         .filter-select:focus {
           outline: none;
           border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.25);
+          background: #FEFEFE;
         }
 
         /* Grille des documents */
@@ -5614,7 +6362,7 @@ const DocumentList = ({ documents, onAdd, onEdit, onDelete, onRefresh, syncStatu
         .document-title {
           font-size: 16px;
           font-weight: 600;
-          color: #2E2E2E;
+          color: #1A1A1A;
           margin: 0 0 6px 0;
           line-height: 1.3;
           overflow: hidden;
@@ -5626,7 +6374,7 @@ const DocumentList = ({ documents, onAdd, onEdit, onDelete, onRefresh, syncStatu
 
         .document-author {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0;
           display: flex;
           align-items: center;
@@ -5672,7 +6420,7 @@ const DocumentList = ({ documents, onAdd, onEdit, onDelete, onRefresh, syncStatu
           align-items: flex-start;
           gap: 8px;
           font-size: 13px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           min-height: 20px;
         }
 
@@ -5726,7 +6474,7 @@ const DocumentList = ({ documents, onAdd, onEdit, onDelete, onRefresh, syncStatu
 
         .document-description {
           font-size: 13px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           line-height: 1.4;
           margin: 0;
           overflow: hidden;
@@ -7878,6 +8626,450 @@ const EnhancedAuthentication = ({ onLogin }) => {
           .role-option,
           .type-option {
             border-width: 3px;
+          }
+        }
+      ` })] }));
+};
+
+
+/***/ }),
+
+/***/ "./src/renderer/components/EnhancedStats.tsx":
+/*!***************************************************!*\
+  !*** ./src/renderer/components/EnhancedStats.tsx ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   EnhancedStats: () => (/* binding */ EnhancedStats)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/star.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/target.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trending-up.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/activity.mjs");
+
+
+
+const AnimatedCounter = ({ end, duration = 2000, prefix = '', suffix = '' }) => {
+    const [count, setCount] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
+    (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+        let startTime;
+        const startCount = 0;
+        const animate = (currentTime) => {
+            if (!startTime)
+                startTime = currentTime;
+            const progress = Math.min((currentTime - startTime) / duration, 1);
+            // Easing function for smooth animation
+            const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+            const currentCount = Math.floor(startCount + (end - startCount) * easeOutCubic);
+            setCount(currentCount);
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+        requestAnimationFrame(animate);
+    }, [end, duration]);
+    return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [prefix, count.toLocaleString(), suffix] });
+};
+const EnhancedStats = ({ stats, className = '' }) => {
+    const [hoveredCard, setHoveredCard] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+    const statsData = [
+        {
+            id: 'total',
+            title: 'Collection Totale',
+            value: stats.totalBooks,
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"],
+            color: '#3E5C49',
+            gradient: 'linear-gradient(135deg, #3E5C49 0%, #4A6A55 100%)',
+            description: 'Documents dans la bibliothèque',
+            trend: '+12% ce mois',
+            trendPositive: true
+        },
+        {
+            id: 'available',
+            title: 'Disponibles',
+            value: stats.availableBooks,
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"],
+            color: '#10B981',
+            gradient: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)',
+            description: 'Prêts à être empruntés',
+            percentage: stats.totalBooks > 0 ? Math.round((stats.availableBooks / stats.totalBooks) * 100) : 0
+        },
+        {
+            id: 'borrowed',
+            title: 'En Circulation',
+            value: stats.borrowedBooks,
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"],
+            color: '#F59E0B',
+            gradient: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)',
+            description: 'Actuellement empruntés',
+            percentage: stats.totalBooks > 0 ? Math.round((stats.borrowedBooks / stats.totalBooks) * 100) : 0
+        },
+        {
+            id: 'borrowers',
+            title: 'Emprunteurs Actifs',
+            value: stats.totalBorrowers,
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"],
+            color: '#8B5CF6',
+            gradient: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)',
+            description: 'Membres enregistrés',
+            breakdown: `${stats.totalStudents} étudiants, ${stats.totalStaff} personnel`
+        },
+        {
+            id: 'authors',
+            title: 'Auteurs',
+            value: stats.totalAuthors,
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"],
+            color: '#EC4899',
+            gradient: 'linear-gradient(135deg, #EC4899 0%, #F472B6 100%)',
+            description: 'Auteurs dans la collection'
+        },
+        {
+            id: 'categories',
+            title: 'Catégories',
+            value: stats.totalCategories,
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"],
+            color: '#06B6D4',
+            gradient: 'linear-gradient(135deg, #06B6D4 0%, #22D3EE 100%)',
+            description: 'Genres et classifications'
+        }
+    ];
+    // Calculate library efficiency metrics
+    const efficiency = {
+        utilization: stats.totalBooks > 0 ? Math.round((stats.borrowedBooks / stats.totalBooks) * 100) : 0,
+        availability: stats.totalBooks > 0 ? Math.round((stats.availableBooks / stats.totalBooks) * 100) : 0,
+        activity: stats.totalBorrowers > 0 ? Math.round((stats.borrowedBooks / stats.totalBorrowers) * 100) : 0
+    };
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `enhanced-stats ${className}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stats-grid", children: statsData.map((stat) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `stat-card ${hoveredCard === stat.id ? 'hovered' : ''}`, onMouseEnter: () => setHoveredCard(stat.id), onMouseLeave: () => setHoveredCard(null), style: {
+                        '--card-gradient': stat.gradient,
+                        '--card-color': stat.color
+                    }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-card-bg" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-trend", children: [stat.trend && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: `trend ${stat.trendPositive ? 'positive' : 'negative'}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 14 }), stat.trend] })), stat.percentage !== undefined && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "percentage", children: [stat.percentage, "%"] }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-value", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(AnimatedCounter, { end: stat.value, duration: 1500 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-title", children: stat.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-description", children: stat.description }), stat.breakdown && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-breakdown", children: stat.breakdown }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-decoration", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 120 }) }) })] }, stat.id))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "efficiency-panel", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "efficiency-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "M\u00E9triques de Performance" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "efficiency-metrics", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "efficiency-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "efficiency-label", children: "Taux d'Utilisation" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "efficiency-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "efficiency-fill utilization", style: { width: `${efficiency.utilization}%` } }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "efficiency-value", children: [efficiency.utilization, "%"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "efficiency-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "efficiency-label", children: "Disponibilit\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "efficiency-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "efficiency-fill availability", style: { width: `${efficiency.availability}%` } }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "efficiency-value", children: [efficiency.availability, "%"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "efficiency-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "efficiency-label", children: "Activit\u00E9 Moyenne" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "efficiency-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "efficiency-fill activity", style: { width: `${Math.min(efficiency.activity, 100)}%` } }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "efficiency-value", children: [efficiency.activity, "%"] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+        .enhanced-stats {
+          width: 100%;
+          max-width: 1400px;
+          margin: 0 auto;
+        }
+
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 24px;
+          margin-bottom: 32px;
+        }
+
+        .stat-card {
+          position: relative;
+          background: rgba(255, 255, 255, 0.95);
+          border-radius: 20px;
+          padding: 28px;
+          overflow: hidden;
+          transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          border: 1px solid rgba(229, 220, 194, 0.3);
+          backdrop-filter: blur(10px);
+          cursor: pointer;
+          min-height: 200px;
+        }
+
+        .stat-card-bg {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: var(--card-gradient);
+          opacity: 0;
+          transition: opacity 0.4s ease;
+          border-radius: inherit;
+        }
+
+        .stat-card.hovered .stat-card-bg {
+          opacity: 0.08;
+        }
+
+        .stat-card.hovered {
+          transform: translateY(-8px) scale(1.02);
+          box-shadow: 
+            0 20px 40px rgba(62, 92, 73, 0.15),
+            0 8px 16px rgba(62, 92, 73, 0.1);
+          border-color: var(--card-color);
+        }
+
+        .stat-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 20px;
+          position: relative;
+          z-index: 2;
+        }
+
+        .stat-icon {
+          width: 56px;
+          height: 56px;
+          background: var(--card-gradient);
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+          transition: all 0.3s ease;
+        }
+
+        .stat-card.hovered .stat-icon {
+          transform: scale(1.1) rotate(5deg);
+        }
+
+        .stat-trend {
+          text-align: right;
+          font-size: 12px;
+        }
+
+        .trend {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          color: #10B981;
+          font-weight: 600;
+          margin-bottom: 4px;
+        }
+
+        .trend.negative {
+          color: #EF4444;
+        }
+
+        .percentage {
+          background: var(--card-gradient);
+          color: white;
+          padding: 4px 8px;
+          border-radius: 8px;
+          font-weight: 700;
+          font-size: 11px;
+        }
+
+        .stat-content {
+          position: relative;
+          z-index: 2;
+        }
+
+        .stat-value {
+          font-size: 2.5rem;
+          font-weight: 800;
+          color: #1A1A1A;
+          line-height: 1;
+          margin-bottom: 8px;
+          transition: color 0.3s ease;
+        }
+
+        .stat-card.hovered .stat-value {
+          color: var(--card-color);
+        }
+
+        .stat-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: #374151;
+          margin-bottom: 6px;
+        }
+
+        .stat-description {
+          font-size: 14px;
+          color: #6B7280;
+          margin-bottom: 8px;
+        }
+
+        .stat-breakdown {
+          font-size: 12px;
+          color: #9CA3AF;
+          font-style: italic;
+        }
+
+        .stat-decoration {
+          position: absolute;
+          top: 0;
+          right: -20px;
+          width: 140px;
+          height: 140px;
+          opacity: 0.03;
+          transition: all 0.3s ease;
+          z-index: 1;
+        }
+
+        .floating-icon {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--card-color);
+          transform: rotate(15deg);
+        }
+
+        .stat-card.hovered .stat-decoration {
+          opacity: 0.08;
+          transform: scale(1.1) rotate(-5deg);
+        }
+
+        /* Efficiency Panel */
+        .efficiency-panel {
+          background: rgba(255, 255, 255, 0.95);
+          border-radius: 20px;
+          padding: 28px;
+          border: 1px solid rgba(229, 220, 194, 0.3);
+          backdrop-filter: blur(10px);
+        }
+
+        .efficiency-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 24px;
+          color: #374151;
+        }
+
+        .efficiency-header h3 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 700;
+        }
+
+        .efficiency-metrics {
+          display: grid;
+          gap: 20px;
+        }
+
+        .efficiency-item {
+          display: grid;
+          grid-template-columns: 1fr 3fr auto;
+          align-items: center;
+          gap: 16px;
+        }
+
+        .efficiency-label {
+          font-size: 14px;
+          font-weight: 600;
+          color: #374151;
+        }
+
+        .efficiency-bar {
+          height: 12px;
+          background: rgba(229, 220, 194, 0.3);
+          border-radius: 6px;
+          overflow: hidden;
+          position: relative;
+        }
+
+        .efficiency-fill {
+          height: 100%;
+          border-radius: inherit;
+          transition: width 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          position: relative;
+        }
+
+        .efficiency-fill::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+          animation: shimmer 2s infinite;
+        }
+
+        .efficiency-fill.utilization {
+          background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+        }
+
+        .efficiency-fill.availability {
+          background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+        }
+
+        .efficiency-fill.activity {
+          background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+        }
+
+        .efficiency-value {
+          font-size: 16px;
+          font-weight: 700;
+          color: #1A1A1A;
+          min-width: 50px;
+          text-align: right;
+        }
+
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(200%); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+          .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+
+          .stat-card {
+            padding: 20px;
+            min-height: 160px;
+          }
+
+          .stat-value {
+            font-size: 2rem;
+          }
+
+          .efficiency-item {
+            grid-template-columns: 1fr;
+            gap: 8px;
+            text-align: center;
+          }
+
+          .efficiency-bar {
+            order: 2;
+          }
+
+          .efficiency-value {
+            order: 3;
+            text-align: center;
+          }
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+          .stat-card {
+            border: 2px solid #000;
+            background: #fff;
+          }
+
+          .stat-value, .stat-title {
+            color: #000;
+          }
+
+          .efficiency-fill {
+            border: 1px solid #000;
+          }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+          .stat-card, .stat-icon, .stat-decoration, .efficiency-fill {
+            transition: none;
+          }
+
+          .floating-icon {
+            transform: none;
+          }
+
+          .efficiency-fill::after {
+            animation: none;
           }
         }
       ` })] }));
@@ -11660,6 +12852,475 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
           font-size: 13px;
           font-weight: 600;
           line-height: 1.3;
+        }
+      ` })] }));
+};
+
+
+/***/ }),
+
+/***/ "./src/renderer/components/SmartSearch.tsx":
+/*!*************************************************!*\
+  !*** ./src/renderer/components/SmartSearch.tsx ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   SmartSearch: () => (/* binding */ SmartSearch)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/tag.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/star.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trending-up.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/zap.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/search.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/filter.mjs");
+
+
+
+const SmartSearch = ({ onSearch, data = [], placeholder = "Rechercher dans la bibliothèque...", className = "" }) => {
+    const [query, setQuery] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
+    const [isExpanded, setIsExpanded] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [showFilters, setShowFilters] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [filters, setFilters] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({ type: 'all' });
+    const [suggestions, setSuggestions] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
+    const [selectedSuggestion, setSelectedSuggestion] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(-1);
+    const [recentSearches, setRecentSearches] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
+    const searchRef = (0,react__WEBPACK_IMPORTED_MODULE_1__.useRef)(null);
+    const inputRef = (0,react__WEBPACK_IMPORTED_MODULE_1__.useRef)(null);
+    // Generate smart suggestions based on query
+    (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+        if (query.length === 0) {
+            setSuggestions(generateQuickActions());
+            return;
+        }
+        if (query.length < 2) {
+            setSuggestions([]);
+            return;
+        }
+        const newSuggestions = [];
+        // Search in documents
+        const documentMatches = data.filter(item => item.titre?.toLowerCase().includes(query.toLowerCase()) ||
+            item.auteur?.toLowerCase().includes(query.toLowerCase())).slice(0, 3);
+        documentMatches.forEach(doc => {
+            newSuggestions.push({
+                id: `doc-${doc.id}`,
+                text: doc.titre,
+                type: 'document',
+                icon: lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"],
+                description: `par ${doc.auteur} • ${doc.descripteurs}`
+            });
+        });
+        // Add category suggestions
+        const categoryMatches = ['Fiction', 'Sciences', 'Histoire', 'Philosophie', 'Art']
+            .filter(cat => cat.toLowerCase().includes(query.toLowerCase()))
+            .slice(0, 2);
+        categoryMatches.forEach(cat => {
+            newSuggestions.push({
+                id: `cat-${cat}`,
+                text: cat,
+                type: 'category',
+                icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"],
+                description: 'Catégorie'
+            });
+        });
+        // Add author suggestions
+        const authorMatches = Array.from(new Set(data.map(item => item.auteur)))
+            .filter(author => author?.toLowerCase().includes(query.toLowerCase()))
+            .slice(0, 2);
+        authorMatches.forEach(author => {
+            newSuggestions.push({
+                id: `author-${author}`,
+                text: author,
+                type: 'author',
+                icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"],
+                description: 'Auteur'
+            });
+        });
+        setSuggestions(newSuggestions);
+    }, [query, data]);
+    const generateQuickActions = () => [
+        {
+            id: 'quick-available',
+            text: 'Documents disponibles',
+            type: 'quick-action',
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"],
+            description: 'Voir tous les livres disponibles',
+            action: () => handleQuickSearch('status:available')
+        },
+        {
+            id: 'quick-recent',
+            text: 'Ajouts récents',
+            type: 'quick-action',
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"],
+            description: 'Documents ajoutés récemment',
+            action: () => handleQuickSearch('recent')
+        },
+        {
+            id: 'quick-popular',
+            text: 'Plus empruntés',
+            type: 'quick-action',
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"],
+            description: 'Les livres les plus populaires',
+            action: () => handleQuickSearch('popular')
+        },
+        {
+            id: 'quick-overdue',
+            text: 'Retards',
+            type: 'quick-action',
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"],
+            description: 'Documents en retard',
+            action: () => handleQuickSearch('status:overdue')
+        }
+    ];
+    const handleQuickSearch = (searchType) => {
+        setQuery(searchType);
+        handleSearch(searchType);
+        setIsExpanded(false);
+    };
+    const handleSearch = (searchQuery = query) => {
+        if (searchQuery.trim()) {
+            // Add to recent searches
+            const newRecentSearches = [
+                searchQuery,
+                ...recentSearches.filter(s => s !== searchQuery)
+            ].slice(0, 5);
+            setRecentSearches(newRecentSearches);
+        }
+        onSearch(searchQuery, filters);
+    };
+    const handleSuggestionClick = (suggestion) => {
+        if (suggestion.action) {
+            suggestion.action();
+        }
+        else {
+            setQuery(suggestion.text);
+            handleSearch(suggestion.text);
+        }
+        setIsExpanded(false);
+    };
+    const handleKeyDown = (e) => {
+        if (!isExpanded)
+            return;
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                setSelectedSuggestion(prev => prev < suggestions.length - 1 ? prev + 1 : prev);
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                setSelectedSuggestion(prev => prev > 0 ? prev - 1 : -1);
+                break;
+            case 'Enter':
+                e.preventDefault();
+                if (selectedSuggestion >= 0) {
+                    handleSuggestionClick(suggestions[selectedSuggestion]);
+                }
+                else {
+                    handleSearch();
+                    setIsExpanded(false);
+                }
+                break;
+            case 'Escape':
+                setIsExpanded(false);
+                setSelectedSuggestion(-1);
+                break;
+        }
+    };
+    const clearSearch = () => {
+        setQuery('');
+        setSuggestions(generateQuickActions());
+        inputRef.current?.focus();
+    };
+    // Click outside handler
+    (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+        const handleClickOutside = (event) => {
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setIsExpanded(false);
+                setSelectedSuggestion(-1);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `smart-search ${isExpanded ? 'expanded' : ''} ${className}`, ref: searchRef, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { className: "search-icon", size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { ref: inputRef, type: "text", value: query, onChange: (e) => setQuery(e.target.value), onFocus: () => setIsExpanded(true), onKeyDown: handleKeyDown, placeholder: placeholder, className: "search-input" }), query && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "clear-button", onClick: clearSearch, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: `filter-button ${showFilters ? 'active' : ''}`, onClick: () => setShowFilters(!showFilters), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }) })] }), showFilters && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filters-panel", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Type:" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filters.type, onChange: (e) => setFilters(prev => ({
+                                            ...prev,
+                                            type: e.target.value
+                                        })), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tout" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "documents", children: "Documents" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "borrowers", children: "Emprunteurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "history", children: "Historique" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Statut:" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filters.status || '', onChange: (e) => setFilters(prev => ({
+                                            ...prev,
+                                            status: e.target.value || undefined
+                                        })), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "", children: "Tous" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "available", children: "Disponible" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "borrowed", children: "Emprunt\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "overdue", children: "En retard" })] })] })] })), isExpanded && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "suggestions-panel", children: [suggestions.length > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "suggestions-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "suggestions-header", children: query ? 'Suggestions' : 'Actions rapides' }), suggestions.map((suggestion, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `suggestion-item ${index === selectedSuggestion ? 'selected' : ''}`, onClick: () => handleSuggestionClick(suggestion), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "suggestion-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(suggestion.icon, { size: 18 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "suggestion-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "suggestion-text", children: suggestion.text }), suggestion.description && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "suggestion-description", children: suggestion.description }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "suggestion-type", children: suggestion.type })] }, suggestion.id)))] })), recentSearches.length > 0 && !query && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "suggestions-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "suggestions-header", children: "Recherches r\u00E9centes" }), recentSearches.map((search, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "suggestion-item recent", onClick: () => {
+                                            setQuery(search);
+                                            handleSearch(search);
+                                            setIsExpanded(false);
+                                        }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "suggestion-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "suggestion-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "suggestion-text", children: search }) })] }, index)))] }))] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+        .smart-search {
+          position: relative;
+          width: 100%;
+          max-width: 600px;
+          margin: 0 auto;
+        }
+
+        .search-container {
+          position: relative;
+          background: rgba(255, 255, 255, 0.95);
+          border-radius: 16px;
+          border: 1px solid rgba(229, 220, 194, 0.4);
+          backdrop-filter: blur(10px);
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          overflow: hidden;
+        }
+
+        .smart-search.expanded .search-container {
+          box-shadow: 
+            0 20px 40px rgba(62, 92, 73, 0.15),
+            0 8px 16px rgba(62, 92, 73, 0.08);
+          border-color: #3E5C49;
+        }
+
+        .search-input-wrapper {
+          display: flex;
+          align-items: center;
+          padding: 16px 20px;
+          gap: 12px;
+        }
+
+        .search-icon {
+          color: #6B7280;
+          transition: color 0.2s ease;
+        }
+
+        .smart-search.expanded .search-icon {
+          color: #3E5C49;
+        }
+
+        .search-input {
+          flex: 1;
+          border: none;
+          outline: none;
+          background: transparent;
+          font-size: 16px;
+          color: #1F2937;
+          font-weight: 500;
+        }
+
+        .search-input::placeholder {
+          color: #9CA3AF;
+        }
+
+        .clear-button, .filter-button {
+          padding: 8px;
+          border: none;
+          background: rgba(107, 114, 128, 0.1);
+          border-radius: 8px;
+          color: #6B7280;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .clear-button:hover, .filter-button:hover {
+          background: rgba(107, 114, 128, 0.2);
+          color: #374151;
+        }
+
+        .filter-button.active {
+          background: #3E5C49;
+          color: white;
+        }
+
+        .filters-panel {
+          padding: 16px 20px;
+          border-top: 1px solid rgba(229, 220, 194, 0.4);
+          background: rgba(248, 246, 240, 0.5);
+          display: flex;
+          gap: 20px;
+          flex-wrap: wrap;
+        }
+
+        .filter-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .filter-row label {
+          font-size: 14px;
+          font-weight: 600;
+          color: #374151;
+          min-width: 60px;
+        }
+
+        .filter-row select {
+          padding: 6px 12px;
+          border: 1px solid rgba(229, 220, 194, 0.6);
+          border-radius: 8px;
+          background: white;
+          font-size: 14px;
+          color: #374151;
+          outline: none;
+          transition: border-color 0.2s ease;
+        }
+
+        .filter-row select:focus {
+          border-color: #3E5C49;
+        }
+
+        .suggestions-panel {
+          border-top: 1px solid rgba(229, 220, 194, 0.4);
+          max-height: 400px;
+          overflow-y: auto;
+        }
+
+        .suggestions-section {
+          padding: 8px 0;
+        }
+
+        .suggestions-header {
+          padding: 12px 20px 8px;
+          font-size: 12px;
+          font-weight: 700;
+          color: #6B7280;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .suggestion-item {
+          display: flex;
+          align-items: center;
+          padding: 12px 20px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          gap: 12px;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.selected {
+          background: rgba(62, 92, 73, 0.08);
+        }
+
+        .suggestion-item.recent {
+          opacity: 0.8;
+        }
+
+        .suggestion-icon {
+          width: 36px;
+          height: 36px;
+          background: rgba(62, 92, 73, 0.1);
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #3E5C49;
+          flex-shrink: 0;
+        }
+
+        .suggestion-content {
+          flex: 1;
+        }
+
+        .suggestion-text {
+          font-size: 15px;
+          font-weight: 600;
+          color: #1F2937;
+          margin-bottom: 2px;
+        }
+
+        .suggestion-description {
+          font-size: 13px;
+          color: #6B7280;
+        }
+
+        .suggestion-type {
+          font-size: 11px;
+          color: #9CA3AF;
+          text-transform: uppercase;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+          background: rgba(156, 163, 175, 0.1);
+          padding: 4px 8px;
+          border-radius: 6px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+          .search-input-wrapper {
+            padding: 14px 16px;
+          }
+
+          .search-input {
+            font-size: 16px; /* Prevents zoom on iOS */
+          }
+
+          .filters-panel {
+            flex-direction: column;
+            gap: 12px;
+          }
+
+          .filter-row {
+            justify-content: space-between;
+          }
+
+          .filter-row label {
+            min-width: auto;
+          }
+        }
+
+        /* High contrast mode */
+        @media (prefers-contrast: high) {
+          .search-container {
+            border: 2px solid #000;
+            background: #fff;
+          }
+
+          .suggestion-item:hover,
+          .suggestion-item.selected {
+            background: #000;
+            color: #fff;
+          }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+          .search-container,
+          .suggestion-item,
+          .clear-button,
+          .filter-button {
+            transition: none;
+          }
+        }
+
+        /* Dark mode considerations */
+        @media (prefers-color-scheme: dark) {
+          .search-container {
+            background: rgba(31, 41, 55, 0.95);
+            border-color: rgba(75, 85, 99, 0.4);
+          }
+
+          .search-input {
+            color: #F3F4F6;
+          }
+
+          .search-input::placeholder {
+            color: #6B7280;
+          }
+
+          .filters-panel {
+            background: rgba(17, 24, 39, 0.5);
+          }
+
+          .suggestion-text {
+            color: #F3F4F6;
+          }
         }
       ` })] }));
 };

@@ -17,6 +17,9 @@ import {
 } from 'lucide-react';
 import { Stats } from '../../types';
 import { PrintManager } from './PrintManager';
+import { EnhancedStats } from './EnhancedStats';
+import { SmartSearch } from './SmartSearch';
+import { AnimatedBackground } from './AnimatedBackground';
 
 interface DashboardProps {
   stats: Stats;
@@ -134,6 +137,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="dashboard">
+      <AnimatedBackground variant="books" intensity="low" />
+      
       {/* Hero Section */}
       <div className="hero-section">
         <div className="hero-content">
@@ -142,6 +147,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <p className="hero-subtitle">
               Gérez votre collection de {stats.totalBooks} documents avec facilité et élégance
             </p>
+            <div className="hero-search">
+              <SmartSearch 
+                onSearch={(query, filters) => {
+                  console.log('Recherche:', query, filters);
+                  onNavigate('documents');
+                }}
+                data={documents}
+                placeholder="Rechercher un document, auteur, catégorie..."
+              />
+            </div>
             <div className="hero-actions">
               {heroActions.map((action, index) => (
                 <button
@@ -179,31 +194,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
       </div>
 
       <div className="dashboard-content">
-        {/* Main Stats Grid */}
+        {/* Enhanced Stats Section */}
         <div className="stats-section">
           <div className="section-header">
             <h2 className="section-title">Vue d'ensemble</h2>
-            <div className="section-subtitle">Statistiques de votre bibliothèque</div>
+            <div className="section-subtitle">Statistiques avancées de votre bibliothèque</div>
           </div>
           
-          <div className="stats-grid">
-            {mainStats.map((stat, index) => (
-              <div key={index} className="stat-card card-elevated">
-                <div className="stat-header">
-                  <div className="stat-icon" style={{ color: stat.color }}>
-                    <stat.icon size={24} />
-                  </div>
-                  
-                </div>
-                <div className="stat-content">
-                    {stat.trend && <span className="stat-trend">{stat.trend}</span>}
-                    {stat.percentage && <span className="stat-percentage">{stat.percentage}%</span>}
-                  <div className="stat-value">{stat.value}</div>
-                  <div className="stat-title">{stat.title}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <EnhancedStats stats={stats} />
         </div>
 
         <div className="dashboard-grid">
@@ -351,9 +349,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
         
         .hero-subtitle {
           font-size: 18px;
-          opacity: 0.9;
+          color: rgba(243, 238, 217, 0.9);
           margin: 0 0 32px 0;
           line-height: 1.5;
+        }
+
+        .hero-search {
+          margin: 0 0 32px 0;
+          max-width: 600px;
         }
         
         .hero-actions {
@@ -379,24 +382,28 @@ export const Dashboard: React.FC<DashboardProps> = ({
         
         .hero-button.primary {
           background: #C2571B;
-          color: #F3EED9;
+          color: #FFFFFF;
+          border: 2px solid #C2571B;
         }
         
         .hero-button.primary:hover {
           background: #A8481A;
           transform: translateY(-2px);
           box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
+          border-color: #A8481A;
         }
         
         .hero-button.secondary {
-          background: rgba(243, 238, 217, 0.15);
-          color: #F3EED9;
-          border: 1px solid rgba(243, 238, 217, 0.3);
+          background: rgba(255, 255, 255, 0.1);
+          color: #FFFFFF;
+          border: 2px solid rgba(255, 255, 255, 0.5);
+          backdrop-filter: blur(10px);
         }
         
         .hero-button.secondary:hover {
-          background: rgba(243, 238, 217, 0.25);
+          background: rgba(255, 255, 255, 0.2);
           transform: translateY(-2px);
+          border-color: rgba(255, 255, 255, 0.8);
         }
         
         .hero-visual {
@@ -557,16 +564,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
           gap: 20px;
           padding: 20px;
           background: #FFFFFF;
-          border: none;
+          border: 2px solid rgba(229, 220, 194, 0.4);
           border-radius: 16px;
           cursor: pointer;
           text-align: left;
           transition: all 0.3s ease;
           position: relative;
+          color: #1A1A1A;
         }
         
         .action-card:hover {
           transform: translateX(4px);
+          border-color: #3E5C49;
+          box-shadow: 0 8px 24px rgba(62, 92, 73, 0.15);
         }
         
         .action-icon {
@@ -600,22 +610,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
         .action-title {
           font-size: 16px;
           font-weight: 600;
-          color: #2E2E2E;
+          color: #1A1A1A;
           margin-bottom: 4px;
         }
         
         .action-description {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
         
         .action-arrow {
-          color: #6E6E6E;
+          color: #4A4A4A;
           transition: transform 0.2s ease;
         }
         
         .action-card:hover .action-arrow {
           transform: translateX(4px);
+          color: #3E5C49;
         }
         
         .progress-card {

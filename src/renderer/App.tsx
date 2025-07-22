@@ -15,6 +15,7 @@ import { EnhancedAuthentication } from './components/EnhancedAuthentication';
 import { InstitutionSetup } from './components/InstitutionSetup';
 import { Document, Author, Category, Stats, Borrower, BorrowHistory as BorrowHistoryType } from '../types';
 import { SupabaseService, Institution, User } from '../services/SupabaseService';
+import { ContrastChecker } from './components/ContrastChecker';
 
 type ViewType = 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'settings' | 'donation' | 'about' | 'auth' | 'institution_setup';
 
@@ -779,6 +780,9 @@ export const App: React.FC = () => {
           }
         }
       `}</style>
+      
+      {/* Contrast Checker - Only show in authenticated mode */}
+      {isAuthenticated && <ContrastChecker autoFix={false} showPanel={false} />}
     </div>
   );
 };

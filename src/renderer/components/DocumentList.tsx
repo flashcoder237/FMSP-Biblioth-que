@@ -580,11 +580,11 @@ export const DocumentList: React.FC<DocumentListProps> = ({
         .filter-input,
         .filter-select {
           padding: 12px 16px;
-          border: 2px solid #E5DCC2;
+          border: 2px solid #B8A678;
           border-radius: 8px;
           font-size: 14px;
           background: #FFFFFF;
-          color: #2E2E2E;
+          color: #1A1A1A;
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           box-sizing: border-box;
         }
@@ -593,7 +593,8 @@ export const DocumentList: React.FC<DocumentListProps> = ({
         .filter-select:focus {
           outline: none;
           border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.25);
+          background: #FEFEFE;
         }
 
         /* Grille des documents */
@@ -663,7 +664,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
         .document-title {
           font-size: 16px;
           font-weight: 600;
-          color: #2E2E2E;
+          color: #1A1A1A;
           margin: 0 0 6px 0;
           line-height: 1.3;
           overflow: hidden;
@@ -675,7 +676,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
 
         .document-author {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0;
           display: flex;
           align-items: center;
@@ -721,7 +722,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
           align-items: flex-start;
           gap: 8px;
           font-size: 13px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           min-height: 20px;
         }
 
@@ -775,7 +776,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
 
         .document-description {
           font-size: 13px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           line-height: 1.4;
           margin: 0;
           overflow: hidden;
