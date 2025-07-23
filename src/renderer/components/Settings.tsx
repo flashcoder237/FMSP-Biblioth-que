@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 
 import { SupabaseRendererService as SupabaseService, User as SupabaseUser, Institution as SupabaseInstitution } from '../services/SupabaseClient';
+import { ConfigService } from '../services/ConfigService';
 
 interface SettingsProps {
   onClose: () => void;
@@ -68,7 +69,7 @@ interface SecuritySettings {
 }
 
 export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
-  const [activeTab, setActiveTab] = useState<'institution' | 'backup' | 'security' | 'about'>('institution');
+  const [activeTab, setActiveTab] = useState<'institution' | 'backup' | 'security' | 'config' | 'about'>('institution');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -208,6 +209,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
     { id: 'institution', label: 'Établissement', icon: Building },
     { id: 'backup', label: 'Sauvegardes', icon: Database },
     { id: 'security', label: 'Sécurité', icon: Shield },
+    { id: 'config', label: 'Configuration', icon: HardDrive },
     { id: 'about', label: 'À propos', icon: SettingsIcon }
   ];
 
@@ -615,6 +617,122 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
                         />
                         <span className="checkbox-label">Exiger des symboles</span>
                       </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'config' && (
+              <div className="settings-section">
+                <div className="section-header">
+                  <HardDrive size={24} />
+                  <div>
+                    <h3>Configuration de l'application</h3>
+                    <p>Mode de fonctionnement et paramètres système</p>
+                  </div>
+                </div>
+
+                <div className="config-content">
+                  <div className="config-info-card">
+                    <div className="config-header">
+                      <div className="config-icon">
+                        {ConfigService.getMode() === 'offline' ? (
+                          <HardDrive size={24} />
+                        ) : (
+                          <Cloud size={24} />
+                        )}
+                      </div>
+                      <div className="config-details">
+                        <h4>Mode actuel : {ConfigService.getConfigInfo().displayMode}</h4>
+                        <p className="config-description">
+                          {ConfigService.getMode() === 'offline' 
+                            ? 'L\'application utilise une base de données locale SQLite'
+                            : 'L\'application utilise Supabase pour la synchronisation cloud'
+                          }
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="config-features">
+                      <h5>Fonctionnalités actives :</h5>
+                      <div className="feature-list">
+                        {ConfigService.getMode() === 'offline' ? (
+                          <>
+                            <div className="feature-item">
+                              <CheckCircle className="feature-icon active" size={16} />
+                              <span>Base de données locale</span>
+                            </div>
+                            <div className="feature-item">
+                              <CheckCircle className="feature-icon active" size={16} />
+                              <span>Fonctionnement hors ligne</span>
+                            </div>
+                            <div className="feature-item">
+                              <CheckCircle className="feature-icon active" size={16} />
+                              <span>Partage réseau local</span>
+                            </div>
+                            <div className="feature-item">
+                              <AlertCircle className="feature-icon disabled" size={16} />
+                              <span className="disabled">Synchronisation cloud (désactivée)</span>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="feature-item">
+                              <CheckCircle className="feature-icon active" size={16} />
+                              <span>Synchronisation cloud</span>
+                            </div>
+                            <div className="feature-item">
+                              <CheckCircle className="feature-icon active" size={16} />
+                              <span>Multi-établissements</span>
+                            </div>
+                            <div className="feature-item">
+                              <CheckCircle className="feature-icon active" size={16} />
+                              <span>Sauvegarde automatique</span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="config-actions">
+                      <div className="action-note">
+                        <AlertCircle size={16} />
+                        <span>
+                          Le mode en ligne sera disponible dans une prochaine version. 
+                          Le mode hors ligne offre toutes les fonctionnalités nécessaires.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="config-stats-card">
+                    <h5>Informations système</h5>
+                    <div className="stats-grid">
+                      <div className="stat-item">
+                        <span className="stat-label">Configuré le :</span>
+                        <span className="stat-value">
+                          {ConfigService.getConfig().configuredAt 
+                            ? new Date(ConfigService.getConfig().configuredAt).toLocaleDateString('fr-FR')
+                            : 'Non configuré'
+                          }
+                        </span>
+                      </div>
+                      <div className="stat-item">
+                        <span className="stat-label">Version :</span>
+                        <span className="stat-value">{ConfigService.getConfig().version}</span>
+                      </div>
+                      <div className="stat-item">
+                        <span className="stat-label">Mode :</span>
+                        <span className="stat-value">{ConfigService.getConfigInfo().displayMode}</span>
+                      </div>
+                      <div className="stat-item">
+                        <span className="stat-label">Statut :</span>
+                        <span className="stat-value success">
+                          <CheckCircle size={14} />
+                          Opérationnel
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1345,6 +1463,147 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
           cursor: not-allowed;
         }
         
+        .config-content {
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+        
+        .config-info-card {
+          background: #f8f9fa;
+          border: 1px solid #e9ecef;
+          border-radius: 12px;
+          padding: 24px;
+        }
+        
+        .config-header {
+          display: flex;
+          align-items: flex-start;
+          gap: 16px;
+          margin-bottom: 20px;
+        }
+        
+        .config-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 48px;
+          height: 48px;
+          background: linear-gradient(135deg, #4CAF50, #45a049);
+          border-radius: 12px;
+          color: white;
+        }
+        
+        .config-details h4 {
+          margin: 0 0 8px 0;
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: #2d3748;
+        }
+        
+        .config-description {
+          margin: 0;
+          color: #718096;
+          line-height: 1.5;
+        }
+        
+        .config-features {
+          margin-bottom: 20px;
+        }
+        
+        .config-features h5 {
+          margin: 0 0 12px 0;
+          font-size: 1rem;
+          font-weight: 600;
+          color: #4a5568;
+        }
+        
+        .config-features .feature-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .config-features .feature-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        
+        .config-features .feature-icon.active {
+          color: #48bb78;
+        }
+        
+        .config-features .feature-icon.disabled {
+          color: #cbd5e0;
+        }
+        
+        .config-features .feature-item .disabled {
+          color: #a0aec0;
+        }
+        
+        .config-actions {
+          border-top: 1px solid #e2e8f0;
+          padding-top: 16px;
+        }
+        
+        .action-note {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          padding: 12px 16px;
+          background: #f7fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          font-size: 0.9rem;
+          color: #4a5568;
+        }
+        
+        .config-stats-card {
+          background: white;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          padding: 24px;
+        }
+        
+        .config-stats-card h5 {
+          margin: 0 0 16px 0;
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: #2d3748;
+        }
+        
+        .stats-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        
+        .stat-item {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        
+        .stat-label {
+          font-size: 0.85rem;
+          color: #718096;
+          font-weight: 500;
+        }
+        
+        .stat-value {
+          font-size: 0.95rem;
+          color: #2d3748;
+          font-weight: 600;
+        }
+        
+        .stat-value.success {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          color: #48bb78;
+        }
+
         .about-content {
           display: flex;
           flex-direction: column;

@@ -5561,11 +5561,13 @@ class SyncService {
     constructor(databaseService) {
         this.syncQueue = [];
         this.isInitialized = false;
+        this.isOfflineMode = false;
         this.syncInterval = null;
         this.networkCheckInterval = null;
         this.retryTimeout = null;
         this.databaseService = databaseService;
-        this.supabaseService = new SupabaseService_1.SupabaseService();
+        // Note: SupabaseService sera initialisé seulement si nécessaire
+        this.supabaseService = null;
         this.syncStatus = {
             isOnline: false,
             lastSync: null,
@@ -5582,6 +5584,16 @@ class SyncService {
     async initialize() {
         if (this.isInitialized)
             return;
+        // Vérifier si on est en mode offline (pas de configuration Supabase)
+        const hasSupabaseConfig = process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY;
+        if (!hasSupabaseConfig) {
+            console.log('Mode offline détecté - synchronisation désactivée');
+            this.isOfflineMode = true;
+            this.isInitialized = true;
+            return;
+        }
+        // Initialiser SupabaseService seulement si on a la configuration
+        this.supabaseService = new SupabaseService_1.SupabaseService();
         // Charger les opérations en attente depuis la base de données
         await this.loadPendingOperations();
         // Démarrer la surveillance réseau
@@ -5886,12 +5898,32 @@ class SyncService {
     }
     // Méthodes publiques pour l'API
     getSyncStatus() {
+        if (this.isOfflineMode) {
+            return {
+                isOnline: false,
+                lastSync: null,
+                pendingOperations: 0,
+                syncInProgress: false,
+                errors: []
+            };
+        }
         return { ...this.syncStatus };
     }
     getNetworkStatus() {
+        if (this.isOfflineMode) {
+            return {
+                isOnline: false,
+                connectionType: 'none',
+                lastChecked: new Date().toISOString()
+            };
+        }
         return { ...this.networkStatus };
     }
     async startManualSync() {
+        if (this.isOfflineMode) {
+            console.log('Mode offline - synchronisation manuelle non disponible');
+            return;
+        }
         if (this.networkStatus.isOnline) {
             await this.processSyncQueue();
         }

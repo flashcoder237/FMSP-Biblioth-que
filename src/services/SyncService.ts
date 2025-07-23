@@ -23,13 +23,15 @@ export class SyncService {
   private networkStatus: NetworkStatus;
   private syncQueue: SyncOperation[] = [];
   private isInitialized = false;
+  private isOfflineMode = false;
   private syncInterval: NodeJS.Timeout | null = null;
   private networkCheckInterval: NodeJS.Timeout | null = null;
   private retryTimeout: NodeJS.Timeout | null = null;
 
   constructor(databaseService: DatabaseService) {
     this.databaseService = databaseService;
-    this.supabaseService = new SupabaseService();
+    // Note: SupabaseService sera initialisé seulement si nécessaire
+    this.supabaseService = null as any;
     
     this.syncStatus = {
       isOnline: false,
@@ -48,6 +50,19 @@ export class SyncService {
 
   async initialize(): Promise<void> {
     if (this.isInitialized) return;
+
+    // Vérifier si on est en mode offline (pas de configuration Supabase)
+    const hasSupabaseConfig = process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY;
+    
+    if (!hasSupabaseConfig) {
+      console.log('Mode offline détecté - synchronisation désactivée');
+      this.isOfflineMode = true;
+      this.isInitialized = true;
+      return;
+    }
+
+    // Initialiser SupabaseService seulement si on a la configuration
+    this.supabaseService = new SupabaseService();
 
     // Charger les opérations en attente depuis la base de données
     await this.loadPendingOperations();
@@ -405,14 +420,34 @@ export class SyncService {
 
   // Méthodes publiques pour l'API
   getSyncStatus(): SyncStatus {
+    if (this.isOfflineMode) {
+      return {
+        isOnline: false,
+        lastSync: null,
+        pendingOperations: 0,
+        syncInProgress: false,
+        errors: []
+      };
+    }
     return { ...this.syncStatus };
   }
 
   getNetworkStatus(): NetworkStatus {
+    if (this.isOfflineMode) {
+      return {
+        isOnline: false,
+        connectionType: 'none',
+        lastChecked: new Date().toISOString()
+      };
+    }
     return { ...this.networkStatus };
   }
 
   async startManualSync(): Promise<void> {
+    if (this.isOfflineMode) {
+      console.log('Mode offline - synchronisation manuelle non disponible');
+      return;
+    }
     if (this.networkStatus.isOnline) {
       await this.processSyncQueue();
     } else {

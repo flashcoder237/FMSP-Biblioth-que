@@ -14,20 +14,24 @@ import { Donation } from './components/Donation';
 import { About } from './components/About';
 import { EnhancedAuthentication } from './components/EnhancedAuthentication';
 import { InstitutionSetup } from './components/InstitutionSetup';
+import { InitialSetup, AppMode } from './components/InitialSetup';
 import { Document, Author, Category, Stats, Borrower, BorrowHistory as BorrowHistoryType } from '../types';
 import { SupabaseRendererService, Institution, User } from './services/SupabaseClient';
+import { ConfigService } from './services/ConfigService';
 import { ToastProvider, useQuickToast } from './components/ToastSystem';
 import { KeyboardShortcutsProvider } from './components/KeyboardShortcuts';
 
-type ViewType = 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'settings' | 'donation' | 'about' | 'auth' | 'institution_setup';
+type ViewType = 'initial_setup' | 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'settings' | 'donation' | 'about' | 'auth' | 'institution_setup';
 
 export const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<ViewType>('auth');
+  const [currentView, setCurrentView] = useState<ViewType>('initial_setup');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentInstitution, setCurrentInstitution] = useState<Institution | null>(null);
   const [institutionCode, setInstitutionCode] = useState<string>('');
   const [isDemoMode, setIsDemoMode] = useState(false);
+  const [appMode, setAppMode] = useState<AppMode>('offline');
+  const [isAppConfigured, setIsAppConfigured] = useState(false);
   
   // Data states
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -56,11 +60,65 @@ export const App: React.FC = () => {
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    checkAuthStatus();
+    checkInitialConfiguration();
   }, []);
+
+  const checkInitialConfiguration = async () => {
+    try {
+      // Vérifier si l'application a été configurée
+      const configured = ConfigService.isConfigured();
+      const mode = ConfigService.getMode();
+      
+      setIsAppConfigured(configured);
+      setAppMode(mode);
+      
+      if (configured) {
+        console.log(`Application configurée en mode: ${mode}`);
+        setCurrentView('auth');
+        await checkAuthStatus();
+      } else {
+        console.log('Première exécution - configuration nécessaire');
+        setCurrentView('initial_setup');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la vérification de la configuration:', error);
+      setCurrentView('initial_setup');
+    }
+  };
+
+  const handleInitialSetup = async (mode: AppMode) => {
+    try {
+      console.log(`Configuration initiale: mode ${mode}`);
+      
+      // Sauvegarder la configuration
+      ConfigService.configureApp(mode);
+      
+      // Mettre à jour l'état local
+      setAppMode(mode);
+      setIsAppConfigured(true);
+      
+      // Rediriger vers l'authentification
+      setCurrentView('auth');
+      
+      // Si mode offline, charger les données de démo par défaut
+      if (mode === 'offline') {
+        setIsDemoMode(false); // Mode offline avec vraies données locales
+      }
+      
+    } catch (error) {
+      console.error('Erreur lors de la configuration initiale:', error);
+      setError('Erreur lors de la sauvegarde de la configuration');
+    }
+  };
 
   const checkAuthStatus = async () => {
     try {
+      // En mode offline, on utilise uniquement l'authentification locale
+      if (appMode === 'offline') {
+        setCurrentView('auth');
+        return;
+      }
+      
       const user = supabaseService.getCurrentUser();
       const institution = supabaseService.getCurrentInstitution();
       
@@ -297,75 +355,69 @@ export const App: React.FC = () => {
       setError('');
 
       if (credentials.mode === 'login') {
-        // Mode développement - utiliser l'authentification locale sécurisée
-        const authResult = await window.electronAPI.login({
-          username: credentials.email,
-          password: credentials.password
-        });
+        // En mode offline, utiliser une authentification simplifiée
+        if (appMode === 'offline') {
+          console.log('Mode offline - authentification simplifiée');
+          
+          // Authentification simplifiée - accepter quelques identifiants par défaut
+          const validCredentials = [
+            { email: 'admin@local', password: 'admin' },
+            { email: 'bibliothecaire@local', password: 'biblio' },
+            { email: 'test@local', password: 'test' }
+          ];
+          
+          const isValidCredential = validCredentials.some(
+            cred => cred.email === credentials.email && cred.password === credentials.password
+          );
+          
+          if (isValidCredential || credentials.password === 'demo') {
+            // Créer un utilisateur local basé sur l'email
+            const emailParts = credentials.email.split('@')[0].split('.');
+            const localUser: User = {
+              id: Date.now().toString(),
+              firstName: emailParts[0]?.charAt(0).toUpperCase() + emailParts[0]?.slice(1) || 'Utilisateur',
+              lastName: emailParts[1]?.charAt(0).toUpperCase() + emailParts[1]?.slice(1) || 'Local',
+              email: credentials.email,
+              role: credentials.email.includes('admin') ? 'admin' : 
+                    credentials.email.includes('bibliothecaire') ? 'librarian' : 'user'
+            };
 
-        if (authResult.success && authResult.user) {
-          // Convertir le User local vers le format Supabase pour compatibilité
-          const localUser: User = {
-            id: authResult.user.id.toString(),
-            firstName: authResult.user.username?.split('.')[0] || 'Utilisateur',
-            lastName: authResult.user.username?.split('.')[1] || 'Local',
-            email: credentials.email, // Utiliser l'email saisi
-            role: (authResult.user.role as 'super_admin' | 'admin' | 'librarian' | 'user') || 'user'
-          };
+            // Institution locale par défaut
+            const localInstitution: Institution = {
+              id: 'offline-institution',
+              name: 'Ma Bibliothèque',
+              code: 'OFFLINE',
+              address: '',
+              city: '',
+              country: '',
+              phone: '',
+              email: '',
+              website: '',
+              logo: '',
+              description: 'Institution locale (mode hors ligne)',
+              type: 'library',
+              status: 'active',
+              subscription_plan: 'basic',
+              max_books: 10000,
+              max_users: 100,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            };
 
-          // Institution locale par défaut
-          const localInstitution: Institution = {
-            id: 'local-institution',
-            name: process.env.DEFAULT_INSTITUTION_NAME || 'Ma Bibliothèque',
-            code: 'LOCAL',
-            address: '',
-            city: '',
-            country: 'France',
-            phone: '',
-            email: process.env.DEFAULT_INSTITUTION_EMAIL || '',
-            website: '',
-            logo: '',
-            description: 'Institution locale',
-            type: 'library',
-            status: 'active',
-            subscription_plan: 'basic',
-            max_books: 10000,
-            max_users: 100,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          };
-
-          setCurrentUser(localUser);
-          setCurrentInstitution(localInstitution);
-          setIsAuthenticated(true);
-          setIsDemoMode(false); // Mode local sécurisé, pas de démo
-          setCurrentView('dashboard');
-          await loadData(); // Charger les vraies données, pas les données de démo
-          return;
-        } else {
-          throw new Error(authResult.error || 'Échec de l\'authentification locale');
-        }
-
-        // Connexion normale via Supabase
-        const result = await supabaseService.signIn(credentials.email, credentials.password);
-        if (!result.success) {
-          throw new Error(result.error);
-        }
-
-        // Vérifier le code d'établissement
-        const institutionCode = credentials.institutionCode?.trim();
-        if (institutionCode && institutionCode !== '') {
-          const switchSuccess = await supabaseService.switchInstitution(institutionCode as string);
-          if (!switchSuccess) {
-            throw new Error('Code d\'établissement invalide ou accès non autorisé');
+            setCurrentUser(localUser);
+            setCurrentInstitution(localInstitution);
+            setIsAuthenticated(true);
+            setIsDemoMode(false);
+            setCurrentView('dashboard');
+            await loadData();
+            return;
+          } else {
+            throw new Error('Identifiants incorrects. Utilisez: admin@local/admin, bibliothecaire@local/biblio, test@local/test ou tout mot de passe "demo"');
           }
         }
 
-        setCurrentUser(result.user!);
-        setCurrentInstitution(supabaseService.getCurrentInstitution());
-        setIsAuthenticated(true);
-        setCurrentView('dashboard');
-        await loadData();
+        // Mode online (désactivé pour cette version)
+        throw new Error('Le mode en ligne n\'est pas encore disponible dans cette version.');
 
       } else if (credentials.mode === 'register') {
         // Inscription avec code d'établissement
@@ -663,6 +715,11 @@ export const App: React.FC = () => {
 
   // Gérer l'affichage avec TitleBar toujours visible
   const renderAuthenticatedContent = () => {
+    // Écran de configuration initiale
+    if (currentView === 'initial_setup') {
+      return <InitialSetup onComplete={handleInitialSetup} />;
+    }
+
     if (!isAuthenticated) {
       if (currentView === 'institution_setup') {
         return (

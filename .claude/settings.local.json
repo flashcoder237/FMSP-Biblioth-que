@@ -10,7 +10,8 @@
       "Bash(mv:*)",
       "Bash(git restore:*)",
       "Bash(tail:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(timeout 8 npm start)"
     ],
     "deny": []
   }
