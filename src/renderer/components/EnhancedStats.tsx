@@ -65,7 +65,7 @@ export const EnhancedStats: React.FC<EnhancedStatsProps> = ({ stats, className =
     {
       id: 'total',
       title: 'Collection Totale',
-      value: stats.totalBooks,
+      value: stats.totalDocuments,
       icon: Book,
       color: '#3E5C49',
       gradient: 'linear-gradient(135deg, #3E5C49 0%, #4A6A55 100%)',
@@ -76,22 +76,22 @@ export const EnhancedStats: React.FC<EnhancedStatsProps> = ({ stats, className =
     {
       id: 'available',
       title: 'Disponibles',
-      value: stats.availableBooks,
+      value: stats.availableDocuments,
       icon: BookOpen,
       color: '#10B981',
       gradient: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)',
       description: 'Prêts à être empruntés',
-      percentage: stats.totalBooks > 0 ? Math.round((stats.availableBooks / stats.totalBooks) * 100) : 0
+      percentage: stats.totalDocuments > 0 ? Math.round((stats.availableDocuments / stats.totalDocuments) * 100) : 0
     },
     {
       id: 'borrowed',
       title: 'En Circulation',
-      value: stats.borrowedBooks,
+      value: stats.borrowedDocuments,
       icon: Clock,
       color: '#F59E0B',
       gradient: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)',
       description: 'Actuellement empruntés',
-      percentage: stats.totalBooks > 0 ? Math.round((stats.borrowedBooks / stats.totalBooks) * 100) : 0
+      percentage: stats.totalDocuments > 0 ? Math.round((stats.borrowedDocuments / stats.totalDocuments) * 100) : 0
     },
     {
       id: 'borrowers',
@@ -125,9 +125,9 @@ export const EnhancedStats: React.FC<EnhancedStatsProps> = ({ stats, className =
 
   // Calculate library efficiency metrics
   const efficiency = {
-    utilization: stats.totalBooks > 0 ? Math.round((stats.borrowedBooks / stats.totalBooks) * 100) : 0,
-    availability: stats.totalBooks > 0 ? Math.round((stats.availableBooks / stats.totalBooks) * 100) : 0,
-    activity: stats.totalBorrowers > 0 ? Math.round((stats.borrowedBooks / stats.totalBorrowers) * 100) : 0
+    utilization: stats.totalDocuments > 0 ? Math.round((stats.borrowedDocuments / stats.totalDocuments) * 100) : 0,
+    availability: stats.totalDocuments > 0 ? Math.round((stats.availableDocuments / stats.totalDocuments) * 100) : 0,
+    activity: stats.totalBorrowers > 0 ? Math.round((stats.borrowedDocuments / stats.totalBorrowers) * 100) : 0
   };
 
   return (

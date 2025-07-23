@@ -103,7 +103,7 @@ export interface Borrower {
 
 export interface BorrowHistory {
   id?: number;
-  bookId: number;
+  documentId: number;
   borrowerId: number;
   borrowDate: string;
   expectedReturnDate: string;
@@ -111,7 +111,7 @@ export interface BorrowHistory {
   status: 'active' | 'returned' | 'overdue';
   notes?: string;
   // Données jointes
-  book?: Book;
+  document?: Document;
   borrower?: Borrower;
   // Synchronisation
   localId?: string;
@@ -124,9 +124,9 @@ export interface BorrowHistory {
 }
 
 export interface Stats {
-  totalBooks: number;
-  borrowedBooks: number;
-  availableBooks: number;
+  totalDocuments: number;
+  borrowedDocuments: number;
+  availableDocuments: number;
   totalAuthors: number;
   totalCategories: number;
   totalBorrowers: number;

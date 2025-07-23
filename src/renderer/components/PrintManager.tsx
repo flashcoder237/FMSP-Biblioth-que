@@ -41,7 +41,7 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
       icon: FileText,
       color: '#3E5C49',
       gradient: 'linear-gradient(135deg, #3E5C49 0%, #2E453A 100%)',
-      count: stats.totalBooks,
+      count: stats.totalDocuments,
       features: ['Informations complètes', 'Statuts des emprunts', 'Métadonnées']
     },
     {
@@ -51,7 +51,7 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
       icon: BookOpen,
       color: '#3E5C49',
       gradient: 'linear-gradient(135deg, #3E5C49 0%, #4A6B57 100%)',
-      count: stats.availableBooks,
+      count: stats.availableDocuments,
       features: ['Documents en rayon', 'Prêts à emprunter', 'Tri par catégorie']
     },
     {
@@ -61,7 +61,7 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
       icon: Clock,
       color: '#C2571B',
       gradient: 'linear-gradient(135deg, #C2571B 0%, #A8481A 100%)',
-      count: stats.borrowedBooks,
+      count: stats.borrowedDocuments,
       features: ['Noms des emprunteurs', 'Dates d\'emprunt', 'Alertes retard']
     }
   ];
@@ -127,21 +127,21 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
         return {
           title: 'Inventaire Complet',
           items: books,
-          description: `${stats.totalBooks} document(s) au total`,
+          description: `${stats.totalDocuments} document(s) au total`,
           icon: BarChart3
         };
       case 'available':
         return {
           title: 'Documents Disponibles',
           items: books.filter(book => !book.isBorrowed),
-          description: `${stats.availableBooks} document(s) disponible(s)`,
+          description: `${stats.availableDocuments} document(s) disponible(s)`,
           icon: BookOpen
         };
       case 'borrowed':
         return {
           title: 'Documents Empruntés',
           items: books.filter(book => book.isBorrowed),
-          description: `${stats.borrowedBooks} document(s) emprunté(s)`,
+          description: `${stats.borrowedDocuments} document(s) emprunté(s)`,
           icon: Clock
         };
     }

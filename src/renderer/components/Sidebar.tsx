@@ -65,7 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
       label: 'Ma Collection', 
       icon: Book,
       description: 'Parcourir tous les documents',
-      count: stats.totalBooks,
+      count: stats.totalDocuments,
       gradient: 'linear-gradient(135deg, #3E5C49 0%, #4A6B57 100%)'
     },
     { 
@@ -73,8 +73,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
       label: 'Emprunts Actifs', 
       icon: BookOpen,
       description: 'Documents actuellement empruntés',
-      count: stats.borrowedBooks,
-      badge: stats.borrowedBooks > 0,
+      count: stats.borrowedDocuments,
+      badge: stats.borrowedDocuments > 0,
       urgent: stats.overdueBooks > 0,
       gradient: 'linear-gradient(135deg, #C2571B 0%, #A8481A 100%)'
     }
@@ -132,24 +132,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
   const quickStats = [
     {
       label: 'Collection',
-      value: stats.totalBooks,
+      value: stats.totalDocuments,
       icon: Book,
       color: '#3E5C49',
       trend: '+2 ce mois'
     },
     {
       label: 'Disponibles',
-      value: stats.availableBooks,
+      value: stats.availableDocuments,
       icon: BookOpen,
       color: '#3E5C49',
-      percentage: stats.totalBooks > 0 ? Math.round((stats.availableBooks / stats.totalBooks) * 100) : 0
+      percentage: stats.totalDocuments > 0 ? Math.round((stats.availableDocuments / stats.totalDocuments) * 100) : 0
     },
     {
       label: 'Empruntés',
-      value: stats.borrowedBooks,
+      value: stats.borrowedDocuments,
       icon: BarChart3,
       color: '#C2571B',
-      percentage: stats.totalBooks > 0 ? Math.round((stats.borrowedBooks / stats.totalBooks) * 100) : 0
+      percentage: stats.totalDocuments > 0 ? Math.round((stats.borrowedDocuments / stats.totalDocuments) * 100) : 0
     },
     {
       label: 'En retard',
@@ -176,8 +176,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
   ];
 
   const getPopularityScore = () => {
-    if (stats.totalBooks === 0) return 0;
-    return Math.round((stats.borrowedBooks / stats.totalBooks) * 100);
+    if (stats.totalDocuments === 0) return 0;
+    return Math.round((stats.borrowedDocuments / stats.totalDocuments) * 100);
   };
 
   return (
@@ -248,7 +248,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
                       </>
                     )}
                     
-                    {isCollapsed && item.badge && stats.borrowedBooks > 0 && (
+                    {isCollapsed && item.badge && stats.borrowedDocuments > 0 && (
                       <div className={`nav-indicator ${item.urgent ? 'urgent' : ''}`}></div>
                     )}
                   </button>
@@ -426,11 +426,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
               <div className="activity-summary">
                 <div className="activity-item">
                   <div className="activity-dot available"></div>
-                  <span>{stats.availableBooks} documents prêts à emprunter</span>
+                  <span>{stats.availableDocuments} documents prêts à emprunter</span>
                 </div>
                 <div className="activity-item">
                   <div className="activity-dot borrowed"></div>
-                  <span>{stats.borrowedBooks} emprunts en cours</span>
+                  <span>{stats.borrowedDocuments} emprunts en cours</span>
                 </div>
                 {stats.overdueBooks > 0 && (
                   <div className="activity-item urgent">

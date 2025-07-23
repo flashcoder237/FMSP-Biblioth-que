@@ -56,18 +56,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const quickActions = [
     {
       title: 'Collection complète',
-      description: `${stats.totalBooks} documents disponibles`,
+      description: `${stats.totalDocuments} documents disponibles`,
       icon: Book,
       action: () => onNavigate('documents'),
       color: '#3E5C49'
     },
     {
       title: 'Gérer les emprunts',
-      description: `${stats.borrowedBooks} document(s) emprunté(s)`,
+      description: `${stats.borrowedDocuments} document(s) emprunté(s)`,
       icon: BookOpen,
       action: () => onNavigate('borrowed'),
       color: '#C2571B',
-      badge: stats.borrowedBooks > 0
+      badge: stats.borrowedDocuments > 0
     },
     {
       title: 'Rapports & Export',
@@ -81,24 +81,24 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const mainStats = [
     {
       title: 'Total des documents',
-      value: stats.totalBooks,
+      value: stats.totalDocuments,
       icon: Book,
       color: '#3E5C49',
       trend: '+2 ce mois'
     },
     {
       title: 'Disponibles',
-      value: stats.availableBooks,
+      value: stats.availableDocuments,
       icon: BookOpen,
       color: '#3E5C49',
-      percentage: stats.totalBooks > 0 ? ((stats.availableBooks / stats.totalBooks) * 100).toFixed(0) : 0
+      percentage: stats.totalDocuments > 0 ? ((stats.availableDocuments / stats.totalDocuments) * 100).toFixed(0) : 0
     },
     {
       title: 'Empruntés',
-      value: stats.borrowedBooks,
+      value: stats.borrowedDocuments,
       icon: Clock,
       color: '#C2571B',
-      percentage: stats.totalBooks > 0 ? ((stats.borrowedBooks / stats.totalBooks) * 100).toFixed(0) : 0
+      percentage: stats.totalDocuments > 0 ? ((stats.borrowedDocuments / stats.totalDocuments) * 100).toFixed(0) : 0
     },
     {
       title: 'Auteurs',
@@ -133,7 +133,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }
   ];
 
-  const borrowRate = stats.totalBooks > 0 ? (stats.borrowedBooks / stats.totalBooks * 100).toFixed(1) : 0;
+  const borrowRate = stats.totalDocuments > 0 ? (stats.borrowedDocuments / stats.totalDocuments * 100).toFixed(1) : 0;
 
   return (
     <div className="dashboard">
@@ -145,7 +145,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="hero-text">
             <h1 className="hero-title">Bienvenue dans votre bibliothèque</h1>
             <p className="hero-subtitle">
-              Gérez votre collection de {stats.totalBooks} documents avec facilité et élégance
+              Gérez votre collection de {stats.totalDocuments} documents avec facilité et élégance
             </p>
             <div className="hero-search">
               <SmartSearch 
@@ -180,11 +180,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
               <div className="card-stats">
                 <div className="stat">
-                  <span className="stat-number">{stats.totalBooks}</span>
+                  <span className="stat-number">{stats.totalDocuments}</span>
                   <span className="stat-label">Documents</span>
                 </div>
                 <div className="stat">
-                  <span className="stat-number">{stats.borrowedBooks}</span>
+                  <span className="stat-number">{stats.borrowedDocuments}</span>
                   <span className="stat-label">Empruntés</span>
                 </div>
               </div>

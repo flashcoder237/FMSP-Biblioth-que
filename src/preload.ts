@@ -143,7 +143,7 @@ export interface Borrower {
 
 export interface BorrowHistory {
   id?: number;
-  bookId: number;
+  documentId: number;
   borrowerId: number;
   borrowDate: string;
   expectedReturnDate: string;
@@ -159,14 +159,14 @@ export interface BorrowHistory {
   deletedAt?: string;
   createdAt?: string;
   // Relations
-  book?: Book;
+  document?: Document;
   borrower?: Borrower;
 }
 
 export interface Stats {
-  totalBooks: number;
-  borrowedBooks: number;
-  availableBooks: number;
+  totalDocuments: number;
+  borrowedDocuments: number;
+  availableDocuments: number;
   totalAuthors: number;
   totalCategories: number;
   totalBorrowers: number;
@@ -181,7 +181,7 @@ export interface HistoryFilter {
   borrowerType?: 'all' | 'student' | 'staff';
   status?: 'all' | 'active' | 'returned' | 'overdue';
   borrowerId?: number;
-  bookId?: number;
+  documentId?: number;
 }
 
 // Interfaces pour les paramètres
@@ -454,9 +454,9 @@ const electronAPI = {
   
   // Statistics
   getStats: (): Promise<Stats> => ipcRenderer?.invoke('db:getStats') || Promise.resolve({
-    totalBooks: 0,
-    borrowedBooks: 0,
-    availableBooks: 0,
+    totalDocuments: 0,
+    borrowedDocuments: 0,
+    availableDocuments: 0,
     totalAuthors: 0,
     totalCategories: 0,
     totalBorrowers: 0,

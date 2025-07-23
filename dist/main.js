@@ -1419,9 +1419,9 @@ const electronAPI = {
     getBorrowHistory: (filter) => electron_1.ipcRenderer?.invoke('db:getBorrowHistory', filter) || Promise.resolve([]),
     // Statistics
     getStats: () => electron_1.ipcRenderer?.invoke('db:getStats') || Promise.resolve({
-        totalBooks: 0,
-        borrowedBooks: 0,
-        availableBooks: 0,
+        totalDocuments: 0,
+        borrowedDocuments: 0,
+        availableDocuments: 0,
         totalAuthors: 0,
         totalCategories: 0,
         totalBorrowers: 0,
@@ -2849,7 +2849,7 @@ class DatabaseService {
                 this.db.run(`
           CREATE TABLE IF NOT EXISTS borrow_history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            bookId INTEGER NOT NULL,
+            documentId INTEGER NOT NULL,
             borrowerId INTEGER NOT NULL,
             borrowDate DATETIME NOT NULL,
             expectedReturnDate DATETIME NOT NULL,
@@ -2864,7 +2864,7 @@ class DatabaseService {
             version INTEGER DEFAULT 1,
             deletedAt DATETIME,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (bookId) REFERENCES documents(id),
+            FOREIGN KEY (documentId) REFERENCES documents(id),
             FOREIGN KEY (borrowerId) REFERENCES borrowers(id)
           )
         `);
@@ -3197,17 +3197,17 @@ class DatabaseService {
         });
     }
     // Gestion des emprunts
-    async borrowBook(bookId, borrowerId, expectedReturnDate) {
+    async borrowDocument(documentId, borrowerId, expectedReturnDate) {
         return new Promise((resolve, reject) => {
             const borrowDate = new Date().toISOString();
             const database = this.db; // Capturer this.db dans une variable locale
             database.serialize(() => {
                 database.run('BEGIN TRANSACTION');
                 const stmt1 = database.prepare(`
-        INSERT INTO borrow_history (bookId, borrowerId, borrowDate, expectedReturnDate, status)
+        INSERT INTO borrow_history (documentId, borrowerId, borrowDate, expectedReturnDate, status)
         VALUES (?, ?, ?, ?, 'active')
       `);
-                stmt1.run([bookId, borrowerId, borrowDate, expectedReturnDate], function (err) {
+                stmt1.run([documentId, borrowerId, borrowDate, expectedReturnDate], function (err) {
                     if (err) {
                         database.run('ROLLBACK');
                         reject(err);
@@ -3222,7 +3222,7 @@ class DatabaseService {
             dateRetourPrevu = ?
           WHERE id = ?
         `);
-                    stmt2.run([borrowerId, borrowDate, expectedReturnDate, bookId], (err) => {
+                    stmt2.run([borrowerId, borrowDate, expectedReturnDate, documentId], (err) => {
                         if (err) {
                             database.run('ROLLBACK');
                             reject(err);
@@ -3237,6 +3237,10 @@ class DatabaseService {
                 stmt1.finalize();
             });
         });
+    }
+    // Legacy method for backward compatibility
+    async borrowBook(bookId, borrowerId, expectedReturnDate) {
+        return this.borrowDocument(bookId, borrowerId, expectedReturnDate);
     }
     async returnBook(borrowHistoryId, notes) {
         return new Promise((resolve, reject) => {
@@ -4732,10 +4736,6 @@ class SupabaseService {
         console.log('searchDocuments appelé avec query:', query);
         return [];
     }
-    async borrowDocument(documentId, borrowerId, expectedReturnDate) {
-        console.log('borrowDocument appelé avec:', { documentId, borrowerId, expectedReturnDate });
-        return 1; // ID de l'emprunt fictif
-    }
     // Borrowers Management - Méthodes simplifiées
     async getBorrowers() {
         console.log('getBorrowers appelé');
@@ -4795,9 +4795,9 @@ class SupabaseService {
     async getStats() {
         console.log('getStats appelé');
         return {
-            totalBooks: 0,
-            borrowedBooks: 0,
-            availableBooks: 0,
+            totalDocuments: 0,
+            borrowedDocuments: 0,
+            availableDocuments: 0,
             totalAuthors: 0,
             totalCategories: 0,
             totalBorrowers: 0,
@@ -4884,6 +4884,14 @@ class SupabaseService {
     }
     async deleteBorrowHistory(id) {
         console.log('deleteBorrowHistory appelé avec ID:', id);
+        return true;
+    }
+    async borrowDocument(documentId, borrowerId, returnDate) {
+        console.log('borrowDocument appelé avec:', { documentId, borrowerId, returnDate });
+        return true;
+    }
+    async returnDocument(documentId) {
+        console.log('returnDocument appelé avec ID:', documentId);
         return true;
     }
 }

@@ -152,7 +152,7 @@ export class DatabaseService {
         this.db.run(`
           CREATE TABLE IF NOT EXISTS borrow_history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            bookId INTEGER NOT NULL,
+            documentId INTEGER NOT NULL,
             borrowerId INTEGER NOT NULL,
             borrowDate DATETIME NOT NULL,
             expectedReturnDate DATETIME NOT NULL,
@@ -167,7 +167,7 @@ export class DatabaseService {
             version INTEGER DEFAULT 1,
             deletedAt DATETIME,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (bookId) REFERENCES documents(id),
+            FOREIGN KEY (documentId) REFERENCES documents(id),
             FOREIGN KEY (borrowerId) REFERENCES borrowers(id)
           )
         `);
@@ -518,7 +518,7 @@ export class DatabaseService {
   
 
   // Gestion des emprunts
- async borrowBook(bookId: number, borrowerId: number, expectedReturnDate: string): Promise<number> {
+ async borrowDocument(documentId: number, borrowerId: number, expectedReturnDate: string): Promise<number> {
   return new Promise((resolve, reject) => {
     const borrowDate = new Date().toISOString();
     const database = this.db; // Capturer this.db dans une variable locale
@@ -527,11 +527,11 @@ export class DatabaseService {
       database.run('BEGIN TRANSACTION');
       
       const stmt1 = database.prepare(`
-        INSERT INTO borrow_history (bookId, borrowerId, borrowDate, expectedReturnDate, status)
+        INSERT INTO borrow_history (documentId, borrowerId, borrowDate, expectedReturnDate, status)
         VALUES (?, ?, ?, ?, 'active')
       `);
       
-      stmt1.run([bookId, borrowerId, borrowDate, expectedReturnDate], function(this: sqlite3.RunResult, err: Error | null) {
+      stmt1.run([documentId, borrowerId, borrowDate, expectedReturnDate], function(this: sqlite3.RunResult, err: Error | null) {
         if (err) {
           database.run('ROLLBACK');
           reject(err);
@@ -549,7 +549,7 @@ export class DatabaseService {
           WHERE id = ?
         `);
         
-        stmt2.run([borrowerId, borrowDate, expectedReturnDate, bookId], (err: Error | null) => {
+        stmt2.run([borrowerId, borrowDate, expectedReturnDate, documentId], (err: Error | null) => {
           if (err) {
             database.run('ROLLBACK');
             reject(err);
@@ -566,6 +566,11 @@ export class DatabaseService {
     });
   });
 }
+
+  // Legacy method for backward compatibility
+  async borrowBook(bookId: number, borrowerId: number, expectedReturnDate: string): Promise<number> {
+    return this.borrowDocument(bookId, borrowerId, expectedReturnDate);
+  }
 
   async returnBook(borrowHistoryId: number, notes?: string): Promise<boolean> {
   return new Promise((resolve, reject) => {

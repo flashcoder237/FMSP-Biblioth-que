@@ -90,8 +90,8 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(item =>
-        item.book?.title.toLowerCase().includes(query) ||
-        item.book?.author.toLowerCase().includes(query) ||
+        item.document?.titre.toLowerCase().includes(query) ||
+        item.document?.auteur.toLowerCase().includes(query) ||
         `${item.borrower?.firstName} ${item.borrower?.lastName}`.toLowerCase().includes(query) ||
         item.borrower?.matricule.toLowerCase().includes(query)
       );
@@ -373,17 +373,17 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
                   <div className="item-content">
                     <div className="book-section">
                       <div className="book-cover">
-                        {item.book?.coverUrl ? (
-                          <img src={item.book.coverUrl} alt={item.book.title} />
+                        {item.document?.couverture ? (
+                          <img src={item.document?.couverture} alt={item.document?.titre} />
                         ) : (
                           <Book size={24} />
                         )}
                       </div>
                       
                       <div className="book-details">
-                        <h4 className="book-title">{item.book?.title}</h4>
-                        <p className="book-author">par {item.book?.author}</p>
-                        <span className="book-category">{item.book?.category}</span>
+                        <h4 className="book-title">{item.document?.titre}</h4>
+                        <p className="book-author">par {item.document?.auteur}</p>
+                        <span className="book-category">{item.document?.descripteurs}</span>
                       </div>
                     </div>
                     

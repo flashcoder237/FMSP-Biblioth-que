@@ -22,7 +22,8 @@ import {
   Loader2,
   Filter,
   LayoutGrid,
-  Layers
+  Layers,
+  Heart
 } from 'lucide-react';
 import { Book3DView } from './Book3DView';
 import { useQuickToast } from './ToastSystem';
@@ -31,6 +32,7 @@ interface DocumentListProps {
   documents: Document[];
   onAdd: () => void;
   onEdit: (document: Document) => void;
+  onBorrow?: (document: Document) => void;
   onDelete: (id: number) => void;
   onRefresh: () => void;
   syncStatus: SyncStatus;
@@ -41,6 +43,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
   documents,
   onAdd,
   onEdit,
+  onBorrow,
   onDelete,
   onRefresh,
   syncStatus,
@@ -116,7 +119,15 @@ export const DocumentList: React.FC<DocumentListProps> = ({
 
   const handleEdit = (document: Document) => {
     onEdit(document);
-    toast.info('Ouverture du formulaire d\'emprunt', `Pour "${document.titre}"`);
+    toast.info('Ouverture du formulaire de modification', `Pour "${document.titre}"`);
+  };
+
+  const handleBorrow = (document: Document) => {
+    if (onBorrow) {
+      onBorrow(document);
+      const action = document.estEmprunte ? 'retourné' : 'emprunté';
+      toast.success(`Document ${action}`, `"${document.titre}" a été ${action} avec succès`);
+    }
   };
 
   const handleDelete = (id: number) => {
@@ -361,6 +372,16 @@ export const DocumentList: React.FC<DocumentListProps> = ({
                   </div>
                   
                   <div className="document-actions">
+                    {onBorrow && (
+                      <button
+                        onClick={() => handleBorrow(document)}
+                        className="action-button borrow-button"
+                        title={document.estEmprunte ? "Retourner" : "Emprunter"}
+                        disabled={!document.estEmprunte && document.syncStatus === 'error'}
+                      >
+                        <Heart size={16} />
+                      </button>
+                    )}
                     <button
                       onClick={() => onEdit(document)}
                       className="action-button edit-button"
@@ -869,6 +890,21 @@ export const DocumentList: React.FC<DocumentListProps> = ({
         .delete-button:hover {
           background: rgba(239, 68, 68, 0.2);
           transform: translateY(-1px);
+        }
+
+        .borrow-button {
+          background: rgba(194, 87, 27, 0.1);
+          color: #C2571B;
+        }
+
+        .borrow-button:hover:not(:disabled) {
+          background: rgba(194, 87, 27, 0.2);
+          transform: translateY(-1px);
+        }
+
+        .borrow-button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
 
         /* État vide */

@@ -335,10 +335,6 @@ export class SupabaseService {
     return [];
   }
 
-  async borrowDocument(documentId: number, borrowerId: number, expectedReturnDate: string): Promise<number> {
-    console.log('borrowDocument appelé avec:', { documentId, borrowerId, expectedReturnDate });
-    return 1; // ID de l'emprunt fictif
-  }
 
   // Borrowers Management - Méthodes simplifiées
   async getBorrowers(): Promise<Borrower[]> {
@@ -412,9 +408,9 @@ export class SupabaseService {
   async getStats(): Promise<Stats> {
     console.log('getStats appelé');
     return {
-      totalBooks: 0,
-      borrowedBooks: 0,
-      availableBooks: 0,
+      totalDocuments: 0,
+      borrowedDocuments: 0,
+      availableDocuments: 0,
       totalAuthors: 0,
       totalCategories: 0,
       totalBorrowers: 0,
@@ -520,4 +516,15 @@ export class SupabaseService {
     console.log('deleteBorrowHistory appelé avec ID:', id);
     return true;
   }
+
+  async borrowDocument(documentId: number, borrowerId: number, returnDate: string): Promise<boolean> {
+    console.log('borrowDocument appelé avec:', { documentId, borrowerId, returnDate });
+    return true;
+  }
+
+  async returnDocument(documentId: number): Promise<boolean> {
+    console.log('returnDocument appelé avec ID:', documentId);
+    return true;
+  }
+
 }

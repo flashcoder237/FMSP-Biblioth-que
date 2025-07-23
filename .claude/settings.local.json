@@ -9,7 +9,8 @@
       "Bash(rm:*)",
       "Bash(mv:*)",
       "Bash(git restore:*)",
-      "Bash(tail:*)"
+      "Bash(tail:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": []
   }

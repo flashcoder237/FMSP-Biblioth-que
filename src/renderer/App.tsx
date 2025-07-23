@@ -6,7 +6,8 @@ import { Dashboard } from './components/Dashboard';
 import { DocumentList } from './components/DocumentList';
 import { BorrowedDocuments } from './components/BorrowedDocuments';
 import { AddDocument } from './components/AddDocument';
-import { Borrowers } from './components/Borrowers';
+import { BorrowDocument } from './components/BorrowDocument';
+import Borrowers from './components/Borrowers';
 import { BorrowHistory } from './components/BorrowHistory';
 import { Settings } from './components/Settings';
 import { Donation } from './components/Donation';
@@ -35,9 +36,9 @@ export const App: React.FC = () => {
   const [borrowers, setBorrowers] = useState<Borrower[]>([]);
   const [borrowedBooks, setBorrowedBooks] = useState<BorrowHistoryType[]>([]);
   const [stats, setStats] = useState<Stats>({
-    totalBooks: 0,
-    borrowedBooks: 0,
-    availableBooks: 0,
+    totalDocuments: 0,
+    borrowedDocuments: 0,
+    availableDocuments: 0,
     totalAuthors: 0,
     totalCategories: 0,
     totalBorrowers: 0,
@@ -49,7 +50,8 @@ export const App: React.FC = () => {
   // Services
   const [supabaseService] = useState(() => new SupabaseService());
   const [showBorrowModal, setShowBorrowModal] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [selectedDocumentForBorrow, setSelectedDocumentForBorrow] = useState<Document | null>(null);
+  const [editingDocument, setEditingDocument] = useState<Document | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
 
@@ -258,9 +260,9 @@ export const App: React.FC = () => {
       ];
 
       const demoStats: Stats = {
-        totalBooks: demoDocuments.length,
-        borrowedBooks: 0,
-        availableBooks: demoDocuments.length,
+        totalDocuments: demoDocuments.length,
+        borrowedDocuments: 0,
+        availableDocuments: demoDocuments.length,
         totalAuthors: demoAuthors.length,
         totalCategories: demoCategories.length,
         totalBorrowers: demoBorrowers.length,
@@ -430,9 +432,9 @@ export const App: React.FC = () => {
       setBorrowers([]);
       setBorrowedBooks([]);
       setStats({
-        totalBooks: 0,
-        borrowedBooks: 0,
-        availableBooks: 0,
+        totalDocuments: 0,
+        borrowedDocuments: 0,
+        availableDocuments: 0,
         totalAuthors: 0,
         totalCategories: 0,
         totalBorrowers: 0,
@@ -465,8 +467,8 @@ export const App: React.FC = () => {
         // Mettre à jour les statistiques
         setStats(prev => ({
           ...prev,
-          totalBooks: updatedDocuments.length,
-          availableBooks: updatedDocuments.length - prev.borrowedBooks
+          totalDocuments: updatedDocuments.length,
+          availableDocuments: updatedDocuments.length - prev.borrowedDocuments
         }));
         
         // Ajouter l'auteur s'il n'existe pas
@@ -499,21 +501,6 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleBorrowDocument = async (documentId: number, borrowerId: number, expectedReturnDate: string) => {
-    if (documentId === undefined || borrowerId === undefined || !expectedReturnDate) {
-      console.error('Invalid arguments for borrowDocument:', { documentId, borrowerId, expectedReturnDate });
-      return;
-    }
-    try {
-      await supabaseService.borrowDocument(documentId, borrowerId, expectedReturnDate);
-      await loadData();
-      setShowBorrowModal(false);
-      setSelectedDocument(null);
-    } catch (error: any) {
-      console.error('Erreur lors de l\'emprunt:', error);
-      throw error;
-    }
-  };
 
   const handleReturnBook = async (borrowHistoryId: number, notes?: string) => {
     if (borrowHistoryId === undefined) {
@@ -539,8 +526,8 @@ export const App: React.FC = () => {
         // Mettre à jour les statistiques
         setStats(prev => ({
           ...prev,
-          totalBooks: updatedDocuments.length,
-          availableBooks: updatedDocuments.length - prev.borrowedBooks
+          totalDocuments: updatedDocuments.length,
+          availableDocuments: updatedDocuments.length - prev.borrowedDocuments
         }));
         
         console.log('Document supprimé en mode démo:', documentId);
@@ -555,14 +542,111 @@ export const App: React.FC = () => {
     }
   };
 
-  const openBorrowModal = (document: Document) => {
-    setSelectedDocument(document);
+  const handleEditDocument = (document: Document) => {
+    setEditingDocument(document);
+    setCurrentView('add-document');
+  };
+
+  const handleBorrowDocument = (document: Document) => {
+    setSelectedDocumentForBorrow(document);
     setShowBorrowModal(true);
   };
 
   const closeBorrowModal = () => {
+    setSelectedDocumentForBorrow(null);
     setShowBorrowModal(false);
-    setSelectedDocument(null);
+  };
+
+  const handleBorrow = async (documentId: number, borrowerId: number, returnDate: string) => {
+    try {
+      if (isDemoMode) {
+        // Mode démo - simuler l'emprunt
+        const updatedDocuments = documents.map(doc => 
+          doc.id === documentId 
+            ? { ...doc, estEmprunte: true, syncStatus: 'synced' as const }
+            : doc
+        );
+        setDocuments(updatedDocuments);
+        
+        // Créer l'entrée d'historique d'emprunt
+        const borrower = borrowers.find(b => b.id === borrowerId);
+        const document = documents.find(d => d.id === documentId);
+        
+        if (borrower && document) {
+          const newBorrowHistory: typeof borrowedBooks[0] = {
+            id: Math.max(...borrowedBooks.map(b => b.id || 0)) + 1,
+            documentId: documentId,
+            borrowerId,
+            borrowDate: new Date().toISOString(),
+            expectedReturnDate: returnDate,
+            actualReturnDate: undefined,
+            status: 'active' as const,
+            document: document,
+            borrower,
+            syncStatus: 'synced' as const,
+            lastModified: new Date().toISOString(),
+            version: 1,
+            createdAt: new Date().toISOString()
+          };
+          
+          setBorrowedBooks(prev => [...prev, newBorrowHistory]);
+          
+          // Mettre à jour les statistiques
+          setStats(prev => ({
+            ...prev,
+            borrowedDocuments: prev.borrowedDocuments + 1,
+            availableDocuments: prev.availableDocuments - 1
+          }));
+        }
+      } else {
+        // Mode normal - utiliser Supabase
+        await supabaseService.borrowDocument(documentId, borrowerId, returnDate);
+        await loadData();
+      }
+      
+      closeBorrowModal();
+    } catch (error) {
+      console.error('Erreur lors de l\'emprunt:', error);
+      throw error;
+    }
+  };
+
+  const handleReturn = async (documentId: number) => {
+    try {
+      if (isDemoMode) {
+        // Mode démo - simuler le retour
+        const updatedDocuments = documents.map(doc => 
+          doc.id === documentId 
+            ? { ...doc, estEmprunte: false, syncStatus: 'synced' as const }
+            : doc
+        );
+        setDocuments(updatedDocuments);
+        
+        // Marquer comme retourné dans l'historique
+        const updatedBorrowHistory = borrowedBooks.map(bh => 
+          bh.documentId === documentId && bh.status === 'active'
+            ? { ...bh, actualReturnDate: new Date().toISOString(), status: 'returned' as const }
+            : bh
+        );
+        setBorrowedBooks(updatedBorrowHistory);
+        
+        // Mettre à jour les statistiques
+        setStats(prev => ({
+          ...prev,
+          borrowedDocuments: prev.borrowedDocuments - 1,
+          availableDocuments: prev.availableDocuments + 1
+        }));
+      } else {
+        // Mode normal - utiliser Supabase
+        await supabaseService.returnDocument(documentId);
+        await loadData();
+      }
+      
+      closeBorrowModal();
+    } catch (error) {
+      console.error('Erreur lors du retour:', error);
+      throw error;
+    }
   };
 
   const refreshData = async () => {
@@ -607,7 +691,8 @@ export const App: React.FC = () => {
           <DocumentList
             documents={documents}
             onAdd={() => setCurrentView('add-document')}
-            onEdit={openBorrowModal}
+            onEdit={handleEditDocument}
+            onBorrow={handleBorrowDocument}
             onDelete={handleDeleteDocument}
             onRefresh={refreshData}
             syncStatus={{} as any}
@@ -618,13 +703,13 @@ export const App: React.FC = () => {
         return (
           <BorrowedDocuments
             documents={borrowedBooks.map(bh => ({
-              ...bh.book!,
+              ...bh.document!,
               nomEmprunteur: `${bh.borrower?.firstName} ${bh.borrower?.lastName}`,
               dateEmprunt: bh.borrowDate,
               dateRetourPrevu: bh.expectedReturnDate
             }))}
             onReturn={(documentId) => {
-              const borrowHistory = borrowedBooks.find(bh => bh.bookId === documentId);
+              const borrowHistory = borrowedBooks.find(bh => bh.documentId === documentId);
               if (borrowHistory) {
                 handleReturnBook(borrowHistory.id!, undefined);
               }
@@ -635,7 +720,11 @@ export const App: React.FC = () => {
         return (
           <AddDocument
             onAdd={handleAddDocument}
-            onCancel={() => setCurrentView('documents')}
+            onCancel={() => {
+              setEditingDocument(null);
+              setCurrentView('documents');
+            }}
+            editingDocument={editingDocument || undefined}
           />
         );
       case 'borrowers':
@@ -643,7 +732,6 @@ export const App: React.FC = () => {
           <Borrowers 
             onClose={() => setCurrentView('dashboard')} 
             onRefreshData={refreshData}
-            supabaseService={supabaseService}
           />
         );
       case 'history':
@@ -694,9 +782,10 @@ export const App: React.FC = () => {
         setError={setError}
         renderCurrentView={renderCurrentView}
         showBorrowModal={showBorrowModal}
-        selectedDocument={selectedDocument}
+        selectedDocumentForBorrow={selectedDocumentForBorrow}
         closeBorrowModal={closeBorrowModal}
-        handleBorrowDocument={handleBorrowDocument}
+        handleBorrow={handleBorrow}
+        handleReturn={handleReturn}
         refreshData={refreshData}
         supabaseService={supabaseService}
         borrowers={borrowers}
@@ -718,9 +807,10 @@ interface AppContentProps {
   setError: (error: string) => void;
   renderCurrentView: () => React.ReactNode;
   showBorrowModal: boolean;
-  selectedDocument: Document | null;
+  selectedDocumentForBorrow: Document | null;
   closeBorrowModal: () => void;
-  handleBorrowDocument: (documentId: number, borrowerId: number, expectedReturnDate: string) => Promise<void>;
+  handleBorrow: (documentId: number, borrowerId: number, returnDate: string) => Promise<void>;
+  handleReturn: (documentId: number) => Promise<void>;
   refreshData: () => Promise<void>;
   supabaseService: SupabaseService;
   borrowers: Borrower[];
@@ -739,9 +829,10 @@ const AppContent: React.FC<AppContentProps> = ({
   setError,
   renderCurrentView,
   showBorrowModal,
-  selectedDocument,
+  selectedDocumentForBorrow,
   closeBorrowModal,
-  handleBorrowDocument,
+  handleBorrow,
+  handleReturn,
   refreshData,
   supabaseService,
   borrowers,
@@ -801,40 +892,15 @@ const AppContent: React.FC<AppContentProps> = ({
             </main>
           </div>
 
-      {/* Enhanced Borrow Modal - utilise le service Supabase */}
-      {showBorrowModal && selectedDocument && (
-        <div className="borrow-modal-overlay">
-          <div className="borrow-modal">
-            <div className="modal-header">
-              <div className="header-content">
-                <div className="header-icon">
-                  <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                    <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.1 3.89 23 5 23H19C20.1 23 21 22.1 21 21V9ZM19 21H5V3H13V9H19V21Z"/>
-                  </svg>
-                </div>
-                <div className="header-text">
-                  <h3>Nouvel emprunt</h3>
-                  <p>Sélectionnez un emprunteur et définissez la durée</p>
-                </div>
-              </div>
-              <button
-                className="modal-close"
-                onClick={closeBorrowModal}
-              >
-                ×
-              </button>
-            </div>
-            
-            <EnhancedBorrowForm
-              document={selectedDocument}
-              borrowers={borrowers}
-              onSubmit={handleBorrowDocument}
-              onCancel={closeBorrowModal}
-              onRefreshBorrowers={refreshData}
-              supabaseService={supabaseService}
-            />
-          </div>
-        </div>
+      {/* Beautiful Borrow Modal */}
+      {showBorrowModal && selectedDocumentForBorrow && (
+        <BorrowDocument
+          document={selectedDocumentForBorrow}
+          borrowers={borrowers}
+          onBorrow={handleBorrow}
+          onReturn={handleReturn}
+          onCancel={closeBorrowModal}
+        />
       )}
       
       <style>{`
