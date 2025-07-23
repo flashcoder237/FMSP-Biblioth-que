@@ -19,7 +19,7 @@ import {
   User,
   Zap
 } from 'lucide-react';
-import { Institution } from '../../services/SupabaseService';
+import { Institution } from '../services/SupabaseClient';
 
 interface InstitutionSetupProps {
   institutionCode: string;

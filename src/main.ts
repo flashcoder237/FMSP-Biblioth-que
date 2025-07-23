@@ -7,6 +7,9 @@ import { BackupService } from './services/BackupService';
 import { AuthService } from './services/AuthService';
 import { ApplicationSettings, SettingsService } from './services/SettingsService';
 import { SyncService } from './services/SyncService';
+import { configService } from './services/ConfigService';
+import { logger } from './services/LoggerService';
+import { validationService } from './services/ValidationService';
 import { AuthCredentials, createBookFromDocument } from './preload';
 import { RunResult } from 'sqlite3';
 
@@ -69,26 +72,39 @@ function createWindow(): void {
 }
 
 app.whenReady().then(async () => {
-  // Initialiser les services
+  // Initialiser les services de base d'abord
   try {
+    // 1. Initialiser la configuration en premier
+    await configService.initialize();
+    logger.info('Configuration initialisée', 'Main');
+    
+    // 2. Initialiser les services principaux
     dbService = new DatabaseService();
     await dbService.initialize();
+    logger.info('Base de données initialisée', 'Main');
     
     backupService = new BackupService(dbService);
     authService = new AuthService();
     settingsService = new SettingsService();
     syncService = new SyncService(dbService);
     
-    // Initialiser le service de synchronisation
+    // 3. Initialiser le service de synchronisation
     await syncService.initialize();
+    logger.info('Service de synchronisation initialisé', 'Main');
     
-    console.log('Services initialisés avec succès');
-    
+    logger.info('Tous les services initialisés avec succès', 'Main');
     createWindow();
+    
   } catch (error) {
-    console.error('Erreur lors de l\'initialisation des services:', error);
-    // Créer la fenêtre même en cas d'erreur pour afficher l'erreur
-    createWindow();
+    logger.error('Erreur critique lors de l\'initialisation des services', 'Main', error as Error);
+    
+    // Essayer de créer la fenêtre même en cas d'erreur pour afficher le problème
+    try {
+      createWindow();
+    } catch (windowError) {
+      logger.error('Impossible de créer la fenêtre', 'Main', windowError as Error);
+      app.quit();
+    }
   }
 
   app.on('activate', () => {
@@ -133,18 +149,49 @@ ipcMain.handle('db:getDocuments', async () => {
 
 ipcMain.handle('db:addDocument', async (_, document) => {
   try {
-    return await dbService.addDocument(document);
+    // Valider les données avant l'ajout
+    const validation = validationService.validateDocument(document);
+    if (!validation.isValid) {
+      logger.warn('Tentative d\'ajout de document avec données invalides', 'IPC', {
+        errors: validation.errors,
+        warnings: validation.warnings
+      });
+      throw new Error(`Données invalides: ${validation.errors.join(', ')}`);
+    }
+
+    // Logger les avertissements s'il y en a
+    if (validation.warnings && validation.warnings.length > 0) {
+      logger.warn('Avertissements lors de l\'ajout de document', 'IPC', {
+        warnings: validation.warnings
+      });
+    }
+
+    const result = await dbService.addDocument(document);
+    logger.info('Document ajouté avec succès', 'IPC', { id: result });
+    return result;
   } catch (error) {
-    console.error('Erreur addDocument:', error);
+    logger.error('Erreur lors de l\'ajout de document', 'IPC', error as Error);
     throw error;
   }
 });
 
 ipcMain.handle('db:updateDocument', async (_, document) => {
   try {
-    return await dbService.updateDocument(document);
+    // Valider les données avant la mise à jour
+    const validation = validationService.validateDocument(document);
+    if (!validation.isValid) {
+      logger.warn('Tentative de mise à jour avec données invalides', 'IPC', {
+        id: document.id,
+        errors: validation.errors
+      });
+      throw new Error(`Données invalides: ${validation.errors.join(', ')}`);
+    }
+
+    const result = await dbService.updateDocument(document);
+    logger.info('Document mis à jour avec succès', 'IPC', { id: document.id });
+    return result;
   } catch (error) {
-    console.error('Erreur updateDocument:', error);
+    logger.error('Erreur lors de la mise à jour de document', 'IPC', error as Error);
     throw error;
   }
 });
@@ -489,6 +536,27 @@ ipcMain.handle('auth:logout', async () => {
   } catch (error) {
     console.error('Erreur auth:logout:', error);
     return false;
+  }
+});
+
+// Configuration Operations
+ipcMain.handle('config:getSupabaseConfig', async () => {
+  try {
+    if (!configService.hasSupabaseConfig()) {
+      logger.warn('Configuration Supabase demandée mais non disponible', 'IPC');
+      return null;
+    }
+
+    const config = configService.get('supabase');
+    logger.debug('Configuration Supabase fournie au renderer', 'IPC');
+    
+    return {
+      url: config.url,
+      key: config.key
+    };
+  } catch (error) {
+    logger.error('Erreur lors de la récupération de la configuration Supabase', 'IPC', error as Error);
+    return null;
   }
 });
 

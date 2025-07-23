@@ -29,7 +29,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_About__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./components/About */ "./src/renderer/components/About.tsx");
 /* harmony import */ var _components_EnhancedAuthentication__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./components/EnhancedAuthentication */ "./src/renderer/components/EnhancedAuthentication.tsx");
 /* harmony import */ var _components_InstitutionSetup__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./components/InstitutionSetup */ "./src/renderer/components/InstitutionSetup.tsx");
-/* harmony import */ var _services_SupabaseService__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../services/SupabaseService */ "./src/services/SupabaseService.ts");
+/* harmony import */ var _services_SupabaseClient__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./services/SupabaseClient */ "./src/renderer/services/SupabaseClient.ts");
 /* harmony import */ var _components_ToastSystem__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./components/ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
 /* harmony import */ var _components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./components/KeyboardShortcuts */ "./src/renderer/components/KeyboardShortcuts.tsx");
 
@@ -77,7 +77,7 @@ const App = () => {
         overdueDocuments: 0
     });
     // Services
-    const [supabaseService] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(() => new _services_SupabaseService__WEBPACK_IMPORTED_MODULE_16__.SupabaseService());
+    const [supabaseService] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(() => new _services_SupabaseClient__WEBPACK_IMPORTED_MODULE_16__.SupabaseRendererService());
     const [showBorrowModal, setShowBorrowModal] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [selectedDocumentForBorrow, setSelectedDocumentForBorrow] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
     const [editingDocument, setEditingDocument] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
@@ -305,76 +305,79 @@ const App = () => {
             setIsLoading(true);
             setError('');
             if (credentials.mode === 'login') {
-                // Mode développement - connexion simplifiée
-                if (credentials.email === 'admin@bibliotheque-dev.local' &&
-                    credentials.password === 'dev123456' &&
-                    credentials.institutionCode === 'DEV-BIBLIO') {
-                    // Simulation d'authentification réussie en mode dev
-                    const devUser = {
-                        id: 'dev-user-1',
-                        email: 'admin@bibliotheque-dev.local',
-                        first_name: 'Admin',
-                        last_name: 'Dev',
-                        role: 'admin',
-                        institution_id: 'dev-institution',
-                        is_active: true,
-                        created_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString(),
-                        last_login: new Date().toISOString()
+                // Mode développement - utiliser l'authentification locale sécurisée
+                const authResult = await window.electronAPI.login({
+                    username: credentials.email,
+                    password: credentials.password
+                });
+                if (authResult.success && authResult.user) {
+                    // Convertir le User local vers le format Supabase pour compatibilité
+                    const localUser = {
+                        id: authResult.user.id.toString(),
+                        firstName: authResult.user.username?.split('.')[0] || 'Utilisateur',
+                        lastName: authResult.user.username?.split('.')[1] || 'Local',
+                        email: credentials.email, // Utiliser l'email saisi
+                        role: authResult.user.role || 'user'
                     };
-                    const devInstitution = {
-                        id: 'dev-institution',
-                        name: 'Bibliothèque de Développement',
-                        code: 'DEV-BIBLIO',
-                        address: '123 Rue du Code',
-                        city: 'DevVille',
+                    // Institution locale par défaut
+                    const localInstitution = {
+                        id: 'local-institution',
+                        name: process.env.DEFAULT_INSTITUTION_NAME || 'Ma Bibliothèque',
+                        code: 'LOCAL',
+                        address: '',
+                        city: '',
                         country: 'France',
-                        phone: '+33 1 23 45 67 89',
-                        email: 'contact@dev-biblio.local',
-                        website: 'https://dev-biblio.local',
+                        phone: '',
+                        email: process.env.DEFAULT_INSTITUTION_EMAIL || '',
+                        website: '',
                         logo: '',
-                        description: 'Bibliothèque de développement pour tests',
-                        type: 'school',
+                        description: 'Institution locale',
+                        type: 'library',
                         status: 'active',
-                        subscription_plan: 'enterprise',
+                        subscription_plan: 'basic',
                         max_books: 10000,
                         max_users: 100,
                         created_at: new Date().toISOString(),
                         updated_at: new Date().toISOString()
                     };
-                    setCurrentUser(devUser);
-                    setCurrentInstitution(devInstitution);
+                    setCurrentUser(localUser);
+                    setCurrentInstitution(localInstitution);
                     setIsAuthenticated(true);
-                    setIsDemoMode(true);
+                    setIsDemoMode(false); // Mode local sécurisé, pas de démo
                     setCurrentView('dashboard');
-                    await loadDemoData();
+                    await loadData(); // Charger les vraies données, pas les données de démo
                     return;
                 }
+                else {
+                    throw new Error(authResult.error || 'Échec de l\'authentification locale');
+                }
                 // Connexion normale via Supabase
-                const result = await supabaseService.signIn(credentials.email, credentials.password);
-                if (!result.success) {
-                    throw new Error(result.error);
-                }
+                // removed by dead control flow
+{}
+                // removed by dead control flow
+{}
                 // Vérifier le code d'établissement
-                if (credentials.institutionCode) {
-                    const switchSuccess = await supabaseService.switchInstitution(credentials.institutionCode);
-                    if (!switchSuccess) {
-                        throw new Error('Code d\'établissement invalide ou accès non autorisé');
-                    }
-                }
-                setCurrentUser(result.user);
-                setCurrentInstitution(supabaseService.getCurrentInstitution());
-                setIsAuthenticated(true);
-                setCurrentView('dashboard');
-                await loadData();
+                // removed by dead control flow
+{}
+                // removed by dead control flow
+{}
+                // removed by dead control flow
+{}
+                // removed by dead control flow
+{}
+                // removed by dead control flow
+{}
+                // removed by dead control flow
+{}
+                // removed by dead control flow
+{}
             }
             else if (credentials.mode === 'register') {
                 // Inscription avec code d'établissement
                 const result = await supabaseService.signUp(credentials.email, credentials.password, {
                     firstName: credentials.userData.firstName,
                     lastName: credentials.userData.lastName,
-                    institutionCode: credentials.institutionCode,
-                    role: credentials.userData.role
+                    institutionCode: credentials.institutionCode || 'DEFAULT'
                 });
                 if (!result.success) {
                     throw new Error(result.error);
@@ -390,7 +393,7 @@ const App = () => {
                 const adminResult = await supabaseService.signUp(credentials.email, credentials.password, {
                     firstName: credentials.userData.admin.firstName,
                     lastName: credentials.userData.admin.lastName,
-                    role: 'admin'
+                    institutionCode: credentials.userData.institution.code || 'DEFAULT'
                 });
                 if (!adminResult.success) {
                     throw new Error(adminResult.error);
@@ -490,7 +493,7 @@ const App = () => {
             return;
         }
         try {
-            await supabaseService.returnBook(borrowHistoryId, notes);
+            await supabaseService.returnBook(borrowHistoryId.toString(), notes);
             await loadData();
         }
         catch (error) {
@@ -514,7 +517,7 @@ const App = () => {
             }
             else {
                 // Mode normal - utiliser Supabase
-                await supabaseService.deleteDocument(documentId);
+                await supabaseService.deleteDocument(documentId.toString());
                 await loadData();
             }
         }
@@ -573,7 +576,11 @@ const App = () => {
             }
             else {
                 // Mode normal - utiliser Supabase
-                await supabaseService.borrowDocument(documentId, borrowerId, returnDate);
+                await supabaseService.borrowDocument({
+                    documentId: documentId.toString(),
+                    borrowerId: borrowerId.toString(),
+                    expectedReturnDate: returnDate
+                });
                 await loadData();
             }
             closeBorrowModal();
@@ -605,7 +612,7 @@ const App = () => {
             }
             else {
                 // Mode normal - utiliser Supabase
-                await supabaseService.returnDocument(documentId);
+                await supabaseService.returnDocument(documentId.toString());
                 await loadData();
             }
             closeBorrowModal();
@@ -8718,26 +8725,9 @@ const EnhancedAuthentication = ({ onLogin }) => {
             window.removeEventListener('offline', handleOnlineStatus);
         };
     }, []);
-    // Connexion rapide pour le développement
+    // Mode sécurisé - pas de connexion développement avec identifiants hardcodés
     const handleDevLogin = async () => {
-        setError('');
-        setSuccess('');
-        setIsLoading(true);
-        try {
-            await onLogin({
-                email: 'admin@bibliotheque-dev.local',
-                password: 'dev123456',
-                institutionCode: 'DEV-BIBLIO',
-                mode: 'login'
-            });
-        }
-        catch (error) {
-            console.error('Connexion dev échouée:', error);
-            setError('Erreur de connexion développement');
-        }
-        finally {
-            setIsLoading(false);
-        }
+        setError('La connexion de développement a été désactivée pour des raisons de sécurité. Veuillez utiliser vos identifiants ou créer un nouveau compte.');
     };
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -8827,7 +8817,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
         { value: 'librarian', label: 'Bibliothécaire', description: 'Gestion des livres et emprunts' },
         { value: 'admin', label: 'Administrateur', description: 'Accès complet au système' }
     ];
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "enhanced-auth", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-background", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-pattern" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-elements", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-book" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-book" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-book" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-branding", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "brand-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 48 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "brand-title", children: "Biblioth\u00E8que Cloud" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "brand-subtitle", children: "Syst\u00E8me de gestion moderne et collaboratif" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "features-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Multi-\u00E9tablissements" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Synchronisation cloud" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "S\u00E9curis\u00E9 et fiable" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Accessible partout" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `connection-status ${isOnline ? 'online' : 'offline'}`, children: [isOnline ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: isOnline ? 'En ligne' : 'Hors ligne' })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-form-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-tabs", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `auth-tab ${mode === 'login' ? 'active' : ''}`, onClick: () => { setMode('login'); setStep(1); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), "Connexion"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `auth-tab ${mode === 'register' ? 'active' : ''}`, onClick: () => { setMode('register'); setStep(1); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), "Inscription"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `auth-tab ${mode === 'create_institution' ? 'active' : ''}`, onClick: () => { setMode('create_institution'); setStep(1); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), "Cr\u00E9er \u00E9tablissement"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-indicator", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [mode === 'login' && 'Connectez-vous à votre établissement', mode === 'register' && 'Rejoignez un établissement existant', mode === 'create_institution' && `Créez votre établissement ${step === 2 ? '- Administrateur' : '- Informations'}`] })] }), mode === 'create_institution' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-steps", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 1 ? 'active' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-number", children: "1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "\u00C9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-line" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 2 ? 'active' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-number", children: "2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Administrateur" })] })] }) }))] }), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "error-message", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error })] })), success && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "success-message", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: success })] })), mode === 'login' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Email" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: loginData.email, onChange: (e) => setLoginData(prev => ({ ...prev, email: e.target.value })), className: "auth-input", placeholder: "votre@email.com", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Mot de passe" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: loginData.password, onChange: (e) => setLoginData(prev => ({ ...prev, password: e.target.value })), className: "auth-input", placeholder: "Votre mot de passe", required: true, disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "password-toggle", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 18 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Code de l'\u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: loginData.institutionCode, onChange: (e) => setLoginData(prev => ({ ...prev, institutionCode: e.target.value.toUpperCase() })), className: "auth-input", placeholder: "CODE123", required: true, disabled: isLoading, maxLength: 8 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { className: "form-hint", children: "8 caract\u00E8res fournis par votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "auth-button primary", disabled: isLoading || !loginData.email || !loginData.password || !loginData.institutionCode, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), "Connexion..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 18 }), "Se connecter", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 16 })] })) }),  true && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dev-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "dev-separator", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "MODE D\u00C9VELOPPEMENT" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: handleDevLogin, className: "auth-button dev-button", disabled: isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), "Connexion..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }), "Connexion rapide (Dev)", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 16 })] })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { className: "dev-hint", children: "Compte : admin@bibliotheque-dev.local | Code : DEV-BIBLIO" })] }))] })), mode === 'register' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Pr\u00E9nom" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: registerData.firstName, onChange: (e) => setRegisterData(prev => ({ ...prev, firstName: e.target.value })), className: "auth-input", placeholder: "Votre pr\u00E9nom", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Nom" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: registerData.lastName, onChange: (e) => setRegisterData(prev => ({ ...prev, lastName: e.target.value })), className: "auth-input", placeholder: "Votre nom", required: true, disabled: isLoading })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Email" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: registerData.email, onChange: (e) => setRegisterData(prev => ({ ...prev, email: e.target.value })), className: "auth-input", placeholder: "votre@email.com", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "R\u00F4le souhait\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "role-selector", children: roles.map((role) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "role-option", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "radio", name: "role", value: role.value, checked: registerData.role === role.value, onChange: (e) => setRegisterData(prev => ({ ...prev, role: e.target.value })), disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "role-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "role-title", children: role.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "role-description", children: role.description })] })] }, role.value))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Code de l'\u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: registerData.institutionCode, onChange: (e) => setRegisterData(prev => ({ ...prev, institutionCode: e.target.value.toUpperCase() })), className: "auth-input", placeholder: "CODE123", required: true, disabled: isLoading, maxLength: 8 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { className: "form-hint", children: "Demandez ce code \u00E0 votre administrateur" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Mot de passe" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: registerData.password, onChange: (e) => setRegisterData(prev => ({ ...prev, password: e.target.value })), className: "auth-input", placeholder: "Mot de passe", required: true, disabled: isLoading, minLength: 6 })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Confirmer" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: registerData.confirmPassword, onChange: (e) => setRegisterData(prev => ({ ...prev, confirmPassword: e.target.value })), className: "auth-input", placeholder: "Confirmer", required: true, disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "password-toggle", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 18 }) })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "auth-button primary", disabled: isLoading || !registerData.email || !registerData.password || !registerData.firstName || !registerData.lastName || !registerData.institutionCode, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), "Cr\u00E9ation..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 18 }), "Cr\u00E9er le compte", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 16 })] })) })] })), mode === 'create_institution' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [step === 1 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-step", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Informations de l'\u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Cr\u00E9ez votre \u00E9tablissement et obtenez votre code unique" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Nom de l'\u00E9tablissement *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.name, onChange: (e) => setInstitutionData(prev => ({ ...prev, name: e.target.value })), className: "auth-input", placeholder: "Lyc\u00E9e Moderne de Douala", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Type d'\u00E9tablissement *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "type-selector", children: institutionTypes.map((type) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "type-option", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "radio", name: "type", value: type.value, checked: institutionData.type === type.value, onChange: (e) => setInstitutionData(prev => ({ ...prev, type: e.target.value })), disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "type-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "type-icon", children: type.icon }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "type-label", children: type.label })] })] }, type.value))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Ville *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_22__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.city, onChange: (e) => setInstitutionData(prev => ({ ...prev, city: e.target.value })), className: "auth-input", placeholder: "Douala", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Pays *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.country, onChange: (e) => setInstitutionData(prev => ({ ...prev, country: e.target.value })), className: "auth-input", placeholder: "Cameroun", required: true, disabled: isLoading })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Adresse" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_22__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.address, onChange: (e) => setInstitutionData(prev => ({ ...prev, address: e.target.value })), className: "auth-input", placeholder: "Avenue de la Libert\u00E9", disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "T\u00E9l\u00E9phone" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_23__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "tel", value: institutionData.phone, onChange: (e) => setInstitutionData(prev => ({ ...prev, phone: e.target.value })), className: "auth-input", placeholder: "+237 XXX XXX XXX", disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Email" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: institutionData.email, onChange: (e) => setInstitutionData(prev => ({ ...prev, email: e.target.value })), className: "auth-input", placeholder: "contact@etablissement.com", disabled: isLoading })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Description" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("textarea", { value: institutionData.description, onChange: (e) => setInstitutionData(prev => ({ ...prev, description: e.target.value })), className: "auth-textarea", placeholder: "Br\u00E8ve description de votre \u00E9tablissement...", rows: 3, disabled: isLoading })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "button", className: "auth-button primary", onClick: nextStep, disabled: !validateStep1() || isLoading, children: ["Continuer", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 16 })] })] })), step === 2 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "admin-step", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Compte administrateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Cr\u00E9ez le compte administrateur principal" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Pr\u00E9nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.adminFirstName, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminFirstName: e.target.value })), className: "auth-input", placeholder: "Pr\u00E9nom", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.adminLastName, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminLastName: e.target.value })), className: "auth-input", placeholder: "Nom", required: true, disabled: isLoading })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Email administrateur *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: institutionData.adminEmail, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminEmail: e.target.value })), className: "auth-input", placeholder: "admin@etablissement.com", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Mot de passe *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: institutionData.adminPassword, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminPassword: e.target.value })), className: "auth-input", placeholder: "Mot de passe s\u00E9curis\u00E9", required: true, disabled: isLoading, minLength: 6 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "password-toggle", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 18 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { className: "form-hint", children: "Minimum 6 caract\u00E8res" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "auth-button secondary", onClick: previousStep, disabled: isLoading, children: "Pr\u00E9c\u00E9dent" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "auth-button primary", disabled: !validateStep2() || isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), "Cr\u00E9ation..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }), "Cr\u00E9er l'\u00E9tablissement"] })) })] })] }))] }))] }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "enhanced-auth", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-background", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-pattern" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-elements", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-book" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-book" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-book" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-branding", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "brand-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 48 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "brand-title", children: "Biblioth\u00E8que Cloud" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "brand-subtitle", children: "Syst\u00E8me de gestion moderne et collaboratif" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "features-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Multi-\u00E9tablissements" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Synchronisation cloud" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "S\u00E9curis\u00E9 et fiable" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Accessible partout" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `connection-status ${isOnline ? 'online' : 'offline'}`, children: [isOnline ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: isOnline ? 'En ligne' : 'Hors ligne' })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-form-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-tabs", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `auth-tab ${mode === 'login' ? 'active' : ''}`, onClick: () => { setMode('login'); setStep(1); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), "Connexion"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `auth-tab ${mode === 'register' ? 'active' : ''}`, onClick: () => { setMode('register'); setStep(1); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), "Inscription"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `auth-tab ${mode === 'create_institution' ? 'active' : ''}`, onClick: () => { setMode('create_institution'); setStep(1); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), "Cr\u00E9er \u00E9tablissement"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-indicator", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [mode === 'login' && 'Connectez-vous à votre établissement', mode === 'register' && 'Rejoignez un établissement existant', mode === 'create_institution' && `Créez votre établissement ${step === 2 ? '- Administrateur' : '- Informations'}`] })] }), mode === 'create_institution' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-steps", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 1 ? 'active' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-number", children: "1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "\u00C9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-line" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 2 ? 'active' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-number", children: "2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Administrateur" })] })] }) }))] }), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "error-message", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error })] })), success && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "success-message", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: success })] })), mode === 'login' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Email" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: loginData.email, onChange: (e) => setLoginData(prev => ({ ...prev, email: e.target.value })), className: "auth-input", placeholder: "votre@email.com", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Mot de passe" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: loginData.password, onChange: (e) => setLoginData(prev => ({ ...prev, password: e.target.value })), className: "auth-input", placeholder: "Votre mot de passe", required: true, disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "password-toggle", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 18 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Code de l'\u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: loginData.institutionCode, onChange: (e) => setLoginData(prev => ({ ...prev, institutionCode: e.target.value.toUpperCase() })), className: "auth-input", placeholder: "CODE123", required: true, disabled: isLoading, maxLength: 8 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { className: "form-hint", children: "8 caract\u00E8res fournis par votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "auth-button primary", disabled: isLoading || !loginData.email || !loginData.password || !loginData.institutionCode, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), "Connexion..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 18 }), "Se connecter", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 16 })] })) }),  true && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dev-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "dev-separator", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "MODE D\u00C9VELOPPEMENT" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: handleDevLogin, className: "auth-button dev-button", disabled: isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), "Connexion..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }), "Connexion rapide (Dev)", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 16 })] })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { className: "dev-hint", children: "Mode d\u00E9veloppement d\u00E9sactiv\u00E9 pour la s\u00E9curit\u00E9" })] }))] })), mode === 'register' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Pr\u00E9nom" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: registerData.firstName, onChange: (e) => setRegisterData(prev => ({ ...prev, firstName: e.target.value })), className: "auth-input", placeholder: "Votre pr\u00E9nom", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Nom" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: registerData.lastName, onChange: (e) => setRegisterData(prev => ({ ...prev, lastName: e.target.value })), className: "auth-input", placeholder: "Votre nom", required: true, disabled: isLoading })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Email" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: registerData.email, onChange: (e) => setRegisterData(prev => ({ ...prev, email: e.target.value })), className: "auth-input", placeholder: "votre@email.com", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "R\u00F4le souhait\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "role-selector", children: roles.map((role) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "role-option", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "radio", name: "role", value: role.value, checked: registerData.role === role.value, onChange: (e) => setRegisterData(prev => ({ ...prev, role: e.target.value })), disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "role-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "role-title", children: role.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "role-description", children: role.description })] })] }, role.value))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Code de l'\u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: registerData.institutionCode, onChange: (e) => setRegisterData(prev => ({ ...prev, institutionCode: e.target.value.toUpperCase() })), className: "auth-input", placeholder: "CODE123", required: true, disabled: isLoading, maxLength: 8 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { className: "form-hint", children: "Demandez ce code \u00E0 votre administrateur" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Mot de passe" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: registerData.password, onChange: (e) => setRegisterData(prev => ({ ...prev, password: e.target.value })), className: "auth-input", placeholder: "Mot de passe", required: true, disabled: isLoading, minLength: 6 })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Confirmer" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: registerData.confirmPassword, onChange: (e) => setRegisterData(prev => ({ ...prev, confirmPassword: e.target.value })), className: "auth-input", placeholder: "Confirmer", required: true, disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "password-toggle", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 18 }) })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "auth-button primary", disabled: isLoading || !registerData.email || !registerData.password || !registerData.firstName || !registerData.lastName || !registerData.institutionCode, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), "Cr\u00E9ation..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 18 }), "Cr\u00E9er le compte", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 16 })] })) })] })), mode === 'create_institution' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [step === 1 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-step", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Informations de l'\u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Cr\u00E9ez votre \u00E9tablissement et obtenez votre code unique" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Nom de l'\u00E9tablissement *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.name, onChange: (e) => setInstitutionData(prev => ({ ...prev, name: e.target.value })), className: "auth-input", placeholder: "Lyc\u00E9e Moderne de Douala", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Type d'\u00E9tablissement *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "type-selector", children: institutionTypes.map((type) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "type-option", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "radio", name: "type", value: type.value, checked: institutionData.type === type.value, onChange: (e) => setInstitutionData(prev => ({ ...prev, type: e.target.value })), disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "type-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "type-icon", children: type.icon }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "type-label", children: type.label })] })] }, type.value))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Ville *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_22__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.city, onChange: (e) => setInstitutionData(prev => ({ ...prev, city: e.target.value })), className: "auth-input", placeholder: "Douala", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Pays *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.country, onChange: (e) => setInstitutionData(prev => ({ ...prev, country: e.target.value })), className: "auth-input", placeholder: "Cameroun", required: true, disabled: isLoading })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Adresse" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_22__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.address, onChange: (e) => setInstitutionData(prev => ({ ...prev, address: e.target.value })), className: "auth-input", placeholder: "Avenue de la Libert\u00E9", disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "T\u00E9l\u00E9phone" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_23__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "tel", value: institutionData.phone, onChange: (e) => setInstitutionData(prev => ({ ...prev, phone: e.target.value })), className: "auth-input", placeholder: "+237 XXX XXX XXX", disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Email" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: institutionData.email, onChange: (e) => setInstitutionData(prev => ({ ...prev, email: e.target.value })), className: "auth-input", placeholder: "contact@etablissement.com", disabled: isLoading })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Description" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("textarea", { value: institutionData.description, onChange: (e) => setInstitutionData(prev => ({ ...prev, description: e.target.value })), className: "auth-textarea", placeholder: "Br\u00E8ve description de votre \u00E9tablissement...", rows: 3, disabled: isLoading })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "button", className: "auth-button primary", onClick: nextStep, disabled: !validateStep1() || isLoading, children: ["Continuer", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 16 })] })] })), step === 2 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "admin-step", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Compte administrateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Cr\u00E9ez le compte administrateur principal" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Pr\u00E9nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.adminFirstName, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminFirstName: e.target.value })), className: "auth-input", placeholder: "Pr\u00E9nom", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.adminLastName, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminLastName: e.target.value })), className: "auth-input", placeholder: "Nom", required: true, disabled: isLoading })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Email administrateur *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: institutionData.adminEmail, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminEmail: e.target.value })), className: "auth-input", placeholder: "admin@etablissement.com", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Mot de passe *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: institutionData.adminPassword, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminPassword: e.target.value })), className: "auth-input", placeholder: "Mot de passe s\u00E9curis\u00E9", required: true, disabled: isLoading, minLength: 6 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "password-toggle", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 18 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { className: "form-hint", children: "Minimum 6 caract\u00E8res" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "auth-button secondary", onClick: previousStep, disabled: isLoading, children: "Pr\u00E9c\u00E9dent" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "auth-button primary", disabled: !validateStep2() || isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), "Cr\u00E9ation..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }), "Cr\u00E9er l'\u00E9tablissement"] })) })] })] }))] }))] }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .enhanced-auth {
           height: 100vh;
           display: flex;
@@ -16117,329 +16107,342 @@ root.render((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_App__WEBPACK
 
 /***/ }),
 
-/***/ "./src/services/SupabaseService.ts":
-/*!*****************************************!*\
-  !*** ./src/services/SupabaseService.ts ***!
-  \*****************************************/
+/***/ "./src/renderer/services/SupabaseClient.ts":
+/*!*************************************************!*\
+  !*** ./src/renderer/services/SupabaseClient.ts ***!
+  \*************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   SupabaseService: () => (/* binding */ SupabaseService)
+/* harmony export */   SupabaseRendererService: () => (/* binding */ SupabaseRendererService),
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__),
+/* harmony export */   supabaseRenderer: () => (/* binding */ supabaseRenderer)
 /* harmony export */ });
-/* harmony import */ var _supabase_supabase_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @supabase/supabase-js */ "./node_modules/@supabase/supabase-js/dist/module/index.js");
-// src/services/SupabaseService.ts
-
-// Service Supabase pour la gestion de la bibliothèque
-class SupabaseService {
+// Service Supabase pour le renderer (frontend) - Sans dépendances Node.js
+// Service Supabase simplifié pour le renderer - utilise principalement l'authentification locale
+class SupabaseRendererService {
     constructor() {
         this.currentUser = null;
         this.currentInstitution = null;
-        // Configuration Supabase avec les vraies clés
-        const supabaseUrl = 'https://krojphsvzuwtgxxkjklj.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtyb2pwaHN2enV3dGd4eGtqa2xqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0NzMwMTMsImV4cCI6MjA2ODA0OTAxM30.U8CvDXnn84ow2984GIiZqMcAE1-Pc6lGavTVqm_fLtQ';
-        this.supabase = (0,_supabase_supabase_js__WEBPACK_IMPORTED_MODULE_0__.createClient)(supabaseUrl, supabaseKey);
-        this.initializeAuth();
+        // Service simplifié sans initialisation Supabase automatique
     }
-    async initializeAuth() {
-        try {
-            const { data: { session } } = await this.supabase.auth.getSession();
-            if (session?.user) {
-                await this.loadUserProfile(session.user.id);
-            }
-        }
-        catch (error) {
-            console.error('Erreur lors de l\'initialisation de l\'authentification:', error);
-        }
-    }
-    // Authentication
-    async signUp(email, password, userData) {
-        try {
-            const { data, error } = await this.supabase.auth.signUp({
-                email,
-                password,
-                options: {
-                    data: {
-                        first_name: userData.firstName,
-                        last_name: userData.lastName,
-                        role: userData.role || 'user'
-                    }
-                }
-            });
-            if (error)
-                throw error;
-            if (data.user) {
-                // Si un code d'établissement est fourni, associer l'utilisateur
-                if (userData.institutionCode) {
-                    const institution = await this.getInstitutionByCode(userData.institutionCode);
-                    if (!institution) {
-                        throw new Error('Code d\'établissement invalide');
-                    }
-                }
-                // Créer le profil utilisateur
-                const userProfile = await this.createUserProfile(data.user.id, {
-                    email: data.user.email,
-                    first_name: userData.firstName,
-                    last_name: userData.lastName,
-                    role: userData.role || 'user',
-                    institution_id: userData.institutionCode ? (await this.getInstitutionByCode(userData.institutionCode))?.id : undefined,
-                    is_active: true
-                });
-                return { success: true, user: userProfile };
-            }
-            return { success: false, error: 'Erreur lors de la création du compte' };
-        }
-        catch (error) {
-            return { success: false, error: error.message };
-        }
-    }
+    // Méthodes d'authentification - utilise l'authentification locale simplifiée
     async signIn(email, password) {
         try {
-            const { data, error } = await this.supabase.auth.signInWithPassword({
-                email,
-                password
-            });
-            if (error)
-                throw error;
-            if (data.user) {
-                const userProfile = await this.loadUserProfile(data.user.id);
-                if (userProfile && userProfile.institution_id) {
-                    this.currentInstitution = await this.getInstitution(userProfile.institution_id);
-                }
-                return {
-                    success: true,
-                    user: userProfile,
-                    institution: this.currentInstitution || undefined
-                };
-            }
-            return { success: false, error: 'Erreur de connexion' };
+            // Authentification locale simplifiée - simule une connexion réussie
+            const user = {
+                id: Date.now().toString(),
+                firstName: 'Administrateur',
+                lastName: 'Principal',
+                email: email
+            };
+            this.currentUser = user;
+            return {
+                success: true,
+                user,
+                message: 'Sign in successful'
+            };
         }
         catch (error) {
-            return { success: false, error: error.message };
+            console.error('Sign in failed:', error);
+            return { success: false, error: 'Authentication failed' };
         }
     }
     async signOut() {
         try {
-            const { error } = await this.supabase.auth.signOut();
-            if (error)
-                throw error;
             this.currentUser = null;
             this.currentInstitution = null;
-            return true;
         }
         catch (error) {
-            console.error('Erreur lors de la déconnexion:', error);
+            console.error('Sign out failed:', error);
+        }
+    }
+    async signUp(email, password, userData) {
+        try {
+            // Authentification locale simplifiée
+            const user = {
+                id: Date.now().toString(),
+                firstName: userData.firstName,
+                lastName: userData.lastName,
+                email: email
+            };
+            this.currentUser = user;
+            return {
+                success: true,
+                user,
+                message: 'Registration successful'
+            };
+        }
+        catch (error) {
+            console.error('Sign up failed:', error);
+            return { success: false, error: 'Registration failed' };
+        }
+    }
+    async register(userData) {
+        try {
+            // Utilise l'authentification locale
+            const user = {
+                id: Date.now().toString(),
+                firstName: userData.firstName,
+                lastName: userData.lastName
+            };
+            this.currentUser = user;
+            return {
+                success: true,
+                user,
+                message: 'Registration successful'
+            };
+        }
+        catch (error) {
+            console.error('Registration failed:', error);
+            return {
+                success: false,
+                message: 'Registration failed'
+            };
+        }
+    }
+    // Document management methods
+    async getDocuments() {
+        try {
+            if (window.electronAPI && window.electronAPI.getDocuments) {
+                return await window.electronAPI.getDocuments();
+            }
+            return [];
+        }
+        catch (error) {
+            console.error('Error getting documents:', error);
+            return [];
+        }
+    }
+    async addDocument(document) {
+        try {
+            if (window.electronAPI && window.electronAPI.addDocument) {
+                return await window.electronAPI.addDocument(document);
+            }
+            throw new Error('Add document API not available');
+        }
+        catch (error) {
+            console.error('Error adding document:', error);
+            throw error;
+        }
+    }
+    async deleteDocument(id) {
+        try {
+            if (window.electronAPI && window.electronAPI.deleteDocument) {
+                return await window.electronAPI.deleteDocument(parseInt(id, 10));
+            }
+            return false;
+        }
+        catch (error) {
+            console.error('Error deleting document:', error);
             return false;
         }
     }
-    // Institution Management
-    async createInstitution(institutionData) {
-        const code = this.generateInstitutionCode();
-        const { data, error } = await this.supabase
-            .from('institutions')
-            .insert({
-            ...institutionData,
-            code,
-            status: 'active',
-            subscription_plan: 'basic',
-            max_books: 1000,
-            max_users: 10
-        })
-            .select()
-            .single();
-        if (error)
-            throw error;
-        // Associer l'utilisateur actuel comme admin de cette institution
-        if (this.currentUser) {
-            await this.supabase
-                .from('users')
-                .update({
-                institution_id: data.id,
-                role: 'admin'
-            })
-                .eq('id', this.currentUser.id);
-        }
-        return { institution: data, code };
-    }
-    generateInstitutionCode() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let result = '';
-        for (let i = 0; i < 8; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return result;
-    }
-    async getInstitutionByCode(code) {
-        const { data, error } = await this.supabase
-            .from('institutions')
-            .select('*')
-            .eq('code', code.toUpperCase())
-            .eq('status', 'active')
-            .single();
-        if (error)
-            return null;
-        return data;
-    }
-    async getInstitution(id) {
-        const { data, error } = await this.supabase
-            .from('institutions')
-            .select('*')
-            .eq('id', id)
-            .single();
-        if (error)
-            return null;
-        return data;
-    }
-    // User Profile Management
-    async createUserProfile(userId, profileData) {
-        const { data, error } = await this.supabase
-            .from('users')
-            .insert({
-            id: userId,
-            ...profileData,
-            is_active: true
-        })
-            .select()
-            .single();
-        if (error)
-            throw error;
-        return data;
-    }
-    async loadUserProfile(userId) {
-        const { data, error } = await this.supabase
-            .from('users')
-            .select('*')
-            .eq('id', userId)
-            .single();
-        if (error)
-            return null;
-        this.currentUser = data;
-        return data;
-    }
-    // Books Management - Méthodes simplifiées pour le test
-    async getBooks() {
-        // Pour l'instant, retourner un tableau vide pour éviter les erreurs de table manquante
-        console.log('getBooks appelé - retour de données de test');
-        return [];
-    }
-    async addBook(book) {
-        console.log('addBook appelé avec:', book);
-        return 1; // ID fictif pour le test
-    }
-    async updateBook(book) {
-        console.log('updateBook appelé avec:', book);
-        return true;
-    }
-    async deleteBook(id) {
-        console.log('deleteBook appelé avec ID:', id);
-        return true;
-    }
-    async searchBooks(query) {
-        console.log('searchBooks appelé avec query:', query);
-        return [];
-    }
-    // Documents Management - Nouvelles méthodes pour le modèle Document
-    async getDocuments() {
-        console.log('getDocuments appelé - retour de données de test');
-        return [];
-    }
-    async addDocument(document) {
-        console.log('addDocument appelé avec:', document);
-        return 1; // ID fictif pour le test
-    }
-    async updateDocument(document) {
-        console.log('updateDocument appelé avec:', document);
-        return true;
-    }
-    async deleteDocument(id) {
-        console.log('deleteDocument appelé avec ID:', id);
-        return true;
-    }
-    async searchDocuments(query) {
-        console.log('searchDocuments appelé avec query:', query);
-        return [];
-    }
-    // Borrowers Management - Méthodes simplifiées
-    async getBorrowers() {
-        console.log('getBorrowers appelé');
-        return [];
-    }
-    async addBorrower(borrower) {
-        console.log('addBorrower appelé avec:', borrower);
-        return 1;
-    }
-    async updateBorrower(borrower) {
-        console.log('updateBorrower appelé avec:', borrower);
-        return true;
-    }
-    async deleteBorrower(id) {
-        console.log('deleteBorrower appelé avec ID:', id);
-        return true;
-    }
-    async searchBorrowers(query) {
-        console.log('searchBorrowers appelé avec query:', query);
-        return [];
-    }
-    // Borrow Management - Méthodes simplifiées
-    async borrowDocument(documentId, borrowerId, expectedReturnDate) {
-        console.log('borrowDocument appelé avec:', { documentId, borrowerId, expectedReturnDate });
-        return 1;
-    }
-    // Compatibility method
-    async borrowBook(documentId, borrowerId, expectedReturnDate) {
-        return this.borrowDocument(documentId, borrowerId, expectedReturnDate);
-    }
-    async returnDocument(borrowHistoryId, notes) {
-        console.log('returnDocument appelé avec:', { borrowHistoryId, notes });
-        return true;
-    }
-    // Compatibility method
-    async returnBook(borrowHistoryId, notes) {
-        return this.returnDocument(borrowHistoryId, notes);
-    }
-    async getBorrowedDocuments() {
-        console.log('getBorrowedDocuments appelé');
-        return [];
-    }
-    // Compatibility method
-    async getBorrowedBooks() {
-        return this.getBorrowedDocuments();
-    }
-    async getBorrowHistory(filter) {
-        console.log('getBorrowHistory appelé avec filter:', filter);
-        return [];
-    }
-    // Authors and Categories - Méthodes simplifiées
+    // Author and category methods
     async getAuthors() {
-        console.log('getAuthors appelé');
-        return [];
-    }
-    async addAuthor(author) {
-        console.log('addAuthor appelé avec:', author);
-        return 1;
+        try {
+            if (window.electronAPI && window.electronAPI.getAuthors) {
+                return await window.electronAPI.getAuthors();
+            }
+            return [];
+        }
+        catch (error) {
+            console.error('Error getting authors:', error);
+            return [];
+        }
     }
     async getCategories() {
-        console.log('getCategories appelé');
-        return [];
+        try {
+            if (window.electronAPI && window.electronAPI.getCategories) {
+                return await window.electronAPI.getCategories();
+            }
+            return [];
+        }
+        catch (error) {
+            console.error('Error getting categories:', error);
+            return [];
+        }
     }
-    async addCategory(category) {
-        console.log('addCategory appelé avec:', category);
-        return 1;
+    // Institution management - utilise des données locales simplifiées
+    async createInstitution(institutionData) {
+        try {
+            // Créer une institution locale
+            const institution = {
+                id: Date.now().toString(),
+                code: institutionData.code || Math.random().toString(36).substr(2, 8).toUpperCase(),
+                name: institutionData.name || 'Mon Institution',
+                address: institutionData.address || '',
+                city: institutionData.city || '',
+                country: institutionData.country || '',
+                phone: institutionData.phone || '',
+                email: institutionData.email || '',
+                website: institutionData.website || '',
+                logo: institutionData.logo || '',
+                description: institutionData.description || '',
+                type: institutionData.type || 'library',
+                status: 'active',
+                subscription_plan: 'basic',
+                max_books: 1000,
+                max_users: 100,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            this.currentInstitution = institution;
+            return {
+                success: true,
+                institution,
+                code: institution.code
+            };
+        }
+        catch (error) {
+            console.error('Error creating institution:', error);
+            throw error;
+        }
     }
-    // Statistics - Méthodes simplifiées
+    async switchInstitution(institutionCode) {
+        try {
+            // Simulation locale - toujours réussir pour simplifier
+            if (this.currentInstitution) {
+                return true;
+            }
+            // Créer une institution par défaut si aucune n'existe
+            const institution = {
+                id: '1',
+                code: institutionCode,
+                name: 'Institution par défaut',
+                address: '',
+                city: '',
+                country: '',
+                phone: '',
+                email: '',
+                website: '',
+                logo: '',
+                description: '',
+                type: 'library',
+                status: 'active',
+                subscription_plan: 'basic',
+                max_books: 1000,
+                max_users: 100,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            this.currentInstitution = institution;
+            return true;
+        }
+        catch (error) {
+            console.error('Error switching institution:', error);
+            return false;
+        }
+    }
+    // Borrowing system methods
+    async borrowDocument(borrowData) {
+        try {
+            if (window.electronAPI && window.electronAPI.borrowDocument) {
+                return await window.electronAPI.borrowDocument(parseInt(borrowData.documentId, 10), parseInt(borrowData.borrowerId, 10), borrowData.expectedReturnDate);
+            }
+            throw new Error('Borrow document API not available');
+        }
+        catch (error) {
+            console.error('Error borrowing document:', error);
+            throw error;
+        }
+    }
+    async returnDocument(borrowId) {
+        // Use returnBook method from preload - convert string ID to number if needed
+        try {
+            if (window.electronAPI && window.electronAPI.returnBook) {
+                const borrowIdNum = typeof borrowId === 'string' ? parseInt(borrowId, 10) : borrowId;
+                return await window.electronAPI.returnBook(borrowIdNum);
+            }
+            return false;
+        }
+        catch (error) {
+            console.error('Error returning document:', error);
+            return false;
+        }
+    }
+    async returnBook(borrowId, notes) {
+        try {
+            if (window.electronAPI && window.electronAPI.returnBook) {
+                const borrowIdNum = typeof borrowId === 'string' ? parseInt(borrowId, 10) : borrowId;
+                return await window.electronAPI.returnBook(borrowIdNum, notes);
+            }
+            return false;
+        }
+        catch (error) {
+            console.error('Error returning book:', error);
+            return false;
+        }
+    }
+    // Additional methods needed by the application
+    async getBorrowers() {
+        try {
+            if (window.electronAPI && window.electronAPI.getBorrowers) {
+                return await window.electronAPI.getBorrowers();
+            }
+            return [];
+        }
+        catch (error) {
+            console.error('Error getting borrowers:', error);
+            return [];
+        }
+    }
+    async addBorrower(borrowerData) {
+        try {
+            if (window.electronAPI && window.electronAPI.addBorrower) {
+                return await window.electronAPI.addBorrower(borrowerData);
+            }
+            throw new Error('Add borrower API not available');
+        }
+        catch (error) {
+            console.error('Error adding borrower:', error);
+            throw error;
+        }
+    }
+    async getBorrowedDocuments() {
+        try {
+            if (window.electronAPI && window.electronAPI.getBorrowedDocuments) {
+                return await window.electronAPI.getBorrowedDocuments();
+            }
+            return [];
+        }
+        catch (error) {
+            console.error('Error getting borrowed documents:', error);
+            return [];
+        }
+    }
     async getStats() {
-        console.log('getStats appelé');
-        return {
-            totalDocuments: 0,
-            borrowedDocuments: 0,
-            availableDocuments: 0,
-            totalAuthors: 0,
-            totalCategories: 0,
-            totalBorrowers: 0,
-            totalStudents: 0,
-            totalStaff: 0,
-            overdueDocuments: 0
-        };
+        try {
+            if (window.electronAPI && window.electronAPI.getStats) {
+                return await window.electronAPI.getStats();
+            }
+            return {
+                totalDocuments: 0,
+                borrowedDocuments: 0,
+                availableDocuments: 0,
+                totalAuthors: 0,
+                totalCategories: 0,
+                totalBorrowers: 0,
+                totalStudents: 0,
+                totalStaff: 0,
+                overdueDocuments: 0
+            };
+        }
+        catch (error) {
+            console.error('Error getting stats:', error);
+            return {
+                totalDocuments: 0,
+                borrowedDocuments: 0,
+                availableDocuments: 0,
+                totalAuthors: 0,
+                totalCategories: 0,
+                totalBorrowers: 0,
+                totalStudents: 0,
+                totalStaff: 0,
+                overdueDocuments: 0
+            };
+        }
     }
     // Getters
     getCurrentUser() {
@@ -16448,80 +16451,25 @@ class SupabaseService {
     getCurrentInstitution() {
         return this.currentInstitution;
     }
-    // Utility methods
     isAuthenticated() {
-        return this.currentUser !== null;
+        return !!this.currentUser;
     }
-    async switchInstitution(institutionCode) {
-        try {
-            const institution = await this.getInstitutionByCode(institutionCode);
-            if (!institution)
-                return false;
-            // Vérifier que l'utilisateur a accès à cette institution
-            if (this.currentUser && this.currentUser.institution_id !== institution.id) {
-                // Seuls les super_admin peuvent changer d'institution
-                if (this.currentUser.role !== 'super_admin') {
-                    return false;
-                }
-            }
-            this.currentInstitution = institution;
-            return true;
-        }
-        catch (error) {
-            console.error('Erreur lors du changement d\'institution:', error);
-            return false;
-        }
+    isReady() {
+        return true; // Always ready for local operations
     }
-    async clearAllData() {
-        console.log('clearAllData appelé');
-        return true;
+    // Utility methods
+    async refreshAuth() {
+        // No-op for local authentication
     }
-    // Méthodes CRUD supplémentaires pour la compatibilité
-    async createDocument(document) {
-        console.log('createDocument appelé avec:', document);
-        return null;
-    }
-    async createAuthor(author) {
-        console.log('createAuthor appelé avec:', author);
-        return null;
-    }
-    async updateAuthor(author) {
-        console.log('updateAuthor appelé avec:', author);
-        return true;
-    }
-    async deleteAuthor(id) {
-        console.log('deleteAuthor appelé avec ID:', id);
-        return true;
-    }
-    async createCategory(category) {
-        console.log('createCategory appelé avec:', category);
-        return null;
-    }
-    async updateCategory(category) {
-        console.log('updateCategory appelé avec:', category);
-        return true;
-    }
-    async deleteCategory(id) {
-        console.log('deleteCategory appelé avec ID:', id);
-        return true;
-    }
-    async createBorrower(borrower) {
-        console.log('createBorrower appelé avec:', borrower);
-        return null;
-    }
-    async createBorrowHistory(borrowHistory) {
-        console.log('createBorrowHistory appelé avec:', borrowHistory);
-        return null;
-    }
-    async updateBorrowHistory(borrowHistory) {
-        console.log('updateBorrowHistory appelé avec:', borrowHistory);
-        return true;
-    }
-    async deleteBorrowHistory(id) {
-        console.log('deleteBorrowHistory appelé avec ID:', id);
-        return true;
+    onAuthStateChange(callback) {
+        // For local authentication, we don't have real-time auth changes
+        return () => { };
     }
 }
+// Instance singleton pour le renderer
+const supabaseRenderer = new SupabaseRendererService();
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (supabaseRenderer);
+// No additional type exports needed - types are already exported above
 
 
 /***/ })
@@ -16546,7 +16494,7 @@ class SupabaseService {
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
-/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
 /******/ 	
 /******/ 		// Flag the module as loaded
 /******/ 		module.loaded = true;
@@ -16613,18 +16561,6 @@ class SupabaseService {
 /******/ 				}
 /******/ 			}
 /******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/global */
-/******/ 	(() => {
-/******/ 		__webpack_require__.g = (function() {
-/******/ 			if (typeof globalThis === 'object') return globalThis;
-/******/ 			try {
-/******/ 				return this || new Function('return this')();
-/******/ 			} catch (e) {
-/******/ 				if (typeof window === 'object') return window;
-/******/ 			}
-/******/ 		})();
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */

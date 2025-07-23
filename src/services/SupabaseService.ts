@@ -1,6 +1,8 @@
 // src/services/SupabaseService.ts
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Book, Author, Category, Stats, Borrower, BorrowHistory, HistoryFilter, Document } from '../preload';
+import { configService } from './ConfigService';
+import { logger } from './LoggerService';
 
 export interface Institution {
   id: string;
@@ -72,27 +74,66 @@ export interface DatabaseBorrowHistory extends Omit<BorrowHistory, 'id' | 'book'
 
 // Service Supabase pour la gestion de la bibliothèque
 export class SupabaseService {
-  private supabase: SupabaseClient;
+  private supabase!: SupabaseClient; // Sera initialisé dans initializeSupabase
   private currentUser: User | null = null;
   private currentInstitution: Institution | null = null;
 
   constructor() {
-    // Configuration Supabase avec les vraies clés
-    const supabaseUrl = 'https://krojphsvzuwtgxxkjklj.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtyb2pwaHN2enV3dGd4eGtqa2xqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0NzMwMTMsImV4cCI6MjA2ODA0OTAxM30.U8CvDXnn84ow2984GIiZqMcAE1-Pc6lGavTVqm_fLtQ';
-    
-    this.supabase = createClient(supabaseUrl, supabaseKey);
-    this.initializeAuth();
+    this.initializeSupabase();
+  }
+
+  private async initializeSupabase() {
+    try {
+      // Vérifier que la configuration est initialisée
+      if (!configService.hasSupabaseConfig()) {
+        logger.error('Configuration Supabase manquante', 'SupabaseService');
+        throw new Error('Configuration Supabase non disponible');
+      }
+
+      const supabaseConfig = configService.get('supabase');
+      
+      // Validation des clés
+      if (!supabaseConfig.url.startsWith('https://')) {
+        throw new Error('URL Supabase invalide');
+      }
+
+      if (supabaseConfig.key.length < 100) {
+        logger.warn('Clé Supabase suspicieusement courte', 'SupabaseService');
+      }
+
+      this.supabase = createClient(supabaseConfig.url, supabaseConfig.key, {
+        auth: {
+          persistSession: true,
+          detectSessionInUrl: false
+        }
+      });
+
+      logger.info('Supabase initialisé avec succès', 'SupabaseService');
+      await this.initializeAuth();
+      
+    } catch (error) {
+      logger.error('Erreur lors de l\'initialisation de Supabase', 'SupabaseService', error as Error);
+      throw error;
+    }
   }
 
   private async initializeAuth() {
     try {
-      const { data: { session } } = await this.supabase.auth.getSession();
+      const { data: { session }, error } = await this.supabase.auth.getSession();
+      
+      if (error) {
+        logger.error('Erreur lors de la récupération de la session', 'SupabaseService', error as Error);
+        return;
+      }
+
       if (session?.user) {
+        logger.info(`Session utilisateur trouvée: ${session.user.email}`, 'SupabaseService');
         await this.loadUserProfile(session.user.id);
+      } else {
+        logger.debug('Aucune session utilisateur active', 'SupabaseService');
       }
     } catch (error) {
-      console.error('Erreur lors de l\'initialisation de l\'authentification:', error);
+      logger.error('Erreur lors de l\'initialisation de l\'authentification', 'SupabaseService', error as Error);
     }
   }
 

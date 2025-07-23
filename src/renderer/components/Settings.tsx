@@ -27,7 +27,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 
-import { SupabaseService, User as SupabaseUser, Institution as SupabaseInstitution } from '../../services/SupabaseService';
+import { SupabaseRendererService as SupabaseService, User as SupabaseUser, Institution as SupabaseInstitution } from '../services/SupabaseClient';
 
 interface SettingsProps {
   onClose: () => void;

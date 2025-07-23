@@ -92,25 +92,9 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
     };
   }, []);
 
-  // Connexion rapide pour le développement
+  // Mode sécurisé - pas de connexion développement avec identifiants hardcodés
   const handleDevLogin = async () => {
-    setError('');
-    setSuccess('');
-    setIsLoading(true);
-
-    try {
-      await onLogin({
-        email: 'admin@bibliotheque-dev.local',
-        password: 'dev123456',
-        institutionCode: 'DEV-BIBLIO',
-        mode: 'login'
-      });
-    } catch (error) {
-      console.error('Connexion dev échouée:', error);
-      setError('Erreur de connexion développement');
-    } finally {
-      setIsLoading(false);
-    }
+    setError('La connexion de développement a été désactivée pour des raisons de sécurité. Veuillez utiliser vos identifiants ou créer un nouveau compte.');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -428,7 +412,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
                       )}
                     </button>
                     <small className="dev-hint">
-                      Compte : admin@bibliotheque-dev.local | Code : DEV-BIBLIO
+                      Mode développement désactivé pour la sécurité
                     </small>
                   </div>
                 )}

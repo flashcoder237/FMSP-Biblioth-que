@@ -132,6 +132,8 @@ const electronAPI = {
     getAuthStatus: () => electron_1.ipcRenderer?.invoke('auth:status') || Promise.resolve(false),
     login: (credentials) => electron_1.ipcRenderer?.invoke('auth:login', credentials) || Promise.resolve({ success: false, error: 'IPC not available' }),
     logout: () => electron_1.ipcRenderer?.invoke('auth:logout') || Promise.resolve(),
+    // Configuration
+    getSupabaseConfig: () => electron_1.ipcRenderer?.invoke('config:getSupabaseConfig') || Promise.resolve(null),
     // Database operations - Books (avec compatibilité Document)
     getBooks: () => electron_1.ipcRenderer?.invoke('db:getBooks').then((documents) => documents.map(exports.createBookFromDocument)) || Promise.resolve([]),
     addBook: (book) => electron_1.ipcRenderer?.invoke('db:addBook', (0, exports.createDocumentFromBook)(book)) || Promise.resolve(0),

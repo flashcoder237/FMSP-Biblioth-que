@@ -15,7 +15,7 @@ import { About } from './components/About';
 import { EnhancedAuthentication } from './components/EnhancedAuthentication';
 import { InstitutionSetup } from './components/InstitutionSetup';
 import { Document, Author, Category, Stats, Borrower, BorrowHistory as BorrowHistoryType } from '../types';
-import { SupabaseService, Institution, User } from '../services/SupabaseService';
+import { SupabaseRendererService, Institution, User } from './services/SupabaseClient';
 import { ToastProvider, useQuickToast } from './components/ToastSystem';
 import { KeyboardShortcutsProvider } from './components/KeyboardShortcuts';
 
@@ -48,7 +48,7 @@ export const App: React.FC = () => {
   });
 
   // Services
-  const [supabaseService] = useState(() => new SupabaseService());
+  const [supabaseService] = useState(() => new SupabaseRendererService());
   const [showBorrowModal, setShowBorrowModal] = useState(false);
   const [selectedDocumentForBorrow, setSelectedDocumentForBorrow] = useState<Document | null>(null);
   const [editingDocument, setEditingDocument] = useState<Document | null>(null);
@@ -297,53 +297,53 @@ export const App: React.FC = () => {
       setError('');
 
       if (credentials.mode === 'login') {
-        // Mode développement - connexion simplifiée
-        if (credentials.email === 'admin@bibliotheque-dev.local' && 
-            credentials.password === 'dev123456' && 
-            credentials.institutionCode === 'DEV-BIBLIO') {
-          
-          // Simulation d'authentification réussie en mode dev
-          const devUser: User = {
-            id: 'dev-user-1',
-            email: 'admin@bibliotheque-dev.local',
-            first_name: 'Admin',
-            last_name: 'Dev',
-            role: 'admin',
-            institution_id: 'dev-institution',
-            is_active: true,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            last_login: new Date().toISOString()
+        // Mode développement - utiliser l'authentification locale sécurisée
+        const authResult = await window.electronAPI.login({
+          username: credentials.email,
+          password: credentials.password
+        });
+
+        if (authResult.success && authResult.user) {
+          // Convertir le User local vers le format Supabase pour compatibilité
+          const localUser: User = {
+            id: authResult.user.id.toString(),
+            firstName: authResult.user.username?.split('.')[0] || 'Utilisateur',
+            lastName: authResult.user.username?.split('.')[1] || 'Local',
+            email: credentials.email, // Utiliser l'email saisi
+            role: (authResult.user.role as 'super_admin' | 'admin' | 'librarian' | 'user') || 'user'
           };
 
-          const devInstitution: Institution = {
-            id: 'dev-institution',
-            name: 'Bibliothèque de Développement',
-            code: 'DEV-BIBLIO',
-            address: '123 Rue du Code',
-            city: 'DevVille',
+          // Institution locale par défaut
+          const localInstitution: Institution = {
+            id: 'local-institution',
+            name: process.env.DEFAULT_INSTITUTION_NAME || 'Ma Bibliothèque',
+            code: 'LOCAL',
+            address: '',
+            city: '',
             country: 'France',
-            phone: '+33 1 23 45 67 89',
-            email: 'contact@dev-biblio.local',
-            website: 'https://dev-biblio.local',
+            phone: '',
+            email: process.env.DEFAULT_INSTITUTION_EMAIL || '',
+            website: '',
             logo: '',
-            description: 'Bibliothèque de développement pour tests',
-            type: 'school',
+            description: 'Institution locale',
+            type: 'library',
             status: 'active',
-            subscription_plan: 'enterprise',
+            subscription_plan: 'basic',
             max_books: 10000,
             max_users: 100,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           };
 
-          setCurrentUser(devUser);
-          setCurrentInstitution(devInstitution);
+          setCurrentUser(localUser);
+          setCurrentInstitution(localInstitution);
           setIsAuthenticated(true);
-          setIsDemoMode(true);
+          setIsDemoMode(false); // Mode local sécurisé, pas de démo
           setCurrentView('dashboard');
-          await loadDemoData();
+          await loadData(); // Charger les vraies données, pas les données de démo
           return;
+        } else {
+          throw new Error(authResult.error || 'Échec de l\'authentification locale');
         }
 
         // Connexion normale via Supabase
@@ -353,8 +353,9 @@ export const App: React.FC = () => {
         }
 
         // Vérifier le code d'établissement
-        if (credentials.institutionCode) {
-          const switchSuccess = await supabaseService.switchInstitution(credentials.institutionCode);
+        const institutionCode = credentials.institutionCode?.trim();
+        if (institutionCode && institutionCode !== '') {
+          const switchSuccess = await supabaseService.switchInstitution(institutionCode as string);
           if (!switchSuccess) {
             throw new Error('Code d\'établissement invalide ou accès non autorisé');
           }
@@ -374,8 +375,7 @@ export const App: React.FC = () => {
           {
             firstName: credentials.userData.firstName,
             lastName: credentials.userData.lastName,
-            institutionCode: credentials.institutionCode,
-            role: credentials.userData.role
+            institutionCode: credentials.institutionCode || 'DEFAULT'
           }
         );
 
@@ -398,7 +398,7 @@ export const App: React.FC = () => {
           {
             firstName: credentials.userData.admin.firstName,
             lastName: credentials.userData.admin.lastName,
-            role: 'admin'
+            institutionCode: credentials.userData.institution.code || 'DEFAULT'
           }
         );
 
@@ -508,7 +508,7 @@ export const App: React.FC = () => {
       return;
     }
     try {
-      await supabaseService.returnBook(borrowHistoryId, notes);
+      await supabaseService.returnBook(borrowHistoryId.toString(), notes);
       await loadData();
     } catch (error: any) {
       console.error('Erreur lors du retour:', error);
@@ -533,7 +533,7 @@ export const App: React.FC = () => {
         console.log('Document supprimé en mode démo:', documentId);
       } else {
         // Mode normal - utiliser Supabase
-        await supabaseService.deleteDocument(documentId);
+        await supabaseService.deleteDocument(documentId.toString());
         await loadData();
       }
     } catch (error: any) {
@@ -600,7 +600,11 @@ export const App: React.FC = () => {
         }
       } else {
         // Mode normal - utiliser Supabase
-        await supabaseService.borrowDocument(documentId, borrowerId, returnDate);
+        await supabaseService.borrowDocument({
+          documentId: documentId.toString(),
+          borrowerId: borrowerId.toString(),
+          expectedReturnDate: returnDate
+        });
         await loadData();
       }
       
@@ -638,7 +642,7 @@ export const App: React.FC = () => {
         }));
       } else {
         // Mode normal - utiliser Supabase
-        await supabaseService.returnDocument(documentId);
+        await supabaseService.returnDocument(documentId.toString());
         await loadData();
       }
       
@@ -833,7 +837,7 @@ interface AppContentProps {
   handleBorrow: (documentId: number, borrowerId: number, returnDate: string) => Promise<void>;
   handleReturn: (documentId: number) => Promise<void>;
   refreshData: () => Promise<void>;
-  supabaseService: SupabaseService;
+  supabaseService: SupabaseRendererService;
   borrowers: Borrower[];
   stats: Stats;
   currentUser: User | null;
@@ -1195,7 +1199,7 @@ interface EnhancedBorrowFormProps {
   onSubmit: (documentId: number, borrowerId: number, expectedReturnDate: string) => Promise<void>;
   onCancel: () => void;
   onRefreshBorrowers: () => Promise<void>;
-  supabaseService: SupabaseService;
+  supabaseService: SupabaseRendererService;
 }
 
 const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ 

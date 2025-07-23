@@ -3,6 +3,9 @@ import * as path from 'path';
 import * as crypto from 'crypto';
 import { app } from 'electron';
 import { AuthCredentials, AuthResponse } from '../preload';
+import { configService } from './ConfigService';
+import { logger } from './LoggerService';
+import { validationService } from './ValidationService';
 
 export interface User {
   id: number;
@@ -119,74 +122,14 @@ export class AuthService {
         id: this.users.length + 1
       });
 
-      // Créer aussi un utilisateur de développement
-      const devUser: Omit<User, 'id'> = {
-        username: 'dev',
-        passwordHash: '',
-        salt: '',
-        role: 'admin',
-        email: 'admin@bibliotheque-dev.local',
-        firstName: 'Développement',
-        lastName: 'Admin',
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        loginAttempts: 0
-      };
-
-      const devPasswordData = this.hashPassword('dev123456');
-      devUser.passwordHash = devPasswordData.hash;
-      devUser.salt = devPasswordData.salt;
-
-      this.users.push({
-        ...devUser,
-        id: this.users.length + 1
+      // Logger la création du compte administrateur initial
+      logger.info('Compte administrateur initial créé', 'AuthService', {
+        username: defaultAdmin.username,
+        role: defaultAdmin.role
       });
 
-      // Créer aussi un utilisateur démo
-      const demoUser: Omit<User, 'id'> = {
-        username: 'demo',
-        passwordHash: '',
-        salt: '',
-        role: 'librarian',
-        email: 'demo@bibliotheque.local',
-        firstName: 'Démo',
-        lastName: 'Utilisateur',
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        loginAttempts: 0
-      };
-
-      const demoPass = this.hashPassword('demo');
-      demoUser.passwordHash = demoPass.hash;
-      demoUser.salt = demoPass.salt;
-
-      this.users.push({
-        ...demoUser,
-        id: this.users.length + 1
-      });
-
-      // Créer l'utilisateur biblio
-      const biblioUser: Omit<User, 'id'> = {
-        username: 'biblio',
-        passwordHash: '',
-        salt: '',
-        role: 'librarian',
-        email: 'biblio@bibliotheque.local',
-        firstName: 'Bibliothécaire',
-        lastName: 'Principal',
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        loginAttempts: 0
-      };
-
-      const biblioPass = this.hashPassword('biblio');
-      biblioUser.passwordHash = biblioPass.hash;
-      biblioUser.salt = biblioPass.salt;
-
-      this.users.push({
-        ...biblioUser,
-        id: this.users.length + 1
-      });
+      // Les comptes supplémentaires doivent être créés manuellement par l'administrateur
+      // pour garantir la sécurité et éviter les comptes par défaut
 
       this.saveUsers();
     }
@@ -569,24 +512,28 @@ export class AuthService {
 
   // Méthodes utilitaires
   validatePassword(password: string): { isValid: boolean; errors: string[] } {
-    const errors: string[] = [];
-
-    if (password.length < 6) {
-      errors.push('Le mot de passe doit contenir au moins 6 caractères');
+    try {
+      const result = validationService.validatePassword(password);
+      
+      // Logger les tentatives de mots de passe faibles
+      if (!result.isValid) {
+        logger.security('Tentative d\'utilisation d\'un mot de passe faible', {
+          errorCount: result.errors.length,
+          hasWarnings: result.warnings && result.warnings.length > 0
+        });
+      }
+      
+      return {
+        isValid: result.isValid,
+        errors: result.errors
+      };
+    } catch (error) {
+      logger.error('Erreur lors de la validation du mot de passe', 'AuthService', error as Error);
+      return {
+        isValid: false,
+        errors: ['Erreur lors de la validation du mot de passe']
+      };
     }
-
-    if (!/\d/.test(password)) {
-      errors.push('Le mot de passe doit contenir au moins un chiffre');
-    }
-
-    if (!/[a-z]/.test(password)) {
-      errors.push('Le mot de passe doit contenir au moins une lettre minuscule');
-    }
-
-    return {
-      isValid: errors.length === 0,
-      errors
-    };
   }
 
   changePassword(userId: number, currentPassword: string, newPassword: string): { success: boolean; error?: string } {

@@ -52,6 +52,9 @@ const BackupService_1 = __webpack_require__(/*! ./services/BackupService */ "./s
 const AuthService_1 = __webpack_require__(/*! ./services/AuthService */ "./src/services/AuthService.ts");
 const SettingsService_1 = __webpack_require__(/*! ./services/SettingsService */ "./src/services/SettingsService.ts");
 const SyncService_1 = __webpack_require__(/*! ./services/SyncService */ "./src/services/SyncService.ts");
+const ConfigService_1 = __webpack_require__(/*! ./services/ConfigService */ "./src/services/ConfigService.ts");
+const LoggerService_1 = __webpack_require__(/*! ./services/LoggerService */ "./src/services/LoggerService.ts");
+const ValidationService_1 = __webpack_require__(/*! ./services/ValidationService */ "./src/services/ValidationService.ts");
 const preload_1 = __webpack_require__(/*! ./preload */ "./src/preload.ts");
 let mainWindow;
 let dbService;
@@ -107,23 +110,35 @@ function createWindow() {
     });
 }
 electron_1.app.whenReady().then(async () => {
-    // Initialiser les services
+    // Initialiser les services de base d'abord
     try {
+        // 1. Initialiser la configuration en premier
+        await ConfigService_1.configService.initialize();
+        LoggerService_1.logger.info('Configuration initialisée', 'Main');
+        // 2. Initialiser les services principaux
         dbService = new DatabaseService_1.DatabaseService();
         await dbService.initialize();
+        LoggerService_1.logger.info('Base de données initialisée', 'Main');
         backupService = new BackupService_1.BackupService(dbService);
         authService = new AuthService_1.AuthService();
         settingsService = new SettingsService_1.SettingsService();
         syncService = new SyncService_1.SyncService(dbService);
-        // Initialiser le service de synchronisation
+        // 3. Initialiser le service de synchronisation
         await syncService.initialize();
-        console.log('Services initialisés avec succès');
+        LoggerService_1.logger.info('Service de synchronisation initialisé', 'Main');
+        LoggerService_1.logger.info('Tous les services initialisés avec succès', 'Main');
         createWindow();
     }
     catch (error) {
-        console.error('Erreur lors de l\'initialisation des services:', error);
-        // Créer la fenêtre même en cas d'erreur pour afficher l'erreur
-        createWindow();
+        LoggerService_1.logger.error('Erreur critique lors de l\'initialisation des services', 'Main', error);
+        // Essayer de créer la fenêtre même en cas d'erreur pour afficher le problème
+        try {
+            createWindow();
+        }
+        catch (windowError) {
+            LoggerService_1.logger.error('Impossible de créer la fenêtre', 'Main', windowError);
+            electron_1.app.quit();
+        }
     }
     electron_1.app.on('activate', () => {
         if (electron_1.BrowserWindow.getAllWindows().length === 0) {
@@ -163,19 +178,47 @@ electron_1.ipcMain.handle('db:getDocuments', async () => {
 });
 electron_1.ipcMain.handle('db:addDocument', async (_, document) => {
     try {
-        return await dbService.addDocument(document);
+        // Valider les données avant l'ajout
+        const validation = ValidationService_1.validationService.validateDocument(document);
+        if (!validation.isValid) {
+            LoggerService_1.logger.warn('Tentative d\'ajout de document avec données invalides', 'IPC', {
+                errors: validation.errors,
+                warnings: validation.warnings
+            });
+            throw new Error(`Données invalides: ${validation.errors.join(', ')}`);
+        }
+        // Logger les avertissements s'il y en a
+        if (validation.warnings && validation.warnings.length > 0) {
+            LoggerService_1.logger.warn('Avertissements lors de l\'ajout de document', 'IPC', {
+                warnings: validation.warnings
+            });
+        }
+        const result = await dbService.addDocument(document);
+        LoggerService_1.logger.info('Document ajouté avec succès', 'IPC', { id: result });
+        return result;
     }
     catch (error) {
-        console.error('Erreur addDocument:', error);
+        LoggerService_1.logger.error('Erreur lors de l\'ajout de document', 'IPC', error);
         throw error;
     }
 });
 electron_1.ipcMain.handle('db:updateDocument', async (_, document) => {
     try {
-        return await dbService.updateDocument(document);
+        // Valider les données avant la mise à jour
+        const validation = ValidationService_1.validationService.validateDocument(document);
+        if (!validation.isValid) {
+            LoggerService_1.logger.warn('Tentative de mise à jour avec données invalides', 'IPC', {
+                id: document.id,
+                errors: validation.errors
+            });
+            throw new Error(`Données invalides: ${validation.errors.join(', ')}`);
+        }
+        const result = await dbService.updateDocument(document);
+        LoggerService_1.logger.info('Document mis à jour avec succès', 'IPC', { id: document.id });
+        return result;
     }
     catch (error) {
-        console.error('Erreur updateDocument:', error);
+        LoggerService_1.logger.error('Erreur lors de la mise à jour de document', 'IPC', error);
         throw error;
     }
 });
@@ -518,6 +561,25 @@ electron_1.ipcMain.handle('auth:logout', async () => {
     catch (error) {
         console.error('Erreur auth:logout:', error);
         return false;
+    }
+});
+// Configuration Operations
+electron_1.ipcMain.handle('config:getSupabaseConfig', async () => {
+    try {
+        if (!ConfigService_1.configService.hasSupabaseConfig()) {
+            LoggerService_1.logger.warn('Configuration Supabase demandée mais non disponible', 'IPC');
+            return null;
+        }
+        const config = ConfigService_1.configService.get('supabase');
+        LoggerService_1.logger.debug('Configuration Supabase fournie au renderer', 'IPC');
+        return {
+            url: config.url,
+            key: config.key
+        };
+    }
+    catch (error) {
+        LoggerService_1.logger.error('Erreur lors de la récupération de la configuration Supabase', 'IPC', error);
+        return null;
     }
 });
 // File Operations
@@ -1429,6 +1491,8 @@ const electronAPI = {
     getAuthStatus: () => electron_1.ipcRenderer?.invoke('auth:status') || Promise.resolve(false),
     login: (credentials) => electron_1.ipcRenderer?.invoke('auth:login', credentials) || Promise.resolve({ success: false, error: 'IPC not available' }),
     logout: () => electron_1.ipcRenderer?.invoke('auth:logout') || Promise.resolve(),
+    // Configuration
+    getSupabaseConfig: () => electron_1.ipcRenderer?.invoke('config:getSupabaseConfig') || Promise.resolve(null),
     // Database operations - Books (avec compatibilité Document)
     getBooks: () => electron_1.ipcRenderer?.invoke('db:getBooks').then((documents) => documents.map(exports.createBookFromDocument)) || Promise.resolve([]),
     addBook: (book) => electron_1.ipcRenderer?.invoke('db:addBook', (0, exports.createDocumentFromBook)(book)) || Promise.resolve(0),
@@ -1629,6 +1693,8 @@ const fs = __importStar(__webpack_require__(/*! fs */ "fs"));
 const path = __importStar(__webpack_require__(/*! path */ "path"));
 const crypto = __importStar(__webpack_require__(/*! crypto */ "crypto"));
 const electron_1 = __webpack_require__(/*! electron */ "electron");
+const LoggerService_1 = __webpack_require__(/*! ./LoggerService */ "./src/services/LoggerService.ts");
+const ValidationService_1 = __webpack_require__(/*! ./ValidationService */ "./src/services/ValidationService.ts");
 class AuthService {
     constructor() {
         this.users = [];
@@ -1708,66 +1774,13 @@ class AuthService {
                 ...defaultAdmin,
                 id: this.users.length + 1
             });
-            // Créer aussi un utilisateur de développement
-            const devUser = {
-                username: 'dev',
-                passwordHash: '',
-                salt: '',
-                role: 'admin',
-                email: 'admin@bibliotheque-dev.local',
-                firstName: 'Développement',
-                lastName: 'Admin',
-                isActive: true,
-                createdAt: new Date().toISOString(),
-                loginAttempts: 0
-            };
-            const devPasswordData = this.hashPassword('dev123456');
-            devUser.passwordHash = devPasswordData.hash;
-            devUser.salt = devPasswordData.salt;
-            this.users.push({
-                ...devUser,
-                id: this.users.length + 1
+            // Logger la création du compte administrateur initial
+            LoggerService_1.logger.info('Compte administrateur initial créé', 'AuthService', {
+                username: defaultAdmin.username,
+                role: defaultAdmin.role
             });
-            // Créer aussi un utilisateur démo
-            const demoUser = {
-                username: 'demo',
-                passwordHash: '',
-                salt: '',
-                role: 'librarian',
-                email: 'demo@bibliotheque.local',
-                firstName: 'Démo',
-                lastName: 'Utilisateur',
-                isActive: true,
-                createdAt: new Date().toISOString(),
-                loginAttempts: 0
-            };
-            const demoPass = this.hashPassword('demo');
-            demoUser.passwordHash = demoPass.hash;
-            demoUser.salt = demoPass.salt;
-            this.users.push({
-                ...demoUser,
-                id: this.users.length + 1
-            });
-            // Créer l'utilisateur biblio
-            const biblioUser = {
-                username: 'biblio',
-                passwordHash: '',
-                salt: '',
-                role: 'librarian',
-                email: 'biblio@bibliotheque.local',
-                firstName: 'Bibliothécaire',
-                lastName: 'Principal',
-                isActive: true,
-                createdAt: new Date().toISOString(),
-                loginAttempts: 0
-            };
-            const biblioPass = this.hashPassword('biblio');
-            biblioUser.passwordHash = biblioPass.hash;
-            biblioUser.salt = biblioPass.salt;
-            this.users.push({
-                ...biblioUser,
-                id: this.users.length + 1
-            });
+            // Les comptes supplémentaires doivent être créés manuellement par l'administrateur
+            // pour garantir la sécurité et éviter les comptes par défaut
             this.saveUsers();
         }
     }
@@ -2086,20 +2099,27 @@ class AuthService {
     }
     // Méthodes utilitaires
     validatePassword(password) {
-        const errors = [];
-        if (password.length < 6) {
-            errors.push('Le mot de passe doit contenir au moins 6 caractères');
+        try {
+            const result = ValidationService_1.validationService.validatePassword(password);
+            // Logger les tentatives de mots de passe faibles
+            if (!result.isValid) {
+                LoggerService_1.logger.security('Tentative d\'utilisation d\'un mot de passe faible', {
+                    errorCount: result.errors.length,
+                    hasWarnings: result.warnings && result.warnings.length > 0
+                });
+            }
+            return {
+                isValid: result.isValid,
+                errors: result.errors
+            };
         }
-        if (!/\d/.test(password)) {
-            errors.push('Le mot de passe doit contenir au moins un chiffre');
+        catch (error) {
+            LoggerService_1.logger.error('Erreur lors de la validation du mot de passe', 'AuthService', error);
+            return {
+                isValid: false,
+                errors: ['Erreur lors de la validation du mot de passe']
+            };
         }
-        if (!/[a-z]/.test(password)) {
-            errors.push('Le mot de passe doit contenir au moins une lettre minuscule');
-        }
-        return {
-            isValid: errors.length === 0,
-            errors
-        };
     }
     changePassword(userId, currentPassword, newPassword) {
         try {
@@ -2741,6 +2761,223 @@ class BackupService {
     }
 }
 exports.BackupService = BackupService;
+
+
+/***/ }),
+
+/***/ "./src/services/ConfigService.ts":
+/*!***************************************!*\
+  !*** ./src/services/ConfigService.ts ***!
+  \***************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.configService = void 0;
+// Service de configuration sécurisé pour l'application
+const electron_1 = __webpack_require__(/*! electron */ "electron");
+const path = __importStar(__webpack_require__(/*! path */ "path"));
+const fs = __importStar(__webpack_require__(/*! fs */ "fs"));
+class ConfigService {
+    constructor() {
+        this.config = null;
+        this.configPath = path.join(electron_1.app.getPath('userData'), 'config.json');
+    }
+    /**
+     * Initialise la configuration
+     */
+    async initialize() {
+        try {
+            await this.loadConfig();
+        }
+        catch (error) {
+            console.error('Erreur lors du chargement de la configuration:', error);
+            await this.createDefaultConfig();
+        }
+    }
+    /**
+     * Charge la configuration depuis le fichier
+     */
+    async loadConfig() {
+        if (!fs.existsSync(this.configPath)) {
+            throw new Error('Fichier de configuration introuvable');
+        }
+        const configData = fs.readFileSync(this.configPath, 'utf8');
+        const parsedConfig = JSON.parse(configData);
+        // Validation de la configuration
+        this.validateConfig(parsedConfig);
+        this.config = parsedConfig;
+    }
+    /**
+     * Crée une configuration par défaut
+     */
+    async createDefaultConfig() {
+        const defaultConfig = {
+            supabase: {
+                url: process.env.SUPABASE_URL || '',
+                key: process.env.SUPABASE_KEY || ''
+            },
+            database: {
+                path: path.join(electron_1.app.getPath('userData'), 'database.db'),
+                backupInterval: 24 * 60 * 60 * 1000 // 24 heures
+            },
+            security: {
+                sessionTimeout: 30 * 60 * 1000, // 30 minutes
+                maxLoginAttempts: 5,
+                passwordPolicy: {
+                    minLength: 8,
+                    requireUppercase: true,
+                    requireLowercase: true,
+                    requireNumbers: true,
+                    requireSpecialChars: true
+                }
+            },
+            app: {
+                environment: "development" || 0,
+                debug: "development" !== 'production',
+                logLevel:  false ? 0 : 'debug'
+            }
+        };
+        this.config = defaultConfig;
+        await this.saveConfig();
+    }
+    /**
+     * Valide la structure de la configuration
+     */
+    validateConfig(config) {
+        const requiredFields = [
+            'supabase.url',
+            'supabase.key',
+            'database.path',
+            'security.passwordPolicy.minLength'
+        ];
+        for (const field of requiredFields) {
+            const fieldValue = this.getNestedValue(config, field);
+            if (fieldValue === undefined || fieldValue === null) {
+                throw new Error(`Champ de configuration manquant: ${field}`);
+            }
+        }
+        // Validation des clés Supabase
+        if (config.supabase.url && !config.supabase.url.startsWith('https://')) {
+            throw new Error('URL Supabase invalide');
+        }
+        if (config.supabase.key && config.supabase.key.length < 100) {
+            console.warn('Clé Supabase suspicieusement courte');
+        }
+    }
+    /**
+     * Récupère une valeur imbriquée dans un objet
+     */
+    getNestedValue(obj, path) {
+        return path.split('.').reduce((current, key) => current?.[key], obj);
+    }
+    /**
+     * Sauvegarde la configuration
+     */
+    async saveConfig() {
+        if (!this.config) {
+            throw new Error('Aucune configuration à sauvegarder');
+        }
+        // Créer le répertoire s'il n'existe pas
+        const configDir = path.dirname(this.configPath);
+        if (!fs.existsSync(configDir)) {
+            fs.mkdirSync(configDir, { recursive: true });
+        }
+        fs.writeFileSync(this.configPath, JSON.stringify(this.config, null, 2));
+    }
+    /**
+     * Récupère la configuration complète
+     */
+    getConfig() {
+        if (!this.config) {
+            throw new Error('Configuration non initialisée');
+        }
+        return this.config;
+    }
+    /**
+     * Récupère une section spécifique de la configuration
+     */
+    get(section) {
+        return this.getConfig()[section];
+    }
+    /**
+     * Met à jour une section de la configuration
+     */
+    async updateConfig(section, updates) {
+        if (!this.config) {
+            throw new Error('Configuration non initialisée');
+        }
+        this.config[section] = { ...this.config[section], ...updates };
+        await this.saveConfig();
+    }
+    /**
+     * Vérifie si l'application est en mode debug
+     */
+    isDebugMode() {
+        return this.get('app').debug;
+    }
+    /**
+     * Vérifie si l'application est en production
+     */
+    isProduction() {
+        return this.get('app').environment === 'production';
+    }
+    /**
+     * Récupère le niveau de log configuré
+     */
+    getLogLevel() {
+        return this.get('app').logLevel;
+    }
+    /**
+     * Vérifie si les clés Supabase sont configurées
+     */
+    hasSupabaseConfig() {
+        const supabaseConfig = this.get('supabase');
+        return !!(supabaseConfig.url && supabaseConfig.key);
+    }
+    /**
+     * Récupère la configuration de sécurité pour les mots de passe
+     */
+    getPasswordPolicy() {
+        return this.get('security').passwordPolicy;
+    }
+}
+// Instance singleton
+exports.configService = new ConfigService();
+exports["default"] = exports.configService;
 
 
 /***/ }),
@@ -4153,6 +4390,294 @@ exports.DatabaseService = DatabaseService;
 
 /***/ }),
 
+/***/ "./src/services/LoggerService.ts":
+/*!***************************************!*\
+  !*** ./src/services/LoggerService.ts ***!
+  \***************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.logger = void 0;
+// Service de logging sécurisé et centralisé
+const fs = __importStar(__webpack_require__(/*! fs */ "fs"));
+const path = __importStar(__webpack_require__(/*! path */ "path"));
+const electron_1 = __webpack_require__(/*! electron */ "electron");
+const ConfigService_1 = __webpack_require__(/*! ./ConfigService */ "./src/services/ConfigService.ts");
+class LoggerService {
+    constructor() {
+        this.maxLogFiles = 10;
+        this.maxLogSizeBytes = 10 * 1024 * 1024; // 10MB
+        this.logDirectory = path.join(electron_1.app.getPath('userData'), 'logs');
+        this.ensureLogDirectory();
+    }
+    /**
+     * Assure que le répertoire de logs existe
+     */
+    ensureLogDirectory() {
+        if (!fs.existsSync(this.logDirectory)) {
+            fs.mkdirSync(this.logDirectory, { recursive: true });
+        }
+    }
+    /**
+     * Vérifie si le niveau de log doit être enregistré
+     */
+    shouldLog(level) {
+        const configuredLevel = ConfigService_1.configService.getLogLevel();
+        const levels = ['error', 'warn', 'info', 'debug'];
+        const configuredIndex = levels.indexOf(configuredLevel);
+        const messageIndex = levels.indexOf(level);
+        return messageIndex <= configuredIndex;
+    }
+    /**
+     * Sanitise les données sensibles avant logging
+     */
+    sanitizeData(data) {
+        if (!data)
+            return data;
+        const sensitiveKeys = [
+            'password', 'token', 'key', 'secret', 'auth', 'credential',
+            'supabaseKey', 'apiKey', 'accessToken', 'refreshToken'
+        ];
+        if (typeof data === 'string') {
+            // Masquer les patterns d'URLs avec tokens
+            return data.replace(/([?&])(token|key|secret)=([^&]*)/gi, '$1$2=***');
+        }
+        if (typeof data === 'object' && data !== null) {
+            const sanitized = { ...data };
+            for (const key in sanitized) {
+                if (sensitiveKeys.some(sensitive => key.toLowerCase().includes(sensitive.toLowerCase()))) {
+                    sanitized[key] = '***';
+                }
+                else if (typeof sanitized[key] === 'object') {
+                    sanitized[key] = this.sanitizeData(sanitized[key]);
+                }
+            }
+            return sanitized;
+        }
+        return data;
+    }
+    /**
+     * Formate une entrée de log
+     */
+    formatLogEntry(entry) {
+        const { timestamp, level, message, context, data, stack } = entry;
+        let formatted = `[${timestamp}] ${level.toUpperCase()}`;
+        if (context) {
+            formatted += ` [${context}]`;
+        }
+        formatted += `: ${message}`;
+        if (data) {
+            formatted += `\nData: ${JSON.stringify(this.sanitizeData(data), null, 2)}`;
+        }
+        if (stack && level === 'error') {
+            formatted += `\nStack: ${stack}`;
+        }
+        return formatted + '\n';
+    }
+    /**
+     * Écrit dans le fichier de log
+     */
+    writeToFile(level, formattedMessage) {
+        const today = new Date().toISOString().split('T')[0];
+        const logFile = path.join(this.logDirectory, `${today}.log`);
+        try {
+            // Rotation des logs si nécessaire
+            this.rotateLogsIfNeeded(logFile);
+            fs.appendFileSync(logFile, formattedMessage, 'utf8');
+        }
+        catch (error) {
+            // En cas d'erreur de fichier, utiliser console comme fallback
+            console.error('Erreur d\'écriture dans le log:', error);
+            console.log(formattedMessage);
+        }
+    }
+    /**
+     * Gère la rotation des fichiers de log
+     */
+    rotateLogsIfNeeded(logFile) {
+        if (!fs.existsSync(logFile))
+            return;
+        const stats = fs.statSync(logFile);
+        if (stats.size > this.maxLogSizeBytes) {
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const rotatedFile = logFile.replace('.log', `-${timestamp}.log`);
+            fs.renameSync(logFile, rotatedFile);
+            // Nettoyer les anciens logs
+            this.cleanupOldLogs();
+        }
+    }
+    /**
+     * Nettoie les anciens fichiers de log
+     */
+    cleanupOldLogs() {
+        try {
+            const files = fs.readdirSync(this.logDirectory)
+                .filter(file => file.endsWith('.log'))
+                .map(file => ({
+                name: file,
+                path: path.join(this.logDirectory, file),
+                mtime: fs.statSync(path.join(this.logDirectory, file)).mtime
+            }))
+                .sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
+            if (files.length > this.maxLogFiles) {
+                const filesToDelete = files.slice(this.maxLogFiles);
+                filesToDelete.forEach(file => {
+                    fs.unlinkSync(file.path);
+                });
+            }
+        }
+        catch (error) {
+            console.error('Erreur lors du nettoyage des logs:', error);
+        }
+    }
+    /**
+     * Log générique
+     */
+    log(level, message, context, data, error) {
+        if (!this.shouldLog(level))
+            return;
+        const entry = {
+            timestamp: new Date().toISOString(),
+            level,
+            message,
+            context,
+            data,
+            stack: error?.stack
+        };
+        const formatted = this.formatLogEntry(entry);
+        // En mode debug, aussi logger dans la console
+        if (ConfigService_1.configService.isDebugMode()) {
+            const consoleMethod = level === 'error' ? console.error :
+                level === 'warn' ? console.warn :
+                    console.log;
+            consoleMethod(formatted);
+        }
+        // Écrire dans le fichier sauf en mode test
+        if (ConfigService_1.configService.get('app').environment !== 'test') {
+            this.writeToFile(level, formatted);
+        }
+    }
+    /**
+     * Log d'erreur
+     */
+    error(message, context, error, data) {
+        this.log('error', message, context, data, error);
+    }
+    /**
+     * Log d'avertissement
+     */
+    warn(message, context, data) {
+        this.log('warn', message, context, data);
+    }
+    /**
+     * Log d'information
+     */
+    info(message, context, data) {
+        this.log('info', message, context, data);
+    }
+    /**
+     * Log de debug
+     */
+    debug(message, context, data) {
+        this.log('debug', message, context, data);
+    }
+    /**
+     * Log de performance
+     */
+    performance(operation, duration, context) {
+        this.info(`Performance: ${operation} completed in ${duration}ms`, context);
+    }
+    /**
+     * Log de sécurité
+     */
+    security(message, data) {
+        this.warn(`SECURITY: ${message}`, 'Security', data);
+    }
+    /**
+     * Récupère les logs récents
+     */
+    getRecentLogs(hours = 24) {
+        const logs = [];
+        const cutoffTime = new Date(Date.now() - hours * 60 * 60 * 1000);
+        try {
+            const files = fs.readdirSync(this.logDirectory)
+                .filter(file => file.endsWith('.log'))
+                .sort()
+                .reverse(); // Plus récents en premier
+            for (const file of files.slice(0, 3)) { // Lire max 3 fichiers
+                const filePath = path.join(this.logDirectory, file);
+                const content = fs.readFileSync(filePath, 'utf8');
+                // Parser basique pour extraire les logs structurés
+                const lines = content.split('\n').filter(line => line.trim());
+                for (const line of lines) {
+                    try {
+                        const match = line.match(/^\[(.+?)\] (\w+)(?: \[(.+?)\])?: (.+)$/);
+                        if (match) {
+                            const [, timestamp, level, context, message] = match;
+                            const logTime = new Date(timestamp);
+                            if (logTime >= cutoffTime) {
+                                logs.push({
+                                    timestamp,
+                                    level: level.toLowerCase(),
+                                    message,
+                                    context
+                                });
+                            }
+                        }
+                    }
+                    catch (parseError) {
+                        // Ignorer les lignes non parsables
+                    }
+                }
+            }
+        }
+        catch (error) {
+            this.error('Erreur lors de la récupération des logs', 'LoggerService', error);
+        }
+        return logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    }
+}
+// Instance singleton
+exports.logger = new LoggerService();
+exports["default"] = exports.logger;
+
+
+/***/ }),
+
 /***/ "./src/services/SettingsService.ts":
 /*!*****************************************!*\
   !*** ./src/services/SettingsService.ts ***!
@@ -4590,26 +5115,61 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SupabaseService = void 0;
 // src/services/SupabaseService.ts
 const supabase_js_1 = __webpack_require__(/*! @supabase/supabase-js */ "@supabase/supabase-js");
+const ConfigService_1 = __webpack_require__(/*! ./ConfigService */ "./src/services/ConfigService.ts");
+const LoggerService_1 = __webpack_require__(/*! ./LoggerService */ "./src/services/LoggerService.ts");
 // Service Supabase pour la gestion de la bibliothèque
 class SupabaseService {
     constructor() {
         this.currentUser = null;
         this.currentInstitution = null;
-        // Configuration Supabase avec les vraies clés
-        const supabaseUrl = 'https://krojphsvzuwtgxxkjklj.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtyb2pwaHN2enV3dGd4eGtqa2xqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0NzMwMTMsImV4cCI6MjA2ODA0OTAxM30.U8CvDXnn84ow2984GIiZqMcAE1-Pc6lGavTVqm_fLtQ';
-        this.supabase = (0, supabase_js_1.createClient)(supabaseUrl, supabaseKey);
-        this.initializeAuth();
+        this.initializeSupabase();
+    }
+    async initializeSupabase() {
+        try {
+            // Vérifier que la configuration est initialisée
+            if (!ConfigService_1.configService.hasSupabaseConfig()) {
+                LoggerService_1.logger.error('Configuration Supabase manquante', 'SupabaseService');
+                throw new Error('Configuration Supabase non disponible');
+            }
+            const supabaseConfig = ConfigService_1.configService.get('supabase');
+            // Validation des clés
+            if (!supabaseConfig.url.startsWith('https://')) {
+                throw new Error('URL Supabase invalide');
+            }
+            if (supabaseConfig.key.length < 100) {
+                LoggerService_1.logger.warn('Clé Supabase suspicieusement courte', 'SupabaseService');
+            }
+            this.supabase = (0, supabase_js_1.createClient)(supabaseConfig.url, supabaseConfig.key, {
+                auth: {
+                    persistSession: true,
+                    detectSessionInUrl: false
+                }
+            });
+            LoggerService_1.logger.info('Supabase initialisé avec succès', 'SupabaseService');
+            await this.initializeAuth();
+        }
+        catch (error) {
+            LoggerService_1.logger.error('Erreur lors de l\'initialisation de Supabase', 'SupabaseService', error);
+            throw error;
+        }
     }
     async initializeAuth() {
         try {
-            const { data: { session } } = await this.supabase.auth.getSession();
+            const { data: { session }, error } = await this.supabase.auth.getSession();
+            if (error) {
+                LoggerService_1.logger.error('Erreur lors de la récupération de la session', 'SupabaseService', error);
+                return;
+            }
             if (session?.user) {
+                LoggerService_1.logger.info(`Session utilisateur trouvée: ${session.user.email}`, 'SupabaseService');
                 await this.loadUserProfile(session.user.id);
+            }
+            else {
+                LoggerService_1.logger.debug('Aucune session utilisateur active', 'SupabaseService');
             }
         }
         catch (error) {
-            console.error('Erreur lors de l\'initialisation de l\'authentification:', error);
+            LoggerService_1.logger.error('Erreur lors de l\'initialisation de l\'authentification', 'SupabaseService', error);
         }
     }
     // Authentication
@@ -5428,6 +5988,332 @@ class SyncService {
     }
 }
 exports.SyncService = SyncService;
+
+
+/***/ }),
+
+/***/ "./src/services/ValidationService.ts":
+/*!*******************************************!*\
+  !*** ./src/services/ValidationService.ts ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.validationService = void 0;
+// Service de validation sécurisé
+const ConfigService_1 = __webpack_require__(/*! ./ConfigService */ "./src/services/ConfigService.ts");
+class ValidationService {
+    /**
+     * Valide un mot de passe selon la politique de sécurité
+     */
+    validatePassword(password, options = {}) {
+        const errors = [];
+        const warnings = [];
+        const policy = ConfigService_1.configService.getPasswordPolicy();
+        // Longueur minimale
+        if (password.length < policy.minLength) {
+            errors.push(`Le mot de passe doit contenir au moins ${policy.minLength} caractères`);
+        }
+        // Vérification des caractères majuscules
+        if (policy.requireUppercase && !/[A-Z]/.test(password)) {
+            errors.push('Le mot de passe doit contenir au moins une lettre majuscule');
+        }
+        // Vérification des caractères minuscules
+        if (policy.requireLowercase && !/[a-z]/.test(password)) {
+            errors.push('Le mot de passe doit contenir au moins une lettre minuscule');
+        }
+        // Vérification des chiffres
+        if (policy.requireNumbers && !/\d/.test(password)) {
+            errors.push('Le mot de passe doit contenir au moins un chiffre');
+        }
+        // Vérification des caractères spéciaux
+        if (policy.requireSpecialChars && !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+            errors.push('Le mot de passe doit contenir au moins un caractère spécial');
+        }
+        // Vérifications de sécurité avancées
+        if (!options.allowCommonPatterns) {
+            // Vérifier les patterns communs
+            if (this.containsCommonPatterns(password)) {
+                errors.push('Le mot de passe contient des patterns trop prévisibles');
+            }
+            // Vérifier les mots de passe couramment utilisés
+            if (this.isCommonPassword(password)) {
+                errors.push('Ce mot de passe est trop commun et facilement devinable');
+            }
+        }
+        // Vérifier la répétition de caractères
+        if (this.hasExcessiveRepetition(password)) {
+            warnings.push('Évitez les répétitions excessives de caractères');
+        }
+        // Vérifier les séquences
+        if (this.hasSequentialChars(password)) {
+            warnings.push('Évitez les séquences de caractères (123, abc, etc.)');
+        }
+        return {
+            isValid: errors.length === 0,
+            errors,
+            warnings
+        };
+    }
+    /**
+     * Valide une adresse email
+     */
+    validateEmail(email) {
+        const errors = [];
+        // Pattern RFC 5322 simplifié mais robuste
+        const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+        if (!email) {
+            errors.push('L\'adresse email est requise');
+        }
+        else if (!emailRegex.test(email)) {
+            errors.push('Format d\'adresse email invalide');
+        }
+        else {
+            // Vérifications supplémentaires
+            if (email.length > 254) {
+                errors.push('L\'adresse email est trop longue');
+            }
+            // Vérifier les caractères suspects
+            if (email.includes('..') || email.startsWith('.') || email.endsWith('.')) {
+                errors.push('Format d\'adresse email invalide');
+            }
+        }
+        return {
+            isValid: errors.length === 0,
+            errors
+        };
+    }
+    /**
+     * Valide un nom d'utilisateur
+     */
+    validateUsername(username) {
+        const errors = [];
+        if (!username) {
+            errors.push('Le nom d\'utilisateur est requis');
+        }
+        else {
+            if (username.length < 3) {
+                errors.push('Le nom d\'utilisateur doit contenir au moins 3 caractères');
+            }
+            if (username.length > 50) {
+                errors.push('Le nom d\'utilisateur ne peut pas dépasser 50 caractères');
+            }
+            // Caractères autorisés : lettres, chiffres, tirets, underscores
+            if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+                errors.push('Le nom d\'utilisateur ne peut contenir que des lettres, chiffres, tirets et underscores');
+            }
+            // Ne peut pas commencer ou finir par un tiret ou underscore
+            if (/^[-_]|[-_]$/.test(username)) {
+                errors.push('Le nom d\'utilisateur ne peut pas commencer ou finir par un tiret ou underscore');
+            }
+        }
+        return {
+            isValid: errors.length === 0,
+            errors
+        };
+    }
+    /**
+     * Valide les données d'un document
+     */
+    validateDocument(document) {
+        const errors = [];
+        const warnings = [];
+        // Champs requis
+        const requiredFields = ['titre', 'auteur', 'editeur', 'annee', 'cote'];
+        for (const field of requiredFields) {
+            if (!document[field] || String(document[field]).trim() === '') {
+                errors.push(`Le champ "${field}" est requis`);
+            }
+        }
+        // Validation spécifique des champs
+        if (document.titre && document.titre.length > 500) {
+            errors.push('Le titre ne peut pas dépasser 500 caractères');
+        }
+        if (document.auteur && document.auteur.length > 200) {
+            errors.push('Le nom de l\'auteur ne peut pas dépasser 200 caractères');
+        }
+        if (document.annee) {
+            const year = parseInt(document.annee);
+            const currentYear = new Date().getFullYear();
+            if (isNaN(year) || year < 1000 || year > currentYear + 1) {
+                errors.push('L\'année doit être une année valide');
+            }
+        }
+        // Validation de l'ISBN si présent
+        if (document.isbn && !this.validateISBN(document.isbn)) {
+            warnings.push('Le format ISBN semble incorrect');
+        }
+        // Validation de la cote (doit être unique)
+        if (document.cote && document.cote.length > 50) {
+            errors.push('La cote ne peut pas dépasser 50 caractères');
+        }
+        return {
+            isValid: errors.length === 0,
+            errors,
+            warnings
+        };
+    }
+    /**
+     * Valide un ISBN
+     */
+    validateISBN(isbn) {
+        // Nettoyer l'ISBN
+        const cleanISBN = isbn.replace(/[-\s]/g, '');
+        // ISBN-10
+        if (cleanISBN.length === 10) {
+            return this.validateISBN10(cleanISBN);
+        }
+        // ISBN-13
+        if (cleanISBN.length === 13) {
+            return this.validateISBN13(cleanISBN);
+        }
+        return false;
+    }
+    /**
+     * Valide un ISBN-10
+     */
+    validateISBN10(isbn) {
+        let sum = 0;
+        for (let i = 0; i < 9; i++) {
+            const digit = parseInt(isbn[i]);
+            if (isNaN(digit))
+                return false;
+            sum += digit * (10 - i);
+        }
+        const checkDigit = isbn[9];
+        const calculatedCheck = (11 - (sum % 11)) % 11;
+        return (calculatedCheck === 10 ? 'X' : calculatedCheck.toString()) === checkDigit;
+    }
+    /**
+     * Valide un ISBN-13
+     */
+    validateISBN13(isbn) {
+        let sum = 0;
+        for (let i = 0; i < 12; i++) {
+            const digit = parseInt(isbn[i]);
+            if (isNaN(digit))
+                return false;
+            sum += digit * (i % 2 === 0 ? 1 : 3);
+        }
+        const checkDigit = parseInt(isbn[12]);
+        const calculatedCheck = (10 - (sum % 10)) % 10;
+        return calculatedCheck === checkDigit;
+    }
+    /**
+     * Vérifie si le mot de passe contient des patterns communs
+     */
+    containsCommonPatterns(password) {
+        const commonPatterns = [
+            /password/i,
+            /123456/,
+            /qwerty/i,
+            /admin/i,
+            /letmein/i,
+            /welcome/i,
+            /monkey/i,
+            /dragon/i
+        ];
+        return commonPatterns.some(pattern => pattern.test(password));
+    }
+    /**
+     * Vérifie si c'est un mot de passe couramment utilisé
+     */
+    isCommonPassword(password) {
+        const commonPasswords = [
+            '123456', 'password', '123456789', '12345678', '12345',
+            '1234567', '1234567890', 'qwerty', 'abc123', 'password1',
+            'admin', 'letmein', 'welcome', '123123', 'Password',
+            'password123', '000000', '111111', '666666', '121212'
+        ];
+        return commonPasswords.includes(password.toLowerCase());
+    }
+    /**
+     * Vérifie la répétition excessive de caractères
+     */
+    hasExcessiveRepetition(password) {
+        // Plus de 2 caractères identiques consécutifs
+        return /(.)\1{2,}/.test(password);
+    }
+    /**
+     * Vérifie les séquences de caractères
+     */
+    hasSequentialChars(password) {
+        const sequences = [
+            'abcdefghijklmnopqrstuvwxyz',
+            '0123456789',
+            'qwertyuiopasdfghjklzxcvbnm'
+        ];
+        const lowerPassword = password.toLowerCase();
+        for (const sequence of sequences) {
+            for (let i = 0; i <= sequence.length - 3; i++) {
+                const seq = sequence.substring(i, i + 3);
+                const reverseSeq = seq.split('').reverse().join('');
+                if (lowerPassword.includes(seq) || lowerPassword.includes(reverseSeq)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    /**
+     * Sanitise une chaîne pour éviter les injections
+     */
+    sanitizeString(input) {
+        if (typeof input !== 'string') {
+            return '';
+        }
+        return input
+            .trim()
+            .replace(/[<>]/g, '') // Supprime les balises HTML basiques
+            .replace(/['"]/g, '') // Supprime les guillemets pour éviter les injections SQL
+            .substring(0, 1000); // Limite la longueur
+    }
+    /**
+     * Valide et sanitise une entrée utilisateur
+     */
+    validateAndSanitizeInput(input, maxLength = 255) {
+        const errors = [];
+        if (!input) {
+            errors.push('La valeur est requise');
+            return { value: '', isValid: false, errors };
+        }
+        const sanitized = this.sanitizeString(input);
+        if (sanitized.length === 0) {
+            errors.push('La valeur contient des caractères non autorisés');
+        }
+        if (sanitized.length > maxLength) {
+            errors.push(`La valeur ne peut pas dépasser ${maxLength} caractères`);
+        }
+        return {
+            value: sanitized,
+            isValid: errors.length === 0,
+            errors
+        };
+    }
+    /**
+     * Valide un numéro de téléphone
+     */
+    validatePhoneNumber(phone) {
+        const errors = [];
+        if (!phone) {
+            return { isValid: true, errors }; // Optionnel
+        }
+        // Pattern pour numéros internationaux
+        const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+        const cleanPhone = phone.replace(/[\s\-\(\)\.]/g, '');
+        if (!phoneRegex.test(cleanPhone)) {
+            errors.push('Format de numéro de téléphone invalide');
+        }
+        return {
+            isValid: errors.length === 0,
+            errors
+        };
+    }
+}
+// Instance singleton
+exports.validationService = new ValidationService();
+exports["default"] = exports.validationService;
 
 
 /***/ }),

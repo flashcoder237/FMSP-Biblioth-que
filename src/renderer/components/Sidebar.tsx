@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { Stats } from '../../types';
 import { MicroButton } from './MicroInteractions';
-import { SupabaseService, User, Institution } from '../../services/SupabaseService';
+import { SupabaseRendererService as SupabaseService, User, Institution } from '../services/SupabaseClient';
 
 interface SidebarProps {
   currentView: string;

@@ -1,0 +1,426 @@
+// Service Supabase pour le renderer (frontend) - Sans dépendances Node.js
+
+export interface Institution {
+  id: string;
+  code: string;
+  name: string;
+  address: string;
+  city: string;
+  country: string;
+  phone: string;
+  email: string;
+  website: string;
+  logo: string;
+  description: string;
+  type: 'school' | 'university' | 'library' | 'other';
+  director?: string;
+  capacity?: number;
+  established_year?: string;
+  status: 'active' | 'inactive' | 'suspended';
+  subscription_plan: 'basic' | 'premium' | 'enterprise';
+  max_books: number;
+  max_users: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  role?: 'super_admin' | 'admin' | 'librarian' | 'user';
+  institution_id?: string;
+  avatar_url?: string;
+  phone?: string;
+  is_active?: boolean;
+  last_login?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface SupabaseConfig {
+  url: string;
+  key: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  user?: User;
+  message?: string;
+  error?: string;
+}
+
+// Service Supabase simplifié pour le renderer - utilise principalement l'authentification locale
+export class SupabaseRendererService {
+  private currentUser: User | null = null;
+  private currentInstitution: Institution | null = null;
+
+  constructor() {
+    // Service simplifié sans initialisation Supabase automatique
+  }
+
+  // Méthodes d'authentification - utilise l'authentification locale simplifiée
+  async signIn(email: string, password: string): Promise<AuthResponse> {
+    try {
+      // Authentification locale simplifiée - simule une connexion réussie
+      const user: User = {
+        id: Date.now().toString(),
+        firstName: 'Administrateur',
+        lastName: 'Principal',
+        email: email
+      };
+      
+      this.currentUser = user;
+      return {
+        success: true,
+        user,
+        message: 'Sign in successful'
+      };
+    } catch (error) {
+      console.error('Sign in failed:', error);
+      return { success: false, error: 'Authentication failed' };
+    }
+  }
+
+  async signOut(): Promise<void> {
+    try {
+      this.currentUser = null;
+      this.currentInstitution = null;
+    } catch (error) {
+      console.error('Sign out failed:', error);
+    }
+  }
+
+  async signUp(email: string, password: string, userData: {
+    firstName: string;
+    lastName: string;
+    institutionCode: string;
+  }): Promise<AuthResponse> {
+    try {
+      // Authentification locale simplifiée
+      const user: User = {
+        id: Date.now().toString(),
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: email
+      };
+      
+      this.currentUser = user;
+      return {
+        success: true,
+        user,
+        message: 'Registration successful'
+      };
+    } catch (error) {
+      console.error('Sign up failed:', error);
+      return { success: false, error: 'Registration failed' };
+    }
+  }
+
+  async register(userData: { firstName: string; lastName: string; institutionCode: string; role?: string }): Promise<AuthResponse> {
+    try {
+      // Utilise l'authentification locale
+      const user: User = {
+        id: Date.now().toString(),
+        firstName: userData.firstName,
+        lastName: userData.lastName
+      };
+      
+      this.currentUser = user;
+      return {
+        success: true,
+        user,
+        message: 'Registration successful'
+      };
+    } catch (error) {
+      console.error('Registration failed:', error);
+      return {
+        success: false,
+        message: 'Registration failed'
+      };
+    }
+  }
+
+  // Document management methods
+  async getDocuments(): Promise<any[]> {
+    try {
+      if (window.electronAPI && window.electronAPI.getDocuments) {
+        return await window.electronAPI.getDocuments();
+      }
+      return [];
+    } catch (error) {
+      console.error('Error getting documents:', error);
+      return [];
+    }
+  }
+
+  async addDocument(document: any): Promise<any> {
+    try {
+      if (window.electronAPI && window.electronAPI.addDocument) {
+        return await window.electronAPI.addDocument(document);
+      }
+      throw new Error('Add document API not available');
+    } catch (error) {
+      console.error('Error adding document:', error);
+      throw error;
+    }
+  }
+
+  async deleteDocument(id: string): Promise<boolean> {
+    try {
+      if (window.electronAPI && window.electronAPI.deleteDocument) {
+        return await window.electronAPI.deleteDocument(parseInt(id, 10));
+      }
+      return false;
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      return false;
+    }
+  }
+
+  // Author and category methods
+  async getAuthors(): Promise<any[]> { // Returns Author[] interface objects
+    try {
+      if (window.electronAPI && window.electronAPI.getAuthors) {
+        return await window.electronAPI.getAuthors();
+      }
+      return [];
+    } catch (error) {
+      console.error('Error getting authors:', error);
+      return [];
+    }
+  }
+
+  async getCategories(): Promise<any[]> { // Returns Category[] interface objects
+    try {
+      if (window.electronAPI && window.electronAPI.getCategories) {
+        return await window.electronAPI.getCategories();
+      }
+      return [];
+    } catch (error) {
+      console.error('Error getting categories:', error);
+      return [];
+    }
+  }
+
+  // Institution management - utilise des données locales simplifiées
+  async createInstitution(institutionData: any): Promise<any> {
+    try {
+      // Créer une institution locale
+      const institution: Institution = {
+        id: Date.now().toString(),
+        code: institutionData.code || Math.random().toString(36).substr(2, 8).toUpperCase(),
+        name: institutionData.name || 'Mon Institution',
+        address: institutionData.address || '',
+        city: institutionData.city || '',
+        country: institutionData.country || '',
+        phone: institutionData.phone || '',
+        email: institutionData.email || '',
+        website: institutionData.website || '',
+        logo: institutionData.logo || '',
+        description: institutionData.description || '',
+        type: institutionData.type || 'library',
+        status: 'active',
+        subscription_plan: 'basic',
+        max_books: 1000,
+        max_users: 100,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      this.currentInstitution = institution;
+      return {
+        success: true,
+        institution,
+        code: institution.code
+      };
+    } catch (error) {
+      console.error('Error creating institution:', error);
+      throw error;
+    }
+  }
+
+  async switchInstitution(institutionCode: string): Promise<boolean> {
+    try {
+      // Simulation locale - toujours réussir pour simplifier
+      if (this.currentInstitution) {
+        return true;
+      }
+      
+      // Créer une institution par défaut si aucune n'existe
+      const institution: Institution = {
+        id: '1',
+        code: institutionCode,
+        name: 'Institution par défaut',
+        address: '',
+        city: '',
+        country: '',
+        phone: '',
+        email: '',
+        website: '',
+        logo: '',
+        description: '',
+        type: 'library',
+        status: 'active',
+        subscription_plan: 'basic',
+        max_books: 1000,
+        max_users: 100,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      this.currentInstitution = institution;
+      return true;
+    } catch (error) {
+      console.error('Error switching institution:', error);
+      return false;
+    }
+  }
+
+  // Borrowing system methods
+  async borrowDocument(borrowData: any): Promise<any> {
+    try {
+      if (window.electronAPI && window.electronAPI.borrowDocument) {
+        return await window.electronAPI.borrowDocument(
+          parseInt(borrowData.documentId, 10),
+          parseInt(borrowData.borrowerId, 10), 
+          borrowData.expectedReturnDate
+        );
+      }
+      throw new Error('Borrow document API not available');
+    } catch (error) {
+      console.error('Error borrowing document:', error);
+      throw error;
+    }
+  }
+
+  async returnDocument(borrowId: string): Promise<boolean> {
+    // Use returnBook method from preload - convert string ID to number if needed
+    try {
+      if (window.electronAPI && window.electronAPI.returnBook) {
+        const borrowIdNum = typeof borrowId === 'string' ? parseInt(borrowId, 10) : borrowId;
+        return await window.electronAPI.returnBook(borrowIdNum);
+      }
+      return false;
+    } catch (error) {
+      console.error('Error returning document:', error);
+      return false;
+    }
+  }
+
+  async returnBook(borrowId: string, notes?: string): Promise<boolean> {
+    try {
+      if (window.electronAPI && window.electronAPI.returnBook) {
+        const borrowIdNum = typeof borrowId === 'string' ? parseInt(borrowId, 10) : borrowId;
+        return await window.electronAPI.returnBook(borrowIdNum, notes);
+      }
+      return false;
+    } catch (error) {
+      console.error('Error returning book:', error);
+      return false;
+    }
+  }
+
+  // Additional methods needed by the application
+  async getBorrowers(): Promise<any[]> {
+    try {
+      if (window.electronAPI && window.electronAPI.getBorrowers) {
+        return await window.electronAPI.getBorrowers();
+      }
+      return [];
+    } catch (error) {
+      console.error('Error getting borrowers:', error);
+      return [];
+    }
+  }
+
+  async addBorrower(borrowerData: any): Promise<any> {
+    try {
+      if (window.electronAPI && window.electronAPI.addBorrower) {
+        return await window.electronAPI.addBorrower(borrowerData);
+      }
+      throw new Error('Add borrower API not available');
+    } catch (error) {
+      console.error('Error adding borrower:', error);
+      throw error;
+    }
+  }
+
+  async getBorrowedDocuments(): Promise<any[]> {
+    try {
+      if (window.electronAPI && window.electronAPI.getBorrowedDocuments) {
+        return await window.electronAPI.getBorrowedDocuments();
+      }
+      return [];
+    } catch (error) {
+      console.error('Error getting borrowed documents:', error);
+      return [];
+    }
+  }
+
+  async getStats(): Promise<any> {
+    try {
+      if (window.electronAPI && window.electronAPI.getStats) {
+        return await window.electronAPI.getStats();
+      }
+      return {
+        totalDocuments: 0,
+        borrowedDocuments: 0,
+        availableDocuments: 0,
+        totalAuthors: 0,
+        totalCategories: 0,
+        totalBorrowers: 0,
+        totalStudents: 0,
+        totalStaff: 0,
+        overdueDocuments: 0
+      };
+    } catch (error) {
+      console.error('Error getting stats:', error);
+      return {
+        totalDocuments: 0,
+        borrowedDocuments: 0,
+        availableDocuments: 0,
+        totalAuthors: 0,
+        totalCategories: 0,
+        totalBorrowers: 0,
+        totalStudents: 0,
+        totalStaff: 0,
+        overdueDocuments: 0
+      };
+    }
+  }
+
+  // Getters
+  getCurrentUser(): User | null {
+    return this.currentUser;
+  }
+
+  getCurrentInstitution(): Institution | null {
+    return this.currentInstitution;
+  }
+
+  isAuthenticated(): boolean {
+    return !!this.currentUser;
+  }
+
+  isReady(): boolean {
+    return true; // Always ready for local operations
+  }
+
+  // Utility methods
+  async refreshAuth(): Promise<void> {
+    // No-op for local authentication
+  }
+
+  onAuthStateChange(callback: (user: User | null) => void): () => void {
+    // For local authentication, we don't have real-time auth changes
+    return () => {};
+  }
+}
+
+// Instance singleton pour le renderer
+export const supabaseRenderer = new SupabaseRendererService();
+export default supabaseRenderer;
+
+// No additional type exports needed - types are already exported above
