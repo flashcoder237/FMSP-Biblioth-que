@@ -660,7 +660,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           align-items: center;
           justify-content: space-between;
           padding: 32px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           color: #FFFFFF;
           position: relative;
           overflow: hidden;
@@ -771,7 +771,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         }
         
         .stat-icon.student {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
         }
         
         .stat-icon.staff {
@@ -846,7 +846,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         
         .search-input:focus {
           outline: none;
-          border-color: #667eea;
+          border-color: #3E5C49;
           box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
           transform: translateY(-1px);
         }
@@ -897,7 +897,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         
         .filter-select:focus {
           outline: none;
-          border-color: #667eea;
+          border-color: #3E5C49;
           box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
@@ -906,7 +906,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           align-items: center;
           gap: 10px;
           padding: 14px 24px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           color: #FFFFFF;
           border: none;
           border-radius: 16px;
@@ -920,7 +920,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         .btn-primary:hover {
           transform: translateY(-2px);
           box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-          background: linear-gradient(135deg, #5a67d8 0%, #667eea 100%);
+          background: linear-gradient(135deg, #2E453A 0%, #3E5C49 100%);
         }
         
         .borrowers-content {
@@ -953,7 +953,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           top: 0;
           bottom: 0;
           width: 5px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           transition: all 0.3s ease;
         }
         
@@ -1044,7 +1044,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         
         .action-btn.edit {
           background: rgba(102, 126, 234, 0.1);
-          color: #667eea;
+          color: #3E5C49;
         }
         
         .action-btn.edit:hover {
@@ -1053,7 +1053,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         }
         
         .action-btn.edit:hover::before {
-          background: #667eea;
+          background: #3E5C49;
         }
         
         .action-btn.delete {
@@ -1233,15 +1233,15 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         }
         
         .type-button:hover {
-          border-color: #667eea;
-          color: #667eea;
+          border-color: #3E5C49;
+          color: #3E5C49;
           transform: translateY(-2px);
           box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
         }
         
         .type-button.active {
-          border-color: #667eea;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-color: #3E5C49;
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           color: #FFFFFF;
           transform: translateY(-2px);
           box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
@@ -1278,7 +1278,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         
         .form-input:focus {
           outline: none;
-          border-color: #667eea;
+          border-color: #3E5C49;
           box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
           transform: translateY(-1px);
         }
@@ -1441,13 +1441,13 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         
         .borrowers-content::-webkit-scrollbar-thumb,
         .add-modal::-webkit-scrollbar-thumb {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           border-radius: 4px;
         }
         
         .borrowers-content::-webkit-scrollbar-thumb:hover,
         .add-modal::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(135deg, #5a67d8 0%, #667eea 100%);
+          background: linear-gradient(135deg, #2E453A 0%, #3E5C49 100%);
         }
         
         /* États de synchronisation */
@@ -1500,7 +1500,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         .form-input:focus,
         .search-input:focus,
         .filter-select:focus {
-          border-color: #667eea;
+          border-color: #3E5C49;
           box-shadow: 
             0 0 0 3px rgba(102, 126, 234, 0.1),
             0 4px 12px rgba(102, 126, 234, 0.15);

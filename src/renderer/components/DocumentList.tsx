@@ -212,8 +212,10 @@ export const DocumentList: React.FC<DocumentListProps> = ({
         )}
       </div>
 
-      {/* Section de filtrage */}
-      <div className="filters-section">
+      {/* Content scrollable area */}
+      <div className="scrollable-content">
+        {/* Section de filtrage */}
+        <div className="filters-section">
         <div className="section-header">
           <div className="section-icon">
             <Filter size={20} />
@@ -426,15 +428,44 @@ export const DocumentList: React.FC<DocumentListProps> = ({
           </button>
         </div>
       )}
+      </div>
 
       <style>{`
         .document-list-container {
           padding: 24px;
           background: linear-gradient(135deg, #F8F6F0 0%, #FFFFFF 100%);
-          min-height: 100vh;
+          height: 100vh;
           display: flex;
           flex-direction: column;
           gap: 24px;
+          overflow: hidden;
+        }
+
+        .scrollable-content {
+          flex: 1;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+          padding-right: 8px;
+        }
+
+        .scrollable-content::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .scrollable-content::-webkit-scrollbar-track {
+          background: rgba(229, 220, 194, 0.2);
+          border-radius: 4px;
+        }
+
+        .scrollable-content::-webkit-scrollbar-thumb {
+          background: rgba(62, 92, 73, 0.3);
+          border-radius: 4px;
+        }
+
+        .scrollable-content::-webkit-scrollbar-thumb:hover {
+          background: rgba(62, 92, 73, 0.5);
         }
 
         /* En-tête principal */

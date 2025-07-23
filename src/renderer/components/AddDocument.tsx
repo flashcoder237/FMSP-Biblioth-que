@@ -107,8 +107,8 @@ export const AddDocument: React.FC<AddDocumentProps> = ({ onAdd, onCancel, editi
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     
     if (!validateForm()) {
       return;
@@ -431,7 +431,7 @@ export const AddDocument: React.FC<AddDocumentProps> = ({ onAdd, onCancel, editi
             </MicroButton>
             <MicroButton
               variant="success"
-              onClick={() => handleSubmit({} as React.FormEvent)}
+              onClick={() => handleSubmit()}
               disabled={isLoading}
               icon={Save}
             >
