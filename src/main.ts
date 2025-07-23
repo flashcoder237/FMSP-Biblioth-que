@@ -7,7 +7,7 @@ import { BackupService } from './services/BackupService';
 import { AuthService } from './services/AuthService';
 import { ApplicationSettings, SettingsService } from './services/SettingsService';
 import { SyncService } from './services/SyncService';
-import { AuthCredentials } from './preload';
+import { AuthCredentials, createBookFromDocument } from './preload';
 import { RunResult } from 'sqlite3';
 
 let mainWindow: BrowserWindow;
@@ -121,7 +121,53 @@ ipcMain.handle('window-controls:close', () => {
   mainWindow.close();
 });
 
-// Database Operations - Books
+// Database Operations - Documents (API principale)
+ipcMain.handle('db:getDocuments', async () => {
+  try {
+    return await dbService.getDocuments();
+  } catch (error) {
+    console.error('Erreur getDocuments:', error);
+    return [];
+  }
+});
+
+ipcMain.handle('db:addDocument', async (_, document) => {
+  try {
+    return await dbService.addDocument(document);
+  } catch (error) {
+    console.error('Erreur addDocument:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('db:updateDocument', async (_, document) => {
+  try {
+    return await dbService.updateDocument(document);
+  } catch (error) {
+    console.error('Erreur updateDocument:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('db:deleteDocument', async (_, id) => {
+  try {
+    return await dbService.deleteDocument(id);
+  } catch (error) {
+    console.error('Erreur deleteDocument:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('db:searchDocuments', async (_, query) => {
+  try {
+    return await dbService.searchDocuments(query);
+  } catch (error) {
+    console.error('Erreur searchDocuments:', error);
+    return [];
+  }
+});
+
+// Database Operations - Books (Compatibilité legacy)
 ipcMain.handle('db:getBooks', async () => {
   try {
     return await dbService.getBooks();
@@ -160,7 +206,7 @@ ipcMain.handle('db:deleteBook', async (_, id) => {
 
 ipcMain.handle('db:searchBooks', async (_, query) => {
   try {
-    return await dbService.searchBooks(query);
+    return await dbService.searchDocuments(query).then(docs => docs.map(createBookFromDocument));
   } catch (error) {
     console.error('Erreur searchBooks:', error);
     return [];
@@ -314,15 +360,15 @@ ipcMain.handle('db:getStats', async () => {
   } catch (error) {
     console.error('Erreur getStats:', error);
     return {
-      totalBooks: 0,
-      borrowedBooks: 0,
-      availableBooks: 0,
+      totalDocuments: 0,
+      borrowedDocuments: 0,
+      availableDocuments: 0,
       totalAuthors: 0,
       totalCategories: 0,
       totalBorrowers: 0,
       totalStudents: 0,
       totalStaff: 0,
-      overdueBooks: 0
+      overdueDocuments: 0
     };
   }
 });
@@ -845,15 +891,15 @@ function generateInventoryContent(data: any): string {
   return `
     <div class="stats-summary">
       <div class="stat-item">
-        <div class="stat-value">${stats.totalBooks}</div>
+        <div class="stat-value">${stats.totalDocuments}</div>
         <div class="stat-label">Total Livres</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${stats.availableBooks}</div>
+        <div class="stat-value">${stats.availableDocuments}</div>
         <div class="stat-label">Disponibles</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${stats.borrowedBooks}</div>
+        <div class="stat-value">${stats.borrowedDocuments}</div>
         <div class="stat-label">Empruntés</div>
       </div>
       <div class="stat-item">
@@ -909,11 +955,11 @@ function generateAvailableBooksContent(data: any): string {
         <div class="stat-label">Livres Disponibles</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${stats.totalBooks}</div>
+        <div class="stat-value">${stats.totalDocuments}</div>
         <div class="stat-label">Total Livres</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${((availableBooks.length / (stats.totalBooks || 1)) * 100).toFixed(1)}%</div>
+        <div class="stat-value">${((availableBooks.length / (stats.totalDocuments || 1)) * 100).toFixed(1)}%</div>
         <div class="stat-label">Taux Disponibilité</div>
       </div>
     </div>

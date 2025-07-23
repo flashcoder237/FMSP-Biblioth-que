@@ -64,7 +64,7 @@ const App = () => {
     const [authors, setAuthors] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
     const [categories, setCategories] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
     const [borrowers, setBorrowers] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
-    const [borrowedDocuments, setBorrowedBooks] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
+    const [borrowedDocuments, setBorrowedDocuments] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
     const [stats, setStats] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({
         totalDocuments: 0,
         borrowedDocuments: 0,
@@ -123,7 +123,7 @@ const App = () => {
             setAuthors(authorsData);
             setCategories(categoriesData);
             setBorrowers(borrowersData);
-            setBorrowedBooks(borrowedDocumentsData);
+            setBorrowedDocuments(borrowedDocumentsData);
             setStats(statsData);
         }
         catch (error) {
@@ -289,7 +289,7 @@ const App = () => {
             setAuthors(demoAuthors);
             setCategories(demoCategories);
             setBorrowers(demoBorrowers);
-            setBorrowedBooks([]);
+            setBorrowedDocuments([]);
             setStats(demoStats);
         }
         catch (error) {
@@ -418,7 +418,7 @@ const App = () => {
             setAuthors([]);
             setCategories([]);
             setBorrowers([]);
-            setBorrowedBooks([]);
+            setBorrowedDocuments([]);
             setStats({
                 totalDocuments: 0,
                 borrowedDocuments: 0,
@@ -562,7 +562,7 @@ const App = () => {
                         version: 1,
                         createdAt: new Date().toISOString()
                     };
-                    setBorrowedBooks(prev => [...prev, newBorrowHistory]);
+                    setBorrowedDocuments(prev => [...prev, newBorrowHistory]);
                     // Mettre à jour les statistiques
                     setStats(prev => ({
                         ...prev,
@@ -595,7 +595,7 @@ const App = () => {
                 const updatedBorrowHistory = borrowedDocuments.map(bh => bh.documentId === documentId && bh.status === 'active'
                     ? { ...bh, actualReturnDate: new Date().toISOString(), status: 'returned' }
                     : bh);
-                setBorrowedBooks(updatedBorrowHistory);
+                setBorrowedDocuments(updatedBorrowHistory);
                 // Mettre à jour les statistiques
                 setStats(prev => ({
                     ...prev,
@@ -623,16 +623,19 @@ const App = () => {
             await loadData();
         }
     };
-    // Affichage de l'écran d'authentification
-    if (!isAuthenticated) {
-        if (currentView === 'institution_setup') {
-            return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_InstitutionSetup__WEBPACK_IMPORTED_MODULE_15__.InstitutionSetup, { institutionCode: institutionCode, institution: currentInstitution, onComplete: () => {
-                    setCurrentView('auth');
-                    alert('Votre établissement a été créé avec succès ! Vous pouvez maintenant vous connecter.');
-                } }));
+    // Gérer l'affichage avec TitleBar toujours visible
+    const renderAuthenticatedContent = () => {
+        if (!isAuthenticated) {
+            if (currentView === 'institution_setup') {
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_InstitutionSetup__WEBPACK_IMPORTED_MODULE_15__.InstitutionSetup, { institutionCode: institutionCode, institution: currentInstitution, onComplete: () => {
+                        setCurrentView('auth');
+                        alert('Votre établissement a été créé avec succès ! Vous pouvez maintenant vous connecter.');
+                    } }));
+            }
+            return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_EnhancedAuthentication__WEBPACK_IMPORTED_MODULE_14__.EnhancedAuthentication, { onLogin: handleAuthentication });
         }
-        return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_EnhancedAuthentication__WEBPACK_IMPORTED_MODULE_14__.EnhancedAuthentication, { onLogin: handleAuthentication });
-    }
+        return renderCurrentView();
+    };
     const renderCurrentView = () => {
         switch (currentView) {
             case 'dashboard':
@@ -670,7 +673,7 @@ const App = () => {
                 return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Dashboard__WEBPACK_IMPORTED_MODULE_4__.Dashboard, { stats: stats, onNavigate: setCurrentView, documents: documents, categories: categories }));
         }
     };
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_17__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(AppContent, { isDemoMode: isDemoMode, currentView: currentView, setCurrentView: setCurrentView, isLoading: isLoading, error: error, setError: setError, renderCurrentView: renderCurrentView, showBorrowModal: showBorrowModal, selectedDocumentForBorrow: selectedDocumentForBorrow, closeBorrowModal: closeBorrowModal, handleBorrow: handleBorrow, handleReturn: handleReturn, refreshData: refreshData, supabaseService: supabaseService, borrowers: borrowers, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution, isAuthenticated: isAuthenticated }) }));
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_17__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_18__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, { onRefresh: refreshData, isAuthenticated: isAuthenticated }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-container", children: isAuthenticated ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(AppContent, { isDemoMode: isDemoMode, currentView: currentView, setCurrentView: setCurrentView, isLoading: isLoading, error: error, setError: setError, renderCurrentView: renderCurrentView, showBorrowModal: showBorrowModal, selectedDocumentForBorrow: selectedDocumentForBorrow, closeBorrowModal: closeBorrowModal, handleBorrow: handleBorrow, handleReturn: handleReturn, refreshData: refreshData, supabaseService: supabaseService, borrowers: borrowers, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution, isAuthenticated: isAuthenticated })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-container", children: renderAuthenticatedContent() })) })] }) }) }));
 };
 const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error, setError, renderCurrentView, showBorrowModal, selectedDocumentForBorrow, closeBorrowModal, handleBorrow, handleReturn, refreshData, supabaseService, borrowers, stats, currentUser, currentInstitution, isAuthenticated }) => {
     const { info } = (0,_components_ToastSystem__WEBPACK_IMPORTED_MODULE_17__.useQuickToast)();
@@ -684,7 +687,7 @@ const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error,
             }, 1000);
         }
     }, [isDemoMode, demoNotificationShown, info]);
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_18__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, {}), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Sidebar__WEBPACK_IMPORTED_MODULE_3__.Sidebar, { currentView: currentView, onNavigate: setCurrentView, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("main", { className: "main-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-wrapper", children: [isLoading && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Chargement..." })] })), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "error-banner", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => setError(''), children: "\u00D7" })] })), renderCurrentView()] }) })] }), showBorrowModal && selectedDocumentForBorrow && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowDocument__WEBPACK_IMPORTED_MODULE_8__.BorrowDocument, { document: selectedDocumentForBorrow, borrowers: borrowers, onBorrow: handleBorrow, onReturn: handleReturn, onCancel: closeBorrowModal })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Sidebar__WEBPACK_IMPORTED_MODULE_3__.Sidebar, { currentView: currentView, onNavigate: setCurrentView, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("main", { className: "main-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-wrapper", children: [isLoading && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Chargement..." })] })), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "error-banner", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => setError(''), children: "\u00D7" })] })), renderCurrentView()] }) }), showBorrowModal && selectedDocumentForBorrow && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowDocument__WEBPACK_IMPORTED_MODULE_8__.BorrowDocument, { document: selectedDocumentForBorrow, borrowers: borrowers, onBorrow: handleBorrow, onReturn: handleReturn, onCancel: closeBorrowModal })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .app {
           height: 100vh;
           display: flex;
@@ -951,7 +954,7 @@ const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error,
             font-size: 20px;
           }
         }
-      ` })] }) }));
+      ` })] }));
 };
 const EnhancedBorrowForm = ({ document, borrowers, onSubmit, onCancel, onRefreshBorrowers, supabaseService }) => {
     const [selectedBorrower, setSelectedBorrower] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
@@ -15399,12 +15402,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/minus.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/square.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/refresh-cw.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/minus.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/square.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
 
 
-const TitleBar = () => {
+const TitleBar = ({ onRefresh, isAuthenticated = false }) => {
     const handleMinimize = () => {
         try {
             if (window.electronAPI && window.electronAPI.minimizeWindow) {
@@ -15448,7 +15452,17 @@ const TitleBar = () => {
             console.error('Erreur lors de la fermeture:', error);
         }
     };
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "titlebar", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "titlebar-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "titlebar-left", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_1__["default"], { size: 18 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "app-title", children: "Biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "title-separator" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "app-subtitle", children: "Gestion moderne de collection" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "titlebar-center" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "titlebar-controls", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "control-button minimize", onClick: handleMinimize, title: "R\u00E9duire", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 12 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "control-button maximize", onClick: handleMaximize, title: "Agrandir", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 10 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "control-button close", onClick: handleClose, title: "Fermer", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 12 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+    const handleRefresh = () => {
+        try {
+            if (onRefresh) {
+                onRefresh();
+            }
+        }
+        catch (error) {
+            console.error('Erreur lors du rafraîchissement:', error);
+        }
+    };
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "titlebar", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "titlebar-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "titlebar-left", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_1__["default"], { size: 18 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "app-title", children: "Biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "title-separator" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "app-subtitle", children: "Gestion moderne de collection" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "titlebar-center" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "titlebar-controls", children: [isAuthenticated && onRefresh && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "control-button refresh", onClick: handleRefresh, title: "Rafra\u00EEchir", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 12 }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "control-button minimize", onClick: handleMinimize, title: "R\u00E9duire", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 12 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "control-button maximize", onClick: handleMaximize, title: "Agrandir", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 10 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "control-button close", onClick: handleClose, title: "Fermer", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 12 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .titlebar {
           height: 48px;
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
@@ -15582,6 +15596,18 @@ const TitleBar = () => {
         
         .control-button.close:active::before {
           background: #C50E1F;
+        }
+
+        .control-button.refresh:hover::before {
+          background: rgba(139, 195, 74, 0.2);
+        }
+
+        .control-button.refresh:hover {
+          color: #8BC34A;
+        }
+
+        .control-button.refresh:active::before {
+          background: rgba(139, 195, 74, 0.3);
         }
         
         /* Responsive adjustments */

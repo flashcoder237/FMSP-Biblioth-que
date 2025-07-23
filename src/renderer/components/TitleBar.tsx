@@ -1,7 +1,12 @@
 import React from 'react';
-import { Minus, Square, X, BookOpen } from 'lucide-react';
+import { Minus, Square, X, BookOpen, RefreshCw } from 'lucide-react';
 
-export const TitleBar: React.FC = () => {
+interface TitleBarProps {
+  onRefresh?: () => void;
+  isAuthenticated?: boolean;
+}
+
+export const TitleBar: React.FC<TitleBarProps> = ({ onRefresh, isAuthenticated = false }) => {
   const handleMinimize = () => {
     try {
       if (window.electronAPI && window.electronAPI.minimizeWindow) {
@@ -42,6 +47,16 @@ export const TitleBar: React.FC = () => {
     }
   };
 
+  const handleRefresh = () => {
+    try {
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (error) {
+      console.error('Erreur lors du rafraîchissement:', error);
+    }
+  };
+
   return (
     <div className="titlebar">
       <div className="titlebar-content">
@@ -59,6 +74,11 @@ export const TitleBar: React.FC = () => {
         </div>
         
         <div className="titlebar-controls">
+          {isAuthenticated && onRefresh && (
+            <button className="control-button refresh" onClick={handleRefresh} title="Rafraîchir">
+              <RefreshCw size={12} />
+            </button>
+          )}
           <button className="control-button minimize" onClick={handleMinimize} title="Réduire">
             <Minus size={12} />
           </button>
@@ -205,6 +225,18 @@ export const TitleBar: React.FC = () => {
         
         .control-button.close:active::before {
           background: #C50E1F;
+        }
+
+        .control-button.refresh:hover::before {
+          background: rgba(139, 195, 74, 0.2);
+        }
+
+        .control-button.refresh:hover {
+          color: #8BC34A;
+        }
+
+        .control-button.refresh:active::before {
+          background: rgba(139, 195, 74, 0.3);
         }
         
         /* Responsive adjustments */

@@ -52,6 +52,7 @@ const BackupService_1 = __webpack_require__(/*! ./services/BackupService */ "./s
 const AuthService_1 = __webpack_require__(/*! ./services/AuthService */ "./src/services/AuthService.ts");
 const SettingsService_1 = __webpack_require__(/*! ./services/SettingsService */ "./src/services/SettingsService.ts");
 const SyncService_1 = __webpack_require__(/*! ./services/SyncService */ "./src/services/SyncService.ts");
+const preload_1 = __webpack_require__(/*! ./preload */ "./src/preload.ts");
 let mainWindow;
 let dbService;
 let backupService;
@@ -150,7 +151,53 @@ electron_1.ipcMain.handle('window-controls:maximize', () => {
 electron_1.ipcMain.handle('window-controls:close', () => {
     mainWindow.close();
 });
-// Database Operations - Books
+// Database Operations - Documents (API principale)
+electron_1.ipcMain.handle('db:getDocuments', async () => {
+    try {
+        return await dbService.getDocuments();
+    }
+    catch (error) {
+        console.error('Erreur getDocuments:', error);
+        return [];
+    }
+});
+electron_1.ipcMain.handle('db:addDocument', async (_, document) => {
+    try {
+        return await dbService.addDocument(document);
+    }
+    catch (error) {
+        console.error('Erreur addDocument:', error);
+        throw error;
+    }
+});
+electron_1.ipcMain.handle('db:updateDocument', async (_, document) => {
+    try {
+        return await dbService.updateDocument(document);
+    }
+    catch (error) {
+        console.error('Erreur updateDocument:', error);
+        throw error;
+    }
+});
+electron_1.ipcMain.handle('db:deleteDocument', async (_, id) => {
+    try {
+        return await dbService.deleteDocument(id);
+    }
+    catch (error) {
+        console.error('Erreur deleteDocument:', error);
+        throw error;
+    }
+});
+electron_1.ipcMain.handle('db:searchDocuments', async (_, query) => {
+    try {
+        return await dbService.searchDocuments(query);
+    }
+    catch (error) {
+        console.error('Erreur searchDocuments:', error);
+        return [];
+    }
+});
+// Database Operations - Books (Compatibilité legacy)
 electron_1.ipcMain.handle('db:getBooks', async () => {
     try {
         return await dbService.getBooks();
@@ -189,7 +236,7 @@ electron_1.ipcMain.handle('db:deleteBook', async (_, id) => {
 });
 electron_1.ipcMain.handle('db:searchBooks', async (_, query) => {
     try {
-        return await dbService.searchBooks(query);
+        return await dbService.searchDocuments(query).then(docs => docs.map(preload_1.createBookFromDocument));
     }
     catch (error) {
         console.error('Erreur searchBooks:', error);
@@ -344,15 +391,15 @@ electron_1.ipcMain.handle('db:getStats', async () => {
     catch (error) {
         console.error('Erreur getStats:', error);
         return {
-            totalBooks: 0,
-            borrowedBooks: 0,
-            availableBooks: 0,
+            totalDocuments: 0,
+            borrowedDocuments: 0,
+            availableDocuments: 0,
             totalAuthors: 0,
             totalCategories: 0,
             totalBorrowers: 0,
             totalStudents: 0,
             totalStaff: 0,
-            overdueBooks: 0
+            overdueDocuments: 0
         };
     }
 });
@@ -847,15 +894,15 @@ function generateInventoryContent(data) {
     return `
     <div class="stats-summary">
       <div class="stat-item">
-        <div class="stat-value">${stats.totalBooks}</div>
+        <div class="stat-value">${stats.totalDocuments}</div>
         <div class="stat-label">Total Livres</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${stats.availableBooks}</div>
+        <div class="stat-value">${stats.availableDocuments}</div>
         <div class="stat-label">Disponibles</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${stats.borrowedBooks}</div>
+        <div class="stat-value">${stats.borrowedDocuments}</div>
         <div class="stat-label">Empruntés</div>
       </div>
       <div class="stat-item">
@@ -909,11 +956,11 @@ function generateAvailableBooksContent(data) {
         <div class="stat-label">Livres Disponibles</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${stats.totalBooks}</div>
+        <div class="stat-value">${stats.totalDocuments}</div>
         <div class="stat-label">Total Livres</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${((availableBooks.length / (stats.totalBooks || 1)) * 100).toFixed(1)}%</div>
+        <div class="stat-value">${((availableBooks.length / (stats.totalDocuments || 1)) * 100).toFixed(1)}%</div>
         <div class="stat-label">Taux Disponibilité</div>
       </div>
     </div>
@@ -1260,7 +1307,7 @@ async function exportToCSV(data) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createBookFromDocument = exports.createDocumentFromBook = void 0;
+exports.createDocumentFromBook = exports.createBookFromDocument = void 0;
 const electron_1 = __webpack_require__(/*! electron */ "electron");
 // Debug amélioré
 console.log('=== Preload Script Debug ===');
@@ -1291,7 +1338,7 @@ else {
     console.log('✅ ipcRenderer is available');
 }
 // Fonctions utilitaires pour la compatibilité Book/Document
-const createDocumentFromBook = (document) => {
+const createBookFromDocument = (document) => {
     const book = { ...document };
     // Ajouter les getters pour la compatibilité
     Object.defineProperties(book, {
@@ -1342,8 +1389,8 @@ const createDocumentFromBook = (document) => {
     });
     return book;
 };
-exports.createDocumentFromBook = createDocumentFromBook;
-const createBookFromDocument = (book) => {
+exports.createBookFromDocument = createBookFromDocument;
+const createDocumentFromBook = (book) => {
     const now = new Date().toISOString();
     return {
         auteur: book.author || book.auteur || '',
@@ -1371,7 +1418,7 @@ const createBookFromDocument = (book) => {
         createdAt: book.createdAt || now
     };
 };
-exports.createBookFromDocument = createBookFromDocument;
+exports.createDocumentFromBook = createDocumentFromBook;
 // API Definition
 const electronAPI = {
     // Window controls
@@ -1383,11 +1430,11 @@ const electronAPI = {
     login: (credentials) => electron_1.ipcRenderer?.invoke('auth:login', credentials) || Promise.resolve({ success: false, error: 'IPC not available' }),
     logout: () => electron_1.ipcRenderer?.invoke('auth:logout') || Promise.resolve(),
     // Database operations - Books (avec compatibilité Document)
-    getBooks: () => electron_1.ipcRenderer?.invoke('db:getBooks').then((documents) => documents.map(exports.createDocumentFromBook)) || Promise.resolve([]),
-    addBook: (book) => electron_1.ipcRenderer?.invoke('db:addBook', (0, exports.createBookFromDocument)(book)) || Promise.resolve(0),
-    updateBook: (book) => electron_1.ipcRenderer?.invoke('db:updateBook', { ...(0, exports.createBookFromDocument)(book), id: book.id }) || Promise.resolve(false),
+    getBooks: () => electron_1.ipcRenderer?.invoke('db:getBooks').then((documents) => documents.map(exports.createBookFromDocument)) || Promise.resolve([]),
+    addBook: (book) => electron_1.ipcRenderer?.invoke('db:addBook', (0, exports.createDocumentFromBook)(book)) || Promise.resolve(0),
+    updateBook: (book) => electron_1.ipcRenderer?.invoke('db:updateBook', { ...(0, exports.createDocumentFromBook)(book), id: book.id }) || Promise.resolve(false),
     deleteBook: (id) => electron_1.ipcRenderer?.invoke('db:deleteBook', id) || Promise.resolve(false),
-    searchBooks: (query) => electron_1.ipcRenderer?.invoke('db:searchBooks', query).then((documents) => documents.map(exports.createDocumentFromBook)) || Promise.resolve([]),
+    searchBooks: (query) => electron_1.ipcRenderer?.invoke('db:searchBooks', query).then((documents) => documents.map(exports.createBookFromDocument)) || Promise.resolve([]),
     // Database operations - Documents (nouveau)
     getDocuments: () => electron_1.ipcRenderer?.invoke('db:getDocuments') || Promise.resolve([]),
     addDocument: (document) => electron_1.ipcRenderer?.invoke('db:addDocument', document) || Promise.resolve(0),
@@ -3229,7 +3276,7 @@ class DatabaseService {
                     reject(err);
                 }
                 else {
-                    const books = rows.map((row) => (0, preload_1.createDocumentFromBook)(row));
+                    const books = rows.map((row) => (0, preload_1.createBookFromDocument)(row));
                     resolve(books);
                 }
             });
@@ -3630,21 +3677,14 @@ class DatabaseService {
         });
     }
     async searchBooks(query) {
-        return new Promise((resolve, reject) => {
-            const searchQuery = `%${query}%`;
-            this.db.all(`
-        SELECT * FROM books 
-        WHERE title LIKE ? OR author LIKE ? OR category LIKE ? OR description LIKE ?
-        ORDER BY title
-      `, [searchQuery, searchQuery, searchQuery, searchQuery], (err, rows) => {
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    resolve(rows);
-                }
-            });
-        });
+        // Méthode de compatibilité - utilise searchDocuments() et convertit le résultat
+        try {
+            const documents = await this.searchDocuments(query);
+            return documents.map(doc => (0, preload_1.createBookFromDocument)(doc));
+        }
+        catch (error) {
+            throw error;
+        }
     }
     async getStats() {
         return new Promise((resolve, reject) => {

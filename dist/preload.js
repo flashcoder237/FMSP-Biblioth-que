@@ -10,7 +10,7 @@
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createBookFromDocument = exports.createDocumentFromBook = void 0;
+exports.createDocumentFromBook = exports.createBookFromDocument = void 0;
 const electron_1 = __webpack_require__(/*! electron */ "electron");
 // Debug amélioré
 console.log('=== Preload Script Debug ===');
@@ -41,7 +41,7 @@ else {
     console.log('✅ ipcRenderer is available');
 }
 // Fonctions utilitaires pour la compatibilité Book/Document
-const createDocumentFromBook = (document) => {
+const createBookFromDocument = (document) => {
     const book = { ...document };
     // Ajouter les getters pour la compatibilité
     Object.defineProperties(book, {
@@ -92,8 +92,8 @@ const createDocumentFromBook = (document) => {
     });
     return book;
 };
-exports.createDocumentFromBook = createDocumentFromBook;
-const createBookFromDocument = (book) => {
+exports.createBookFromDocument = createBookFromDocument;
+const createDocumentFromBook = (book) => {
     const now = new Date().toISOString();
     return {
         auteur: book.author || book.auteur || '',
@@ -121,7 +121,7 @@ const createBookFromDocument = (book) => {
         createdAt: book.createdAt || now
     };
 };
-exports.createBookFromDocument = createBookFromDocument;
+exports.createDocumentFromBook = createDocumentFromBook;
 // API Definition
 const electronAPI = {
     // Window controls
@@ -133,11 +133,11 @@ const electronAPI = {
     login: (credentials) => electron_1.ipcRenderer?.invoke('auth:login', credentials) || Promise.resolve({ success: false, error: 'IPC not available' }),
     logout: () => electron_1.ipcRenderer?.invoke('auth:logout') || Promise.resolve(),
     // Database operations - Books (avec compatibilité Document)
-    getBooks: () => electron_1.ipcRenderer?.invoke('db:getBooks').then((documents) => documents.map(exports.createDocumentFromBook)) || Promise.resolve([]),
-    addBook: (book) => electron_1.ipcRenderer?.invoke('db:addBook', (0, exports.createBookFromDocument)(book)) || Promise.resolve(0),
-    updateBook: (book) => electron_1.ipcRenderer?.invoke('db:updateBook', { ...(0, exports.createBookFromDocument)(book), id: book.id }) || Promise.resolve(false),
+    getBooks: () => electron_1.ipcRenderer?.invoke('db:getBooks').then((documents) => documents.map(exports.createBookFromDocument)) || Promise.resolve([]),
+    addBook: (book) => electron_1.ipcRenderer?.invoke('db:addBook', (0, exports.createDocumentFromBook)(book)) || Promise.resolve(0),
+    updateBook: (book) => electron_1.ipcRenderer?.invoke('db:updateBook', { ...(0, exports.createDocumentFromBook)(book), id: book.id }) || Promise.resolve(false),
     deleteBook: (id) => electron_1.ipcRenderer?.invoke('db:deleteBook', id) || Promise.resolve(false),
-    searchBooks: (query) => electron_1.ipcRenderer?.invoke('db:searchBooks', query).then((documents) => documents.map(exports.createDocumentFromBook)) || Promise.resolve([]),
+    searchBooks: (query) => electron_1.ipcRenderer?.invoke('db:searchBooks', query).then((documents) => documents.map(exports.createBookFromDocument)) || Promise.resolve([]),
     // Database operations - Documents (nouveau)
     getDocuments: () => electron_1.ipcRenderer?.invoke('db:getDocuments') || Promise.resolve([]),
     addDocument: (document) => electron_1.ipcRenderer?.invoke('db:addDocument', document) || Promise.resolve(0),

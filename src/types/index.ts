@@ -198,7 +198,7 @@ export interface AuthResponse {
 }
 
 // Fonction utilitaire pour créer un Book depuis un Document (pour compatibilité)
-export function createDocumentFromBook(doc: Document): Book {
+export function createBookFromDocument(doc: Document): Book {
   const book: any = {
     ...doc,
     get title() { return this.titre; },

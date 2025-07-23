@@ -285,7 +285,7 @@ export interface ConflictResolution {
 }
 
 // Fonctions utilitaires pour la compatibilité Book/Document
-export const createDocumentFromBook = (document: Document): Book => {
+export const createBookFromDocument = (document: Document): Book => {
   const book = { ...document } as any;
   
   // Ajouter les getters pour la compatibilité
@@ -339,7 +339,7 @@ export const createDocumentFromBook = (document: Document): Book => {
   return book as Book;
 };
 
-export const createBookFromDocument = (book: Partial<Book>): Omit<Document, 'id'> => {
+export const createDocumentFromBook = (book: Partial<Book>): Omit<Document, 'id'> => {
   const now = new Date().toISOString();
   
   return {
@@ -384,16 +384,16 @@ const electronAPI = {
   // Database operations - Books (avec compatibilité Document)
   getBooks: (): Promise<Book[]> => 
     ipcRenderer?.invoke('db:getBooks').then((documents: Document[]) => 
-      documents.map(createDocumentFromBook)
+      documents.map(createBookFromDocument)
     ) || Promise.resolve([]),
   addBook: (book: Omit<Book, 'id'>): Promise<number> => 
-    ipcRenderer?.invoke('db:addBook', createBookFromDocument(book)) || Promise.resolve(0),
+    ipcRenderer?.invoke('db:addBook', createDocumentFromBook(book)) || Promise.resolve(0),
   updateBook: (book: Book): Promise<boolean> => 
-    ipcRenderer?.invoke('db:updateBook', { ...createBookFromDocument(book), id: book.id }) || Promise.resolve(false),
+    ipcRenderer?.invoke('db:updateBook', { ...createDocumentFromBook(book), id: book.id }) || Promise.resolve(false),
   deleteBook: (id: number): Promise<boolean> => ipcRenderer?.invoke('db:deleteBook', id) || Promise.resolve(false),
   searchBooks: (query: string): Promise<Book[]> => 
     ipcRenderer?.invoke('db:searchBooks', query).then((documents: Document[]) => 
-      documents.map(createDocumentFromBook)
+      documents.map(createBookFromDocument)
     ) || Promise.resolve([]),
   
   // Database operations - Documents (nouveau)

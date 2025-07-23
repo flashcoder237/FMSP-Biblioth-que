@@ -1,7 +1,7 @@
 import * as sqlite3 from 'sqlite3';
 import * as path from 'path';
 import { app } from 'electron';
-import { Document, Book, Author, Category, Stats, Borrower, BorrowHistory, HistoryFilter, SyncOperation, createDocumentFromBook } from '../preload';
+import { Document, Book, Author, Category, Stats, Borrower, BorrowHistory, HistoryFilter, SyncOperation, createBookFromDocument } from '../preload';
 
 interface SQLiteRunResult {
   lastID: number;
@@ -524,7 +524,7 @@ export class DatabaseService {
         if (err) {
           reject(err);
         } else {
-          const books = rows.map((row: any) => createDocumentFromBook(row as Document));
+          const books = rows.map((row: any) => createBookFromDocument(row as Document));
           resolve(books);
         }
       });
@@ -961,20 +961,13 @@ export class DatabaseService {
   }
 
   async searchBooks(query: string): Promise<Book[]> {
-    return new Promise((resolve, reject) => {
-      const searchQuery = `%${query}%`;
-      this.db.all(`
-        SELECT * FROM books 
-        WHERE title LIKE ? OR author LIKE ? OR category LIKE ? OR description LIKE ?
-        ORDER BY title
-      `, [searchQuery, searchQuery, searchQuery, searchQuery], (err, rows) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(rows as Book[]);
-        }
-      });
-    });
+    // Méthode de compatibilité - utilise searchDocuments() et convertit le résultat
+    try {
+      const documents = await this.searchDocuments(query);
+      return documents.map(doc => createBookFromDocument(doc));
+    } catch (error) {
+      throw error;
+    }
   }
 
   async getStats(): Promise<Stats> {

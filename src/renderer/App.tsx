@@ -34,7 +34,7 @@ export const App: React.FC = () => {
   const [authors, setAuthors] = useState<Author[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [borrowers, setBorrowers] = useState<Borrower[]>([]);
-  const [borrowedDocuments, setBorrowedBooks] = useState<BorrowHistoryType[]>([]);
+  const [borrowedDocuments, setBorrowedDocuments] = useState<BorrowHistoryType[]>([]);
   const [stats, setStats] = useState<Stats>({
     totalDocuments: 0,
     borrowedDocuments: 0,
@@ -104,7 +104,7 @@ export const App: React.FC = () => {
       setAuthors(authorsData);
       setCategories(categoriesData);
       setBorrowers(borrowersData);
-      setBorrowedBooks(borrowedDocumentsData);
+      setBorrowedDocuments(borrowedDocumentsData);
       setStats(statsData);
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
@@ -275,7 +275,7 @@ export const App: React.FC = () => {
       setAuthors(demoAuthors);
       setCategories(demoCategories);
       setBorrowers(demoBorrowers);
-      setBorrowedBooks([]);
+      setBorrowedDocuments([]);
       setStats(demoStats);
     } catch (error) {
       console.error('Erreur lors du chargement des données démo:', error);
@@ -430,7 +430,7 @@ export const App: React.FC = () => {
       setAuthors([]);
       setCategories([]);
       setBorrowers([]);
-      setBorrowedBooks([]);
+      setBorrowedDocuments([]);
       setStats({
         totalDocuments: 0,
         borrowedDocuments: 0,
@@ -589,7 +589,7 @@ export const App: React.FC = () => {
             createdAt: new Date().toISOString()
           };
           
-          setBorrowedBooks(prev => [...prev, newBorrowHistory]);
+          setBorrowedDocuments(prev => [...prev, newBorrowHistory]);
           
           // Mettre à jour les statistiques
           setStats(prev => ({
@@ -628,7 +628,7 @@ export const App: React.FC = () => {
             ? { ...bh, actualReturnDate: new Date().toISOString(), status: 'returned' as const }
             : bh
         );
-        setBorrowedBooks(updatedBorrowHistory);
+        setBorrowedDocuments(updatedBorrowHistory);
         
         // Mettre à jour les statistiques
         setStats(prev => ({
@@ -657,23 +657,27 @@ export const App: React.FC = () => {
     }
   };
 
-  // Affichage de l'écran d'authentification
-  if (!isAuthenticated) {
-    if (currentView === 'institution_setup') {
-      return (
-        <InstitutionSetup
-          institutionCode={institutionCode}
-          institution={currentInstitution}
-          onComplete={() => {
-            setCurrentView('auth');
-            alert('Votre établissement a été créé avec succès ! Vous pouvez maintenant vous connecter.');
-          }}
-        />
-      );
+  // Gérer l'affichage avec TitleBar toujours visible
+  const renderAuthenticatedContent = () => {
+    if (!isAuthenticated) {
+      if (currentView === 'institution_setup') {
+        return (
+          <InstitutionSetup
+            institutionCode={institutionCode}
+            institution={currentInstitution}
+            onComplete={() => {
+              setCurrentView('auth');
+              alert('Votre établissement a été créé avec succès ! Vous pouvez maintenant vous connecter.');
+            }}
+          />
+        );
+      }
+      
+      return <EnhancedAuthentication onLogin={handleAuthentication} />;
     }
-    
-    return <EnhancedAuthentication onLogin={handleAuthentication} />;
-  }
+
+    return renderCurrentView();
+  };
 
   const renderCurrentView = () => {
     switch (currentView) {
@@ -773,27 +777,44 @@ export const App: React.FC = () => {
 
   return (
     <ToastProvider>
-      <AppContent 
-        isDemoMode={isDemoMode}
-        currentView={currentView}
-        setCurrentView={setCurrentView}
-        isLoading={isLoading}
-        error={error}
-        setError={setError}
-        renderCurrentView={renderCurrentView}
-        showBorrowModal={showBorrowModal}
-        selectedDocumentForBorrow={selectedDocumentForBorrow}
-        closeBorrowModal={closeBorrowModal}
-        handleBorrow={handleBorrow}
-        handleReturn={handleReturn}
-        refreshData={refreshData}
-        supabaseService={supabaseService}
-        borrowers={borrowers}
-        stats={stats}
-        currentUser={currentUser}
-        currentInstitution={currentInstitution}
-        isAuthenticated={isAuthenticated}
-      />
+      <KeyboardShortcutsProvider
+        onNavigate={setCurrentView}
+        onOpenAddDocument={() => setCurrentView('add-document')}
+        onOpenSettings={() => setCurrentView('settings')}
+      >
+        <div className="app">
+          <TitleBar onRefresh={refreshData} isAuthenticated={isAuthenticated} />
+          <div className="app-container">
+            {isAuthenticated ? (
+              <AppContent 
+                isDemoMode={isDemoMode}
+                currentView={currentView}
+                setCurrentView={setCurrentView}
+                isLoading={isLoading}
+                error={error}
+                setError={setError}
+                renderCurrentView={renderCurrentView}
+                showBorrowModal={showBorrowModal}
+                selectedDocumentForBorrow={selectedDocumentForBorrow}
+                closeBorrowModal={closeBorrowModal}
+                handleBorrow={handleBorrow}
+                handleReturn={handleReturn}
+                refreshData={refreshData}
+                supabaseService={supabaseService}
+                borrowers={borrowers}
+                stats={stats}
+                currentUser={currentUser}
+                currentInstitution={currentInstitution}
+                isAuthenticated={isAuthenticated}
+              />
+            ) : (
+              <div className="auth-container">
+                {renderAuthenticatedContent()}
+              </div>
+            )}
+          </div>
+        </div>
+      </KeyboardShortcutsProvider>
     </ToastProvider>
   );
 };
@@ -858,39 +879,31 @@ const AppContent: React.FC<AppContentProps> = ({
   }, [isDemoMode, demoNotificationShown, info]);
 
   return (
-    <KeyboardShortcutsProvider
-      onNavigate={setCurrentView}
-      onOpenAddDocument={() => setCurrentView('add-document')}
-      onOpenSettings={() => setCurrentView('settings')}
-    >
-      <div className="app">
-          <TitleBar />
-          <div className="app-container">
-            <Sidebar
-              currentView={currentView}
-              onNavigate={setCurrentView}
-              stats={stats}
-              currentUser={currentUser}
-              currentInstitution={currentInstitution}
-            />
-            <main className="main-content">
-              <div className="content-wrapper">
-                {isLoading && (
-                  <div className="loading-overlay">
-                    <div className="loading-spinner"></div>
-                    <span>Chargement...</span>
-                  </div>
-                )}
-                {error && (
-                  <div className="error-banner">
-                    <span>{error}</span>
-                    <button onClick={() => setError('')}>×</button>
-                  </div>
-                )}
-                {renderCurrentView()}
-              </div>
-            </main>
-          </div>
+    <>
+      <Sidebar
+        currentView={currentView}
+        onNavigate={setCurrentView}
+        stats={stats}
+        currentUser={currentUser}
+        currentInstitution={currentInstitution}
+      />
+      <main className="main-content">
+        <div className="content-wrapper">
+          {isLoading && (
+            <div className="loading-overlay">
+              <div className="loading-spinner"></div>
+              <span>Chargement...</span>
+            </div>
+          )}
+          {error && (
+            <div className="error-banner">
+              <span>{error}</span>
+              <button onClick={() => setError('')}>×</button>
+            </div>
+          )}
+          {renderCurrentView()}
+        </div>
+      </main>
 
       {/* Beautiful Borrow Modal */}
       {showBorrowModal && selectedDocumentForBorrow && (
@@ -1171,11 +1184,9 @@ const AppContent: React.FC<AppContentProps> = ({
           }
         }
       `}</style>
-      
-        </div>
-      </KeyboardShortcutsProvider>
-    );
-  };
+    </>
+  );
+};
 
 // Enhanced Borrow Form Component avec Supabase
 interface EnhancedBorrowFormProps {
