@@ -75,7 +75,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
       description: 'Documents actuellement empruntés',
       count: stats.borrowedDocuments,
       badge: stats.borrowedDocuments > 0,
-      urgent: stats.overdueBooks > 0,
+      urgent: stats.overdueDocuments > 0,
       gradient: 'linear-gradient(135deg, #C2571B 0%, #A8481A 100%)'
     }
   ];
@@ -153,10 +153,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
     },
     {
       label: 'En retard',
-      value: stats.overdueBooks,
+      value: stats.overdueDocuments,
       icon: Clock,
       color: '#DC2626',
-      urgent: stats.overdueBooks > 0
+      urgent: stats.overdueDocuments > 0
     }
   ];
 
@@ -432,10 +432,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
                   <div className="activity-dot borrowed"></div>
                   <span>{stats.borrowedDocuments} emprunts en cours</span>
                 </div>
-                {stats.overdueBooks > 0 && (
+                {stats.overdueDocuments > 0 && (
                   <div className="activity-item urgent">
                     <div className="activity-dot overdue"></div>
-                    <span>{stats.overdueBooks} document(s) en retard</span>
+                    <span>{stats.overdueDocuments} document(s) en retard</span>
                   </div>
                 )}
               </div>
@@ -1265,7 +1265,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
       `}</style>
       
       {/* Emergency Alert for Overdue Books */}
-      {!isCollapsed && stats.overdueBooks > 0 && (
+      {!isCollapsed && stats.overdueDocuments > 0 && (
         <div className="emergency-alert">
           <div className="alert-icon">
             <Clock size={16} />
@@ -1273,7 +1273,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           <div className="alert-content">
             <div className="alert-title">Action requise</div>
             <div className="alert-message">
-              {stats.overdueBooks} document(s) en retard
+              {stats.overdueDocuments} document(s) en retard
             </div>
           </div>
         </div>

@@ -363,19 +363,34 @@ export class SupabaseService {
   }
 
   // Borrow Management - Méthodes simplifiées
-  async borrowBook(bookId: number, borrowerId: number, expectedReturnDate: string): Promise<number> {
-    console.log('borrowBook appelé avec:', { bookId, borrowerId, expectedReturnDate });
+  async borrowDocument(documentId: number, borrowerId: number, expectedReturnDate: string): Promise<number> {
+    console.log('borrowDocument appelé avec:', { documentId, borrowerId, expectedReturnDate });
     return 1;
   }
 
-  async returnBook(borrowHistoryId: number, notes?: string): Promise<boolean> {
-    console.log('returnBook appelé avec:', { borrowHistoryId, notes });
+  // Compatibility method
+  async borrowBook(documentId: number, borrowerId: number, expectedReturnDate: string): Promise<number> {
+    return this.borrowDocument(documentId, borrowerId, expectedReturnDate);
+  }
+
+  async returnDocument(borrowHistoryId: number, notes?: string): Promise<boolean> {
+    console.log('returnDocument appelé avec:', { borrowHistoryId, notes });
     return true;
   }
 
-  async getBorrowedBooks(): Promise<BorrowHistory[]> {
-    console.log('getBorrowedBooks appelé');
+  // Compatibility method
+  async returnBook(borrowHistoryId: number, notes?: string): Promise<boolean> {
+    return this.returnDocument(borrowHistoryId, notes);
+  }
+
+  async getBorrowedDocuments(): Promise<BorrowHistory[]> {
+    console.log('getBorrowedDocuments appelé');
     return [];
+  }
+
+  // Compatibility method
+  async getBorrowedBooks(): Promise<BorrowHistory[]> {
+    return this.getBorrowedDocuments();
   }
 
   async getBorrowHistory(filter?: HistoryFilter): Promise<BorrowHistory[]> {
@@ -416,7 +431,7 @@ export class SupabaseService {
       totalBorrowers: 0,
       totalStudents: 0,
       totalStaff: 0,
-      overdueBooks: 0
+      overdueDocuments: 0
     };
   }
 
@@ -517,14 +532,5 @@ export class SupabaseService {
     return true;
   }
 
-  async borrowDocument(documentId: number, borrowerId: number, returnDate: string): Promise<boolean> {
-    console.log('borrowDocument appelé avec:', { documentId, borrowerId, returnDate });
-    return true;
-  }
-
-  async returnDocument(documentId: number): Promise<boolean> {
-    console.log('returnDocument appelé avec ID:', documentId);
-    return true;
-  }
 
 }

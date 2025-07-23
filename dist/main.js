@@ -281,18 +281,38 @@ electron_1.ipcMain.handle('db:searchBorrowers', async (_, query) => {
     }
 });
 // Database Operations - Borrow Management
+electron_1.ipcMain.handle('db:getBorrowedDocuments', async () => {
+    try {
+        return await dbService.getBorrowedDocuments();
+    }
+    catch (error) {
+        console.error('Erreur getBorrowedDocuments:', error);
+        return [];
+    }
+});
+// Compatibility handler
 electron_1.ipcMain.handle('db:getBorrowedBooks', async () => {
     try {
-        return await dbService.getBorrowedBooks();
+        return await dbService.getBorrowedDocuments();
     }
     catch (error) {
         console.error('Erreur getBorrowedBooks:', error);
         return [];
     }
 });
-electron_1.ipcMain.handle('db:borrowBook', async (_, bookId, borrowerId, expectedReturnDate) => {
+electron_1.ipcMain.handle('db:borrowDocument', async (_, documentId, borrowerId, expectedReturnDate) => {
     try {
-        return await dbService.borrowBook(bookId, borrowerId, expectedReturnDate);
+        return await dbService.borrowDocument(documentId, borrowerId, expectedReturnDate);
+    }
+    catch (error) {
+        console.error('Erreur borrowDocument:', error);
+        throw error;
+    }
+});
+// Compatibility handler
+electron_1.ipcMain.handle('db:borrowBook', async (_, documentId, borrowerId, expectedReturnDate) => {
+    try {
+        return await dbService.borrowDocument(documentId, borrowerId, expectedReturnDate);
     }
     catch (error) {
         console.error('Erreur borrowBook:', error);
@@ -1240,7 +1260,7 @@ async function exportToCSV(data) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createDocumentFromBook = exports.createBookFromDocument = void 0;
+exports.createBookFromDocument = exports.createDocumentFromBook = void 0;
 const electron_1 = __webpack_require__(/*! electron */ "electron");
 // Debug amélioré
 console.log('=== Preload Script Debug ===');
@@ -1271,7 +1291,7 @@ else {
     console.log('✅ ipcRenderer is available');
 }
 // Fonctions utilitaires pour la compatibilité Book/Document
-const createBookFromDocument = (document) => {
+const createDocumentFromBook = (document) => {
     const book = { ...document };
     // Ajouter les getters pour la compatibilité
     Object.defineProperties(book, {
@@ -1322,8 +1342,8 @@ const createBookFromDocument = (document) => {
     });
     return book;
 };
-exports.createBookFromDocument = createBookFromDocument;
-const createDocumentFromBook = (book) => {
+exports.createDocumentFromBook = createDocumentFromBook;
+const createBookFromDocument = (book) => {
     const now = new Date().toISOString();
     return {
         auteur: book.author || book.auteur || '',
@@ -1351,7 +1371,7 @@ const createDocumentFromBook = (book) => {
         createdAt: book.createdAt || now
     };
 };
-exports.createDocumentFromBook = createDocumentFromBook;
+exports.createBookFromDocument = createBookFromDocument;
 // API Definition
 const electronAPI = {
     // Window controls
@@ -1363,11 +1383,11 @@ const electronAPI = {
     login: (credentials) => electron_1.ipcRenderer?.invoke('auth:login', credentials) || Promise.resolve({ success: false, error: 'IPC not available' }),
     logout: () => electron_1.ipcRenderer?.invoke('auth:logout') || Promise.resolve(),
     // Database operations - Books (avec compatibilité Document)
-    getBooks: () => electron_1.ipcRenderer?.invoke('db:getBooks').then((documents) => documents.map(exports.createBookFromDocument)) || Promise.resolve([]),
-    addBook: (book) => electron_1.ipcRenderer?.invoke('db:addBook', (0, exports.createDocumentFromBook)(book)) || Promise.resolve(0),
-    updateBook: (book) => electron_1.ipcRenderer?.invoke('db:updateBook', { ...(0, exports.createDocumentFromBook)(book), id: book.id }) || Promise.resolve(false),
+    getBooks: () => electron_1.ipcRenderer?.invoke('db:getBooks').then((documents) => documents.map(exports.createDocumentFromBook)) || Promise.resolve([]),
+    addBook: (book) => electron_1.ipcRenderer?.invoke('db:addBook', (0, exports.createBookFromDocument)(book)) || Promise.resolve(0),
+    updateBook: (book) => electron_1.ipcRenderer?.invoke('db:updateBook', { ...(0, exports.createBookFromDocument)(book), id: book.id }) || Promise.resolve(false),
     deleteBook: (id) => electron_1.ipcRenderer?.invoke('db:deleteBook', id) || Promise.resolve(false),
-    searchBooks: (query) => electron_1.ipcRenderer?.invoke('db:searchBooks', query).then((documents) => documents.map(exports.createBookFromDocument)) || Promise.resolve([]),
+    searchBooks: (query) => electron_1.ipcRenderer?.invoke('db:searchBooks', query).then((documents) => documents.map(exports.createDocumentFromBook)) || Promise.resolve([]),
     // Database operations - Documents (nouveau)
     getDocuments: () => electron_1.ipcRenderer?.invoke('db:getDocuments') || Promise.resolve([]),
     addDocument: (document) => electron_1.ipcRenderer?.invoke('db:addDocument', document) || Promise.resolve(0),
@@ -1413,8 +1433,12 @@ const electronAPI = {
     deleteBorrower: (id) => electron_1.ipcRenderer?.invoke('db:deleteBorrower', id) || Promise.resolve(false),
     searchBorrowers: (query) => electron_1.ipcRenderer?.invoke('db:searchBorrowers', query) || Promise.resolve([]),
     // Borrow operations
-    getBorrowedBooks: () => electron_1.ipcRenderer?.invoke('db:getBorrowedBooks') || Promise.resolve([]),
-    borrowBook: (bookId, borrowerId, expectedReturnDate) => electron_1.ipcRenderer?.invoke('db:borrowBook', bookId, borrowerId, expectedReturnDate) || Promise.resolve(0),
+    getBorrowedDocuments: () => electron_1.ipcRenderer?.invoke('db:getBorrowedDocuments') || Promise.resolve([]),
+    // Compatibility method
+    getBorrowedBooks: () => electron_1.ipcRenderer?.invoke('db:getBorrowedDocuments') || Promise.resolve([]),
+    borrowDocument: (documentId, borrowerId, expectedReturnDate) => electron_1.ipcRenderer?.invoke('db:borrowDocument', documentId, borrowerId, expectedReturnDate) || Promise.resolve(0),
+    // Compatibility method
+    borrowBook: (documentId, borrowerId, expectedReturnDate) => electron_1.ipcRenderer?.invoke('db:borrowDocument', documentId, borrowerId, expectedReturnDate) || Promise.resolve(0),
     returnBook: (borrowHistoryId, notes) => electron_1.ipcRenderer?.invoke('db:returnBook', borrowHistoryId, notes) || Promise.resolve(false),
     getBorrowHistory: (filter) => electron_1.ipcRenderer?.invoke('db:getBorrowHistory', filter) || Promise.resolve([]),
     // Statistics
@@ -2292,7 +2316,7 @@ class BackupService {
             const stats = await this.databaseService.getStats();
             const borrowHistory = await this.databaseService.getBorrowHistory();
             return {
-                totalBooks: stats.totalBooks,
+                totalDocuments: stats.totalDocuments,
                 totalBorrowers: stats.totalBorrowers,
                 totalAuthors: stats.totalAuthors,
                 totalCategories: stats.totalCategories,
@@ -2302,7 +2326,7 @@ class BackupService {
         catch (error) {
             console.error('Erreur lors de la récupération des statistiques:', error);
             return {
-                totalBooks: 0,
+                totalDocuments: 0,
                 totalBorrowers: 0,
                 totalAuthors: 0,
                 totalCategories: 0,
@@ -2804,6 +2828,7 @@ class DatabaseService {
             isbn TEXT,
             description TEXT,
             couverture TEXT,
+            type TEXT DEFAULT 'book' CHECK (type IN ('book', 'mémoire', 'thèse', 'rapport', 'article', 'autre')),
             
             -- Statut d'emprunt
             estEmprunte BOOLEAN DEFAULT 0,
@@ -2824,6 +2849,15 @@ class DatabaseService {
             FOREIGN KEY (emprunteurId) REFERENCES borrowers(id)
           )
         `);
+                // Ajouter la colonne type si elle n'existe pas (migration)
+                this.db.run(`
+          ALTER TABLE documents ADD COLUMN type TEXT DEFAULT 'book' CHECK (type IN ('book', 'mémoire', 'thèse', 'rapport', 'article', 'autre'))
+        `, (err) => {
+                    // Ignorer l'erreur si la colonne existe déjà
+                    if (err && !err.message.includes('duplicate column name')) {
+                        console.error('Erreur lors de l\'ajout de la colonne type:', err);
+                    }
+                });
                 // Vue pour compatibilité avec l'ancienne table books
                 this.db.run(`
           CREATE VIEW IF NOT EXISTS books_view AS
@@ -2951,6 +2985,7 @@ class DatabaseService {
                     annee: '1862',
                     descripteurs: 'Fiction, Roman historique, XIXe siècle, France',
                     cote: 'FIC-HUG-001',
+                    type: 'book',
                     isbn: '978-2-253-00001-1',
                     description: 'Roman historique français décrivant la vie de divers personnages français dans la première moitié du XIXe siècle.',
                     estEmprunte: false,
@@ -2966,6 +3001,7 @@ class DatabaseService {
                     annee: '1942',
                     descripteurs: 'Fiction, Philosophie, Absurde, Littérature française',
                     cote: 'FIC-CAM-001',
+                    type: 'book',
                     isbn: '978-2-253-00002-2',
                     description: 'Premier roman d\'Albert Camus, publié en 1942. Il prend place dans la lignée des récits qui illustrent la philosophie de l\'absurde.',
                     estEmprunte: false,
@@ -2981,6 +3017,7 @@ class DatabaseService {
                     annee: '1951',
                     descripteurs: 'Science-Fiction, Futur, Empire galactique, Psychohistoire',
                     cote: 'SF-ASI-001',
+                    type: 'book',
                     isbn: '978-2-253-00003-3',
                     description: 'Premier tome du cycle de Fondation, une saga de science-fiction se déroulant dans un futur lointain.',
                     estEmprunte: false,
@@ -2996,6 +3033,7 @@ class DatabaseService {
                     annee: '1935',
                     descripteurs: 'Sciences, Physique, Radioactivité, Chimie',
                     cote: 'SCI-CUR-001',
+                    type: 'rapport',
                     description: 'Ouvrage fondamental sur la découverte et les applications de la radioactivité.',
                     estEmprunte: false,
                     syncStatus: 'synced',
@@ -3010,6 +3048,7 @@ class DatabaseService {
                     annee: '1870',
                     descripteurs: 'Science-Fiction, Aventure, Sous-marins, Océan',
                     cote: 'SF-VER-001',
+                    type: 'book',
                     isbn: '978-2-253-00004-4',
                     description: 'Roman d\'aventures de Jules Verne décrivant les exploits du capitaine Nemo à bord du Nautilus.',
                     estEmprunte: false,
@@ -3142,7 +3181,7 @@ class DatabaseService {
                     return;
                 }
                 if (row.count > 0) {
-                    reject(new Error('Impossible de supprimer : cet emprunteur a des livres non rendus'));
+                    reject(new Error('Impossible de supprimer : cet emprunteur a des documents non rendus'));
                     return;
                 }
                 this.db.run('DELETE FROM borrowers WHERE id = ?', [id], function (err) {
@@ -3173,7 +3212,7 @@ class DatabaseService {
             });
         });
     }
-    // Books CRUD mis à jour
+    // Documents CRUD mis à jour (méthodes Books pour compatibilité)
     async getBooks() {
         return new Promise((resolve, reject) => {
             this.db.all(`
@@ -3190,7 +3229,7 @@ class DatabaseService {
                     reject(err);
                 }
                 else {
-                    const books = rows.map((row) => (0, preload_1.createBookFromDocument)(row));
+                    const books = rows.map((row) => (0, preload_1.createDocumentFromBook)(row));
                     resolve(books);
                 }
             });
@@ -3239,8 +3278,8 @@ class DatabaseService {
         });
     }
     // Legacy method for backward compatibility
-    async borrowBook(bookId, borrowerId, expectedReturnDate) {
-        return this.borrowDocument(bookId, borrowerId, expectedReturnDate);
+    async borrowBook(documentId, borrowerId, expectedReturnDate) {
+        return this.borrowDocument(documentId, borrowerId, expectedReturnDate);
     }
     async returnBook(borrowHistoryId, notes) {
         return new Promise((resolve, reject) => {
@@ -3248,7 +3287,7 @@ class DatabaseService {
             const database = this.db; // Capturer this.db dans une variable locale
             database.serialize(() => {
                 database.run('BEGIN TRANSACTION');
-                database.get('SELECT bookId FROM borrow_history WHERE id = ?', [borrowHistoryId], (err, row) => {
+                database.get('SELECT documentId FROM borrow_history WHERE id = ?', [borrowHistoryId], (err, row) => {
                     if (err) {
                         database.run('ROLLBACK');
                         reject(err);
@@ -3259,7 +3298,7 @@ class DatabaseService {
                         reject(new Error('Emprunt non trouvé'));
                         return;
                     }
-                    const bookId = row.bookId;
+                    const documentId = row.documentId;
                     const stmt1 = database.prepare(`
           UPDATE borrow_history SET 
             actualReturnDate = ?, 
@@ -3282,7 +3321,7 @@ class DatabaseService {
               dateRetour = ?
             WHERE id = ?
           `);
-                        stmt2.run([returnDate, bookId], function (err) {
+                        stmt2.run([returnDate, documentId], function (err) {
                             if (err) {
                                 database.run('ROLLBACK');
                                 reject(err);
@@ -3299,7 +3338,7 @@ class DatabaseService {
             });
         });
     }
-    async getBorrowedBooks() {
+    async getBorrowedDocuments() {
         return new Promise((resolve, reject) => {
             this.db.all(`
         SELECT 
@@ -3314,7 +3353,7 @@ class DatabaseService {
           br.lastModified as borrowerLastModified, br.version as borrowerVersion,
           br.createdAt as borrowerCreatedAt
         FROM borrow_history bh
-        JOIN documents d ON bh.bookId = d.id
+        JOIN documents d ON bh.documentId = d.id
         JOIN borrowers br ON bh.borrowerId = br.id
         WHERE bh.status = 'active' AND d.deletedAt IS NULL
         ORDER BY bh.borrowDate DESC
@@ -3325,7 +3364,7 @@ class DatabaseService {
                 else {
                     const history = rows.map(row => ({
                         id: row.id,
-                        bookId: row.bookId,
+                        documentId: row.documentId,
                         borrowerId: row.borrowerId,
                         borrowDate: row.borrowDate,
                         expectedReturnDate: row.expectedReturnDate,
@@ -3336,8 +3375,8 @@ class DatabaseService {
                         lastModified: row.lastModified || new Date().toISOString(),
                         version: row.version || 1,
                         createdAt: row.createdAt,
-                        book: {
-                            id: row.bookId,
+                        document: {
+                            id: row.documentId,
                             // English properties (Book interface)
                             title: row.title,
                             author: row.author,
@@ -3410,7 +3449,7 @@ class DatabaseService {
           br.lastModified as borrowerLastModified, br.version as borrowerVersion,
           br.createdAt as borrowerCreatedAt
         FROM borrow_history bh
-        JOIN documents d ON bh.bookId = d.id
+        JOIN documents d ON bh.documentId = d.id
         JOIN borrowers br ON bh.borrowerId = br.id
       `;
             const conditions = ['d.deletedAt IS NULL'];
@@ -3436,9 +3475,9 @@ class DatabaseService {
                     conditions.push('bh.borrowerId = ?');
                     params.push(filter.borrowerId);
                 }
-                if (filter.bookId) {
-                    conditions.push('bh.bookId = ?');
-                    params.push(filter.bookId);
+                if (filter.documentId) {
+                    conditions.push('bh.documentId = ?');
+                    params.push(filter.documentId);
                 }
             }
             if (conditions.length > 0) {
@@ -3452,7 +3491,7 @@ class DatabaseService {
                 else {
                     const history = rows.map(row => ({
                         id: row.id,
-                        bookId: row.bookId,
+                        documentId: row.documentId,
                         borrowerId: row.borrowerId,
                         borrowDate: row.borrowDate,
                         expectedReturnDate: row.expectedReturnDate,
@@ -3463,8 +3502,8 @@ class DatabaseService {
                         lastModified: row.lastModified || new Date().toISOString(),
                         version: row.version || 1,
                         createdAt: row.createdAt,
-                        book: {
-                            id: row.bookId,
+                        document: {
+                            id: row.documentId,
                             // English properties (Book interface)
                             title: row.title,
                             author: row.author,
@@ -3617,14 +3656,14 @@ class DatabaseService {
                         reject(err);
                         return;
                     }
-                    stats.totalBooks = row.count || 0;
+                    stats.totalDocuments = row.count || 0;
                     this.db.get('SELECT COUNT(*) as count FROM documents WHERE estEmprunte = 1 AND deletedAt IS NULL', (err, row) => {
                         if (err) {
                             reject(err);
                             return;
                         }
-                        stats.borrowedBooks = row.count || 0;
-                        stats.availableBooks = (stats.totalBooks || 0) - (stats.borrowedBooks || 0);
+                        stats.borrowedDocuments = row.count || 0;
+                        stats.availableDocuments = (stats.totalDocuments || 0) - (stats.borrowedDocuments || 0);
                         this.db.get('SELECT COUNT(*) as count FROM authors WHERE deletedAt IS NULL', (err, row) => {
                             if (err) {
                                 reject(err);
@@ -3655,7 +3694,7 @@ class DatabaseService {
                                                 return;
                                             }
                                             stats.totalStaff = row.count || 0;
-                                            // Compter les livres en retard
+                                            // Compter les documents en retard
                                             const now = new Date().toISOString();
                                             this.db.get(`
                       SELECT COUNT(*) as count FROM borrow_history 
@@ -3665,7 +3704,7 @@ class DatabaseService {
                                                     reject(err);
                                                     return;
                                                 }
-                                                stats.overdueBooks = row.count || 0;
+                                                stats.overdueDocuments = row.count || 0;
                                                 resolve(stats);
                                             });
                                         });
@@ -3687,7 +3726,7 @@ class DatabaseService {
                         reject(err);
                         return;
                     }
-                    this.db.run('DELETE FROM books', (err) => {
+                    this.db.run('DELETE FROM documents', (err) => {
                         if (err) {
                             reject(err);
                             return;
@@ -3744,6 +3783,7 @@ class DatabaseService {
                         annee: row.annee,
                         descripteurs: row.descripteurs,
                         cote: row.cote,
+                        type: row.type || 'book',
                         isbn: row.isbn,
                         description: row.description,
                         couverture: row.couverture,
@@ -3774,10 +3814,10 @@ class DatabaseService {
             const now = new Date().toISOString();
             const stmt = this.db.prepare(`
         INSERT INTO documents (
-          auteur, titre, editeur, lieuEdition, annee, descripteurs, cote,
+          auteur, titre, editeur, lieuEdition, annee, descripteurs, cote, type,
           isbn, description, couverture, estEmprunte,
           localId, syncStatus, lastModified, version, createdAt
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
             stmt.run([
                 document.auteur,
@@ -3787,6 +3827,7 @@ class DatabaseService {
                 document.annee,
                 document.descripteurs,
                 document.cote,
+                document.type || 'book',
                 document.isbn || null,
                 document.description || null,
                 document.couverture || null,
@@ -3818,7 +3859,7 @@ class DatabaseService {
             const stmt = this.db.prepare(`
         UPDATE documents SET 
           auteur = ?, titre = ?, editeur = ?, lieuEdition = ?, annee = ?, 
-          descripteurs = ?, cote = ?, isbn = ?, description = ?, couverture = ?,
+          descripteurs = ?, cote = ?, type = ?, isbn = ?, description = ?, couverture = ?,
           lastModified = ?, version = version + 1, syncStatus = 'pending'
         WHERE id = ? AND deletedAt IS NULL
       `);
@@ -3830,6 +3871,7 @@ class DatabaseService {
                 document.annee,
                 document.descripteurs,
                 document.cote,
+                document.type || 'book',
                 document.isbn || null,
                 document.description || null,
                 document.couverture || null,
@@ -3905,6 +3947,7 @@ class DatabaseService {
                         annee: row.annee,
                         descripteurs: row.descripteurs,
                         cote: row.cote,
+                        type: row.type || 'book',
                         isbn: row.isbn,
                         description: row.description,
                         couverture: row.couverture,
@@ -4758,17 +4801,29 @@ class SupabaseService {
         return [];
     }
     // Borrow Management - Méthodes simplifiées
-    async borrowBook(bookId, borrowerId, expectedReturnDate) {
-        console.log('borrowBook appelé avec:', { bookId, borrowerId, expectedReturnDate });
+    async borrowDocument(documentId, borrowerId, expectedReturnDate) {
+        console.log('borrowDocument appelé avec:', { documentId, borrowerId, expectedReturnDate });
         return 1;
     }
-    async returnBook(borrowHistoryId, notes) {
-        console.log('returnBook appelé avec:', { borrowHistoryId, notes });
+    // Compatibility method
+    async borrowBook(documentId, borrowerId, expectedReturnDate) {
+        return this.borrowDocument(documentId, borrowerId, expectedReturnDate);
+    }
+    async returnDocument(borrowHistoryId, notes) {
+        console.log('returnDocument appelé avec:', { borrowHistoryId, notes });
         return true;
     }
-    async getBorrowedBooks() {
-        console.log('getBorrowedBooks appelé');
+    // Compatibility method
+    async returnBook(borrowHistoryId, notes) {
+        return this.returnDocument(borrowHistoryId, notes);
+    }
+    async getBorrowedDocuments() {
+        console.log('getBorrowedDocuments appelé');
         return [];
+    }
+    // Compatibility method
+    async getBorrowedBooks() {
+        return this.getBorrowedDocuments();
     }
     async getBorrowHistory(filter) {
         console.log('getBorrowHistory appelé avec filter:', filter);
@@ -4803,7 +4858,7 @@ class SupabaseService {
             totalBorrowers: 0,
             totalStudents: 0,
             totalStaff: 0,
-            overdueBooks: 0
+            overdueDocuments: 0
         };
     }
     // Getters
@@ -4884,14 +4939,6 @@ class SupabaseService {
     }
     async deleteBorrowHistory(id) {
         console.log('deleteBorrowHistory appelé avec ID:', id);
-        return true;
-    }
-    async borrowDocument(documentId, borrowerId, returnDate) {
-        console.log('borrowDocument appelé avec:', { documentId, borrowerId, returnDate });
-        return true;
-    }
-    async returnDocument(documentId) {
-        console.log('returnDocument appelé avec ID:', documentId);
         return true;
     }
 }

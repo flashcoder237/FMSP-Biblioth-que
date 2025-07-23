@@ -25,7 +25,7 @@ import {
   Layers,
   Heart
 } from 'lucide-react';
-import { Book3DView } from './Book3DView';
+import { Document3DView } from './Book3DView';
 import { useQuickToast } from './ToastSystem';
 
 interface DocumentListProps {

@@ -12,7 +12,7 @@ export interface BackupMetadata {
   appVersion: string;
   platform: string;
   stats: {
-    totalBooks: number;
+    totalDocuments: number;
     totalBorrowers: number;
     totalAuthors: number;
     totalCategories: number;
@@ -75,7 +75,7 @@ export class BackupService {
       const borrowHistory = await this.databaseService.getBorrowHistory();
       
       return {
-        totalBooks: stats.totalBooks,
+        totalDocuments: stats.totalDocuments,
         totalBorrowers: stats.totalBorrowers,
         totalAuthors: stats.totalAuthors,
         totalCategories: stats.totalCategories,
@@ -84,7 +84,7 @@ export class BackupService {
     } catch (error) {
       console.error('Erreur lors de la récupération des statistiques:', error);
       return {
-        totalBooks: 0,
+        totalDocuments: 0,
         totalBorrowers: 0,
         totalAuthors: 0,
         totalCategories: 0,

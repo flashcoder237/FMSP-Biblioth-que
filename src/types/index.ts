@@ -9,6 +9,7 @@ export interface Document {
   annee: string;            // ANNEE
   descripteurs: string;     // DESCRIPTEURS (mots-clés séparés par des virgules)
   cote: string;             // COTE (référence de classification)
+  type?: 'book' | 'mémoire' | 'thèse' | 'rapport' | 'article' | 'autre'; // TYPE DE DOCUMENT
   
   // Champs optionnels
   isbn?: string;
@@ -132,7 +133,7 @@ export interface Stats {
   totalBorrowers: number;
   totalStudents: number;
   totalStaff: number;
-  overdueBooks: number;
+  overdueDocuments: number;
 }
 
 export interface SyncStatus {
@@ -182,7 +183,7 @@ export interface HistoryFilter {
   startDate?: string;
   endDate?: string;
   borrowerId?: number;
-  bookId?: number;
+  documentId?: number;
 }
 
 export interface AuthCredentials {
@@ -196,8 +197,8 @@ export interface AuthResponse {
   error?: string;
 }
 
-// Fonction utilitaire pour créer un Book depuis un Document
-export function createBookFromDocument(doc: Document): Book {
+// Fonction utilitaire pour créer un Book depuis un Document (pour compatibilité)
+export function createDocumentFromBook(doc: Document): Book {
   const book: any = {
     ...doc,
     get title() { return this.titre; },

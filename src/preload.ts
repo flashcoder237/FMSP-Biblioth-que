@@ -47,6 +47,7 @@ export interface Document {
   annee: string;            // ANNEE
   descripteurs: string;     // DESCRIPTEURS (mots-clés séparés par des virgules)
   cote: string;             // COTE (référence de classification)
+  type?: 'book' | 'mémoire' | 'thèse' | 'rapport' | 'article' | 'autre'; // TYPE DE DOCUMENT
   
   // Champs optionnels
   isbn?: string;
@@ -172,7 +173,7 @@ export interface Stats {
   totalBorrowers: number;
   totalStudents: number;
   totalStaff: number;
-  overdueBooks: number;
+  overdueDocuments: number;
 }
 
 export interface HistoryFilter {
@@ -284,7 +285,7 @@ export interface ConflictResolution {
 }
 
 // Fonctions utilitaires pour la compatibilité Book/Document
-export const createBookFromDocument = (document: Document): Book => {
+export const createDocumentFromBook = (document: Document): Book => {
   const book = { ...document } as any;
   
   // Ajouter les getters pour la compatibilité
@@ -338,7 +339,7 @@ export const createBookFromDocument = (document: Document): Book => {
   return book as Book;
 };
 
-export const createDocumentFromBook = (book: Partial<Book>): Omit<Document, 'id'> => {
+export const createBookFromDocument = (book: Partial<Book>): Omit<Document, 'id'> => {
   const now = new Date().toISOString();
   
   return {
@@ -383,16 +384,16 @@ const electronAPI = {
   // Database operations - Books (avec compatibilité Document)
   getBooks: (): Promise<Book[]> => 
     ipcRenderer?.invoke('db:getBooks').then((documents: Document[]) => 
-      documents.map(createBookFromDocument)
+      documents.map(createDocumentFromBook)
     ) || Promise.resolve([]),
   addBook: (book: Omit<Book, 'id'>): Promise<number> => 
-    ipcRenderer?.invoke('db:addBook', createDocumentFromBook(book)) || Promise.resolve(0),
+    ipcRenderer?.invoke('db:addBook', createBookFromDocument(book)) || Promise.resolve(0),
   updateBook: (book: Book): Promise<boolean> => 
-    ipcRenderer?.invoke('db:updateBook', { ...createDocumentFromBook(book), id: book.id }) || Promise.resolve(false),
+    ipcRenderer?.invoke('db:updateBook', { ...createBookFromDocument(book), id: book.id }) || Promise.resolve(false),
   deleteBook: (id: number): Promise<boolean> => ipcRenderer?.invoke('db:deleteBook', id) || Promise.resolve(false),
   searchBooks: (query: string): Promise<Book[]> => 
     ipcRenderer?.invoke('db:searchBooks', query).then((documents: Document[]) => 
-      documents.map(createBookFromDocument)
+      documents.map(createDocumentFromBook)
     ) || Promise.resolve([]),
   
   // Database operations - Documents (nouveau)
@@ -444,9 +445,14 @@ const electronAPI = {
   searchBorrowers: (query: string): Promise<Borrower[]> => ipcRenderer?.invoke('db:searchBorrowers', query) || Promise.resolve([]),
   
   // Borrow operations
-  getBorrowedBooks: (): Promise<BorrowHistory[]> => ipcRenderer?.invoke('db:getBorrowedBooks') || Promise.resolve([]),
-  borrowBook: (bookId: number, borrowerId: number, expectedReturnDate: string): Promise<number> => 
-    ipcRenderer?.invoke('db:borrowBook', bookId, borrowerId, expectedReturnDate) || Promise.resolve(0),
+  getBorrowedDocuments: (): Promise<BorrowHistory[]> => ipcRenderer?.invoke('db:getBorrowedDocuments') || Promise.resolve([]),
+  // Compatibility method
+  getBorrowedBooks: (): Promise<BorrowHistory[]> => ipcRenderer?.invoke('db:getBorrowedDocuments') || Promise.resolve([]),
+  borrowDocument: (documentId: number, borrowerId: number, expectedReturnDate: string): Promise<number> => 
+    ipcRenderer?.invoke('db:borrowDocument', documentId, borrowerId, expectedReturnDate) || Promise.resolve(0),
+  // Compatibility method
+  borrowBook: (documentId: number, borrowerId: number, expectedReturnDate: string): Promise<number> => 
+    ipcRenderer?.invoke('db:borrowDocument', documentId, borrowerId, expectedReturnDate) || Promise.resolve(0),
   returnBook: (borrowHistoryId: number, notes?: string): Promise<boolean> => 
     ipcRenderer?.invoke('db:returnBook', borrowHistoryId, notes) || Promise.resolve(false),
   getBorrowHistory: (filter?: HistoryFilter): Promise<BorrowHistory[]> => 

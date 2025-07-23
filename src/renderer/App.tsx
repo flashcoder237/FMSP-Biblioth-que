@@ -34,7 +34,7 @@ export const App: React.FC = () => {
   const [authors, setAuthors] = useState<Author[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [borrowers, setBorrowers] = useState<Borrower[]>([]);
-  const [borrowedBooks, setBorrowedBooks] = useState<BorrowHistoryType[]>([]);
+  const [borrowedDocuments, setBorrowedBooks] = useState<BorrowHistoryType[]>([]);
   const [stats, setStats] = useState<Stats>({
     totalDocuments: 0,
     borrowedDocuments: 0,
@@ -44,7 +44,7 @@ export const App: React.FC = () => {
     totalBorrowers: 0,
     totalStudents: 0,
     totalStaff: 0,
-    overdueBooks: 0
+    overdueDocuments: 0
   });
 
   // Services
@@ -89,14 +89,14 @@ export const App: React.FC = () => {
         authorsData, 
         categoriesData, 
         borrowersData,
-        borrowedBooksData,
+        borrowedDocumentsData,
         statsData
       ] = await Promise.all([
         supabaseService.getDocuments(),
         supabaseService.getAuthors(),
         supabaseService.getCategories(),
         supabaseService.getBorrowers(),
-        supabaseService.getBorrowedBooks(),
+        supabaseService.getBorrowedDocuments(),
         supabaseService.getStats()
       ]);
 
@@ -104,7 +104,7 @@ export const App: React.FC = () => {
       setAuthors(authorsData);
       setCategories(categoriesData);
       setBorrowers(borrowersData);
-      setBorrowedBooks(borrowedBooksData);
+      setBorrowedBooks(borrowedDocumentsData);
       setStats(statsData);
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
@@ -268,7 +268,7 @@ export const App: React.FC = () => {
         totalBorrowers: demoBorrowers.length,
         totalStudents: 1,
         totalStaff: 1,
-        overdueBooks: 0
+        overdueDocuments: 0
       };
 
       setDocuments(demoDocuments);
@@ -440,7 +440,7 @@ export const App: React.FC = () => {
         totalBorrowers: 0,
         totalStudents: 0,
         totalStaff: 0,
-        overdueBooks: 0
+        overdueDocuments: 0
       });
     } catch (error) {
       console.error('Erreur lors de la déconnexion:', error);
@@ -502,7 +502,7 @@ export const App: React.FC = () => {
   };
 
 
-  const handleReturnBook = async (borrowHistoryId: number, notes?: string) => {
+  const handleReturnDocument = async (borrowHistoryId: number, notes?: string) => {
     if (borrowHistoryId === undefined) {
       console.error('Invalid argument for returnBook:', { borrowHistoryId });
       return;
@@ -573,8 +573,8 @@ export const App: React.FC = () => {
         const document = documents.find(d => d.id === documentId);
         
         if (borrower && document) {
-          const newBorrowHistory: typeof borrowedBooks[0] = {
-            id: Math.max(...borrowedBooks.map(b => b.id || 0)) + 1,
+          const newBorrowHistory: typeof borrowedDocuments[0] = {
+            id: Math.max(...borrowedDocuments.map(b => b.id || 0)) + 1,
             documentId: documentId,
             borrowerId,
             borrowDate: new Date().toISOString(),
@@ -623,7 +623,7 @@ export const App: React.FC = () => {
         setDocuments(updatedDocuments);
         
         // Marquer comme retourné dans l'historique
-        const updatedBorrowHistory = borrowedBooks.map(bh => 
+        const updatedBorrowHistory = borrowedDocuments.map(bh => 
           bh.documentId === documentId && bh.status === 'active'
             ? { ...bh, actualReturnDate: new Date().toISOString(), status: 'returned' as const }
             : bh
@@ -702,16 +702,16 @@ export const App: React.FC = () => {
       case 'borrowed':
         return (
           <BorrowedDocuments
-            documents={borrowedBooks.map(bh => ({
+            documents={borrowedDocuments.map(bh => ({
               ...bh.document!,
               nomEmprunteur: `${bh.borrower?.firstName} ${bh.borrower?.lastName}`,
               dateEmprunt: bh.borrowDate,
               dateRetourPrevu: bh.expectedReturnDate
             }))}
             onReturn={(documentId) => {
-              const borrowHistory = borrowedBooks.find(bh => bh.documentId === documentId);
+              const borrowHistory = borrowedDocuments.find(bh => bh.documentId === documentId);
               if (borrowHistory) {
-                handleReturnBook(borrowHistory.id!, undefined);
+                handleReturnDocument(borrowHistory.id!, undefined);
               }
             }}
           />

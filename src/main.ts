@@ -252,18 +252,38 @@ ipcMain.handle('db:searchBorrowers', async (_, query) => {
 });
 
 // Database Operations - Borrow Management
+ipcMain.handle('db:getBorrowedDocuments', async () => {
+  try {
+    return await dbService.getBorrowedDocuments();
+  } catch (error) {
+    console.error('Erreur getBorrowedDocuments:', error);
+    return [];
+  }
+});
+
+// Compatibility handler
 ipcMain.handle('db:getBorrowedBooks', async () => {
   try {
-    return await dbService.getBorrowedBooks();
+    return await dbService.getBorrowedDocuments();
   } catch (error) {
     console.error('Erreur getBorrowedBooks:', error);
     return [];
   }
 });
 
-ipcMain.handle('db:borrowBook', async (_, bookId, borrowerId, expectedReturnDate) => {
+ipcMain.handle('db:borrowDocument', async (_, documentId, borrowerId, expectedReturnDate) => {
   try {
-    return await dbService.borrowBook(bookId, borrowerId, expectedReturnDate);
+    return await dbService.borrowDocument(documentId, borrowerId, expectedReturnDate);
+  } catch (error) {
+    console.error('Erreur borrowDocument:', error);
+    throw error;
+  }
+});
+
+// Compatibility handler
+ipcMain.handle('db:borrowBook', async (_, documentId, borrowerId, expectedReturnDate) => {
+  try {
+    return await dbService.borrowDocument(documentId, borrowerId, expectedReturnDate);
   } catch (error) {
     console.error('Erreur borrowBook:', error);
     throw error;

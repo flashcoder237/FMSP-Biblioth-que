@@ -1,7 +1,7 @@
 import * as sqlite3 from 'sqlite3';
 import * as path from 'path';
 import { app } from 'electron';
-import { Document, Book, Author, Category, Stats, Borrower, BorrowHistory, HistoryFilter, SyncOperation, createBookFromDocument } from '../preload';
+import { Document, Book, Author, Category, Stats, Borrower, BorrowHistory, HistoryFilter, SyncOperation, createDocumentFromBook } from '../preload';
 
 interface SQLiteRunResult {
   lastID: number;
@@ -105,6 +105,7 @@ export class DatabaseService {
             isbn TEXT,
             description TEXT,
             couverture TEXT,
+            type TEXT DEFAULT 'book' CHECK (type IN ('book', 'mémoire', 'thèse', 'rapport', 'article', 'autre')),
             
             -- Statut d'emprunt
             estEmprunte BOOLEAN DEFAULT 0,
@@ -125,6 +126,16 @@ export class DatabaseService {
             FOREIGN KEY (emprunteurId) REFERENCES borrowers(id)
           )
         `);
+
+        // Ajouter la colonne type si elle n'existe pas (migration)
+        this.db.run(`
+          ALTER TABLE documents ADD COLUMN type TEXT DEFAULT 'book' CHECK (type IN ('book', 'mémoire', 'thèse', 'rapport', 'article', 'autre'))
+        `, (err) => {
+          // Ignorer l'erreur si la colonne existe déjà
+          if (err && !err.message.includes('duplicate column name')) {
+            console.error('Erreur lors de l\'ajout de la colonne type:', err);
+          }
+        });
 
         // Vue pour compatibilité avec l'ancienne table books
         this.db.run(`
@@ -259,6 +270,7 @@ export class DatabaseService {
           annee: '1862',
           descripteurs: 'Fiction, Roman historique, XIXe siècle, France',
           cote: 'FIC-HUG-001',
+          type: 'book' as const,
           isbn: '978-2-253-00001-1',
           description: 'Roman historique français décrivant la vie de divers personnages français dans la première moitié du XIXe siècle.',
           estEmprunte: false,
@@ -274,6 +286,7 @@ export class DatabaseService {
           annee: '1942',
           descripteurs: 'Fiction, Philosophie, Absurde, Littérature française',
           cote: 'FIC-CAM-001',
+          type: 'book' as const,
           isbn: '978-2-253-00002-2',
           description: 'Premier roman d\'Albert Camus, publié en 1942. Il prend place dans la lignée des récits qui illustrent la philosophie de l\'absurde.',
           estEmprunte: false,
@@ -289,6 +302,7 @@ export class DatabaseService {
           annee: '1951',
           descripteurs: 'Science-Fiction, Futur, Empire galactique, Psychohistoire',
           cote: 'SF-ASI-001',
+          type: 'book' as const,
           isbn: '978-2-253-00003-3',
           description: 'Premier tome du cycle de Fondation, une saga de science-fiction se déroulant dans un futur lointain.',
           estEmprunte: false,
@@ -304,6 +318,7 @@ export class DatabaseService {
           annee: '1935',
           descripteurs: 'Sciences, Physique, Radioactivité, Chimie',
           cote: 'SCI-CUR-001',
+          type: 'rapport' as const,
           description: 'Ouvrage fondamental sur la découverte et les applications de la radioactivité.',
           estEmprunte: false,
           syncStatus: 'synced' as const,
@@ -318,6 +333,7 @@ export class DatabaseService {
           annee: '1870',
           descripteurs: 'Science-Fiction, Aventure, Sous-marins, Océan',
           cote: 'SF-VER-001',
+          type: 'book' as const,
           isbn: '978-2-253-00004-4',
           description: 'Roman d\'aventures de Jules Verne décrivant les exploits du capitaine Nemo à bord du Nautilus.',
           estEmprunte: false,
@@ -460,7 +476,7 @@ export class DatabaseService {
         }
         
         if (row.count > 0) {
-          reject(new Error('Impossible de supprimer : cet emprunteur a des livres non rendus'));
+          reject(new Error('Impossible de supprimer : cet emprunteur a des documents non rendus'));
           return;
         }
         
@@ -492,7 +508,7 @@ export class DatabaseService {
     });
   }
 
-  // Books CRUD mis à jour
+  // Documents CRUD mis à jour (méthodes Books pour compatibilité)
   async getBooks(): Promise<Book[]> {
     return new Promise((resolve, reject) => {
       this.db.all(`
@@ -508,7 +524,7 @@ export class DatabaseService {
         if (err) {
           reject(err);
         } else {
-          const books = rows.map((row: any) => createBookFromDocument(row as Document));
+          const books = rows.map((row: any) => createDocumentFromBook(row as Document));
           resolve(books);
         }
       });
@@ -568,8 +584,8 @@ export class DatabaseService {
 }
 
   // Legacy method for backward compatibility
-  async borrowBook(bookId: number, borrowerId: number, expectedReturnDate: string): Promise<number> {
-    return this.borrowDocument(bookId, borrowerId, expectedReturnDate);
+  async borrowBook(documentId: number, borrowerId: number, expectedReturnDate: string): Promise<number> {
+    return this.borrowDocument(documentId, borrowerId, expectedReturnDate);
   }
 
   async returnBook(borrowHistoryId: number, notes?: string): Promise<boolean> {
@@ -580,7 +596,7 @@ export class DatabaseService {
     database.serialize(() => {
       database.run('BEGIN TRANSACTION');
       
-      database.get('SELECT bookId FROM borrow_history WHERE id = ?', [borrowHistoryId], (err: Error | null, row: any) => {
+      database.get('SELECT documentId FROM borrow_history WHERE id = ?', [borrowHistoryId], (err: Error | null, row: any) => {
         if (err) {
           database.run('ROLLBACK');
           reject(err);
@@ -593,7 +609,7 @@ export class DatabaseService {
           return;
         }
         
-        const bookId = row.bookId;
+        const documentId = row.documentId;
         
         const stmt1 = database.prepare(`
           UPDATE borrow_history SET 
@@ -620,7 +636,7 @@ export class DatabaseService {
             WHERE id = ?
           `);
           
-          stmt2.run([returnDate, bookId], function(this: sqlite3.RunResult, err: Error | null) {
+          stmt2.run([returnDate, documentId], function(this: sqlite3.RunResult, err: Error | null) {
             if (err) {
               database.run('ROLLBACK');
               reject(err);
@@ -639,7 +655,7 @@ export class DatabaseService {
   });
 }
 
-  async getBorrowedBooks(): Promise<BorrowHistory[]> {
+  async getBorrowedDocuments(): Promise<BorrowHistory[]> {
     return new Promise((resolve, reject) => {
       this.db.all(`
         SELECT 
@@ -654,7 +670,7 @@ export class DatabaseService {
           br.lastModified as borrowerLastModified, br.version as borrowerVersion,
           br.createdAt as borrowerCreatedAt
         FROM borrow_history bh
-        JOIN documents d ON bh.bookId = d.id
+        JOIN documents d ON bh.documentId = d.id
         JOIN borrowers br ON bh.borrowerId = br.id
         WHERE bh.status = 'active' AND d.deletedAt IS NULL
         ORDER BY bh.borrowDate DESC
@@ -664,7 +680,7 @@ export class DatabaseService {
         } else {
           const history = rows.map(row => ({
             id: row.id,
-            bookId: row.bookId,
+            documentId: row.documentId,
             borrowerId: row.borrowerId,
             borrowDate: row.borrowDate,
             expectedReturnDate: row.expectedReturnDate,
@@ -675,8 +691,8 @@ export class DatabaseService {
             lastModified: row.lastModified || new Date().toISOString(),
             version: row.version || 1,
             createdAt: row.createdAt,
-            book: {
-              id: row.bookId,
+            document: {
+              id: row.documentId,
               // English properties (Book interface)
               title: row.title,
               author: row.author,
@@ -750,7 +766,7 @@ export class DatabaseService {
           br.lastModified as borrowerLastModified, br.version as borrowerVersion,
           br.createdAt as borrowerCreatedAt
         FROM borrow_history bh
-        JOIN documents d ON bh.bookId = d.id
+        JOIN documents d ON bh.documentId = d.id
         JOIN borrowers br ON bh.borrowerId = br.id
       `;
       
@@ -783,9 +799,9 @@ export class DatabaseService {
           params.push(filter.borrowerId);
         }
         
-        if (filter.bookId) {
-          conditions.push('bh.bookId = ?');
-          params.push(filter.bookId);
+        if (filter.documentId) {
+          conditions.push('bh.documentId = ?');
+          params.push(filter.documentId);
         }
       }
       
@@ -801,7 +817,7 @@ export class DatabaseService {
         } else {
           const history = rows.map(row => ({
             id: row.id,
-            bookId: row.bookId,
+            documentId: row.documentId,
             borrowerId: row.borrowerId,
             borrowDate: row.borrowDate,
             expectedReturnDate: row.expectedReturnDate,
@@ -812,8 +828,8 @@ export class DatabaseService {
             lastModified: row.lastModified || new Date().toISOString(),
             version: row.version || 1,
             createdAt: row.createdAt,
-            book: {
-              id: row.bookId,
+            document: {
+              id: row.documentId,
               // English properties (Book interface)
               title: row.title,
               author: row.author,
@@ -964,7 +980,7 @@ export class DatabaseService {
   async getStats(): Promise<Stats> {
   return new Promise((resolve, reject) => {
     this.db.serialize(() => {
-      const stats: Partial<Stats> = {};
+      const stats: any = {};
       
       // Utiliser documents au lieu de books
       this.db.get('SELECT COUNT(*) as count FROM documents WHERE deletedAt IS NULL', (err: Error | null, row: any) => {
@@ -972,15 +988,15 @@ export class DatabaseService {
           reject(err);
           return;
         }
-        stats.totalBooks = row.count || 0;
+        stats.totalDocuments = row.count || 0;
         
         this.db.get('SELECT COUNT(*) as count FROM documents WHERE estEmprunte = 1 AND deletedAt IS NULL', (err: Error | null, row: any) => {
           if (err) {
             reject(err);
             return;
           }
-          stats.borrowedBooks = row.count || 0;
-          stats.availableBooks = (stats.totalBooks || 0) - (stats.borrowedBooks || 0);
+          stats.borrowedDocuments = row.count || 0;
+          stats.availableDocuments = (stats.totalDocuments || 0) - (stats.borrowedDocuments || 0);
           
           this.db.get('SELECT COUNT(*) as count FROM authors WHERE deletedAt IS NULL', (err: Error | null, row: any) => {
             if (err) {
@@ -1017,7 +1033,7 @@ export class DatabaseService {
                     }
                     stats.totalStaff = row.count || 0;
                     
-                    // Compter les livres en retard
+                    // Compter les documents en retard
                     const now = new Date().toISOString();
                     this.db.get(`
                       SELECT COUNT(*) as count FROM borrow_history 
@@ -1027,7 +1043,7 @@ export class DatabaseService {
                         reject(err);
                         return;
                       }
-                      stats.overdueBooks = row.count || 0;
+                      stats.overdueDocuments = row.count || 0;
                       resolve(stats as Stats);
                     });
                   });
@@ -1050,7 +1066,7 @@ export class DatabaseService {
             reject(err);
             return;
           }
-          this.db.run('DELETE FROM books', (err) => {
+          this.db.run('DELETE FROM documents', (err) => {
             if (err) {
               reject(err);
               return;
@@ -1108,6 +1124,7 @@ export class DatabaseService {
             annee: row.annee,
             descripteurs: row.descripteurs,
             cote: row.cote,
+            type: row.type || 'book',
             isbn: row.isbn,
             description: row.description,
             couverture: row.couverture,
@@ -1140,10 +1157,10 @@ export class DatabaseService {
       
       const stmt = this.db.prepare(`
         INSERT INTO documents (
-          auteur, titre, editeur, lieuEdition, annee, descripteurs, cote,
+          auteur, titre, editeur, lieuEdition, annee, descripteurs, cote, type,
           isbn, description, couverture, estEmprunte,
           localId, syncStatus, lastModified, version, createdAt
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
       
       stmt.run([
@@ -1154,6 +1171,7 @@ export class DatabaseService {
         document.annee,
         document.descripteurs,
         document.cote,
+        document.type || 'book',
         document.isbn || null,
         document.description || null,
         document.couverture || null,
@@ -1186,7 +1204,7 @@ export class DatabaseService {
       const stmt = this.db.prepare(`
         UPDATE documents SET 
           auteur = ?, titre = ?, editeur = ?, lieuEdition = ?, annee = ?, 
-          descripteurs = ?, cote = ?, isbn = ?, description = ?, couverture = ?,
+          descripteurs = ?, cote = ?, type = ?, isbn = ?, description = ?, couverture = ?,
           lastModified = ?, version = version + 1, syncStatus = 'pending'
         WHERE id = ? AND deletedAt IS NULL
       `);
@@ -1199,6 +1217,7 @@ export class DatabaseService {
         document.annee,
         document.descripteurs,
         document.cote,
+        document.type || 'book',
         document.isbn || null,
         document.description || null,
         document.couverture || null,
@@ -1277,6 +1296,7 @@ export class DatabaseService {
             annee: row.annee,
             descripteurs: row.descripteurs,
             cote: row.cote,
+            type: row.type || 'book',
             isbn: row.isbn,
             description: row.description,
             couverture: row.couverture,

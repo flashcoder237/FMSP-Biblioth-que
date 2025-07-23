@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Book, RotateCcw, ZoomIn, ZoomOut, Move3d, Eye, Layers } from 'lucide-react';
 
-interface Book3DViewProps {
+interface Document3DViewProps {
   document: {
     titre: string;
     auteur: string;
@@ -16,7 +16,7 @@ interface Book3DViewProps {
   autoRotate?: boolean;
 }
 
-export const Book3DView: React.FC<Book3DViewProps> = ({ 
+export const Document3DView: React.FC<Document3DViewProps> = ({ 
   document, 
   className = '',
   interactive = true,
@@ -29,7 +29,7 @@ export const Book3DView: React.FC<Book3DViewProps> = ({
   const [zoom, setZoom] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
   const [lastMouse, setLastMouse] = useState({ x: 0, y: 0 });
-  const [viewMode, setViewMode] = useState<'book' | 'wireframe' | 'exploded'>('book');
+  const [viewMode, setViewMode] = useState<'document' | 'wireframe' | 'exploded'>('document');
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -43,7 +43,7 @@ export const Book3DView: React.FC<Book3DViewProps> = ({
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
 
     const render = () => {
-      drawBook3D(ctx, canvas.offsetWidth, canvas.offsetHeight);
+      drawDocument3D(ctx, canvas.offsetWidth, canvas.offsetHeight);
       if (autoRotate && !isDragging) {
         setRotation(prev => ({ ...prev, y: prev.y + 0.5 }));
       }
@@ -60,16 +60,16 @@ export const Book3DView: React.FC<Book3DViewProps> = ({
     };
   }, [rotation, zoom, viewMode, isDragging, autoRotate]);
 
-  const drawBook3D = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+  const drawDocument3D = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
     ctx.clearRect(0, 0, width, height);
     
     const centerX = width / 2;
     const centerY = height / 2;
     
-    // Book dimensions
-    const bookWidth = 80 * zoom;
-    const bookHeight = 120 * zoom;
-    const bookDepth = 12 * zoom;
+    // Document dimensions
+    const documentWidth = 80 * zoom;
+    const documentHeight = 120 * zoom;
+    const documentDepth = 12 * zoom;
     
     // Convert rotation to radians
     const rx = (rotation.x * Math.PI) / 180;
@@ -101,18 +101,18 @@ export const Book3DView: React.FC<Book3DViewProps> = ({
       ];
     };
 
-    // Define book vertices
+    // Define document vertices
     const vertices = [
       // Front face
-      [-bookWidth/2, -bookHeight/2, bookDepth/2],
-      [bookWidth/2, -bookHeight/2, bookDepth/2],
-      [bookWidth/2, bookHeight/2, bookDepth/2],
-      [-bookWidth/2, bookHeight/2, bookDepth/2],
+      [-documentWidth/2, -documentHeight/2, documentDepth/2],
+      [documentWidth/2, -documentHeight/2, documentDepth/2],
+      [documentWidth/2, documentHeight/2, documentDepth/2],
+      [-documentWidth/2, documentHeight/2, documentDepth/2],
       // Back face
-      [-bookWidth/2, -bookHeight/2, -bookDepth/2],
-      [bookWidth/2, -bookHeight/2, -bookDepth/2],
-      [bookWidth/2, bookHeight/2, -bookDepth/2],
-      [-bookWidth/2, bookHeight/2, -bookDepth/2]
+      [-documentWidth/2, -documentHeight/2, -documentDepth/2],
+      [documentWidth/2, -documentHeight/2, -documentDepth/2],
+      [documentWidth/2, documentHeight/2, -documentDepth/2],
+      [-documentWidth/2, documentHeight/2, -documentDepth/2]
     ];
 
     // Project all vertices
@@ -120,12 +120,12 @@ export const Book3DView: React.FC<Book3DViewProps> = ({
 
     // Define faces (quads)
     const faces = [
-      { vertices: [0, 1, 2, 3], color: getBookColor('front'), name: 'front' },
-      { vertices: [5, 4, 7, 6], color: getBookColor('back'), name: 'back' },
-      { vertices: [4, 0, 3, 7], color: getBookColor('spine'), name: 'spine' },
-      { vertices: [1, 5, 6, 2], color: getBookColor('edge'), name: 'edge' },
-      { vertices: [4, 5, 1, 0], color: getBookColor('top'), name: 'top' },
-      { vertices: [3, 2, 6, 7], color: getBookColor('bottom'), name: 'bottom' }
+      { vertices: [0, 1, 2, 3], color: getDocumentColor('front'), name: 'front' },
+      { vertices: [5, 4, 7, 6], color: getDocumentColor('back'), name: 'back' },
+      { vertices: [4, 0, 3, 7], color: getDocumentColor('spine'), name: 'spine' },
+      { vertices: [1, 5, 6, 2], color: getDocumentColor('edge'), name: 'edge' },
+      { vertices: [4, 5, 1, 0], color: getDocumentColor('top'), name: 'top' },
+      { vertices: [3, 2, 6, 7], color: getDocumentColor('bottom'), name: 'bottom' }
     ];
 
     // Sort faces by z-depth (painter's algorithm)
@@ -143,9 +143,9 @@ export const Book3DView: React.FC<Book3DViewProps> = ({
       }
     });
 
-    // Draw book details if close enough
+    // Draw document details if close enough
     if (zoom > 0.8) {
-      drawBookDetails(ctx, projectedVertices, sortedFaces);
+      drawDocumentDetails(ctx, projectedVertices, sortedFaces);
     }
 
     // Draw exploded view if selected
@@ -154,7 +154,7 @@ export const Book3DView: React.FC<Book3DViewProps> = ({
     }
   };
 
-  const getBookColor = (face: string): string => {
+  const getDocumentColor = (face: string): string => {
     const baseColor = document.couleur || '#3E5C49';
     
     switch (face) {
@@ -243,7 +243,7 @@ export const Book3DView: React.FC<Book3DViewProps> = ({
     ctx.stroke();
   };
 
-  const drawBookDetails = (
+  const drawDocumentDetails = (
     ctx: CanvasRenderingContext2D, 
     vertices: number[][],
     faces: any[]
@@ -359,10 +359,10 @@ export const Book3DView: React.FC<Book3DViewProps> = ({
   };
 
   return (
-    <div className={`book-3d-container ${className}`}>
+    <div className={`document-3d-container ${className}`}>
       <canvas
         ref={canvasRef}
-        className="book-3d-canvas"
+        className="document-3d-canvas"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -371,7 +371,7 @@ export const Book3DView: React.FC<Book3DViewProps> = ({
       />
       
       {interactive && (
-        <div className="book-3d-controls">
+        <div className="document-3d-controls">
           <div className="control-group">
             <button
               className="control-button"
@@ -400,8 +400,8 @@ export const Book3DView: React.FC<Book3DViewProps> = ({
           
           <div className="control-group">
             <button
-              className={`control-button ${viewMode === 'book' ? 'active' : ''}`}
-              onClick={() => setViewMode('book')}
+              className={`control-button ${viewMode === 'document' ? 'active' : ''}`}
+              onClick={() => setViewMode('document')}
               title="Vue normale"
             >
               <Book size={16} />
@@ -427,7 +427,7 @@ export const Book3DView: React.FC<Book3DViewProps> = ({
       )}
 
       <style>{`
-        .book-3d-container {
+        .document-3d-container {
           position: relative;
           width: 100%;
           height: 300px;
@@ -437,7 +437,7 @@ export const Book3DView: React.FC<Book3DViewProps> = ({
           border: 1px solid rgba(229, 220, 194, 0.4);
         }
 
-        .book-3d-canvas {
+        .document-3d-canvas {
           width: 100%;
           height: 100%;
           cursor: ${interactive ? (isDragging ? 'grabbing' : 'grab') : 'default'};
@@ -445,7 +445,7 @@ export const Book3DView: React.FC<Book3DViewProps> = ({
           opacity: ${isLoaded ? 1 : 0};
         }
 
-        .book-3d-controls {
+        .document-3d-controls {
           position: absolute;
           top: 12px;
           right: 12px;
@@ -493,7 +493,7 @@ export const Book3DView: React.FC<Book3DViewProps> = ({
         }
 
         /* Loading state */
-        .book-3d-container::before {
+        .document-3d-container::before {
           content: '';
           position: absolute;
           top: 50%;
@@ -516,11 +516,11 @@ export const Book3DView: React.FC<Book3DViewProps> = ({
 
         /* Responsive */
         @media (max-width: 768px) {
-          .book-3d-container {
+          .document-3d-container {
             height: 250px;
           }
 
-          .book-3d-controls {
+          .document-3d-controls {
             top: 8px;
             right: 8px;
           }
@@ -553,12 +553,12 @@ export const Book3DView: React.FC<Book3DViewProps> = ({
 
         /* Reduced motion */
         @media (prefers-reduced-motion: reduce) {
-          .book-3d-canvas,
+          .document-3d-canvas,
           .control-button {
             transition: none;
           }
 
-          .book-3d-container::before {
+          .document-3d-container::before {
             animation: none;
           }
         }
