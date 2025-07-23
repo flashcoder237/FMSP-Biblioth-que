@@ -1,4 +1,4 @@
-// src/renderer/components/EnhancedAuthentication.tsx
+// src/renderer/components/EnhancedAuthentication.tsx - Version simplifiée pour mode offline
 import React, { useState } from 'react';
 import { 
   Book, 
@@ -7,11 +7,8 @@ import {
   Eye, 
   EyeOff, 
   Shield,
-  Sparkles,
   Users,
   BarChart3,
-  Globe,
-  Wifi,
   WifiOff,
   Building,
   KeyRound,
@@ -22,7 +19,10 @@ import {
   AlertCircle,
   Mail,
   Phone,
-  MapPin
+  MapPin,
+  Sparkles,
+  HardDrive,
+  Database
 } from 'lucide-react';
 
 interface EnhancedAuthenticationProps {
@@ -36,66 +36,30 @@ interface EnhancedAuthenticationProps {
 }
 
 export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ onLogin }) => {
-  const [mode, setMode] = useState<'login' | 'register' | 'create_institution'>('login');
+  const [mode, setMode] = useState<'login' | 'create_institution'>('login');
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
 
-  // Données du formulaire
+  // Données du formulaire de connexion
   const [loginData, setLoginData] = useState({
     email: '',
     password: '',
     institutionCode: ''
   });
 
-  const [registerData, setRegisterData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    firstName: '',
-    lastName: '',
-    institutionCode: '',
-    role: 'user' as 'admin' | 'librarian' | 'user'
-  });
-
+  // Données pour la création d'établissement
   const [institutionData, setInstitutionData] = useState({
     name: '',
     type: 'library' as 'school' | 'university' | 'library' | 'other',
-    address: '',
     city: '',
-    country: 'Cameroun',
-    phone: '',
-    email: '',
-    website: '',
-    description: '',
-    director: '',
     adminEmail: '',
     adminPassword: '',
     adminFirstName: '',
     adminLastName: ''
   });
-
-  React.useEffect(() => {
-    const handleOnlineStatus = () => {
-      setIsOnline(navigator.onLine);
-    };
-
-    window.addEventListener('online', handleOnlineStatus);
-    window.addEventListener('offline', handleOnlineStatus);
-
-    return () => {
-      window.removeEventListener('online', handleOnlineStatus);
-      window.removeEventListener('offline', handleOnlineStatus);
-    };
-  }, []);
-
-  // Mode sécurisé - pas de connexion développement avec identifiants hardcodés
-  const handleDevLogin = async () => {
-    setError('La connexion de développement a été désactivée pour des raisons de sécurité. Veuillez utiliser vos identifiants ou créer un nouveau compte.');
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,22 +74,6 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           password: loginData.password,
           institutionCode: loginData.institutionCode,
           mode: 'login'
-        });
-      } else if (mode === 'register') {
-        if (registerData.password !== registerData.confirmPassword) {
-          throw new Error('Les mots de passe ne correspondent pas');
-        }
-        
-        await onLogin({
-          email: registerData.email,
-          password: registerData.password,
-          institutionCode: registerData.institutionCode,
-          mode: 'register',
-          userData: {
-            firstName: registerData.firstName,
-            lastName: registerData.lastName,
-            role: registerData.role
-          }
         });
       } else if (mode === 'create_institution') {
         if (step === 2) {
@@ -150,23 +98,8 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
     }
   };
 
-  const validateStep1 = () => {
-    return institutionData.name && 
-           institutionData.type && 
-           institutionData.city && 
-           institutionData.country;
-  };
-
-  const validateStep2 = () => {
-    return institutionData.adminEmail &&
-           institutionData.adminPassword &&
-           institutionData.adminFirstName &&
-           institutionData.adminLastName &&
-           institutionData.adminPassword.length >= 6;
-  };
-
   const nextStep = () => {
-    if (step === 1 && validateStep1()) {
+    if (step === 1 && institutionData.name && institutionData.type && institutionData.city) {
       setStep(2);
     }
   };
@@ -184,255 +117,107 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
     { value: 'other', label: 'Autre', icon: '🏢' }
   ];
 
-  const roles = [
-    { value: 'user', label: 'Utilisateur', description: 'Accès de base à la bibliothèque' },
-    { value: 'librarian', label: 'Bibliothécaire', description: 'Gestion des livres et emprunts' },
-    { value: 'admin', label: 'Administrateur', description: 'Accès complet au système' }
+  const defaultCredentials = [
+    { email: 'admin@local', password: 'admin', role: 'Administrateur' },
+    { email: 'bibliothecaire@local', password: 'biblio', role: 'Bibliothécaire' },
+    { email: 'test@local', password: 'test', role: 'Utilisateur' },
+    { email: 'demo@demo', password: 'demo', role: 'Démo' }
   ];
 
+  const handleQuickLogin = (email: string, password: string) => {
+    setLoginData({ 
+      email, 
+      password, 
+      institutionCode: 'BIBLIO2024' // Code par défaut pour les connexions rapides
+    });
+    setError('');
+  };
+
   return (
-    <div className="enhanced-auth">
+    <div className="offline-auth">
       <div className="auth-background">
-        <div className="auth-pattern"></div>
-        <div className="floating-elements">
-          <div className="floating-book"></div>
-          <div className="floating-book"></div>
-          <div className="floating-book"></div>
+        <div className="pattern-overlay"></div>
+        <div className="floating-shapes">
+          <div className="shape shape-1"></div>
+          <div className="shape shape-2"></div>
+          <div className="shape shape-3"></div>
         </div>
       </div>
 
-      <div className="auth-content">
-        {/* Left Side - Branding */}
-        <div className="auth-branding">
-          <div className="brand-logo">
-            <Book size={48} />
+      <div className="auth-container">
+        {/* Header avec logo et status offline */}
+        <div className="auth-header">
+          <div className="app-logo">
+            <div className="logo-icon">
+              <Book size={32} />
+            </div>
+            <div className="logo-text">
+              <h1>Bibliothèque</h1>
+              <span>Gestion Locale</span>
+            </div>
           </div>
-          <h1 className="brand-title">Bibliothèque Cloud</h1>
-          <p className="brand-subtitle">Système de gestion moderne et collaboratif</p>
           
-          <div className="features-list">
-            <div className="feature-item">
-              <Users size={20} />
-              <span>Multi-établissements</span>
-            </div>
-            <div className="feature-item">
-              <BarChart3 size={20} />
-              <span>Synchronisation cloud</span>
-            </div>
-            <div className="feature-item">
-              <Shield size={20} />
-              <span>Sécurisé et fiable</span>
-            </div>
-            <div className="feature-item">
-              <Globe size={20} />
-              <span>Accessible partout</span>
-            </div>
-          </div>
-
-          {/* Connection Status */}
-          <div className={`connection-status ${isOnline ? 'online' : 'offline'}`}>
-            {isOnline ? <Wifi size={16} /> : <WifiOff size={16} />}
-            <span>{isOnline ? 'En ligne' : 'Hors ligne'}</span>
+          <div className="offline-badge">
+            <WifiOff size={16} />
+            <span>Mode Hors Ligne</span>
           </div>
         </div>
 
-        {/* Right Side - Authentication */}
-        <div className="auth-form-container">
+        {/* Contenu principal */}
+        <div className="auth-content">
           <div className="auth-card">
-            <div className="auth-header">
-              <div className="auth-tabs">
-                <button
-                  className={`auth-tab ${mode === 'login' ? 'active' : ''}`}
-                  onClick={() => { setMode('login'); setStep(1); }}
-                >
-                  <LogIn size={16} />
-                  Connexion
-                </button>
-                <button
-                  className={`auth-tab ${mode === 'register' ? 'active' : ''}`}
-                  onClick={() => { setMode('register'); setStep(1); }}
-                >
-                  <UserPlus size={16} />
-                  Inscription
-                </button>
-                <button
-                  className={`auth-tab ${mode === 'create_institution' ? 'active' : ''}`}
-                  onClick={() => { setMode('create_institution'); setStep(1); }}
-                >
-                  <Building size={16} />
-                  Créer établissement
-                </button>
-              </div>
-              
-              <div className="mode-indicator">
-                <Sparkles size={16} />
-                <span>
-                  {mode === 'login' && 'Connectez-vous à votre établissement'}
-                  {mode === 'register' && 'Rejoignez un établissement existant'}
-                  {mode === 'create_institution' && `Créez votre établissement ${step === 2 ? '- Administrateur' : '- Informations'}`}
-                </span>
-              </div>
-
-              {/* Progress bar for institution creation */}
-              {mode === 'create_institution' && (
-                <div className="progress-bar">
-                  <div className="progress-steps">
-                    <div className={`progress-step ${step >= 1 ? 'active' : ''}`}>
-                      <div className="step-number">1</div>
-                      <span>Établissement</span>
-                    </div>
-                    <div className="progress-line"></div>
-                    <div className={`progress-step ${step >= 2 ? 'active' : ''}`}>
-                      <div className="step-number">2</div>
-                      <span>Administrateur</span>
-                    </div>
-                  </div>
-                </div>
-              )}
+            {/* Navigation des onglets */}
+            <div className="auth-tabs">
+              <button
+                className={`tab ${mode === 'login' ? 'active' : ''}`}
+                onClick={() => { setMode('login'); setStep(1); setError(''); }}
+              >
+                <LogIn size={18} />
+                <span>Connexion</span>
+              </button>
+              <button
+                className={`tab ${mode === 'create_institution' ? 'active' : ''}`}
+                onClick={() => { setMode('create_institution'); setStep(1); setError(''); }}
+              >
+                <Building size={18} />
+                <span>Nouvel Établissement</span>
+              </button>
             </div>
 
+            {/* Messages d'erreur/succès */}
             {error && (
-              <div className="error-message">
-                <AlertCircle size={16} />
+              <div className="message error">
+                <AlertCircle size={18} />
                 <span>{error}</span>
               </div>
             )}
 
             {success && (
-              <div className="success-message">
-                <CheckCircle size={16} />
+              <div className="message success">
+                <CheckCircle size={18} />
                 <span>{success}</span>
               </div>
             )}
 
-            {/* Login Form */}
+            {/* Formulaire de connexion */}
             {mode === 'login' && (
-              <form onSubmit={handleSubmit} className="auth-form">
-                <div className="form-group">
-                  <label className="form-label">Email</label>
-                  <div className="input-wrapper">
-                    <Mail size={20} />
-                    <input
-                      type="email"
-                      value={loginData.email}
-                      onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
-                      className="auth-input"
-                      placeholder="votre@email.com"
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
+              <div className="login-section">
+                <div className="section-header">
+                  <HardDrive size={24} />
+                  <h2>Connexion Locale</h2>
+                  <p>Connectez-vous avec vos identifiants locaux</p>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Mot de passe</label>
-                  <div className="input-wrapper">
-                    <Lock size={20} />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      value={loginData.password}
-                      onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
-                      className="auth-input"
-                      placeholder="Votre mot de passe"
-                      required
-                      disabled={isLoading}
-                    />
-                    <button
-                      type="button"
-                      className="password-toggle"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Code de l'établissement</label>
-                  <div className="input-wrapper">
-                    <KeyRound size={20} />
-                    <input
-                      type="text"
-                      value={loginData.institutionCode}
-                      onChange={(e) => setLoginData(prev => ({ ...prev, institutionCode: e.target.value.toUpperCase() }))}
-                      className="auth-input"
-                      placeholder="CODE123"
-                      required
-                      disabled={isLoading}
-                      maxLength={8}
-                    />
-                  </div>
-                  <small className="form-hint">
-                    8 caractères fournis par votre établissement
-                  </small>
-                </div>
-
-                <button
-                  type="submit"
-                  className="auth-button primary"
-                  disabled={isLoading || !loginData.email || !loginData.password || !loginData.institutionCode}
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="loading-spinner"></div>
-                      Connexion...
-                    </>
-                  ) : (
-                    <>
-                      <LogIn size={18} />
-                      Se connecter
-                      <ArrowRight size={16} />
-                    </>
-                  )}
-                </button>
-
-                {/* Bouton de développement - affiché uniquement en mode dev */}
-                {process.env.NODE_ENV !== 'production' && (
-                  <div className="dev-section">
-                    <div className="dev-separator">
-                      <span>MODE DÉVELOPPEMENT</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleDevLogin}
-                      className="auth-button dev-button"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <>
-                          <div className="loading-spinner"></div>
-                          Connexion...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles size={18} />
-                          Connexion rapide (Dev)
-                          <ArrowRight size={16} />
-                        </>
-                      )}
-                    </button>
-                    <small className="dev-hint">
-                      Mode développement désactivé pour la sécurité
-                    </small>
-                  </div>
-                )}
-              </form>
-            )}
-
-            {/* Register Form */}
-            {mode === 'register' && (
-              <form onSubmit={handleSubmit} className="auth-form">
-                <div className="form-grid">
+                <form onSubmit={handleSubmit} className="auth-form">
                   <div className="form-group">
-                    <label className="form-label">Prénom</label>
-                    <div className="input-wrapper">
-                      <User size={20} />
+                    <label>Email ou nom d'utilisateur</label>
+                    <div className="input-group">
+                      <Mail size={20} />
                       <input
                         type="text"
-                        value={registerData.firstName}
-                        onChange={(e) => setRegisterData(prev => ({ ...prev, firstName: e.target.value }))}
-                        className="auth-input"
-                        placeholder="Votre prénom"
+                        value={loginData.email}
+                        onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
+                        placeholder="admin@local"
                         required
                         disabled={isLoading}
                       />
@@ -440,316 +225,223 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Nom</label>
-                    <div className="input-wrapper">
-                      <User size={20} />
-                      <input
-                        type="text"
-                        value={registerData.lastName}
-                        onChange={(e) => setRegisterData(prev => ({ ...prev, lastName: e.target.value }))}
-                        className="auth-input"
-                        placeholder="Votre nom"
-                        required
-                        disabled={isLoading}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Email</label>
-                  <div className="input-wrapper">
-                    <Mail size={20} />
-                    <input
-                      type="email"
-                      value={registerData.email}
-                      onChange={(e) => setRegisterData(prev => ({ ...prev, email: e.target.value }))}
-                      className="auth-input"
-                      placeholder="votre@email.com"
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Rôle souhaité</label>
-                  <div className="role-selector">
-                    {roles.map((role) => (
-                      <label key={role.value} className="role-option">
-                        <input
-                          type="radio"
-                          name="role"
-                          value={role.value}
-                          checked={registerData.role === role.value}
-                          onChange={(e) => setRegisterData(prev => ({ ...prev, role: e.target.value as any }))}
-                          disabled={isLoading}
-                        />
-                        <div className="role-content">
-                          <span className="role-title">{role.label}</span>
-                          <span className="role-description">{role.description}</span>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Code de l'établissement</label>
-                  <div className="input-wrapper">
-                    <KeyRound size={20} />
-                    <input
-                      type="text"
-                      value={registerData.institutionCode}
-                      onChange={(e) => setRegisterData(prev => ({ ...prev, institutionCode: e.target.value.toUpperCase() }))}
-                      className="auth-input"
-                      placeholder="CODE123"
-                      required
-                      disabled={isLoading}
-                      maxLength={8}
-                    />
-                  </div>
-                  <small className="form-hint">
-                    Demandez ce code à votre administrateur
-                  </small>
-                </div>
-
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label className="form-label">Mot de passe</label>
-                    <div className="input-wrapper">
+                    <label>Mot de passe</label>
+                    <div className="input-group">
                       <Lock size={20} />
                       <input
                         type={showPassword ? 'text' : 'password'}
-                        value={registerData.password}
-                        onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
-                        className="auth-input"
-                        placeholder="Mot de passe"
-                        required
-                        disabled={isLoading}
-                        minLength={6}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Confirmer</label>
-                    <div className="input-wrapper">
-                      <Lock size={20} />
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={registerData.confirmPassword}
-                        onChange={(e) => setRegisterData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                        className="auth-input"
-                        placeholder="Confirmer"
+                        value={loginData.password}
+                        onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
+                        placeholder="Votre mot de passe"
                         required
                         disabled={isLoading}
                       />
                       <button
                         type="button"
-                        className="password-toggle"
+                        className="toggle-password"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     </div>
                   </div>
-                </div>
 
-                <button
-                  type="submit"
-                  className="auth-button primary"
-                  disabled={isLoading || !registerData.email || !registerData.password || !registerData.firstName || !registerData.lastName || !registerData.institutionCode}
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="loading-spinner"></div>
-                      Création...
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus size={18} />
-                      Créer le compte
-                      <ArrowRight size={16} />
-                    </>
-                  )}
-                </button>
-              </form>
+                  <div className="form-group">
+                    <label>Code d'accès établissement</label>
+                    <div className="input-group">
+                      <KeyRound size={20} />
+                      <input
+                        type="text"
+                        value={loginData.institutionCode}
+                        onChange={(e) => setLoginData(prev => ({ ...prev, institutionCode: e.target.value }))}
+                        placeholder="Code d'accès de votre établissement"
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="submit-btn"
+                    disabled={!loginData.email || !loginData.password || !loginData.institutionCode || isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="spinner"></div>
+                        Connexion...
+                      </>
+                    ) : (
+                      <>
+                        <LogIn size={18} />
+                        Se connecter
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                {/* Connexions rapides */}
+                <div className="quick-login-section">
+                  <div className="divider">
+                    <span>Connexions rapides</span>
+                  </div>
+                  
+                  <div className="quick-login-grid">
+                    {defaultCredentials.map((cred, index) => (
+                      <button
+                        key={index}
+                        className="quick-login-btn"
+                        onClick={() => handleQuickLogin(cred.email, cred.password)}
+                        disabled={isLoading}
+                      >
+                        <div className="credential-icon">
+                          {cred.role === 'Administrateur' && <Shield size={16} />}
+                          {cred.role === 'Bibliothécaire' && <Users size={16} />}
+                          {cred.role === 'Utilisateur' && <User size={16} />}
+                          {cred.role === 'Démo' && <Sparkles size={16} />}
+                        </div>
+                        <div className="credential-info">
+                          <span className="role">{cred.role}</span>
+                          <span className="email">{cred.email}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  
+                  <div className="login-hint">
+                    <p>💡 <strong>Astuce :</strong> Cliquez sur une carte pour remplir automatiquement les champs</p>
+                    <p>🔐 Ou utilisez n'importe quel email avec le mot de passe "demo"</p>
+                  </div>
+                </div>
+              </div>
             )}
 
-            {/* Create Institution Form */}
+            {/* Création d'établissement */}
             {mode === 'create_institution' && (
-              <form onSubmit={handleSubmit} className="auth-form">
+              <div className="institution-section">
                 {step === 1 && (
-                  <div className="institution-step">
-                    <div className="step-header">
+                  <div className="step-content">
+                    <div className="section-header">
                       <Building size={24} />
-                      <h3>Informations de l'établissement</h3>
-                      <p>Créez votre établissement et obtenez votre code unique</p>
+                      <h2>Nouvel Établissement</h2>
+                      <p>Créez votre établissement local</p>
                     </div>
 
-                    <div className="form-group">
-                      <label className="form-label">Nom de l'établissement *</label>
-                      <div className="input-wrapper">
-                        <Building size={20} />
-                        <input
-                          type="text"
-                          value={institutionData.name}
-                          onChange={(e) => setInstitutionData(prev => ({ ...prev, name: e.target.value }))}
-                          className="auth-input"
-                          placeholder="Lycée Moderne de Douala"
-                          required
-                          disabled={isLoading}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="form-group">
-                      <label className="form-label">Type d'établissement *</label>
-                      <div className="type-selector">
-                        {institutionTypes.map((type) => (
-                          <label key={type.value} className="type-option">
-                            <input
-                              type="radio"
-                              name="type"
-                              value={type.value}
-                              checked={institutionData.type === type.value}
-                              onChange={(e) => setInstitutionData(prev => ({ ...prev, type: e.target.value as any }))}
-                              disabled={isLoading}
-                            />
-                            <div className="type-content">
-                              <span className="type-icon">{type.icon}</span>
-                              <span className="type-label">{type.label}</span>
-                            </div>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="form-grid">
+                    <form onSubmit={(e) => { e.preventDefault(); nextStep(); }} className="auth-form">
                       <div className="form-group">
-                        <label className="form-label">Ville *</label>
-                        <div className="input-wrapper">
+                        <label>Nom de l'établissement *</label>
+                        <div className="input-group">
+                          <Building size={20} />
+                          <input
+                            type="text"
+                            value={institutionData.name}
+                            onChange={(e) => setInstitutionData(prev => ({ ...prev, name: e.target.value }))}
+                            placeholder="Ma Bibliothèque"
+                            required
+                            disabled={isLoading}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-group">
+                        <label>Type d'établissement *</label>
+                        <div className="type-grid">
+                          {institutionTypes.map((type) => (
+                            <label key={type.value} className="type-card">
+                              <input
+                                type="radio"
+                                name="type"
+                                value={type.value}
+                                checked={institutionData.type === type.value}
+                                onChange={(e) => setInstitutionData(prev => ({ ...prev, type: e.target.value as any }))}
+                                disabled={isLoading}
+                              />
+                              <div className="type-content">
+                                <span className="type-icon">{type.icon}</span>
+                                <span className="type-label">{type.label}</span>
+                              </div>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="form-group">
+                        <label>Ville *</label>
+                        <div className="input-group">
                           <MapPin size={20} />
                           <input
                             type="text"
                             value={institutionData.city}
                             onChange={(e) => setInstitutionData(prev => ({ ...prev, city: e.target.value }))}
-                            className="auth-input"
-                            placeholder="Douala"
+                            placeholder="Votre ville"
                             required
                             disabled={isLoading}
                           />
                         </div>
                       </div>
 
-                      <div className="form-group">
-                        <label className="form-label">Pays *</label>
-                        <div className="input-wrapper">
-                          <Globe size={20} />
-                          <input
-                            type="text"
-                            value={institutionData.country}
-                            onChange={(e) => setInstitutionData(prev => ({ ...prev, country: e.target.value }))}
-                            className="auth-input"
-                            placeholder="Cameroun"
-                            required
-                            disabled={isLoading}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="form-group">
-                      <label className="form-label">Adresse</label>
-                      <div className="input-wrapper">
-                        <MapPin size={20} />
-                        <input
-                          type="text"
-                          value={institutionData.address}
-                          onChange={(e) => setInstitutionData(prev => ({ ...prev, address: e.target.value }))}
-                          className="auth-input"
-                          placeholder="Avenue de la Liberté"
-                          disabled={isLoading}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="form-grid">
-                      <div className="form-group">
-                        <label className="form-label">Téléphone</label>
-                        <div className="input-wrapper">
-                          <Phone size={20} />
-                          <input
-                            type="tel"
-                            value={institutionData.phone}
-                            onChange={(e) => setInstitutionData(prev => ({ ...prev, phone: e.target.value }))}
-                            className="auth-input"
-                            placeholder="+237 XXX XXX XXX"
-                            disabled={isLoading}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="form-group">
-                        <label className="form-label">Email</label>
-                        <div className="input-wrapper">
-                          <Mail size={20} />
-                          <input
-                            type="email"
-                            value={institutionData.email}
-                            onChange={(e) => setInstitutionData(prev => ({ ...prev, email: e.target.value }))}
-                            className="auth-input"
-                            placeholder="contact@etablissement.com"
-                            disabled={isLoading}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="form-group">
-                      <label className="form-label">Description</label>
-                      <textarea
-                        value={institutionData.description}
-                        onChange={(e) => setInstitutionData(prev => ({ ...prev, description: e.target.value }))}
-                        className="auth-textarea"
-                        placeholder="Brève description de votre établissement..."
-                        rows={3}
-                        disabled={isLoading}
-                      />
-                    </div>
-
-                    <button
-                      type="button"
-                      className="auth-button primary"
-                      onClick={nextStep}
-                      disabled={!validateStep1() || isLoading}
-                    >
-                      Continuer
-                      <ArrowRight size={16} />
-                    </button>
+                      <button
+                        type="submit"
+                        className="submit-btn"
+                        disabled={!institutionData.name || !institutionData.type || !institutionData.city || isLoading}
+                      >
+                        Continuer
+                        <ArrowRight size={18} />
+                      </button>
+                    </form>
                   </div>
                 )}
 
                 {step === 2 && (
-                  <div className="admin-step">
-                    <div className="step-header">
+                  <div className="step-content">
+                    <div className="section-header">
                       <Shield size={24} />
-                      <h3>Compte administrateur</h3>
+                      <h2>Compte Administrateur</h2>
                       <p>Créez le compte administrateur principal</p>
                     </div>
 
-                    <div className="form-grid">
+                    <form onSubmit={handleSubmit} className="auth-form">
+                      <div className="form-row">
+                        <div className="form-group">
+                          <label>Prénom *</label>
+                          <div className="input-group">
+                            <User size={20} />
+                            <input
+                              type="text"
+                              value={institutionData.adminFirstName}
+                              onChange={(e) => setInstitutionData(prev => ({ ...prev, adminFirstName: e.target.value }))}
+                              placeholder="Prénom"
+                              required
+                              disabled={isLoading}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="form-group">
+                          <label>Nom *</label>
+                          <div className="input-group">
+                            <User size={20} />
+                            <input
+                              type="text"
+                              value={institutionData.adminLastName}
+                              onChange={(e) => setInstitutionData(prev => ({ ...prev, adminLastName: e.target.value }))}
+                              placeholder="Nom"
+                              required
+                              disabled={isLoading}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
                       <div className="form-group">
-                        <label className="form-label">Prénom *</label>
-                        <div className="input-wrapper">
-                          <User size={20} />
+                        <label>Email administrateur *</label>
+                        <div className="input-group">
+                          <Mail size={20} />
                           <input
-                            type="text"
-                            value={institutionData.adminFirstName}
-                            onChange={(e) => setInstitutionData(prev => ({ ...prev, adminFirstName: e.target.value }))}
-                            className="auth-input"
-                            placeholder="Prénom"
+                            type="email"
+                            value={institutionData.adminEmail}
+                            onChange={(e) => setInstitutionData(prev => ({ ...prev, adminEmail: e.target.value }))}
+                            placeholder="admin@monorganisation.com"
                             required
                             disabled={isLoading}
                           />
@@ -757,336 +449,529 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">Nom *</label>
-                        <div className="input-wrapper">
-                          <User size={20} />
+                        <label>Mot de passe *</label>
+                        <div className="input-group">
+                          <Lock size={20} />
                           <input
-                            type="text"
-                            value={institutionData.adminLastName}
-                            onChange={(e) => setInstitutionData(prev => ({ ...prev, adminLastName: e.target.value }))}
-                            className="auth-input"
-                            placeholder="Nom"
+                            type={showPassword ? 'text' : 'password'}
+                            value={institutionData.adminPassword}
+                            onChange={(e) => setInstitutionData(prev => ({ ...prev, adminPassword: e.target.value }))}
+                            placeholder="Mot de passe sécurisé"
                             required
                             disabled={isLoading}
+                            minLength={3}
                           />
+                          <button
+                            type="button"
+                            className="toggle-password"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                          </button>
                         </div>
+                        <small>Minimum 3 caractères</small>
                       </div>
-                    </div>
 
-                    <div className="form-group">
-                      <label className="form-label">Email administrateur *</label>
-                      <div className="input-wrapper">
-                        <Mail size={20} />
-                        <input
-                          type="email"
-                          value={institutionData.adminEmail}
-                          onChange={(e) => setInstitutionData(prev => ({ ...prev, adminEmail: e.target.value }))}
-                          className="auth-input"
-                          placeholder="admin@etablissement.com"
-                          required
-                          disabled={isLoading}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="form-group">
-                      <label className="form-label">Mot de passe *</label>
-                      <div className="input-wrapper">
-                        <Lock size={20} />
-                        <input
-                          type={showPassword ? 'text' : 'password'}
-                          value={institutionData.adminPassword}
-                          onChange={(e) => setInstitutionData(prev => ({ ...prev, adminPassword: e.target.value }))}
-                          className="auth-input"
-                          placeholder="Mot de passe sécurisé"
-                          required
-                          disabled={isLoading}
-                          minLength={6}
-                        />
+                      <div className="form-actions">
                         <button
                           type="button"
-                          className="password-toggle"
-                          onClick={() => setShowPassword(!showPassword)}
+                          className="back-btn"
+                          onClick={previousStep}
+                          disabled={isLoading}
                         >
-                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                          Précédent
+                        </button>
+                        <button
+                          type="submit"
+                          className="submit-btn"
+                          disabled={!institutionData.adminFirstName || !institutionData.adminLastName || 
+                                   !institutionData.adminEmail || !institutionData.adminPassword || 
+                                   institutionData.adminPassword.length < 3 || isLoading}
+                        >
+                          {isLoading ? (
+                            <>
+                              <div className="spinner"></div>
+                              Création...
+                            </>
+                          ) : (
+                            <>
+                              <Building size={18} />
+                              Créer l'établissement
+                            </>
+                          )}
                         </button>
                       </div>
-                      <small className="form-hint">
-                        Minimum 6 caractères
-                      </small>
-                    </div>
-
-                    <div className="form-actions">
-                      <button
-                        type="button"
-                        className="auth-button secondary"
-                        onClick={previousStep}
-                        disabled={isLoading}
-                      >
-                        Précédent
-                      </button>
-                      <button
-                        type="submit"
-                        className="auth-button primary"
-                        disabled={!validateStep2() || isLoading}
-                      >
-                        {isLoading ? (
-                          <>
-                            <div className="loading-spinner"></div>
-                            Création...
-                          </>
-                        ) : (
-                          <>
-                            <Building size={18} />
-                            Créer l'établissement
-                          </>
-                        )}
-                      </button>
-                    </div>
+                    </form>
                   </div>
                 )}
-              </form>
+
+                {/* Indicateur de progression */}
+                <div className="step-indicator">
+                  <div className={`step ${step >= 1 ? 'active' : ''}`}>
+                    <span>1</span>
+                    <label>Établissement</label>
+                  </div>
+                  <div className="step-line"></div>
+                  <div className={`step ${step >= 2 ? 'active' : ''}`}>
+                    <span>2</span>
+                    <label>Administrateur</label>
+                  </div>
+                </div>
+              </div>
             )}
+          </div>
+
+          {/* Sidebar avec informations */}
+          <div className="info-sidebar">
+            <div className="feature-card">
+              <Database size={32} />
+              <h3>Base de données locale</h3>
+              <p>Vos données sont stockées en sécurité sur votre ordinateur</p>
+            </div>
+            
+            <div className="feature-card">
+              <WifiOff size={32} />
+              <h3>Fonctionne hors ligne</h3>
+              <p>Aucune connexion Internet requise pour utiliser l'application</p>
+            </div>
+            
+            <div className="feature-card">
+              <BarChart3 size={32} />
+              <h3>Gestion complète</h3>
+              <p>Gérez vos livres, emprunts et utilisateurs facilement</p>
+            </div>
           </div>
         </div>
       </div>
 
       <style>{`
-        .enhanced-auth {
-          height: 100vh;
-          display: flex;
+        .offline-auth {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #1e3a2e 0%, #2d5a45 50%, #1e3a2e 100%);
           position: relative;
-          overflow: hidden;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          overflow-x: hidden;
         }
-        
+
         .auth-background {
           position: absolute;
-          inset: 0;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
           overflow: hidden;
         }
-        
-        .auth-pattern {
+
+        .pattern-overlay {
           position: absolute;
-          inset: 0;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
           background-image: 
-            radial-gradient(circle at 25% 25%, rgba(243, 238, 217, 0.08) 0%, transparent 50%),
-            radial-gradient(circle at 75% 75%, rgba(194, 87, 27, 0.06) 0%, transparent 50%);
-          animation: drift 25s ease-in-out infinite;
+            radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+          animation: drift 20s ease-in-out infinite;
         }
-        
+
         @keyframes drift {
           0%, 100% { transform: translate(0, 0) rotate(0deg); }
-          33% { transform: translate(30px, -30px) rotate(1deg); }
-          66% { transform: translate(-20px, 20px) rotate(-1deg); }
+          50% { transform: translate(20px, -20px) rotate(1deg); }
         }
-        
-        .floating-elements {
+
+        .floating-shapes {
           position: absolute;
-          inset: 0;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
           pointer-events: none;
         }
-        
-        .floating-book {
+
+        .shape {
           position: absolute;
-          width: 24px;
-          height: 32px;
-          background: rgba(243, 238, 217, 0.1);
-          border-radius: 4px;
-          animation: float 8s ease-in-out infinite;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 50%;
+          animation: float 6s ease-in-out infinite;
         }
-        
-        .floating-book:nth-child(1) {
+
+        .shape-1 {
+          width: 100px;
+          height: 100px;
           top: 20%;
           left: 10%;
           animation-delay: 0s;
         }
-        
-        .floating-book:nth-child(2) {
+
+        .shape-2 {
+          width: 60px;
+          height: 60px;
           top: 60%;
-          left: 15%;
+          right: 15%;
           animation-delay: 2s;
         }
-        
-        .floating-book:nth-child(3) {
-          top: 40%;
-          left: 5%;
-          animation-delay: 4s;
-        }
-        
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(2deg); }
-        }
-        
-        .auth-content {
-          display: flex;
-          width: 100%;
-          position: relative;
-          z-index: 1;
-        }
-        
-        .auth-branding {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          padding: 60px;
-          color: #F3EED9;
-          max-width: 500px;
-        }
-        
-        .brand-logo {
+
+        .shape-3 {
           width: 80px;
           height: 80px;
-          background: rgba(243, 238, 217, 0.15);
-          border-radius: 20px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 32px;
-          border: 1px solid rgba(243, 238, 217, 0.2);
-          backdrop-filter: blur(10px);
+          bottom: 30%;
+          left: 20%;
+          animation-delay: 4s;
         }
-        
-        .brand-title {
-          font-size: 48px;
-          font-weight: 800;
-          margin: 0 0 16px 0;
-          letter-spacing: -1px;
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
         }
-        
-        .brand-subtitle {
-          font-size: 20px;
-          opacity: 0.9;
-          margin: 0 0 48px 0;
-          line-height: 1.5;
-        }
-        
-        .features-list {
+
+        .auth-container {
+          position: relative;
+          z-index: 10;
+          min-height: 100vh;
           display: flex;
           flex-direction: column;
-          gap: 20px;
-          margin-bottom: 40px;
+          padding: 20px;
+          max-width: 1400px;
+          margin: 0 auto;
         }
-        
-        .feature-item {
+
+        .auth-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 40px;
+          padding: 0 20px;
+        }
+
+        .app-logo {
           display: flex;
           align-items: center;
           gap: 16px;
-          font-size: 16px;
-          opacity: 0.9;
         }
-        
-        .connection-status {
+
+        .logo-icon {
+          width: 50px;
+          height: 50px;
+          background: rgba(255, 255, 255, 0.15);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .logo-text h1 {
+          margin: 0;
+          color: white;
+          font-size: 24px;
+          font-weight: 700;
+        }
+
+        .logo-text span {
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 14px;
+        }
+
+        .offline-badge {
           display: flex;
           align-items: center;
           gap: 8px;
-          padding: 12px 16px;
-          border-radius: 12px;
+          background: rgba(255, 152, 0, 0.2);
+          color: #ffa726;
+          padding: 8px 16px;
+          border-radius: 20px;
           font-size: 14px;
           font-weight: 600;
-          width: fit-content;
-        }
-        
-        .connection-status.online {
-          background: rgba(76, 175, 80, 0.2);
-          color: #4CAF50;
-          border: 1px solid rgba(76, 175, 80, 0.3);
-        }
-        
-        .connection-status.offline {
-          background: rgba(255, 152, 0, 0.2);
-          color: #FF9800;
           border: 1px solid rgba(255, 152, 0, 0.3);
         }
-        
-        .auth-form-container {
-          flex: 1;
+
+        .auth-content {
           display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 40px;
-          background: rgba(255, 255, 255, 0.05);
-          backdrop-filter: blur(10px);
+          gap: 40px;
+          flex: 1;
+          align-items: flex-start;
+        }
+
+        .auth-card {
+          flex: 1;
+          background: white;
+          border-radius: 20px;
+          overflow: hidden;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
           max-width: 600px;
         }
-        
-        .auth-card {
-          width: 100%;
-          background: rgba(255, 255, 255, 0.95);
-          border-radius: 24px;
-          padding: 0;
-          box-shadow: 
-            0 24px 48px rgba(62, 92, 73, 0.2),
-            0 8px 24px rgba(62, 92, 73, 0.12);
-          border: 1px solid rgba(229, 220, 194, 0.3);
-          backdrop-filter: blur(20px);
-          overflow: hidden;
-          max-height: 90vh;
-          overflow-y: auto;
-        }
-        
-        .auth-header {
-          padding: 32px 32px 24px;
-          background: linear-gradient(135deg, #F3EED9 0%, #EAEADC 100%);
-          border-bottom: 1px solid #E5DCC2;
-        }
-        
+
         .auth-tabs {
           display: flex;
-          gap: 4px;
-          background: rgba(62, 92, 73, 0.1);
-          border-radius: 12px;
-          padding: 4px;
-          margin-bottom: 20px;
+          background: #f8f9fa;
+          border-bottom: 1px solid #e9ecef;
         }
-        
-        .auth-tab {
+
+        .tab {
           flex: 1;
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
-          padding: 12px 16px;
+          padding: 20px;
+          background: none;
           border: none;
-          background: transparent;
-          color: #6E6E6E;
-          font-size: 14px;
+          cursor: pointer;
+          font-size: 16px;
           font-weight: 600;
-          border-radius: 8px;
+          color: #6c757d;
+          transition: all 0.2s ease;
+        }
+
+        .tab.active {
+          background: white;
+          color: #2d5a45;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .message {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 16px 24px;
+          font-weight: 500;
+          border-bottom: 1px solid #e9ecef;
+        }
+
+        .message.error {
+          background: #ffeaea;
+          color: #d32f2f;
+        }
+
+        .message.success {
+          background: #e8f5e8;
+          color: #2e7d32;
+        }
+
+        .section-header {
+          text-align: center;
+          padding: 32px 24px 24px;
+          border-bottom: 1px solid #f1f3f4;
+        }
+
+        .section-header h2 {
+          margin: 16px 0 8px;
+          color: #2d5a45;
+          font-size: 24px;
+          font-weight: 700;
+        }
+
+        .section-header p {
+          margin: 0;
+          color: #6c757d;
+          font-size: 16px;
+        }
+
+        .auth-form {
+          padding: 32px 24px;
+        }
+
+        .form-group {
+          margin-bottom: 24px;
+        }
+
+        .form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+
+        .form-group label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: 600;
+          color: #2d5a45;
+          font-size: 14px;
+        }
+
+        .input-group {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+
+        .input-group svg {
+          position: absolute;
+          left: 16px;
+          color: #6c757d;
+          z-index: 2;
+        }
+
+        .input-group input {
+          width: 100%;
+          padding: 16px 16px 16px 48px;
+          border: 2px solid #e9ecef;
+          border-radius: 12px;
+          font-size: 16px;
+          transition: all 0.2s ease;
+        }
+
+        .input-group input:focus {
+          outline: none;
+          border-color: #2d5a45;
+          box-shadow: 0 0 0 3px rgba(45, 90, 69, 0.1);
+        }
+
+        .input-group input:disabled {
+          background: #f8f9fa;
+          opacity: 0.7;
+        }
+
+        .toggle-password {
+          position: absolute;
+          right: 16px;
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: #6c757d;
+          padding: 4px;
+          border-radius: 4px;
+          transition: all 0.2s ease;
+        }
+
+        .toggle-password:hover {
+          color: #2d5a45;
+          background: rgba(45, 90, 69, 0.1);
+        }
+
+        .form-group small {
+          display: block;
+          margin-top: 4px;
+          color: #6c757d;
+          font-size: 12px;
+        }
+
+        .type-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+        }
+
+        .type-card {
+          display: block;
+          cursor: pointer;
+        }
+
+        .type-card input {
+          display: none;
+        }
+
+        .type-content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          padding: 20px 16px;
+          border: 2px solid #e9ecef;
+          border-radius: 12px;
+          transition: all 0.2s ease;
+          text-align: center;
+        }
+
+        .type-card input:checked + .type-content {
+          border-color: #2d5a45;
+          background: rgba(45, 90, 69, 0.05);
+        }
+
+        .type-content:hover {
+          border-color: #2d5a45;
+        }
+
+        .type-icon {
+          font-size: 24px;
+        }
+
+        .type-label {
+          font-weight: 600;
+          color: #2d5a45;
+          font-size: 14px;
+        }
+
+        .submit-btn {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          background: linear-gradient(135deg, #2d5a45 0%, #1e3a2e 100%);
+          color: white;
+          border: none;
+          padding: 16px 24px;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(45, 90, 69, 0.3);
+        }
+
+        .submit-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        .back-btn {
+          background: #f8f9fa;
+          color: #6c757d;
+          border: 2px solid #e9ecef;
+          padding: 12px 24px;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 600;
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        
-        .auth-tab.active {
-          background: #3E5C49;
-          color: #F3EED9;
-          box-shadow: 0 2px 8px rgba(62, 92, 73, 0.2);
+
+        .back-btn:hover:not(:disabled) {
+          background: #e9ecef;
+          color: #495057;
         }
-        
-        .mode-indicator {
+
+        .form-actions {
           display: flex;
-          align-items: center;
-          gap: 8px;
-          color: #3E5C49;
-          font-size: 16px;
-          font-weight: 600;
-          margin-bottom: 16px;
+          gap: 16px;
+          margin-top: 24px;
         }
-        
-        .progress-bar {
-          margin-top: 16px;
+
+        .form-actions .submit-btn {
+          flex: 1;
         }
-        
-        .progress-steps {
+
+        .spinner {
+          width: 18px;
+          height: 18px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-top: 2px solid white;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        .step-indicator {
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 16px;
+          padding: 24px;
+          background: #f8f9fa;
+          border-top: 1px solid #e9ecef;
         }
-        
-        .progress-step {
+
+        .step {
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -1094,593 +979,295 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           opacity: 0.5;
           transition: opacity 0.3s ease;
         }
-        
-        .progress-step.active {
+
+        .step.active {
           opacity: 1;
         }
-        
-        .step-number {
+
+        .step span {
           width: 32px;
           height: 32px;
+          background: #e9ecef;
+          color: #6c757d;
           border-radius: 50%;
-          background: rgba(62, 92, 73, 0.2);
-          color: #3E5C49;
           display: flex;
           align-items: center;
           justify-content: center;
           font-weight: 600;
           font-size: 14px;
         }
-        
-        .progress-step.active .step-number {
-          background: #3E5C49;
-          color: #F3EED9;
+
+        .step.active span {
+          background: #2d5a45;
+          color: white;
         }
-        
-        .progress-line {
+
+        .step label {
+          font-size: 12px;
+          font-weight: 600;
+          color: #6c757d;
+          text-align: center;
+        }
+
+        .step-line {
           width: 40px;
           height: 2px;
-          background: rgba(62, 92, 73, 0.2);
-        }
-        
-        .error-message,
-        .success-message {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 16px 32px;
-          font-size: 14px;
-          font-weight: 600;
-          border-bottom: 1px solid #E5DCC2;
-        }
-        
-        .error-message {
-          background: rgba(194, 87, 27, 0.1);
-          color: #C2571B;
-        }
-        
-        .success-message {
-          background: rgba(62, 92, 73, 0.1);
-          color: #3E5C49;
-        }
-        
-        .auth-form {
-          padding: 32px;
-        }
-        
-        .form-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 20px;
-        }
-        
-        .form-group {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          margin-bottom: 20px;
-        }
-        
-        .form-label {
-          font-size: 14px;
-          font-weight: 600;
-          color: #2E2E2E;
-        }
-        
-        .input-wrapper {
-          position: relative;
-          display: flex;
-          align-items: center;
-        }
-        
-        .input-wrapper svg {
-          position: absolute;
-          left: 16px;
-          color: #6E6E6E;
-          z-index: 2;
-        }
-        
-        .auth-input,
-        .auth-textarea {
-          width: 100%;
-          padding: 16px 16px 16px 48px;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          font-size: 16px;
-          background: #FFFFFF;
-          color: #2E2E2E;
-          transition: all 0.2s ease;
-        }
-        
-        .auth-textarea {
-          padding: 16px;
-          resize: vertical;
-          min-height: 80px;
-        }
-        
-        .auth-input:focus,
-        .auth-textarea:focus {
-          outline: none;
-          border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
-        }
-        
-        .auth-input:disabled,
-        .auth-textarea:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-          background: #F3EED9;
-        }
-        
-        .password-toggle {
-          position: absolute;
-          right: 16px;
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: #6E6E6E;
-          padding: 4px;
-          border-radius: 4px;
-          transition: all 0.2s ease;
-          z-index: 2;
-        }
-        
-        .password-toggle:hover {
-          color: #2E2E2E;
-          background: rgba(110, 110, 110, 0.1);
-        }
-        
-        .role-selector,
-        .type-selector {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-        
-        .role-option,
-        .type-option {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 16px;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          background: #FFFFFF;
-        }
-        
-        .role-option:hover,
-        .type-option:hover {
-          border-color: #3E5C49;
-          background: rgba(62, 92, 73, 0.05);
-        }
-        
-        .role-option input:checked + .role-content,
-        .type-option input:checked + .type-content {
-          color: #3E5C49;
-        }
-        
-        .role-option input:checked,
-        .type-option input:checked {
-          accent-color: #3E5C49;
-        }
-        
-        .role-content,
-        .type-content {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-        
-        .type-content {
-          flex-direction: row;
-          align-items: center;
-          gap: 12px;
-        }
-        
-        .role-title,
-        .type-label {
-          font-weight: 600;
-          color: #2E2E2E;
-        }
-        
-        .role-description {
-          font-size: 13px;
-          color: #6E6E6E;
-        }
-        
-        .type-icon {
-          font-size: 20px;
-        }
-        
-        .form-hint {
-          font-size: 12px;
-          color: #6E6E6E;
-          font-style: italic;
-        }
-        
-        .auth-button {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          padding: 16px 24px;
-          border-radius: 12px;
-          font-size: 16px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          border: none;
-          margin-bottom: 12px;
-        }
-        
-        .auth-button.primary {
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: #F3EED9;
-          box-shadow: 0 4px 16px rgba(62, 92, 73, 0.3);
-        }
-        
-        .auth-button.primary:hover:not(:disabled) {
-          background: linear-gradient(135deg, #2E453A 0%, #1E2F25 100%);
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(62, 92, 73, 0.4);
-        }
-        
-        .auth-button.secondary {
-          background: #F3EED9;
-          color: #6E6E6E;
-          border: 2px solid #E5DCC2;
-        }
-        
-        .auth-button.secondary:hover:not(:disabled) {
-          background: #EAEADC;
-          color: #2E2E2E;
-          transform: translateY(-1px);
-        }
-        
-        .auth-button:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-          transform: none;
-          box-shadow: none;
-        }
-        
-        .loading-spinner {
-          width: 18px;
-          height: 18px;
-          border: 2px solid rgba(243, 238, 217, 0.3);
-          border-top: 2px solid #F3EED9;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          background: #e9ecef;
         }
 
-        /* Styles pour le mode développement */
-        .dev-section {
-          margin-top: 24px;
-          padding-top: 20px;
-          border-top: 1px solid rgba(62, 92, 73, 0.1);
+        /* Connexions rapides */
+        .quick-login-section {
+          margin-top: 32px;
+          padding-top: 24px;
+          border-top: 1px solid #f1f3f4;
         }
 
-        .dev-separator {
+        .divider {
           text-align: center;
-          margin-bottom: 16px;
+          margin-bottom: 24px;
           position: relative;
         }
 
-        .dev-separator span {
-          background: #F3EED9;
-          padding: 0 12px;
-          font-size: 11px;
+        .divider span {
+          background: white;
+          padding: 0 16px;
+          color: #6c757d;
+          font-size: 14px;
           font-weight: 600;
-          color: #C2571B;
-          text-transform: uppercase;
-          letter-spacing: 1px;
         }
 
-        .dev-separator::before {
+        .divider::before {
           content: '';
           position: absolute;
           top: 50%;
           left: 0;
           right: 0;
           height: 1px;
-          background: linear-gradient(90deg, transparent, #C2571B, transparent);
+          background: #e9ecef;
           z-index: -1;
         }
 
-        .auth-button.dev-button {
-          background: linear-gradient(135deg, #C2571B 0%, #A3461A 100%);
-          color: #F3EED9;
-          box-shadow: 0 4px 16px rgba(194, 87, 27, 0.3);
-          border: 2px solid rgba(194, 87, 27, 0.2);
+        .quick-login-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+          margin-bottom: 20px;
         }
 
-        .auth-button.dev-button:hover:not(:disabled) {
-          background: linear-gradient(135deg, #A3461A 0%, #8A3C18 100%);
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(194, 87, 27, 0.4);
+        .quick-login-btn {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 16px;
+          background: #f8f9fa;
+          border: 2px solid #e9ecef;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          text-align: left;
         }
 
-        .dev-hint {
-          display: block;
-          text-align: center;
-          margin-top: 8px;
-          font-size: 10px;
-          color: #6E6E6E;
-          background: rgba(194, 87, 27, 0.05);
-          padding: 6px 12px;
-          border-radius: 16px;
-          border: 1px solid rgba(194, 87, 27, 0.1);
+        .quick-login-btn:hover:not(:disabled) {
+          border-color: #2d5a45;
+          background: rgba(45, 90, 69, 0.05);
         }
-        
-        .institution-step,
-        .admin-step {
+
+        .quick-login-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .credential-icon {
+          width: 36px;
+          height: 36px;
+          background: #2d5a45;
+          color: white;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .credential-info {
           display: flex;
           flex-direction: column;
-          gap: 24px;
+          gap: 2px;
         }
-        
-        .step-header {
-          text-align: center;
-          margin-bottom: 24px;
+
+        .credential-info .role {
+          font-weight: 600;
+          color: #2d5a45;
+          font-size: 14px;
         }
-        
-        .step-header h3 {
-          font-size: 24px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 16px 0 8px 0;
+
+        .credential-info .email {
+          font-size: 12px;
+          color: #6c757d;
         }
-        
-        .step-header p {
-          color: #6E6E6E;
-          margin: 0;
-          font-size: 16px;
+
+        .login-hint {
+          background: rgba(45, 90, 69, 0.05);
+          border: 1px solid rgba(45, 90, 69, 0.1);
+          border-radius: 12px;
+          padding: 16px;
+          margin-top: 16px;
         }
-        
-        .form-actions {
-          display: flex;
-          gap: 16px;
-          margin-top: 24px;
+
+        .login-hint p {
+          margin: 0 0 8px 0;
+          font-size: 14px;
+          color: #2d5a45;
         }
-        
-        .form-actions .auth-button {
+
+        .login-hint p:last-child {
           margin-bottom: 0;
         }
-        
-        /* Responsive Design */
+
+        /* Sidebar d'informations */
+        .info-sidebar {
+          flex: 0 0 300px;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .feature-card {
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 16px;
+          padding: 24px;
+          text-align: center;
+          color: white;
+          backdrop-filter: blur(10px);
+        }
+
+        .feature-card svg {
+          margin-bottom: 16px;
+          opacity: 0.9;
+        }
+
+        .feature-card h3 {
+          margin: 0 0 12px 0;
+          font-size: 18px;
+          font-weight: 600;
+        }
+
+        .feature-card p {
+          margin: 0;
+          opacity: 0.8;
+          font-size: 14px;
+          line-height: 1.5;
+        }
+
+        /* Responsive */
         @media (max-width: 1024px) {
           .auth-content {
             flex-direction: column;
+            align-items: center;
           }
-          
-          .auth-branding {
-            padding: 40px;
-            text-align: center;
+
+          .info-sidebar {
             flex: none;
-            max-width: none;
-          }
-          
-          .brand-title {
-            font-size: 36px;
-          }
-          
-          .brand-subtitle {
-            font-size: 18px;
-          }
-          
-          .features-list {
+            max-width: 600px;
+            width: 100%;
             flex-direction: row;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 16px;
+            overflow-x: auto;
           }
-          
-          .feature-item {
-            flex-direction: column;
-            text-align: center;
-            gap: 8px;
-            min-width: 120px;
-          }
-          
-          .auth-form-container {
-            max-width: none;
+
+          .feature-card {
+            flex: 0 0 250px;
           }
         }
-        
+
         @media (max-width: 768px) {
-          .auth-branding {
-            padding: 32px 20px;
+          .auth-container {
+            padding: 16px;
           }
-          
-          .auth-form-container {
-            padding: 20px;
+
+          .auth-header {
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 0;
           }
-          
+
+          .auth-content {
+            gap: 24px;
+          }
+
           .auth-card {
             max-width: none;
-            border-radius: 20px;
-            max-height: none;
           }
-          
-          .auth-header {
-            padding: 24px 20px 20px;
-          }
-          
-          .auth-form {
-            padding: 24px 20px;
-          }
-          
-          .form-grid {
+
+          .form-row {
             grid-template-columns: 1fr;
-            gap: 16px;
           }
-          
-          .brand-title {
-            font-size: 28px;
+
+          .quick-login-grid {
+            grid-template-columns: 1fr;
           }
-          
-          .brand-subtitle {
-            font-size: 16px;
+
+          .type-grid {
+            grid-template-columns: 1fr;
           }
-          
-          .features-list {
+
+          .info-sidebar {
             flex-direction: column;
-            gap: 12px;
           }
-          
-          .feature-item {
-            flex-direction: row;
-            justify-content: center;
-          }
-          
-          .auth-tabs {
-            flex-direction: column;
-            gap: 8px;
-          }
-          
-          .auth-tab {
+
+          .feature-card {
             flex: none;
           }
-          
-          .progress-steps {
-            gap: 12px;
-          }
-          
-          .progress-line {
-            width: 30px;
-          }
-          
-          .type-selector {
-            grid-template-columns: 1fr 1fr;
-            display: grid;
-            gap: 12px;
-          }
-          
+
           .form-actions {
             flex-direction: column-reverse;
           }
-        }
-        
-        @media (max-width: 480px) {
-          .auth-branding {
-            padding: 24px 16px;
-          }
-          
-          .auth-form-container {
-            padding: 16px;
-          }
-          
-          .auth-header,
-          .auth-form {
-            padding: 20px 16px;
-          }
-          
-          .brand-logo {
-            width: 64px;
-            height: 64px;
-            margin-bottom: 24px;
-          }
-          
-          .brand-title {
-            font-size: 24px;
-          }
-          
-          .auth-input,
-          .auth-textarea {
+
+          .tab {
+            padding: 16px 12px;
             font-size: 14px;
           }
-          
-          .type-selector {
-            grid-template-columns: 1fr;
+
+          .section-header {
+            padding: 24px 16px 16px;
           }
-          
-          .progress-steps {
-            flex-direction: column;
-            gap: 16px;
-          }
-          
-          .progress-line {
-            width: 2px;
-            height: 20px;
+
+          .auth-form {
+            padding: 24px 16px;
           }
         }
-        
-        /* Animation enhancements */
-        .auth-card {
-          animation: slideUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(40px);
+
+        @media (max-width: 480px) {
+          .auth-container {
+            padding: 12px;
           }
-          to {
-            opacity: 1;
-            transform: translateY(0);
+
+          .logo-text h1 {
+            font-size: 20px;
           }
-        }
-        
-        .auth-branding {
-          animation: fadeInLeft 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        
-        @keyframes fadeInLeft {
-          from {
-            opacity: 0;
-            transform: translateX(-40px);
+
+          .offline-badge {
+            font-size: 12px;
+            padding: 6px 12px;
           }
-          to {
-            opacity: 1;
-            transform: translateX(0);
+
+          .section-header h2 {
+            font-size: 20px;
           }
-        }
-        
-        /* Accessibility improvements */
-        @media (prefers-reduced-motion: reduce) {
-          .auth-card,
-          .auth-branding,
-          .floating-book,
-          .auth-pattern {
-            animation: none;
+
+          .auth-form {
+            padding: 20px 12px;
           }
-          
-          .auth-button,
-          .role-option,
-          .type-option {
-            transition: none;
+
+          .input-group input {
+            padding: 14px 14px 14px 44px;
+            font-size: 14px;
           }
-          
-          .auth-button:hover,
-          .role-option:hover,
-          .type-option:hover {
-            transform: none;
-          }
-        }
-        
-        /* High contrast mode */
-        @media (prefers-contrast: high) {
-          .auth-input,
-          .auth-textarea,
-          .auth-button {
-            border-width: 3px;
-          }
-          
-          .auth-tab.active {
-            border: 2px solid #F3EED9;
-          }
-          
-          .role-option,
-          .type-option {
-            border-width: 3px;
+
+          .submit-btn {
+            padding: 14px 20px;
+            font-size: 14px;
           }
         }
       `}</style>

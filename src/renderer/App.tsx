@@ -359,6 +359,12 @@ export const App: React.FC = () => {
         if (appMode === 'offline') {
           console.log('Mode offline - authentification simplifiée');
           
+          // Vérifier le code d'accès établissement
+          const validInstitutionCodes = ['BIBLIO2024', 'OFFLINE', 'LOCAL', 'TEST'];
+          if (!credentials.institutionCode || !validInstitutionCodes.includes(credentials.institutionCode.toUpperCase())) {
+            throw new Error('Code d\'accès établissement invalide');
+          }
+          
           // Authentification simplifiée - accepter quelques identifiants par défaut
           const validCredentials = [
             { email: 'admin@local', password: 'admin' },
@@ -386,7 +392,7 @@ export const App: React.FC = () => {
             const localInstitution: Institution = {
               id: 'offline-institution',
               name: 'Ma Bibliothèque',
-              code: 'OFFLINE',
+              code: credentials.institutionCode || 'BIBLIO2024',
               address: '',
               city: '',
               country: '',

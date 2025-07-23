@@ -1,22 +1,19 @@
-// src/renderer/components/InstitutionSetup.tsx
+// src/renderer/components/InstitutionSetup.tsx - Version simplifiée pour mode offline
 import React, { useState } from 'react';
 import { 
   Building,
-  Key,
-  Users,
   CheckCircle,
   Copy,
   Download,
   Mail,
-  Share,
-  QrCode,
-  Printer,
   ArrowRight,
   Sparkles,
   Shield,
-  Globe,
   BookOpen,
-  User,
+  Users,
+  Database,
+  WifiOff,
+  HardDrive,
   Zap
 } from 'lucide-react';
 import { Institution } from '../services/SupabaseClient';
@@ -42,68 +39,78 @@ export const InstitutionSetup: React.FC<InstitutionSetupProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.error('Erreur lors de la copie:', error);
+      // Fallback pour les navigateurs plus anciens
+      const textArea = document.createElement('textarea');
+      textArea.value = institutionCode;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
   const handleDownloadInfo = () => {
     const content = `
-INFORMATIONS DE VOTRE ÉTABLISSEMENT
-=====================================
+INFORMATIONS DE VOTRE ÉTABLISSEMENT (MODE HORS LIGNE)
+=====================================================
 
 Nom: ${institution?.name || 'Non spécifié'}
-Code d'accès: ${institutionCode}
+Code d'accès local: ${institutionCode}
 Type: ${institution?.type || 'Non spécifié'}
 Ville: ${institution?.city || 'Non spécifié'}
-Pays: ${institution?.country || 'Non spécifié'}
 
-INSTRUCTIONS POUR VOS UTILISATEURS:
-====================================
-
-1. Téléchargez l'application Bibliothèque Cloud
-2. Choisissez "Inscription" 
-3. Entrez le code d'établissement: ${institutionCode}
-4. Remplissez vos informations personnelles
-5. Attendez la validation de votre compte
-
-LIEN DE TÉLÉCHARGEMENT:
+MODE DE FONCTIONNEMENT:
 ======================
-[Insérez ici le lien de téléchargement de votre application]
+✓ Base de données locale (SQLite)
+✓ Fonctionne sans Internet
+✓ Données stockées sur votre ordinateur
+✓ Possibilité de partage en réseau local
+
+INFORMATIONS IMPORTANTES:
+========================
+- Ce code permet l'accès à votre bibliothèque locale
+- Conservez-le précieusement
+- Partagez-le uniquement avec des personnes autorisées
+- Votre établissement fonctionne entièrement hors ligne
 
 Date de création: ${new Date().toLocaleDateString('fr-FR')}
+Heure de création: ${new Date().toLocaleTimeString('fr-FR')}
     `.trim();
 
-    const blob = new Blob([content], { type: 'text/plain' });
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${institution?.name?.replace(/[^a-zA-Z0-9]/g, '_') || 'institution'}_info.txt`;
+    a.download = `${institution?.name?.replace(/[^a-zA-Z0-9]/g, '_') || 'bibliotheque'}_offline_info.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
-  const generateQRCode = () => {
-    // Simuler la génération d'un QR Code
-    // En production, vous utiliseriez une vraie bibliothèque QR
-    const qrContent = `Institution: ${institution?.name}\nCode: ${institutionCode}`;
-    alert(`QR Code généré pour:\n${qrContent}`);
-  };
-
   const sendInvitation = () => {
-    const subject = encodeURIComponent(`Invitation - ${institution?.name}`);
+    const subject = encodeURIComponent(`Invitation - ${institution?.name} (Mode Hors Ligne)`);
     const body = encodeURIComponent(`
 Bonjour,
 
-Vous êtes invité(e) à rejoindre ${institution?.name} sur l'application Bibliothèque Cloud.
+Vous êtes invité(e) à rejoindre ${institution?.name} sur notre système de bibliothèque local.
 
-Code d'établissement: ${institutionCode}
+🔑 Code d'accès: ${institutionCode}
 
-Instructions:
-1. Téléchargez l'application Bibliothèque Cloud
-2. Créez votre compte en utilisant le code ci-dessus
-3. Attendez la validation de votre accès
+📍 Informations importantes:
+- Notre bibliothèque fonctionne en mode hors ligne
+- Aucune connexion Internet requise
+- Accès depuis le réseau local uniquement
+
+📋 Instructions:
+1. Connectez-vous au réseau local de l'établissement
+2. Lancez l'application Bibliothèque
+3. Utilisez le code d'accès ci-dessus pour vous connecter
+4. Vos données seront synchronisées localement
+
+Si vous avez des questions, contactez l'administrateur de la bibliothèque.
 
 Cordialement,
 L'équipe de ${institution?.name}
@@ -129,42 +136,47 @@ L'équipe de ${institution?.name}
   const steps = [
     {
       number: 1,
-      title: "Félicitations !",
-      subtitle: "Votre établissement a été créé",
+      title: "Établissement créé !",
+      subtitle: "Configuration réussie",
       icon: CheckCircle
     },
     {
       number: 2,
-      title: "Partagez le code",
-      subtitle: "Invitez vos utilisateurs",
-      icon: Users
+      title: "Code d'accès",
+      subtitle: "Partagez avec vos utilisateurs",
+      icon: Shield
     },
     {
       number: 3,
-      title: "Prêt à commencer",
-      subtitle: "Accédez à votre bibliothèque",
+      title: "Prêt à utiliser",
+      subtitle: "Commencez dès maintenant",
       icon: BookOpen
     }
   ];
 
   return (
-    <div className="institution-setup">
+    <div className="offline-institution-setup">
       <div className="setup-background">
-        <div className="background-pattern"></div>
-        <div className="floating-elements">
-          <div className="floating-icon">📚</div>
-          <div className="floating-icon">🎓</div>
-          <div className="floating-icon">👥</div>
-          <div className="floating-icon">🔑</div>
+        <div className="pattern-overlay"></div>
+        <div className="floating-shapes">
+          <div className="shape shape-1"></div>
+          <div className="shape shape-2"></div>
+          <div className="shape shape-3"></div>
         </div>
       </div>
 
       <div className="setup-container">
+        {/* Header */}
         <div className="setup-header">
-          <div className="header-logo">
-            <Building size={48} />
+          <div className="offline-badge">
+            <WifiOff size={16} />
+            <span>Mode Hors Ligne</span>
           </div>
-          <h1 className="setup-title">Configuration de votre établissement</h1>
+          
+          <div className="header-logo">
+            <Building size={40} />
+          </div>
+          <h1 className="setup-title">Configuration Terminée</h1>
           
           {/* Progress indicator */}
           <div className="progress-container">
@@ -172,7 +184,7 @@ L'équipe de ${institution?.name}
               {steps.map((step, index) => (
                 <div key={step.number} className={`progress-step ${currentStep >= step.number ? 'active' : ''} ${currentStep === step.number ? 'current' : ''}`}>
                   <div className="step-circle">
-                    <step.icon size={20} />
+                    <step.icon size={16} />
                   </div>
                   <div className="step-info">
                     <span className="step-title">{step.title}</span>
@@ -185,13 +197,14 @@ L'équipe de ${institution?.name}
           </div>
         </div>
 
+        {/* Content */}
         <div className="setup-content">
           {/* Step 1: Success */}
           {currentStep === 1 && (
             <div className="step-content success-step">
               <div className="success-animation">
                 <div className="success-circle">
-                  <CheckCircle size={64} />
+                  <CheckCircle size={48} />
                 </div>
                 <div className="success-sparkles">
                   <Sparkles className="sparkle sparkle-1" />
@@ -202,14 +215,14 @@ L'équipe de ${institution?.name}
               
               <h2 className="step-title">Félicitations ! 🎉</h2>
               <p className="step-description">
-                Votre établissement <strong>{institution?.name}</strong> a été créé avec succès.
-                Vous êtes maintenant l'administrateur principal et pouvez commencer à gérer votre bibliothèque.
+                Votre établissement <strong>{institution?.name}</strong> a été configuré avec succès 
+                en mode hors ligne. Vous pouvez maintenant gérer votre bibliothèque localement.
               </p>
 
               <div className="institution-card">
                 <div className="card-header">
-                  <Building size={24} />
-                  <h3>Informations de l'établissement</h3>
+                  <HardDrive size={20} />
+                  <h3>Bibliothèque Locale</h3>
                 </div>
                 <div className="card-content">
                   <div className="info-row">
@@ -226,8 +239,8 @@ L'équipe de ${institution?.name}
                     </span>
                   </div>
                   <div className="info-row">
-                    <span className="info-label">Localisation:</span>
-                    <span className="info-value">{institution?.city}, {institution?.country}</span>
+                    <span className="info-label">Ville:</span>
+                    <span className="info-value">{institution?.city}</span>
                   </div>
                   <div className="info-row highlight">
                     <span className="info-label">Code d'accès:</span>
@@ -237,23 +250,23 @@ L'équipe de ${institution?.name}
               </div>
 
               <div className="features-preview">
-                <h3>Ce que vous pouvez faire maintenant :</h3>
+                <h3>Fonctionnalités disponibles :</h3>
                 <div className="features-grid">
                   <div className="feature-item">
-                    <BookOpen size={20} />
-                    <span>Gérer vos livres</span>
+                    <Database size={18} />
+                    <span>Base de données locale</span>
                   </div>
                   <div className="feature-item">
-                    <Users size={20} />
-                    <span>Inviter des utilisateurs</span>
+                    <WifiOff size={18} />
+                    <span>Fonctionne hors ligne</span>
                   </div>
                   <div className="feature-item">
-                    <Shield size={20} />
-                    <span>Contrôler les accès</span>
+                    <BookOpen size={18} />
+                    <span>Gestion des livres</span>
                   </div>
                   <div className="feature-item">
-                    <Globe size={20} />
-                    <span>Synchroniser en ligne</span>
+                    <Users size={18} />
+                    <span>Gestion des utilisateurs</span>
                   </div>
                 </div>
               </div>
@@ -265,25 +278,25 @@ L'équipe de ${institution?.name}
             <div className="step-content share-step">
               <div className="share-header">
                 <div className="share-icon">
-                  <Key size={48} />
+                  <Shield size={40} />
                 </div>
-                <h2 className="step-title">Partagez votre code d'établissement</h2>
+                <h2 className="step-title">Code d'Accès Local</h2>
                 <p className="step-description">
-                  Utilisez ce code unique pour permettre à vos utilisateurs de rejoindre votre établissement.
-                  Gardez-le confidentiel et ne le partagez qu'avec les personnes autorisées.
+                  Ce code permet aux utilisateurs locaux d'accéder à votre bibliothèque. 
+                  Conservez-le précieusement et partagez-le uniquement avec des personnes autorisées.
                 </p>
               </div>
 
               <div className="code-display">
                 <div className="code-container">
-                  <div className="code-label">Code d'établissement</div>
+                  <div className="code-label">Code d'accès local</div>
                   <div className="code-value-large">{institutionCode}</div>
                   <button 
                     className={`copy-button ${copied ? 'copied' : ''}`}
                     onClick={handleCopyCode}
                   >
-                    {copied ? <CheckCircle size={18} /> : <Copy size={18} />}
-                    <span>{copied ? 'Copié !' : 'Copier'}</span>
+                    {copied ? <CheckCircle size={16} /> : <Copy size={16} />}
+                    <span>{copied ? 'Copié !' : 'Copier le code'}</span>
                   </button>
                 </div>
               </div>
@@ -293,41 +306,21 @@ L'équipe de ${institution?.name}
                 <div className="sharing-grid">
                   <button className="sharing-option" onClick={handleDownloadInfo}>
                     <div className="option-icon">
-                      <Download size={24} />
+                      <Download size={20} />
                     </div>
                     <div className="option-content">
                       <span className="option-title">Télécharger les infos</span>
-                      <span className="option-description">Fichier avec toutes les informations</span>
+                      <span className="option-description">Fichier avec code et instructions</span>
                     </div>
                   </button>
 
                   <button className="sharing-option" onClick={sendInvitation}>
                     <div className="option-icon">
-                      <Mail size={24} />
+                      <Mail size={20} />
                     </div>
                     <div className="option-content">
                       <span className="option-title">Envoyer par email</span>
                       <span className="option-description">Invitation pré-rédigée</span>
-                    </div>
-                  </button>
-
-                  <button className="sharing-option" onClick={generateQRCode}>
-                    <div className="option-icon">
-                      <QrCode size={24} />
-                    </div>
-                    <div className="option-content">
-                      <span className="option-title">Générer QR Code</span>
-                      <span className="option-description">Pour un partage rapide</span>
-                    </div>
-                  </button>
-
-                  <button className="sharing-option" onClick={() => window.print()}>
-                    <div className="option-icon">
-                      <Printer size={24} />
-                    </div>
-                    <div className="option-content">
-                      <span className="option-title">Imprimer</span>
-                      <span className="option-description">Affichage physique</span>
                     </div>
                   </button>
                 </div>
@@ -336,12 +329,16 @@ L'équipe de ${institution?.name}
               <div className="instructions-card">
                 <h4>Instructions pour vos utilisateurs :</h4>
                 <ol className="instructions-list">
-                  <li>Télécharger l'application Bibliothèque Cloud</li>
-                  <li>Choisir "Inscription" sur l'écran de connexion</li>
-                  <li>Entrer le code d'établissement : <code>{institutionCode}</code></li>
-                  <li>Remplir leurs informations personnelles</li>
-                  <li>Attendre la validation de leur compte par un administrateur</li>
+                  <li>Se connecter au réseau local de l'établissement</li>
+                  <li>Lancer l'application Bibliothèque</li>
+                  <li>Utiliser ce code d'accès : <code>{institutionCode}</code></li>
+                  <li>Les données seront synchronisées localement</li>
                 </ol>
+                
+                <div className="offline-note">
+                  <WifiOff size={16} />
+                  <span>Aucune connexion Internet requise</span>
+                </div>
               </div>
             </div>
           )}
@@ -351,14 +348,14 @@ L'équipe de ${institution?.name}
             <div className="step-content ready-step">
               <div className="ready-animation">
                 <div className="ready-icon">
-                  <Zap size={64} />
+                  <Zap size={48} />
                 </div>
               </div>
 
               <h2 className="step-title">Tout est prêt ! 🚀</h2>
               <p className="step-description">
-                Votre établissement est configuré et prêt à être utilisé. 
-                Vous allez maintenant être connecté en tant qu'administrateur principal.
+                Votre bibliothèque locale est configurée et prête à être utilisée. 
+                Vous allez maintenant accéder au tableau de bord administrateur.
               </p>
 
               <div className="quick-actions">
@@ -368,39 +365,53 @@ L'équipe de ${institution?.name}
                     <div className="action-number">1</div>
                     <div className="action-content">
                       <span className="action-title">Ajoutez vos premiers livres</span>
-                      <span className="action-description">Commencez à construire votre catalogue</span>
+                      <span className="action-description">Construisez votre catalogue local</span>
                     </div>
                   </div>
                   <div className="action-item">
                     <div className="action-number">2</div>
                     <div className="action-content">
-                      <span className="action-title">Invitez vos bibliothécaires</span>
-                      <span className="action-description">Donnez-leur un accès administrateur</span>
+                      <span className="action-title">Configurez vos paramètres</span>
+                      <span className="action-description">Personnalisez votre bibliothèque</span>
                     </div>
                   </div>
                   <div className="action-item">
                     <div className="action-number">3</div>
                     <div className="action-content">
-                      <span className="action-title">Configurez vos paramètres</span>
-                      <span className="action-description">Personnalisez selon vos besoins</span>
+                      <span className="action-title">Partagez le code d'accès</span>
+                      <span className="action-description">Invitez vos utilisateurs locaux</span>
                     </div>
                   </div>
                   <div className="action-item">
                     <div className="action-number">4</div>
                     <div className="action-content">
-                      <span className="action-title">Partagez le code d'accès</span>
-                      <span className="action-description">Permettez aux utilisateurs de s'inscrire</span>
+                      <span className="action-title">Testez le système</span>
+                      <span className="action-description">Vérifiez toutes les fonctionnalités</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="support-info">
-                <h4>Besoin d'aide ?</h4>
-                <p>
-                  Consultez notre documentation en ligne ou contactez notre support technique 
-                  pour vous accompagner dans la prise en main de votre nouvelle bibliothèque.
-                </p>
+              <div className="offline-advantages">
+                <h4>Avantages du mode hors ligne :</h4>
+                <div className="advantages-grid">
+                  <div className="advantage-item">
+                    <Database size={16} />
+                    <span>Données locales sécurisées</span>
+                  </div>
+                  <div className="advantage-item">
+                    <WifiOff size={16} />
+                    <span>Indépendance Internet</span>
+                  </div>
+                  <div className="advantage-item">
+                    <Zap size={16} />
+                    <span>Performance optimale</span>
+                  </div>
+                  <div className="advantage-item">
+                    <Shield size={16} />
+                    <span>Contrôle total</span>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -431,7 +442,7 @@ L'équipe de ${institution?.name}
             ) : (
               <>
                 {currentStep === 3 ? 'Accéder à ma bibliothèque' : 'Continuer'}
-                <ArrowRight size={18} />
+                <ArrowRight size={16} />
               </>
             )}
           </button>
@@ -439,132 +450,150 @@ L'équipe de ${institution?.name}
       </div>
 
       <style>{`
-        .institution-setup {
-          height: 100vh;
-          display: flex;
-          flex-direction: column;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+        .offline-institution-setup {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #1e3a2e 0%, #2d5a45 50%, #1e3a2e 100%);
           position: relative;
-          overflow: hidden;
+          overflow-x: hidden;
         }
 
         .setup-background {
           position: absolute;
-          inset: 0;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
           overflow: hidden;
         }
 
-        .background-pattern {
+        .pattern-overlay {
           position: absolute;
-          inset: 0;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
           background-image: 
-            radial-gradient(circle at 25% 25%, rgba(243, 238, 217, 0.08) 0%, transparent 50%),
-            radial-gradient(circle at 75% 75%, rgba(194, 87, 27, 0.06) 0%, transparent 50%);
-          animation: drift 25s ease-in-out infinite;
+            radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+          animation: drift 20s ease-in-out infinite;
         }
 
-        .floating-elements {
+        @keyframes drift {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          50% { transform: translate(20px, -20px) rotate(1deg); }
+        }
+
+        .floating-shapes {
           position: absolute;
-          inset: 0;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
           pointer-events: none;
         }
 
-        .floating-icon {
+        .shape {
           position: absolute;
-          font-size: 24px;
-          opacity: 0.2;
-          animation: float 8s ease-in-out infinite;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 50%;
+          animation: float 6s ease-in-out infinite;
         }
 
-        .floating-icon:nth-child(1) {
+        .shape-1 {
+          width: 80px;
+          height: 80px;
           top: 20%;
           left: 10%;
           animation-delay: 0s;
         }
 
-        .floating-icon:nth-child(2) {
+        .shape-2 {
+          width: 60px;
+          height: 60px;
           top: 60%;
           right: 15%;
           animation-delay: 2s;
         }
 
-        .floating-icon:nth-child(3) {
+        .shape-3 {
+          width: 100px;
+          height: 100px;
           bottom: 30%;
           left: 20%;
           animation-delay: 4s;
         }
 
-        .floating-icon:nth-child(4) {
-          top: 40%;
-          right: 30%;
-          animation-delay: 6s;
-        }
-
-        @keyframes drift {
-          0%, 100% { transform: translate(0, 0) rotate(0deg); }
-          33% { transform: translate(30px, -30px) rotate(1deg); }
-          66% { transform: translate(-20px, 20px) rotate(-1deg); }
-        }
-
         @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(5deg); }
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
         }
 
         .setup-container {
-          flex: 1;
+          position: relative;
+          z-index: 10;
+          min-height: 100vh;
           display: flex;
           flex-direction: column;
+          padding: 20px;
           max-width: 1000px;
           margin: 0 auto;
-          padding: 40px;
-          position: relative;
-          z-index: 1;
         }
 
         .setup-header {
           text-align: center;
-          margin-bottom: 40px;
-          color: #F3EED9;
+          margin-bottom: 32px;
+          color: white;
+        }
+
+        .offline-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(255, 152, 0, 0.2);
+          color: #ffa726;
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-size: 14px;
+          font-weight: 600;
+          border: 1px solid rgba(255, 152, 0, 0.3);
+          margin-bottom: 24px;
         }
 
         .header-logo {
-          width: 80px;
-          height: 80px;
-          background: rgba(243, 238, 217, 0.15);
-          border-radius: 20px;
+          width: 60px;
+          height: 60px;
+          background: rgba(255, 255, 255, 0.15);
+          border-radius: 16px;
           display: flex;
           align-items: center;
           justify-content: center;
-          margin: 0 auto 24px;
-          border: 1px solid rgba(243, 238, 217, 0.2);
-          backdrop-filter: blur(10px);
+          margin: 0 auto 20px;
+          border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .setup-title {
-          font-size: 32px;
+          font-size: 28px;
           font-weight: 800;
-          margin: 0 0 32px 0;
+          margin: 0 0 24px 0;
           letter-spacing: -0.5px;
         }
 
         .progress-container {
-          margin-bottom: 20px;
+          margin-bottom: 16px;
         }
 
         .progress-steps {
           display: flex;
           justify-content: center;
           align-items: center;
-          gap: 40px;
-          position: relative;
+          gap: 32px;
         }
 
         .progress-step {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 12px;
+          gap: 8px;
           opacity: 0.5;
           transition: all 0.3s ease;
           position: relative;
@@ -575,15 +604,15 @@ L'équipe de ${institution?.name}
         }
 
         .progress-step.current {
-          transform: scale(1.1);
+          transform: scale(1.05);
         }
 
         .step-circle {
-          width: 56px;
-          height: 56px;
+          width: 40px;
+          height: 40px;
           border-radius: 50%;
-          background: rgba(243, 238, 217, 0.15);
-          border: 2px solid rgba(243, 238, 217, 0.3);
+          background: rgba(255, 255, 255, 0.15);
+          border: 2px solid rgba(255, 255, 255, 0.3);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -591,15 +620,15 @@ L'équipe de ${institution?.name}
         }
 
         .progress-step.active .step-circle {
-          background: rgba(243, 238, 217, 0.3);
-          border-color: rgba(243, 238, 217, 0.6);
+          background: rgba(255, 255, 255, 0.25);
+          border-color: rgba(255, 255, 255, 0.5);
         }
 
         .progress-step.current .step-circle {
-          background: #C2571B;
-          border-color: #C2571B;
-          color: #F3EED9;
-          box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
+          background: #ffa726;
+          border-color: #ffa726;
+          color: #1e3a2e;
+          box-shadow: 0 4px 16px rgba(255, 167, 38, 0.3);
         }
 
         .step-info {
@@ -607,42 +636,38 @@ L'équipe de ${institution?.name}
         }
 
         .step-title {
-          font-size: 14px;
+          font-size: 12px;
           font-weight: 600;
-          margin: 0 0 4px 0;
+          margin: 0 0 2px 0;
         }
 
         .step-subtitle {
-          font-size: 12px;
+          font-size: 10px;
           opacity: 0.8;
         }
 
         .step-connector {
           position: absolute;
-          top: 28px;
-          left: 100%;
-          width: 40px;
+          top: 20px;
+          left: calc(100% + 8px);
+          width: 24px;
           height: 2px;
-          background: rgba(243, 238, 217, 0.2);
+          background: rgba(255, 255, 255, 0.2);
           z-index: -1;
         }
 
         .setup-content {
           flex: 1;
-          background: rgba(255, 255, 255, 0.95);
-          border-radius: 24px;
-          padding: 40px;
-          margin-bottom: 32px;
-          box-shadow: 
-            0 24px 48px rgba(62, 92, 73, 0.2),
-            0 8px 24px rgba(62, 92, 73, 0.12);
-          border: 1px solid rgba(229, 220, 194, 0.3);
-          backdrop-filter: blur(20px);
+          background: white;
+          border-radius: 20px;
+          padding: 32px;
+          margin-bottom: 24px;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
           overflow-y: auto;
         }
 
         .step-content {
-          max-width: 800px;
+          max-width: 700px;
           margin: 0 auto;
         }
 
@@ -653,11 +678,11 @@ L'équipe de ${institution?.name}
 
         .success-animation {
           position: relative;
-          margin-bottom: 32px;
+          margin-bottom: 24px;
         }
 
         .success-circle {
-          color: #3E5C49;
+          color: #2d5a45;
           animation: bounce 0.6s ease-out;
         }
 
@@ -669,7 +694,7 @@ L'équipe de ${institution?.name}
 
         .sparkle {
           position: absolute;
-          color: #C2571B;
+          color: #ffa726;
           animation: sparkle 2s ease-in-out infinite;
         }
 
@@ -693,9 +718,9 @@ L'équipe de ${institution?.name}
 
         @keyframes bounce {
           0%, 20%, 53%, 80%, 100% { transform: translate3d(0, 0, 0); }
-          40%, 43% { transform: translate3d(0, -30px, 0); }
-          70% { transform: translate3d(0, -15px, 0); }
-          90% { transform: translate3d(0, -4px, 0); }
+          40%, 43% { transform: translate3d(0, -20px, 0); }
+          70% { transform: translate3d(0, -10px, 0); }
+          90% { transform: translate3d(0, -3px, 0); }
         }
 
         @keyframes sparkle {
@@ -704,55 +729,55 @@ L'équipe de ${institution?.name}
         }
 
         .step-title {
-          font-size: 28px;
-          font-weight: 800;
-          color: #2E2E2E;
-          margin: 0 0 16px 0;
-          letter-spacing: -0.5px;
+          font-size: 24px;
+          font-weight: 700;
+          color: #2d5a45;
+          margin: 0 0 12px 0;
+          letter-spacing: -0.3px;
         }
 
         .step-description {
           font-size: 16px;
-          color: #6E6E6E;
-          line-height: 1.6;
-          margin-bottom: 32px;
+          color: #6c757d;
+          line-height: 1.5;
+          margin-bottom: 24px;
         }
 
         .institution-card {
-          background: #F3EED9;
-          border: 1px solid #E5DCC2;
-          border-radius: 16px;
-          margin-bottom: 32px;
+          background: #f8f9fa;
+          border: 1px solid #e9ecef;
+          border-radius: 12px;
+          margin-bottom: 24px;
           overflow: hidden;
         }
 
         .card-header {
           display: flex;
           align-items: center;
-          gap: 12px;
-          padding: 20px 24px;
-          background: rgba(62, 92, 73, 0.1);
-          border-bottom: 1px solid #E5DCC2;
+          gap: 8px;
+          padding: 16px 20px;
+          background: rgba(45, 90, 69, 0.1);
+          border-bottom: 1px solid #e9ecef;
         }
 
         .card-header h3 {
-          font-size: 18px;
-          font-weight: 700;
-          color: #2E2E2E;
+          font-size: 16px;
+          font-weight: 600;
+          color: #2d5a45;
           margin: 0;
         }
 
         .card-content {
-          padding: 24px;
+          padding: 20px;
         }
 
         .info-row {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 16px;
-          padding-bottom: 16px;
-          border-bottom: 1px solid rgba(229, 220, 194, 0.5);
+          margin-bottom: 12px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid #f1f3f4;
         }
 
         .info-row:last-child {
@@ -762,57 +787,60 @@ L'équipe de ${institution?.name}
         }
 
         .info-row.highlight {
-          background: rgba(62, 92, 73, 0.05);
-          padding: 16px;
-          border-radius: 12px;
-          border: 1px solid rgba(62, 92, 73, 0.2);
-          border-bottom: 1px solid rgba(62, 92, 73, 0.2);
+          background: rgba(45, 90, 69, 0.05);
+          padding: 12px;
+          border-radius: 8px;
+          border: 1px solid rgba(45, 90, 69, 0.2);
+          border-bottom: 1px solid rgba(45, 90, 69, 0.2);
         }
 
         .info-label {
           font-weight: 600;
-          color: #6E6E6E;
+          color: #6c757d;
+          font-size: 14px;
         }
 
         .info-value {
           font-weight: 600;
-          color: #2E2E2E;
+          color: #2d5a45;
+          font-size: 14px;
         }
 
         .code-value {
           font-family: 'Monaco', 'Consolas', monospace;
-          background: #3E5C49;
-          color: #F3EED9;
-          padding: 8px 12px;
-          border-radius: 8px;
-          font-size: 16px;
-          letter-spacing: 2px;
+          background: #2d5a45;
+          color: white;
+          padding: 6px 10px;
+          border-radius: 6px;
+          font-size: 14px;
+          letter-spacing: 1px;
         }
 
         .features-preview h3 {
-          font-size: 18px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 0 0 16px 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: #2d5a45;
+          margin: 0 0 12px 0;
           text-align: left;
         }
 
         .features-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 16px;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 12px;
         }
 
         .feature-item {
           display: flex;
           align-items: center;
-          gap: 12px;
-          padding: 16px;
-          background: rgba(62, 92, 73, 0.05);
-          border: 1px solid rgba(62, 92, 73, 0.1);
-          border-radius: 12px;
-          color: #3E5C49;
+          gap: 8px;
+          padding: 12px;
+          background: rgba(45, 90, 69, 0.05);
+          border: 1px solid rgba(45, 90, 69, 0.1);
+          border-radius: 8px;
+          color: #2d5a45;
           font-weight: 500;
+          font-size: 14px;
         }
 
         /* Share Step */
@@ -821,23 +849,23 @@ L'équipe de ${institution?.name}
         }
 
         .share-header {
-          margin-bottom: 32px;
-        }
-
-        .share-icon {
-          color: #C2571B;
           margin-bottom: 24px;
         }
 
+        .share-icon {
+          color: #ffa726;
+          margin-bottom: 16px;
+        }
+
         .code-display {
-          margin-bottom: 40px;
+          margin-bottom: 32px;
         }
 
         .code-container {
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          border-radius: 20px;
-          padding: 32px;
-          color: #F3EED9;
+          background: linear-gradient(135deg, #2d5a45 0%, #1e3a2e 100%);
+          border-radius: 16px;
+          padding: 24px;
+          color: white;
           position: relative;
           overflow: hidden;
         }
@@ -847,26 +875,26 @@ L'équipe de ${institution?.name}
           position: absolute;
           top: 0;
           right: 0;
-          width: 100px;
+          width: 80px;
           height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(243, 238, 217, 0.1));
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1));
           transform: skewX(-15deg);
         }
 
         .code-label {
-          font-size: 14px;
+          font-size: 12px;
           opacity: 0.9;
-          margin-bottom: 16px;
+          margin-bottom: 12px;
           text-transform: uppercase;
           letter-spacing: 1px;
         }
 
         .code-value-large {
-          font-size: 48px;
+          font-size: 32px;
           font-weight: 800;
-          letter-spacing: 8px;
+          letter-spacing: 4px;
           font-family: 'Monaco', 'Consolas', monospace;
-          margin-bottom: 24px;
+          margin-bottom: 16px;
           position: relative;
           z-index: 1;
         }
@@ -874,128 +902,268 @@ L'équipe de ${institution?.name}
         .copy-button {
           display: flex;
           align-items: center;
-          gap: 8px;
-          background: rgba(243, 238, 217, 0.2);
-          border: 1px solid rgba(243, 238, 217, 0.3);
-          color: #F3EED9;
-          padding: 12px 24px;
-          border-radius: 12px;
+          gap: 6px;
+          background: rgba(255, 255, 255, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          color: white;
+          padding: 8px 16px;
+          border-radius: 8px;
           cursor: pointer;
           transition: all 0.2s ease;
           font-weight: 600;
           margin: 0 auto;
           position: relative;
           z-index: 1;
+          font-size: 14px;
         }
 
         .copy-button:hover {
-          background: rgba(243, 238, 217, 0.3);
+          background: rgba(255, 255, 255, 0.3);
           transform: translateY(-1px);
         }
 
         .copy-button.copied {
-          background: rgba(194, 87, 27, 0.8);
-          border-color: rgba(194, 87, 27, 0.8);
-          color: #F3EED9;
-          cursor: default;
-          pointer-events: none;
+          background: rgba(255, 167, 38, 0.8);
+          border-color: rgba(255, 167, 38, 0.8);
+          color: white;
         }
 
         .sharing-options {
-          margin-bottom: 40px;
+          margin-bottom: 32px;
+        }
+
+        .sharing-options h3 {
+          font-size: 16px;
+          font-weight: 600;
+          color: #2d5a45;
+          margin: 0 0 16px 0;
         }
 
         .sharing-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 24px;
+          gap: 16px;
         }
 
         .sharing-option {
           display: flex;
           align-items: center;
-          gap: 16px;
-          padding: 20px;
-          background: rgba(62, 92, 73, 0.05);
-          border: 1px solid rgba(62, 92, 73, 0.1);
-          border-radius: 16px;
+          gap: 12px;
+          padding: 16px;
+          background: rgba(45, 90, 69, 0.05);
+          border: 1px solid rgba(45, 90, 69, 0.1);
+          border-radius: 12px;
           cursor: pointer;
           transition: all 0.2s ease;
-          color: #3E5C49;
+          color: #2d5a45;
           font-weight: 600;
         }
 
         .sharing-option:hover {
-          background: rgba(62, 92, 73, 0.1);
-          border-color: rgba(62, 92, 73, 0.2);
+          background: rgba(45, 90, 69, 0.1);
+          border-color: rgba(45, 90, 69, 0.2);
         }
 
         .option-icon {
-          width: 48px;
-          height: 48px;
-          background: #C2571B;
-          border-radius: 12px;
+          width: 36px;
+          height: 36px;
+          background: #ffa726;
+          border-radius: 8px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #F3EED9;
+          color: white;
           flex-shrink: 0;
         }
 
         .option-content {
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          gap: 2px;
         }
 
         .option-title {
-          font-size: 16px;
-          font-weight: 700;
+          font-size: 14px;
+          font-weight: 600;
         }
 
         .option-description {
           font-size: 12px;
-          color: #6E6E6E;
+          color: #6c757d;
         }
 
         .instructions-card {
-          background: #F3EED9;
-          border: 1px solid #E5DCC2;
-          border-radius: 16px;
-          padding: 24px;
-          color: #3E5C49;
-          font-weight: 600;
+          background: #f8f9fa;
+          border: 1px solid #e9ecef;
+          border-radius: 12px;
+          padding: 20px;
+          color: #2d5a45;
           text-align: left;
-          max-width: 600px;
+          max-width: 500px;
           margin: 0 auto;
         }
 
+        .instructions-card h4 {
+          margin: 0 0 12px 0;
+          font-size: 14px;
+          font-weight: 600;
+        }
+
         .instructions-list {
-          margin: 0;
+          margin: 0 0 16px 0;
           padding-left: 20px;
           list-style-type: decimal;
         }
 
         .instructions-list li {
-          margin-bottom: 8px;
-          font-weight: 500;
+          margin-bottom: 6px;
+          font-size: 13px;
+          line-height: 1.4;
+        }
+
+        .instructions-list code {
+          background: #2d5a45;
+          color: white;
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-family: 'Monaco', 'Consolas', monospace;
+          font-size: 12px;
+        }
+
+        .offline-note {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(255, 167, 38, 0.1);
+          border: 1px solid rgba(255, 167, 38, 0.2);
+          color: #e65100;
+          padding: 8px 12px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 600;
+        }
+
+        /* Ready Step */
+        .ready-step {
+          text-align: center;
+        }
+
+        .ready-animation {
+          margin-bottom: 24px;
+        }
+
+        .ready-icon {
+          color: #ffa726;
+          animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+        }
+
+        .quick-actions {
+          margin-bottom: 24px;
+        }
+
+        .quick-actions h3 {
+          font-size: 16px;
+          font-weight: 600;
+          color: #2d5a45;
+          margin: 0 0 16px 0;
+          text-align: left;
+        }
+
+        .actions-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .action-item {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 16px;
+          background: rgba(45, 90, 69, 0.05);
+          border: 1px solid rgba(45, 90, 69, 0.1);
+          border-radius: 12px;
+        }
+
+        .action-number {
+          width: 32px;
+          height: 32px;
+          background: #ffa726;
+          color: white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+          font-size: 14px;
+          flex-shrink: 0;
+        }
+
+        .action-content {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          text-align: left;
+        }
+
+        .action-title {
+          font-weight: 600;
+          color: #2d5a45;
           font-size: 14px;
         }
 
+        .action-description {
+          font-size: 12px;
+          color: #6c757d;
+        }
+
+        .offline-advantages h4 {
+          font-size: 14px;
+          font-weight: 600;
+          color: #2d5a45;
+          margin: 0 0 12px 0;
+          text-align: left;
+        }
+
+        .advantages-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+          gap: 12px;
+        }
+
+        .advantage-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 12px;
+          background: rgba(255, 167, 38, 0.1);
+          border: 1px solid rgba(255, 167, 38, 0.2);
+          border-radius: 8px;
+          color: #e65100;
+          font-weight: 500;
+          font-size: 13px;
+        }
+
+        /* Navigation */
         .setup-navigation {
           display: flex;
           justify-content: flex-end;
-          gap: 16px;
-          padding: 0 40px 40px;
+          gap: 12px;
+          padding: 0 20px 20px;
         }
 
         .nav-button {
           display: flex;
           align-items: center;
-          gap: 8px;
-          padding: 12px 24px;
-          border-radius: 12px;
-          font-weight: 700;
+          gap: 6px;
+          padding: 10px 20px;
+          border-radius: 10px;
+          font-weight: 600;
           font-size: 14px;
           cursor: pointer;
           border: none;
@@ -1003,26 +1171,25 @@ L'équipe de ${institution?.name}
         }
 
         .nav-button.primary {
-          background: #C2571B;
-          color: #F3EED9;
+          background: #ffa726;
+          color: white;
         }
 
         .nav-button.primary:hover:not(:disabled) {
-          background: #A8481A;
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
+          background: #ff9800;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 16px rgba(255, 167, 38, 0.3);
         }
 
         .nav-button.secondary {
-          background: #F3EED9;
-          color: #6E6E6E;
-          border: 1px solid #E5DCC2;
+          background: #f8f9fa;
+          color: #6c757d;
+          border: 1px solid #e9ecef;
         }
 
         .nav-button.secondary:hover:not(:disabled) {
-          background: #EAEADC;
-          color: #2E2E2E;
-          transform: translateY(-1px);
+          background: #e9ecef;
+          color: #495057;
         }
 
         .nav-button:disabled {
@@ -1033,18 +1200,77 @@ L'équipe de ${institution?.name}
         }
 
         .loading-spinner {
-          width: 24px;
-          height: 24px;
-          border: 3px solid rgba(243, 238, 217, 0.3);
-          border-top: 3px solid #C2571B;
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-top: 2px solid white;
           border-radius: 50%;
           animation: spin 1s linear infinite;
-          margin: 0 auto;
         }
 
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+          .setup-container {
+            padding: 16px;
+          }
+
+          .progress-steps {
+            gap: 20px;
+          }
+
+          .step-connector {
+            width: 16px;
+            left: calc(100% + 4px);
+          }
+
+          .setup-content {
+            padding: 24px 16px;
+          }
+
+          .features-grid,
+          .sharing-grid,
+          .advantages-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .setup-navigation {
+            flex-direction: column-reverse;
+            padding: 0 16px 16px;
+          }
+
+          .code-value-large {
+            font-size: 24px;
+            letter-spacing: 2px;
+          }
+
+          .step-title {
+            font-size: 20px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .progress-steps {
+            flex-direction: column;
+            gap: 16px;
+          }
+
+          .step-connector {
+            display: none;
+          }
+
+          .setup-title {
+            font-size: 24px;
+          }
+
+          .code-value-large {
+            font-size: 20px;
+            letter-spacing: 1px;
+          }
         }
       `}</style>
     </div>

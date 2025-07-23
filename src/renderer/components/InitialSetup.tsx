@@ -278,19 +278,20 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         .setup-container {
           background: white;
           border-radius: 20px;
-          padding: 40px;
-          max-width: 900px;
-          width: 90%;
-          max-height: 90vh;
+          padding: 32px;
+          max-width: 1000px;
+          width: 95%;
+          max-height: 95vh;
           overflow-y: auto;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25);
           position: relative;
           z-index: 1;
+          margin: 20px auto;
         }
 
         .setup-header {
           text-align: center;
-          margin-bottom: 40px;
+          margin-bottom: 32px;
         }
 
         .setup-logo {
@@ -319,32 +320,35 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         }
 
         .mode-selection {
-          margin-bottom: 30px;
+          margin-bottom: 24px;
         }
 
         .section-title {
           display: flex;
           align-items: center;
           gap: 10px;
-          font-size: 1.5rem;
+          font-size: 1.4rem;
           font-weight: 700;
           color: #2d3748;
-          margin-bottom: 20px;
+          margin-bottom: 16px;
         }
 
         .mode-options {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 20px;
+          gap: 16px;
         }
 
         .mode-card {
           border: 2px solid #e2e8f0;
           border-radius: 16px;
-          padding: 24px;
+          padding: 20px;
           cursor: pointer;
           transition: all 0.3s ease;
           background: white;
+          min-height: 380px;
+          display: flex;
+          flex-direction: column;
         }
 
         .mode-card:not(.disabled):hover {
@@ -368,18 +372,19 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         .mode-header {
           display: flex;
           align-items: center;
-          gap: 16px;
-          margin-bottom: 16px;
+          gap: 12px;
+          margin-bottom: 14px;
         }
 
         .mode-icon {
-          width: 50px;
-          height: 50px;
-          border-radius: 12px;
+          width: 44px;
+          height: 44px;
+          border-radius: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
           color: white;
+          flex-shrink: 0;
         }
 
         .mode-icon.offline {
@@ -395,7 +400,7 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         }
 
         .mode-info h3 {
-          font-size: 1.3rem;
+          font-size: 1.2rem;
           font-weight: 700;
           color: #2d3748;
           margin: 0 0 4px 0;
@@ -419,27 +424,29 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         }
 
         .mode-description {
-          margin-bottom: 16px;
+          margin-bottom: 12px;
+          flex-grow: 1;
         }
 
         .mode-description p {
           color: #4a5568;
           margin: 0;
-          line-height: 1.5;
+          line-height: 1.4;
+          font-size: 0.95rem;
         }
 
         .feature-list {
           display: flex;
           flex-direction: column;
-          gap: 8px;
-          margin-bottom: 16px;
+          gap: 6px;
+          margin-bottom: 12px;
         }
 
         .feature {
           display: flex;
           align-items: center;
-          gap: 8px;
-          font-size: 0.9rem;
+          gap: 6px;
+          font-size: 0.85rem;
         }
 
         .feature:not(.disabled) {
@@ -453,12 +460,13 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         .mode-ideal {
           display: flex;
           align-items: center;
-          gap: 8px;
-          padding: 12px;
+          gap: 6px;
+          padding: 10px;
           background: #f7fafc;
-          border-radius: 8px;
-          font-size: 0.85rem;
+          border-radius: 6px;
+          font-size: 0.8rem;
           color: #4a5568;
+          margin-top: auto;
         }
 
         .mode-ideal.disabled {
@@ -467,38 +475,39 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         }
 
         .info-panel {
-          margin-bottom: 30px;
+          margin-bottom: 20px;
         }
 
         .info-card {
           background: #f8f9fa;
           border: 1px solid #e9ecef;
-          border-radius: 12px;
-          padding: 20px;
+          border-radius: 10px;
+          padding: 16px;
         }
 
         .info-header {
           display: flex;
           align-items: center;
-          gap: 8px;
-          margin-bottom: 12px;
+          gap: 6px;
+          margin-bottom: 10px;
         }
 
         .info-header h3 {
-          font-size: 1.1rem;
+          font-size: 1.05rem;
           font-weight: 600;
           color: #495057;
           margin: 0;
         }
 
         .info-content ul {
-          margin: 8px 0 0 0;
-          padding-left: 20px;
+          margin: 6px 0 0 0;
+          padding-left: 18px;
         }
 
         .info-content li {
-          margin-bottom: 4px;
+          margin-bottom: 3px;
           color: #6c757d;
+          font-size: 0.9rem;
         }
 
         .setup-actions {
@@ -508,17 +517,17 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         .continue-btn {
           display: inline-flex;
           align-items: center;
-          gap: 10px;
+          gap: 8px;
           background: linear-gradient(135deg, #667eea, #764ba2);
           color: white;
           border: none;
-          padding: 16px 32px;
-          border-radius: 12px;
-          font-size: 1.1rem;
+          padding: 14px 28px;
+          border-radius: 10px;
+          font-size: 1.05rem;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.3s ease;
-          margin-bottom: 16px;
+          margin-bottom: 12px;
         }
 
         .continue-btn:not(:disabled):hover {
@@ -533,7 +542,7 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
 
         .setup-note {
           color: #718096;
-          font-size: 0.9rem;
+          font-size: 0.85rem;
           margin: 0;
         }
 
@@ -549,16 +558,52 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
 
         @media (max-width: 768px) {
           .setup-container {
-            padding: 24px;
-            width: 95%;
+            padding: 20px;
+            width: 98%;
+            margin: 10px auto;
           }
 
           .mode-options {
             grid-template-columns: 1fr;
+            gap: 12px;
+          }
+
+          .mode-card {
+            min-height: auto;
+            padding: 16px;
           }
 
           .setup-title {
-            font-size: 2rem;
+            font-size: 1.8rem;
+          }
+
+          .section-title {
+            font-size: 1.2rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .setup-container {
+            padding: 16px;
+            width: 99%;
+            margin: 5px auto;
+          }
+
+          .setup-header {
+            margin-bottom: 24px;
+          }
+
+          .setup-title {
+            font-size: 1.6rem;
+          }
+
+          .mode-card {
+            padding: 14px;
+          }
+
+          .continue-btn {
+            padding: 12px 20px;
+            font-size: 1rem;
           }
         }
       `}</style>

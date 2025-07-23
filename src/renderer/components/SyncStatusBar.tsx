@@ -33,6 +33,9 @@ export const SyncStatusBar: React.FC<SyncStatusBarProps> = ({
   const [showDetails, setShowDetails] = useState(false);
   const [lastUpdateTime, setLastUpdateTime] = useState<string>('');
 
+  // Vérifier si on est en mode offline
+  const isOfflineMode = !networkStatus.isOnline || networkStatus.connectionType === 'none';
+
   useEffect(() => {
     const updateTime = () => {
       if (syncStatus.lastSync) {
@@ -59,11 +62,12 @@ export const SyncStatusBar: React.FC<SyncStatusBarProps> = ({
   }, [syncStatus.lastSync]);
 
   const getConnectionStatusDisplay = () => {
-    if (!networkStatus.isOnline) {
+    if (isOfflineMode) {
       return (
-        <div className="flex items-center gap-2 text-red-600">
-          <WifiOff className="w-4 h-4" />
-          <span className="text-sm font-medium">Hors ligne</span>
+        <div className="flex items-center gap-2 text-blue-600">
+          <CloudOff className="w-4 h-4" />
+          <span className="text-sm font-medium">Mode Hors Ligne</span>
+          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Local</span>
         </div>
       );
     }
@@ -106,11 +110,11 @@ export const SyncStatusBar: React.FC<SyncStatusBarProps> = ({
   };
 
   const getSyncButtonState = () => {
-    if (!networkStatus.isOnline) {
+    if (isOfflineMode) {
       return {
         disabled: true,
-        text: 'Hors ligne',
-        className: 'bg-gray-300 text-gray-500 cursor-not-allowed'
+        text: 'Mode Local',
+        className: 'bg-blue-100 text-blue-700 cursor-not-allowed'
       };
     }
 
@@ -140,8 +144,12 @@ export const SyncStatusBar: React.FC<SyncStatusBarProps> = ({
             {/* Statut de connexion */}
             {getConnectionStatusDisplay()}
             
-            {/* Dernière synchronisation */}
-            {syncStatus.lastSync && (
+            {/* Dernière synchronisation ou info locale */}
+            {isOfflineMode ? (
+              <div className="text-sm text-blue-600">
+                Données sauvegardées localement
+              </div>
+            ) : syncStatus.lastSync && (
               <div className="text-sm text-gray-500">
                 Dernière sync: {lastUpdateTime}
               </div>
