@@ -20,8 +20,12 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
-  Filter
+  Filter,
+  LayoutGrid,
+  Layers
 } from 'lucide-react';
+import { Book3DView } from './Book3DView';
+import { useQuickToast } from './ToastSystem';
 
 interface DocumentListProps {
   documents: Document[];
@@ -46,6 +50,9 @@ export const DocumentList: React.FC<DocumentListProps> = ({
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedSyncStatus, setSelectedSyncStatus] = useState('all');
   const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | '3d'>('grid');
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const toast = useQuickToast();
 
   useEffect(() => {
     filterDocuments();
@@ -105,6 +112,26 @@ export const DocumentList: React.FC<DocumentListProps> = ({
       default:
         return <Clock className="sync-icon default" />;
     }
+  };
+
+  const handleEdit = (document: Document) => {
+    onEdit(document);
+    toast.info('Ouverture du formulaire d\'emprunt', `Pour "${document.titre}"`);
+  };
+
+  const handleDelete = (id: number) => {
+    const document = documents.find(d => d.id === id);
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce document ?')) {
+      onDelete(id);
+      if (document) {
+        toast.success('Document supprimé', `"${document.titre}" a été retiré de la collection`);
+      }
+    }
+  };
+
+  const handleView3D = (document: Document) => {
+    setSelectedDocument(document);
+    toast.info('Vue 3D activée', `Exploration de "${document.titre}"`);
   };
 
   const getNetworkStatusDisplay = () => {

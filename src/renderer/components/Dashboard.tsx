@@ -12,14 +12,14 @@ import {
   ArrowRight,
   Star,
   Activity,
-  Calendar,
-  Eye
+  Calendar
 } from 'lucide-react';
 import { Stats } from '../../types';
 import { PrintManager } from './PrintManager';
 import { EnhancedStats } from './EnhancedStats';
 import { SmartSearch } from './SmartSearch';
 import { AnimatedBackground } from './AnimatedBackground';
+import { MicroButton, MicroCard, FloatingButton } from './MicroInteractions';
 
 interface DashboardProps {
   stats: Stats;
@@ -270,13 +270,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="activity-section">
           <div className="section-header">
             <h3 className="section-title">Activité récente</h3>
-            <button className="view-all-button">
-              <Eye size={16} />
+            <MicroButton 
+              variant="secondary" 
+              size="small"
+              icon={ArrowRight}
+            >
               Voir tout
-            </button>
+            </MicroButton>
           </div>
           
-          <div className="activity-list card">
+          <MicroCard className="activity-list">
             {recentActivity.map((activity, index) => (
               <div key={index} className="activity-item">
                 <div className="activity-icon">
@@ -289,7 +292,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <div className="activity-time">{activity.time}</div>
               </div>
             ))}
-          </div>
+          </MicroCard>
         </div>
       </div>
 
@@ -301,6 +304,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
           onClose={() => setShowPrintManager(false)}
         />
       )}
+
+      {/* Floating Action Button */}
+      <div className="floating-actions">
+        <FloatingButton
+          icon={Plus}
+          onClick={() => onNavigate('add-document')}
+          tooltip="Ajouter un document"
+          color="#10B981"
+        />
+      </div>
 
       <style>{`
         .dashboard {
@@ -823,6 +836,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
           
           .stat-card {
             padding: 16px;
+          }
+        }
+        
+        /* Floating Actions */
+        .floating-actions {
+          position: fixed;
+          bottom: 24px;
+          right: 24px;
+          z-index: 1000;
+        }
+        
+        @media (max-width: 768px) {
+          .floating-actions {
+            bottom: 80px;
+            right: 16px;
           }
         }
       `}</style>

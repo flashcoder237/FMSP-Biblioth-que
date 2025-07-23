@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Document, Author, Category } from '../../types';
 import { Save, X, Plus, BookOpen, User, Building, MapPin, Calendar, Tag, Hash, FileText, Image } from 'lucide-react';
+import { MicroButton, MicroCard, MicroLoader } from './MicroInteractions';
+import { useQuickToast } from './ToastSystem';
 
 interface AddDocumentProps {
   onAdd: (document: Omit<Document, 'id'>) => Promise<void>;
@@ -9,6 +11,7 @@ interface AddDocumentProps {
 }
 
 export const AddDocument: React.FC<AddDocumentProps> = ({ onAdd, onCancel, editingDocument }) => {
+  const { success, error } = useQuickToast();
   const [formData, setFormData] = useState({
     auteur: '',
     titre: '',
@@ -419,21 +422,28 @@ export const AddDocument: React.FC<AddDocumentProps> = ({ onAdd, onCancel, editi
 
           {/* Boutons d'action */}
           <div className="modal-actions">
-            <button
-              type="button"
+            <MicroButton
+              variant="secondary"
               onClick={onCancel}
-              className="cancel-button"
+              icon={X}
             >
               Annuler
-            </button>
-            <button
-              type="submit"
+            </MicroButton>
+            <MicroButton
+              variant="success"
+              onClick={() => handleSubmit({} as React.FormEvent)}
               disabled={isLoading}
-              className="submit-button"
+              icon={Save}
             >
-              <Save size={16} />
-              {isLoading ? 'Enregistrement...' : (editingDocument ? 'Modifier' : 'Ajouter')}
-            </button>
+              {isLoading ? (
+                <>
+                  <MicroLoader size={16} color="white" />
+                  Enregistrement...
+                </>
+              ) : (
+                editingDocument ? 'Modifier' : 'Ajouter'
+              )}
+            </MicroButton>
           </div>
         </form>
       </div>

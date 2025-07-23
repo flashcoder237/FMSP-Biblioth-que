@@ -15,7 +15,8 @@ import { EnhancedAuthentication } from './components/EnhancedAuthentication';
 import { InstitutionSetup } from './components/InstitutionSetup';
 import { Document, Author, Category, Stats, Borrower, BorrowHistory as BorrowHistoryType } from '../types';
 import { SupabaseService, Institution, User } from '../services/SupabaseService';
-import { ContrastChecker } from './components/ContrastChecker';
+import { ToastProvider, useQuickToast } from './components/ToastSystem';
+import { KeyboardShortcutsProvider } from './components/KeyboardShortcuts';
 
 type ViewType = 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'settings' | 'donation' | 'about' | 'auth' | 'institution_setup';
 
@@ -25,6 +26,7 @@ export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentInstitution, setCurrentInstitution] = useState<Institution | null>(null);
   const [institutionCode, setInstitutionCode] = useState<string>('');
+  const [isDemoMode, setIsDemoMode] = useState(false);
   
   // Data states
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -110,6 +112,177 @@ export const App: React.FC = () => {
     }
   };
 
+  const loadDemoData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Données de démonstration
+      const demoDocuments: Document[] = [
+        {
+          id: 1,
+          titre: "L'Art de la Programmation",
+          auteur: "Donald Knuth",
+          editeur: "Addison-Wesley",
+          lieuEdition: "Reading, MA",
+          annee: "1968",
+          descripteurs: "Informatique, Programmation",
+          cote: "004.01 KNU",
+          couverture: "",
+          estEmprunte: false,
+          syncStatus: 'synced',
+          lastModified: new Date().toISOString(),
+          version: 1,
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 2,
+          titre: "Clean Code",
+          auteur: "Robert C. Martin",
+          editeur: "Prentice Hall",
+          lieuEdition: "Upper Saddle River, NJ",
+          annee: "2008",
+          descripteurs: "Développement, Bonnes pratiques",
+          cote: "005.1 MAR",
+          couverture: "",
+          estEmprunte: false,
+          syncStatus: 'synced',
+          lastModified: new Date().toISOString(),
+          version: 1,
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 3,
+          titre: "Design Patterns",
+          auteur: "Gang of Four",
+          editeur: "Addison-Wesley",
+          lieuEdition: "Reading, MA",
+          annee: "1994",
+          descripteurs: "Architecture logicielle",
+          cote: "005.1 GAM",
+          couverture: "",
+          estEmprunte: false,
+          syncStatus: 'synced',
+          lastModified: new Date().toISOString(),
+          version: 1,
+          createdAt: new Date().toISOString()
+        }
+      ];
+
+      const demoAuthors: Author[] = [
+        { 
+          id: 1, 
+          name: "Donald Knuth",
+          syncStatus: 'synced',
+          lastModified: new Date().toISOString(),
+          version: 1,
+          createdAt: new Date().toISOString()
+        },
+        { 
+          id: 2, 
+          name: "Robert C. Martin",
+          syncStatus: 'synced',
+          lastModified: new Date().toISOString(),
+          version: 1,
+          createdAt: new Date().toISOString()
+        },
+        { 
+          id: 3, 
+          name: "Gang of Four",
+          syncStatus: 'synced',
+          lastModified: new Date().toISOString(),
+          version: 1,
+          createdAt: new Date().toISOString()
+        }
+      ];
+
+      const demoCategories: Category[] = [
+        { 
+          id: 1, 
+          name: "Informatique",
+          syncStatus: 'synced',
+          lastModified: new Date().toISOString(),
+          version: 1,
+          createdAt: new Date().toISOString()
+        },
+        { 
+          id: 2, 
+          name: "Programmation",
+          syncStatus: 'synced',
+          lastModified: new Date().toISOString(),
+          version: 1,
+          createdAt: new Date().toISOString()
+        },
+        { 
+          id: 3, 
+          name: "Architecture logicielle",
+          syncStatus: 'synced',
+          lastModified: new Date().toISOString(),
+          version: 1,
+          createdAt: new Date().toISOString()
+        }
+      ];
+
+      const demoBorrowers: Borrower[] = [
+        {
+          id: 1,
+          type: 'student',
+          firstName: 'Jean',
+          lastName: 'Dupont',
+          matricule: 'ETU001',
+          classe: 'Master 2 Info',
+          cniNumber: '',
+          position: '',
+          email: 'jean.dupont@demo.local',
+          phone: '+33 6 12 34 56 78',
+          syncStatus: 'synced',
+          lastModified: new Date().toISOString(),
+          version: 1,
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 2,
+          type: 'staff',
+          firstName: 'Marie',
+          lastName: 'Martin',
+          matricule: 'PROF001',
+          classe: '',
+          cniNumber: '',
+          position: 'Professeur',
+          email: 'marie.martin@demo.local',
+          phone: '+33 6 87 65 43 21',
+          syncStatus: 'synced',
+          lastModified: new Date().toISOString(),
+          version: 1,
+          createdAt: new Date().toISOString()
+        }
+      ];
+
+      const demoStats: Stats = {
+        totalBooks: demoDocuments.length,
+        borrowedBooks: 0,
+        availableBooks: demoDocuments.length,
+        totalAuthors: demoAuthors.length,
+        totalCategories: demoCategories.length,
+        totalBorrowers: demoBorrowers.length,
+        totalStudents: 1,
+        totalStaff: 1,
+        overdueBooks: 0
+      };
+
+      setDocuments(demoDocuments);
+      setAuthors(demoAuthors);
+      setCategories(demoCategories);
+      setBorrowers(demoBorrowers);
+      setBorrowedBooks([]);
+      setStats(demoStats);
+    } catch (error) {
+      console.error('Erreur lors du chargement des données démo:', error);
+      setError('Erreur lors du chargement des données démo');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleAuthentication = async (credentials: {
     email: string;
     password: string;
@@ -165,8 +338,9 @@ export const App: React.FC = () => {
           setCurrentUser(devUser);
           setCurrentInstitution(devInstitution);
           setIsAuthenticated(true);
+          setIsDemoMode(true);
           setCurrentView('dashboard');
-          await loadData();
+          await loadDemoData();
           return;
         }
 
@@ -273,8 +447,51 @@ export const App: React.FC = () => {
 
   const handleAddDocument = async (document: Omit<Document, 'id'>) => {
     try {
-      await supabaseService.addDocument(document);
-      await loadData();
+      if (isDemoMode) {
+        // Mode démo - ajouter localement
+        const newId = Math.max(...documents.map(d => d.id || 0)) + 1;
+        const newDocument: Document = {
+          ...document,
+          id: newId,
+          syncStatus: 'synced',
+          lastModified: new Date().toISOString(),
+          version: 1,
+          createdAt: new Date().toISOString()
+        };
+        
+        const updatedDocuments = [...documents, newDocument];
+        setDocuments(updatedDocuments);
+        
+        // Mettre à jour les statistiques
+        setStats(prev => ({
+          ...prev,
+          totalBooks: updatedDocuments.length,
+          availableBooks: updatedDocuments.length - prev.borrowedBooks
+        }));
+        
+        // Ajouter l'auteur s'il n'existe pas
+        if (!authors.find(a => a.name === document.auteur)) {
+          const newAuthorId = Math.max(...authors.map(a => a.id || 0)) + 1;
+          const newAuthor: Author = {
+            id: newAuthorId, 
+            name: document.auteur,
+            syncStatus: 'synced',
+            lastModified: new Date().toISOString(),
+            version: 1,
+            createdAt: new Date().toISOString()
+          };
+          setAuthors(prev => [...prev, newAuthor]);
+          setStats(prev => ({ ...prev, totalAuthors: prev.totalAuthors + 1 }));
+        }
+        
+        console.log('Document ajouté en mode démo:', newDocument);
+        
+      } else {
+        // Mode normal - utiliser Supabase
+        await supabaseService.addDocument(document);
+        await loadData();
+      }
+      
       setCurrentView('documents');
     } catch (error: any) {
       console.error('Erreur lors de l\'ajout du document:', error);
@@ -314,8 +531,24 @@ export const App: React.FC = () => {
 
   const handleDeleteDocument = async (documentId: number) => {
     try {
-      await supabaseService.deleteDocument(documentId);
-      await loadData();
+      if (isDemoMode) {
+        // Mode démo - supprimer localement
+        const updatedDocuments = documents.filter(d => d.id !== documentId);
+        setDocuments(updatedDocuments);
+        
+        // Mettre à jour les statistiques
+        setStats(prev => ({
+          ...prev,
+          totalBooks: updatedDocuments.length,
+          availableBooks: updatedDocuments.length - prev.borrowedBooks
+        }));
+        
+        console.log('Document supprimé en mode démo:', documentId);
+      } else {
+        // Mode normal - utiliser Supabase
+        await supabaseService.deleteDocument(documentId);
+        await loadData();
+      }
     } catch (error: any) {
       console.error('Erreur lors de la suppression:', error);
       throw error;
@@ -333,7 +566,11 @@ export const App: React.FC = () => {
   };
 
   const refreshData = async () => {
-    await loadData();
+    if (isDemoMode) {
+      await loadDemoData();
+    } else {
+      await loadData();
+    }
   };
 
   // Affichage de l'écran d'authentification
@@ -447,34 +684,122 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="app">
-      <TitleBar />
-      <div className="app-container">
-        <Sidebar
-          currentView={currentView}
-          onNavigate={setCurrentView}
-          stats={stats}
-          currentUser={currentUser}
-          currentInstitution={currentInstitution}
-        />
-        <main className="main-content">
-          <div className="content-wrapper">
-            {isLoading && (
-              <div className="loading-overlay">
-                <div className="loading-spinner"></div>
-                <span>Chargement...</span>
+    <ToastProvider>
+      <AppContent 
+        isDemoMode={isDemoMode}
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+        isLoading={isLoading}
+        error={error}
+        setError={setError}
+        renderCurrentView={renderCurrentView}
+        showBorrowModal={showBorrowModal}
+        selectedDocument={selectedDocument}
+        closeBorrowModal={closeBorrowModal}
+        handleBorrowDocument={handleBorrowDocument}
+        refreshData={refreshData}
+        supabaseService={supabaseService}
+        borrowers={borrowers}
+        stats={stats}
+        currentUser={currentUser}
+        currentInstitution={currentInstitution}
+        isAuthenticated={isAuthenticated}
+      />
+    </ToastProvider>
+  );
+};
+
+interface AppContentProps {
+  isDemoMode: boolean;
+  currentView: ViewType;
+  setCurrentView: (view: ViewType) => void;
+  isLoading: boolean;
+  error: string;
+  setError: (error: string) => void;
+  renderCurrentView: () => React.ReactNode;
+  showBorrowModal: boolean;
+  selectedDocument: Document | null;
+  closeBorrowModal: () => void;
+  handleBorrowDocument: (documentId: number, borrowerId: number, expectedReturnDate: string) => Promise<void>;
+  refreshData: () => Promise<void>;
+  supabaseService: SupabaseService;
+  borrowers: Borrower[];
+  stats: Stats;
+  currentUser: User | null;
+  currentInstitution: Institution | null;
+  isAuthenticated: boolean;
+}
+
+const AppContent: React.FC<AppContentProps> = ({
+  isDemoMode,
+  currentView,
+  setCurrentView,
+  isLoading,
+  error,
+  setError,
+  renderCurrentView,
+  showBorrowModal,
+  selectedDocument,
+  closeBorrowModal,
+  handleBorrowDocument,
+  refreshData,
+  supabaseService,
+  borrowers,
+  stats,
+  currentUser,
+  currentInstitution,
+  isAuthenticated
+}) => {
+  const { info } = useQuickToast();
+  const [demoNotificationShown, setDemoNotificationShown] = React.useState(false);
+
+  React.useEffect(() => {
+    if (isDemoMode && !demoNotificationShown) {
+      // Afficher une notification pour informer que c'est le mode démo
+      setTimeout(() => {
+        info(
+          "Mode Démonstration",
+          "Vous êtes en mode démo. Toutes les modifications sont temporaires et ne seront pas sauvegardées."
+        );
+        setDemoNotificationShown(true);
+      }, 1000);
+    }
+  }, [isDemoMode, demoNotificationShown, info]);
+
+  return (
+    <KeyboardShortcutsProvider
+      onNavigate={setCurrentView}
+      onOpenAddDocument={() => setCurrentView('add-document')}
+      onOpenSettings={() => setCurrentView('settings')}
+    >
+      <div className="app">
+          <TitleBar />
+          <div className="app-container">
+            <Sidebar
+              currentView={currentView}
+              onNavigate={setCurrentView}
+              stats={stats}
+              currentUser={currentUser}
+              currentInstitution={currentInstitution}
+            />
+            <main className="main-content">
+              <div className="content-wrapper">
+                {isLoading && (
+                  <div className="loading-overlay">
+                    <div className="loading-spinner"></div>
+                    <span>Chargement...</span>
+                  </div>
+                )}
+                {error && (
+                  <div className="error-banner">
+                    <span>{error}</span>
+                    <button onClick={() => setError('')}>×</button>
+                  </div>
+                )}
+                {renderCurrentView()}
               </div>
-            )}
-            {error && (
-              <div className="error-banner">
-                <span>{error}</span>
-                <button onClick={() => setError('')}>×</button>
-              </div>
-            )}
-            {renderCurrentView()}
+            </main>
           </div>
-        </main>
-      </div>
 
       {/* Enhanced Borrow Modal - utilise le service Supabase */}
       {showBorrowModal && selectedDocument && (
@@ -781,11 +1106,10 @@ export const App: React.FC = () => {
         }
       `}</style>
       
-      {/* Contrast Checker - Only show in authenticated mode */}
-      {isAuthenticated && <ContrastChecker autoFix={false} showPanel={false} />}
-    </div>
-  );
-};
+        </div>
+      </KeyboardShortcutsProvider>
+    );
+  };
 
 // Enhanced Borrow Form Component avec Supabase
 interface EnhancedBorrowFormProps {

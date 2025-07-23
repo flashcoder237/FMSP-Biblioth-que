@@ -20,7 +20,7 @@ import {
   Settings
 } from 'lucide-react';
 import { Stats } from '../../types';
-
+import { MicroButton } from './MicroInteractions';
 import { SupabaseService, User, Institution } from '../../services/SupabaseService';
 
 interface SidebarProps {
