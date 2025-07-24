@@ -44,9 +44,36 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
   });
 
   useEffect(() => {
-    // Charger les informations de l'institution depuis localStorage
+    // Charger les informations de l'institution depuis les données de connexion
     const loadInstitutionSettings = () => {
       try {
+        // D'abord essayer de récupérer les données de l'utilisateur connecté
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser) {
+          const user = JSON.parse(currentUser);
+          if (user.institutionCode) {
+            // Chercher l'institution correspondante dans LocalAuthService
+            const institutions = JSON.parse(localStorage.getItem('local_institutions') || '[]');
+            const userInstitution = institutions.find((inst: any) => inst.code === user.institutionCode);
+            
+            if (userInstitution) {
+              setInstitutionSettings({
+                name: userInstitution.name || 'Bibliothèque Numérique',
+                address: userInstitution.address || '',
+                city: userInstitution.city || '',
+                country: userInstitution.country || '',
+                phone: userInstitution.phone || '',
+                email: userInstitution.email || '',
+                website: userInstitution.website || '',
+                logo: userInstitution.logo || '',
+                description: userInstitution.description || 'Système de gestion de bibliothèque moderne'
+              });
+              return;
+            }
+          }
+        }
+
+        // Fallback vers les paramètres stockés si aucune institution de connexion n'est trouvée
         const stored = localStorage.getItem('institutionSettings');
         if (stored) {
           const parsed = JSON.parse(stored);

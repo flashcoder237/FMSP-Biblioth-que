@@ -402,7 +402,7 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
 
         .page-subtitle {
           font-size: 16px;
-          color: #6E6E6E;
+          color: #6e6e6eff;
           margin: 0;
         }
 

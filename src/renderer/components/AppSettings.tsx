@@ -45,6 +45,8 @@ export const AppSettings: React.FC<AppSettingsProps> = ({ onClose }) => {
     sessionTimeout: 30,
     theme: 'light'
   });
+  const [appPassword, setAppPassword] = useState<string>('');
+  const [showPasswordSection, setShowPasswordSection] = useState<boolean>(false);
   const [institutionSettings, setInstitutionSettings] = useState<InstitutionSettings>({
     name: 'Bibliothèque Numérique',
     address: '',
@@ -60,6 +62,7 @@ export const AppSettings: React.FC<AppSettingsProps> = ({ onClose }) => {
   useEffect(() => {
     loadConfig();
     checkAdminStatus();
+    loadAppPasswordSettings();
   }, []);
 
   const loadConfig = () => {
@@ -90,15 +93,53 @@ export const AppSettings: React.FC<AppSettingsProps> = ({ onClose }) => {
     }
   };
 
+  const loadAppPasswordSettings = () => {
+    try {
+      const appSettings = localStorage.getItem('app_settings');
+      if (appSettings) {
+        const parsed = JSON.parse(appSettings);
+        setConfig(prev => ({ 
+          ...prev, 
+          requireAppPassword: parsed.requireAppPassword || false 
+        }));
+        setShowPasswordSection(parsed.requireAppPassword || false);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des paramètres de mot de passe:', error);
+    }
+  };
+
   const checkAdminStatus = () => {
     // Vérifier si l'utilisateur connecté est un admin
     const currentUser = localStorage.getItem('currentUser');
-    if (currentUser) {
-      try {
-        const user = JSON.parse(currentUser);
-        setIsAdmin(user.role === 'admin' || user.isAdmin === true);
-      } catch (e) {
-        console.warn('Could not parse current user:', e);
+    const appMode = localStorage.getItem('appMode');
+    
+    // En mode offline, permettre l'accès admin par défaut si aucun utilisateur spécifique n'est défini
+    if (appMode === 'offline') {
+      if (currentUser) {
+        try {
+          const user = JSON.parse(currentUser);
+          setIsAdmin(user.role === 'admin' || user.isAdmin === true);
+        } catch (e) {
+          console.warn('Could not parse current user:', e);
+          // En mode offline, donner accès admin par défaut
+          setIsAdmin(true);
+        }
+      } else {
+        // Pas d'utilisateur défini en mode offline, donner accès admin
+        setIsAdmin(true);
+      }
+    } else {
+      // Mode online, vérification stricte
+      if (currentUser) {
+        try {
+          const user = JSON.parse(currentUser);
+          setIsAdmin(user.role === 'admin' || user.isAdmin === true);
+        } catch (e) {
+          console.warn('Could not parse current user:', e);
+          setIsAdmin(false);
+        }
+      } else {
         setIsAdmin(false);
       }
     }
@@ -116,6 +157,19 @@ export const AppSettings: React.FC<AppSettingsProps> = ({ onClose }) => {
         sessionTimeout: config.sessionTimeout,
         theme: config.theme
       }));
+
+      // Sauvegarder les paramètres de mot de passe d'application via LocalAuthService
+      if (config.requireAppPassword && appPassword.trim()) {
+        const appSettings = JSON.parse(localStorage.getItem('app_settings') || '{}');
+        appSettings.requireAppPassword = true;
+        appSettings.appPassword = appPassword; // En production, il faudrait hasher
+        localStorage.setItem('app_settings', JSON.stringify(appSettings));
+      } else if (!config.requireAppPassword) {
+        const appSettings = JSON.parse(localStorage.getItem('app_settings') || '{}');
+        appSettings.requireAppPassword = false;
+        delete appSettings.appPassword;
+        localStorage.setItem('app_settings', JSON.stringify(appSettings));
+      }
 
       // Sauvegarder les paramètres d'institution si admin
       if (isAdmin) {
@@ -402,12 +456,36 @@ export const AppSettings: React.FC<AppSettingsProps> = ({ onClose }) => {
                         <input
                           type="checkbox"
                           checked={config.requireAppPassword}
-                          onChange={(e) => handleInputChange('requireAppPassword', e.target.checked)}
+                          onChange={(e) => {
+                            handleInputChange('requireAppPassword', e.target.checked);
+                            setShowPasswordSection(e.target.checked);
+                          }}
                         />
                         <span className="slider"></span>
                       </label>
                     </div>
                   </div>
+
+                  {showPasswordSection && (
+                    <div className="setting-item">
+                      <div className="setting-info">
+                        <label className="setting-label">Mot de passe de l'application</label>
+                        <p className="setting-description">
+                          Définissez le mot de passe requis au démarrage de l'application
+                        </p>
+                      </div>
+                      <div className="setting-control">
+                        <input
+                          type="password"
+                          value={appPassword}
+                          onChange={(e) => setAppPassword(e.target.value)}
+                          className="setting-input password-input"
+                          placeholder="Mot de passe"
+                          required={config.requireAppPassword}
+                        />
+                      </div>
+                    </div>
+                  )}
 
                   <div className="setting-item">
                     <div className="setting-info">
@@ -875,6 +953,11 @@ export const AppSettings: React.FC<AppSettingsProps> = ({ onClose }) => {
         .setting-input {
           width: 80px;
           text-align: center;
+        }
+
+        .password-input {
+          width: 200px;
+          text-align: left;
         }
 
         .setting-textarea {

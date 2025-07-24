@@ -897,16 +897,16 @@ function generatePrintHTML(data, type) {
       <title>${title}</title>
       <style>
         @page { 
-          margin: 20mm; 
-          size: A4; 
+          margin: 15mm; 
+          size: A4 landscape; 
         }
         body {
           font-family: 'Segoe UI', Arial, sans-serif;
           margin: 0; 
           padding: 0; 
           color: #2E2E2E; 
-          line-height: 1.4;
-          font-size: 12px;
+          line-height: 1.3;
+          font-size: 11px;
         }
         .header {
           border-bottom: 3px solid #3E5C49;
@@ -967,23 +967,23 @@ function generatePrintHTML(data, type) {
           background: #F3EED9; 
           border: 1px solid #E5DCC2;
           border-radius: 8px; 
-          padding: 15px; 
-          margin-bottom: 25px;
+          padding: 12px; 
+          margin-bottom: 20px;
           display: grid; 
-          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); 
-          gap: 15px;
+          grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
+          gap: 12px;
         }
         .stat-item { 
           text-align: center; 
         }
         .stat-value {
-          font-size: 20px; 
+          font-size: 18px; 
           font-weight: 700;
           color: #3E5C49; 
-          margin-bottom: 5px;
+          margin-bottom: 4px;
         }
         .stat-label {
-          font-size: 10px; 
+          font-size: 9px; 
           color: #6E6E6E;
           text-transform: uppercase; 
           letter-spacing: 0.5px;
@@ -1097,13 +1097,15 @@ function generateInventoryContent(data) {
     <table class="content-table">
       <thead>
         <tr>
-          <th style="width: 25%;">Titre</th>
-          <th style="width: 20%;">Auteur</th>
-          <th style="width: 15%;">Éditeur</th>
-          <th style="width: 8%;">Année</th>
-          <th style="width: 10%;">Cote</th>
-          <th style="width: 10%;">Statut</th>
-          <th style="width: 12%;">Emprunteur/Date</th>
+          <th style="width: 22%;">Titre</th>
+          <th style="width: 15%;">Auteur</th>
+          <th style="width: 12%;">Éditeur</th>
+          <th style="width: 6%;">Année</th>
+          <th style="width: 8%;">Cote</th>
+          <th style="width: 10%;">Descripteurs</th>
+          <th style="width: 8%;">Lieu Édition</th>
+          <th style="width: 8%;">Statut</th>
+          <th style="width: 11%;">Emprunteur/Date</th>
         </tr>
       </thead>
       <tbody>
@@ -1114,6 +1116,8 @@ function generateInventoryContent(data) {
             <td>${doc.editeur || '-'}</td>
             <td>${doc.annee || '-'}</td>
             <td>${doc.cote || '-'}</td>
+            <td>${doc.descripteurs || '-'}</td>
+            <td>${doc.lieuEdition || '-'}</td>
             <td>
               <span class="${doc.estEmprunte ? 'status-borrowed' : 'status-available'}">
                 ${doc.estEmprunte ? 'Emprunté' : 'Disponible'}
@@ -1124,7 +1128,7 @@ function generateInventoryContent(data) {
               ${doc.dateEmprunt ? new Date(doc.dateEmprunt).toLocaleDateString('fr-FR') : ''}
             </td>
           </tr>
-        `).join('') || '<tr><td colspan="7">Aucun document trouvé</td></tr>'}
+        `).join('') || '<tr><td colspan="9">Aucun document trouvé</td></tr>'}
       </tbody>
     </table>
   `;
@@ -1151,11 +1155,13 @@ function generateAvailableBooksContent(data) {
     <table class="content-table">
       <thead>
         <tr>
-          <th style="width: 30%;">Titre</th>
-          <th style="width: 25%;">Auteur</th>
+          <th style="width: 25%;">Titre</th>
+          <th style="width: 18%;">Auteur</th>
           <th style="width: 15%;">Éditeur</th>
-          <th style="width: 15%;">Cote</th>
-          <th style="width: 15%;">Année</th>
+          <th style="width: 10%;">Cote</th>
+          <th style="width: 8%;">Année</th>
+          <th style="width: 12%;">Descripteurs</th>
+          <th style="width: 12%;">Lieu Édition</th>
         </tr>
       </thead>
       <tbody>
@@ -1166,8 +1172,10 @@ function generateAvailableBooksContent(data) {
             <td>${doc.editeur || '-'}</td>
             <td>${doc.cote || '-'}</td>
             <td>${doc.annee || '-'}</td>
+            <td>${doc.descripteurs || '-'}</td>
+            <td>${doc.lieuEdition || '-'}</td>
           </tr>
-        `).join('') || '<tr><td colspan="5">Aucun document disponible</td></tr>'}
+        `).join('') || '<tr><td colspan="7">Aucun document disponible</td></tr>'}
       </tbody>
     </table>
   `;
@@ -1197,12 +1205,14 @@ function generateBorrowedBooksContent(data) {
     <table class="content-table">
       <thead>
         <tr>
-          <th style="width: 25%;">Titre</th>
-          <th style="width: 20%;">Auteur</th>
-          <th style="width: 20%;">Emprunteur</th>
-          <th style="width: 12%;">Date Emprunt</th>
-          <th style="width: 12%;">Retour Prévu</th>
-          <th style="width: 11%;">Statut</th>
+          <th style="width: 20%;">Titre</th>
+          <th style="width: 15%;">Auteur</th>
+          <th style="width: 12%;">Éditeur</th>
+          <th style="width: 8%;">Cote</th>
+          <th style="width: 15%;">Emprunteur</th>
+          <th style="width: 10%;">Date Emprunt</th>
+          <th style="width: 10%;">Retour Prévu</th>
+          <th style="width: 10%;">Statut</th>
         </tr>
       </thead>
       <tbody>
@@ -1215,6 +1225,8 @@ function generateBorrowedBooksContent(data) {
             <tr>
               <td><strong>${doc.titre || '-'}</strong></td>
               <td>${doc.auteur || '-'}</td>
+              <td>${doc.editeur || '-'}</td>
+              <td>${doc.cote || '-'}</td>
               <td><strong>${doc.nomEmprunteur || '-'}</strong></td>
               <td>${borrowDate ? borrowDate.toLocaleDateString('fr-FR') : '-'}</td>
               <td>${expectedDate ? expectedDate.toLocaleDateString('fr-FR') : '-'}</td>
@@ -1223,7 +1235,7 @@ function generateBorrowedBooksContent(data) {
               </td>
             </tr>
           `;
-    }).join('') || '<tr><td colspan="6">Aucun document emprunté</td></tr>'}
+    }).join('') || '<tr><td colspan="8">Aucun document emprunté</td></tr>'}
       </tbody>
     </table>
   `;

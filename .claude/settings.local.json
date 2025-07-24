@@ -11,7 +11,8 @@
       "Bash(git restore:*)",
       "Bash(tail:*)",
       "Bash(npx tsc:*)",
-      "Bash(timeout 8 npm start)"
+      "Bash(timeout 8 npm start)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }
