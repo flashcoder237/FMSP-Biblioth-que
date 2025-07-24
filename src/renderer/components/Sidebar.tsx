@@ -929,9 +929,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
         }
         
         .stats-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 12px;
+          display: grid !important;
+          grid-template-columns: 1fr 1fr !important;
+          grid-template-rows: auto auto !important;
+          gap: 12px !important;
+          width: 100% !important;
+          max-width: none !important;
         }
         
         .stat-card {
@@ -946,6 +949,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           position: relative !important;
           overflow: hidden !important;
           isolation: isolate !important;
+          min-height: 60px !important;
+          width: 100% !important;
+          box-sizing: border-box !important;
         }
         
         .stat-card::before {
@@ -1175,6 +1181,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           background: rgba(243, 238, 217, 0.5);
         }
         
+        /* Force consistent 2x2 grid layout for statistics */
+        @media (min-width: 769px) {
+          .stats-grid {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            grid-template-rows: auto auto !important;
+            grid-auto-rows: auto !important;
+            gap: 12px !important;
+            align-items: stretch !important;
+          }
+          
+          .stat-card {
+            min-height: 60px !important;
+            max-height: none !important;
+            flex: none !important;
+          }
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
           .sidebar {
