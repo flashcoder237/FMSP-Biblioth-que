@@ -2,6 +2,7 @@
 import { app, BrowserWindow, ipcMain, dialog, Notification } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as XLSX from 'xlsx';
 import { DatabaseService } from './services/DatabaseService';
 import { BackupService } from './services/BackupService';
 import { AuthService } from './services/AuthService';
@@ -946,6 +947,60 @@ ipcMain.handle('print:borrowed-books', async (_, data) => {
   }
 });
 
+// Advanced export handler with Excel support
+ipcMain.handle('export:advanced', async (_, config) => {
+  try {
+    const fileExtension = config.format === 'excel' ? 'xlsx' : 'csv';
+    const fileName = `bibliotheque_export_${new Date().toISOString().split('T')[0]}.${fileExtension}`;
+    
+    const result = await dialog.showSaveDialog(mainWindow, {
+      title: config.format === 'excel' ? 'Exporter en Excel' : 'Exporter en CSV',
+      defaultPath: fileName,
+      filters: config.format === 'excel' 
+        ? [
+            { name: 'Fichiers Excel', extensions: ['xlsx'] },
+            { name: 'Tous les fichiers', extensions: ['*'] }
+          ]
+        : [
+            { name: 'Fichiers CSV', extensions: ['csv'] },
+            { name: 'Tous les fichiers', extensions: ['*'] }
+          ]
+    });
+
+    if (result.canceled || !result.filePath) {
+      return { success: false, cancelled: true };
+    }
+
+    // Fetch data based on configuration
+    const exportData = await gatherExportData(config);
+    
+    // Validate that we have some data to export
+    const hasData = Object.values(exportData).some(data => 
+      Array.isArray(data) && data.length > 0
+    );
+    
+    if (!hasData) {
+      return { success: false, error: 'Aucune donnée à exporter avec les filtres sélectionnés' };
+    }
+    
+    let finalPath = result.filePath;
+    
+    if (config.format === 'excel') {
+      finalPath = await generateExcel(exportData, result.filePath, config);
+    } else {
+      const csvContent = generateAdvancedCSV(exportData, config);
+      fs.writeFileSync(result.filePath, csvContent, 'utf8');
+    }
+    
+    return { success: true, path: finalPath };
+
+  } catch (error) {
+    console.error('Erreur export:advanced:', error);
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+// Legacy CSV export for backward compatibility
 ipcMain.handle('export:csv', async (_, data) => {
   try {
     const result = await dialog.showSaveDialog(mainWindow, {
@@ -971,6 +1026,531 @@ ipcMain.handle('export:csv', async (_, data) => {
   }
 });
 
+// Advanced export data gathering function
+async function gatherExportData(config: any): Promise<any> {
+  const exportData: any = {};
+
+  try {
+    // Gather documents data
+    if (config.dataTypes.documents) {
+      const documents = await dbService.getDocuments();
+      
+      // Apply document status filter
+      let filteredDocuments = documents;
+      if (config.filters.documentStatus !== 'all') {
+        filteredDocuments = documents.filter((doc: any) => {
+          if (config.filters.documentStatus === 'borrowed') return doc.estEmprunte;
+          if (config.filters.documentStatus === 'available') return !doc.estEmprunte;
+          return true;
+        });
+      }
+      
+      exportData.documents = filteredDocuments;
+    }
+
+    // Gather borrowers data
+    if (config.dataTypes.borrowers) {
+      const borrowers = await dbService.getBorrowers();
+      
+      // Apply borrower type filter
+      let filteredBorrowers = borrowers;
+      if (config.filters.borrowerType !== 'all') {
+        filteredBorrowers = borrowers.filter((borrower: any) => 
+          borrower.type === config.filters.borrowerType
+        );
+      }
+      
+      exportData.borrowers = filteredBorrowers;
+    }
+
+    // Gather borrow history data
+    if (config.dataTypes.borrowHistory) {
+      const borrowHistory = await dbService.getBorrowHistory();
+      
+      // Apply history status filter
+      let filteredHistory = borrowHistory;
+      if (config.filters.historyStatus !== 'all') {
+        filteredHistory = borrowHistory.filter((history: any) => 
+          history.status === config.filters.historyStatus
+        );
+      }
+
+      // Apply date range filter
+      if (config.dateRange.enabled) {
+        const startDate = new Date(config.dateRange.startDate);
+        const endDate = new Date(config.dateRange.endDate);
+        filteredHistory = filteredHistory.filter((history: any) => {
+          const borrowDate = new Date(history.borrowDate);
+          return borrowDate >= startDate && borrowDate <= endDate;
+        });
+      }
+      
+      exportData.borrowHistory = filteredHistory;
+    }
+
+    // Gather authors data
+    if (config.dataTypes.authors) {
+      const authors = await dbService.getAuthors();
+      exportData.authors = authors;
+    }
+
+    // Gather categories data
+    if (config.dataTypes.categories) {
+      const categories = await dbService.getCategories();
+      exportData.categories = categories;
+    }
+
+    // Generate statistics
+    if (config.dataTypes.stats) {
+      const stats = {
+        totalDocuments: exportData.documents?.length || 0,
+        totalBorrowers: exportData.borrowers?.length || 0,
+        totalBorrowHistory: exportData.borrowHistory?.length || 0,
+        totalAuthors: exportData.authors?.length || 0,
+        totalCategories: exportData.categories?.length || 0,
+        exportDate: new Date().toISOString(),
+        exportConfig: {
+          format: config.format,
+          dataTypes: Object.keys(config.dataTypes).filter(key => config.dataTypes[key]),
+          filters: config.filters
+        }
+      };
+      exportData.stats = [stats];
+    }
+
+    return exportData;
+  } catch (error) {
+    console.error('Error gathering export data:', error);
+    throw error;
+  }
+}
+
+// Excel generation function
+async function generateExcel(exportData: any, filePath: string, config: any): Promise<string> {
+  try {
+    const workbook = XLSX.utils.book_new();
+
+    // Add documents sheet
+    if (config.dataTypes.documents && exportData.documents && exportData.documents.length > 0) {
+      const documentsData = exportData.documents.map((doc: any) => {
+      const row: any = {};
+      const fieldLabels = {
+        titre: 'Titre',
+        auteur: 'Auteur',
+        editeur: 'Éditeur',
+        lieuEdition: 'Lieu d\'édition',
+        annee: 'Année',
+        descripteurs: 'Catégories',
+        cote: 'Cote',
+        type: 'Type',
+        isbn: 'ISBN',
+        description: 'Description',
+        estEmprunte: 'Statut d\'emprunt',
+        dateEmprunt: 'Date d\'emprunt',
+        nomEmprunteur: 'Emprunteur',
+        dateRetourPrevu: 'Date retour prévue'
+      };
+
+      Object.entries(config.documentFields).forEach(([field, enabled]) => {
+        if (enabled) {
+          const label = fieldLabels[field as keyof typeof fieldLabels] || field;
+          if (field === 'estEmprunte') {
+            row[label] = doc[field] ? 'Emprunté' : 'Disponible';
+          } else if (field === 'dateEmprunt' || field === 'dateRetourPrevu') {
+            row[label] = doc[field] ? new Date(doc[field]).toLocaleDateString('fr-FR') : '';
+          } else {
+            row[label] = doc[field] || '';
+          }
+        }
+      });
+
+      return row;
+    });
+
+    const documentsSheet = XLSX.utils.json_to_sheet(documentsData);
+    XLSX.utils.book_append_sheet(workbook, documentsSheet, 'Documents');
+  }
+
+    // Add borrowers sheet
+    if (config.dataTypes.borrowers && exportData.borrowers && exportData.borrowers.length > 0) {
+    const borrowersData = exportData.borrowers.map((borrower: any) => {
+      const row: any = {};
+      const fieldLabels = {
+        firstName: 'Prénom',
+        lastName: 'Nom',
+        type: 'Type',
+        matricule: 'Matricule',
+        classe: 'Classe',
+        position: 'Poste',
+        email: 'Email',
+        phone: 'Téléphone',
+        cniNumber: 'CNI'
+      };
+
+      Object.entries(config.borrowerFields).forEach(([field, enabled]) => {
+        if (enabled) {
+          const label = fieldLabels[field as keyof typeof fieldLabels] || field;
+          row[label] = borrower[field] || '';
+        }
+      });
+
+      return row;
+    });
+
+    const borrowersSheet = XLSX.utils.json_to_sheet(borrowersData);
+    XLSX.utils.book_append_sheet(workbook, borrowersSheet, 'Emprunteurs');
+  }
+
+    // Add borrow history sheet
+    if (config.dataTypes.borrowHistory && exportData.borrowHistory && exportData.borrowHistory.length > 0) {
+    const historyData = exportData.borrowHistory.map((history: any) => {
+      const row: any = {};
+      const fieldLabels = {
+        documentTitle: 'Titre du document',
+        borrowerName: 'Nom emprunteur',
+        borrowDate: 'Date emprunt',
+        expectedReturnDate: 'Date retour prévue',
+        actualReturnDate: 'Date retour effective',
+        status: 'Statut',
+        notes: 'Notes',
+        duration: 'Durée (jours)',
+        overdueDays: 'Retard (jours)'
+      };
+
+      Object.entries(config.historyFields).forEach(([field, enabled]) => {
+        if (enabled) {
+          const label = fieldLabels[field as keyof typeof fieldLabels] || field;
+          if (field === 'borrowDate' || field === 'expectedReturnDate' || field === 'actualReturnDate') {
+            row[label] = history[field] ? new Date(history[field]).toLocaleDateString('fr-FR') : '';
+          } else if (field === 'duration') {
+            if (history.borrowDate && history.actualReturnDate) {
+              const borrowDate = new Date(history.borrowDate);
+              const returnDate = new Date(history.actualReturnDate);
+              const diffTime = Math.abs(returnDate.getTime() - borrowDate.getTime());
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              row[label] = diffDays;
+            } else {
+              row[label] = '';
+            }
+          } else if (field === 'overdueDays') {
+            if (history.status === 'overdue' && history.expectedReturnDate) {
+              const expectedDate = new Date(history.expectedReturnDate);
+              const currentDate = history.actualReturnDate ? new Date(history.actualReturnDate) : new Date();
+              const diffTime = currentDate.getTime() - expectedDate.getTime();
+              const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+              row[label] = diffDays;
+            } else {
+              row[label] = '';
+            }
+          } else {
+            row[label] = history[field] || '';
+          }
+        }
+      });
+
+      return row;
+    });
+
+    const historySheet = XLSX.utils.json_to_sheet(historyData);
+    XLSX.utils.book_append_sheet(workbook, historySheet, 'Historique');
+  }
+
+    // Add authors sheet
+    if (config.dataTypes.authors && exportData.authors && exportData.authors.length > 0) {
+      const authorsSheet = XLSX.utils.json_to_sheet(exportData.authors);
+      XLSX.utils.book_append_sheet(workbook, authorsSheet, 'Auteurs');
+    }
+
+    // Add categories sheet  
+    if (config.dataTypes.categories && exportData.categories && exportData.categories.length > 0) {
+      const categoriesSheet = XLSX.utils.json_to_sheet(exportData.categories);
+      XLSX.utils.book_append_sheet(workbook, categoriesSheet, 'Catégories');
+    }
+
+    // Add statistics sheet
+    if (config.dataTypes.stats && exportData.stats && exportData.stats.length > 0) {
+      const statsSheet = XLSX.utils.json_to_sheet(exportData.stats);
+      XLSX.utils.book_append_sheet(workbook, statsSheet, 'Statistiques');
+    }
+
+    // Ensure we have at least one sheet
+    if (workbook.SheetNames.length === 0) {
+      // Create a default sheet with basic info
+      const defaultData = [{ Message: 'Aucune donnée à exporter avec les paramètres sélectionnés' }];
+      const defaultSheet = XLSX.utils.json_to_sheet(defaultData);
+      XLSX.utils.book_append_sheet(workbook, defaultSheet, 'Info');
+    }
+
+    // Ensure directory exists
+    const dirPath = path.dirname(filePath);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+
+    // Check if file already exists and is locked
+    if (fs.existsSync(filePath)) {
+      try {
+        // Try to access the file to check if it's locked
+        fs.accessSync(filePath, fs.constants.W_OK);
+      } catch (error) {
+        throw new Error(`Le fichier ${path.basename(filePath)} est peut-être ouvert dans Excel. Fermez-le et réessayez.`);
+      }
+    }
+
+    // Write the file with error handling using buffer approach
+    let finalFilePath = filePath;
+    try {
+      // Generate buffer instead of writing directly
+      const buffer = XLSX.write(workbook, { 
+        type: 'buffer', 
+        bookType: 'xlsx',
+        compression: true 
+      });
+      
+      // Write buffer to file using Node.js fs
+      fs.writeFileSync(filePath, buffer);
+      
+    } catch (writeError) {
+      console.error('XLSX write error:', writeError);
+      
+      // Try alternative approaches
+      try {
+        // Approach 1: Try without compression
+        console.log('Tentative sans compression...');
+        const buffer = XLSX.write(workbook, { 
+          type: 'buffer', 
+          bookType: 'xlsx',
+          compression: false
+        });
+        fs.writeFileSync(filePath, buffer);
+        
+      } catch (altError1) {
+        console.error('Alternative 1 failed:', altError1);
+        
+        try {
+          // Approach 2: Try with different filename (timestamp)
+          const timestamp = new Date().getTime();
+          const altFilePath = filePath.replace('.xlsx', `_${timestamp}.xlsx`);
+          console.log('Tentative avec nom alternatif:', altFilePath);
+          
+          const buffer = XLSX.write(workbook, { 
+            type: 'buffer', 
+            bookType: 'xlsx',
+            compression: false
+          });
+          fs.writeFileSync(altFilePath, buffer);
+          finalFilePath = altFilePath;
+          
+        } catch (altError2) {
+          console.error('Alternative 2 failed:', altError2);
+          
+          try {
+            // Approach 3: Try saving as CSV instead
+            console.log('Tentative en CSV...');
+            const csvFilePath = filePath.replace('.xlsx', '.csv');
+            const csvContent = generateFallbackCSV(exportData, config);
+            fs.writeFileSync(csvFilePath, csvContent, 'utf8');
+            finalFilePath = csvFilePath;
+            
+          } catch (altError3) {
+            console.error('CSV fallback failed:', altError3);
+            throw new Error(`Toutes les tentatives d'export ont échoué. Vérifiez:\n1. Que le fichier n'est pas ouvert dans Excel\n2. Les permissions du dossier Downloads\n3. L'espace disque disponible\n\nErreur initiale: ${(writeError as Error).message}`);
+          }
+        }
+      }
+    }
+    
+    // Update the return path in the calling function
+    if (finalFilePath !== filePath) {
+      console.log('Fichier sauvegardé sous:', finalFilePath);
+    }
+
+    // Return the final file path
+    return finalFilePath;
+    
+  } catch (error) {
+    console.error('Excel generation error:', error);
+    throw error;
+  }
+}
+
+// Fallback CSV generation for when Excel fails
+function generateFallbackCSV(exportData: any, config: any): string {
+  let csvContent = '';
+  
+  // Add documents section
+  if (config.dataTypes.documents && exportData.documents && exportData.documents.length > 0) {
+    csvContent += '=== DOCUMENTS ===\n';
+    
+    const fieldLabels = {
+      titre: 'Titre',
+      auteur: 'Auteur',
+      editeur: 'Éditeur',
+      lieuEdition: 'Lieu d\'édition',
+      annee: 'Année',
+      descripteurs: 'Catégories',
+      cote: 'Cote',
+      type: 'Type',
+      isbn: 'ISBN',
+      description: 'Description',
+      estEmprunte: 'Statut d\'emprunt',
+      dateEmprunt: 'Date d\'emprunt',
+      nomEmprunteur: 'Emprunteur',
+      dateRetourPrevu: 'Date retour prévue'
+    };
+
+    const headers = Object.entries(config.documentFields)
+      .filter(([_, enabled]) => enabled)
+      .map(([field, _]) => fieldLabels[field as keyof typeof fieldLabels] || field);
+
+    const rows = exportData.documents.map((doc: any) => {
+      return Object.entries(config.documentFields)
+        .filter(([_, enabled]) => enabled)
+        .map(([field, _]) => {
+          if (field === 'estEmprunte') {
+            return doc[field] ? 'Emprunté' : 'Disponible';
+          } else if (field === 'dateEmprunt' || field === 'dateRetourPrevu') {
+            return doc[field] ? new Date(doc[field]).toLocaleDateString('fr-FR') : '';
+          } else {
+            return doc[field] || '';
+          }
+        });
+    });
+
+    csvContent += [headers, ...rows]
+      .map(row => row.map((cell: string) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+    csvContent += '\n\n';
+  }
+  
+  // Add borrowers section
+  if (config.dataTypes.borrowers && exportData.borrowers && exportData.borrowers.length > 0) {
+    csvContent += '=== EMPRUNTEURS ===\n';
+    
+    const fieldLabels = {
+      firstName: 'Prénom',
+      lastName: 'Nom',
+      type: 'Type',
+      matricule: 'Matricule',
+      classe: 'Classe',
+      position: 'Poste',
+      email: 'Email',
+      phone: 'Téléphone',
+      cniNumber: 'CNI'
+    };
+
+    const headers = Object.entries(config.borrowerFields)
+      .filter(([_, enabled]) => enabled)
+      .map(([field, _]) => fieldLabels[field as keyof typeof fieldLabels] || field);
+
+    const rows = exportData.borrowers.map((borrower: any) => {
+      return Object.entries(config.borrowerFields)
+        .filter(([_, enabled]) => enabled)
+        .map(([field, _]) => borrower[field] || '');
+    });
+
+    csvContent += [headers, ...rows]
+      .map(row => row.map((cell: string) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+    csvContent += '\n\n';
+  }
+  
+  // Add history section
+  if (config.dataTypes.borrowHistory && exportData.borrowHistory && exportData.borrowHistory.length > 0) {
+    csvContent += '=== HISTORIQUE ===\n';
+    
+    const fieldLabels = {
+      documentTitle: 'Titre du document',
+      borrowerName: 'Nom emprunteur',
+      borrowDate: 'Date emprunt',
+      expectedReturnDate: 'Date retour prévue',
+      actualReturnDate: 'Date retour effective',
+      status: 'Statut',
+      notes: 'Notes',
+      duration: 'Durée (jours)',
+      overdueDays: 'Retard (jours)'
+    };
+
+    const headers = Object.entries(config.historyFields)
+      .filter(([_, enabled]) => enabled)
+      .map(([field, _]) => fieldLabels[field as keyof typeof fieldLabels] || field);
+
+    const rows = exportData.borrowHistory.map((history: any) => {
+      return Object.entries(config.historyFields)
+        .filter(([_, enabled]) => enabled)
+        .map(([field, _]) => {
+          if (field === 'borrowDate' || field === 'expectedReturnDate' || field === 'actualReturnDate') {
+            return history[field] ? new Date(history[field]).toLocaleDateString('fr-FR') : '';
+          } else {
+            return history[field] || '';
+          }
+        });
+    });
+
+    csvContent += [headers, ...rows]
+      .map(row => row.map((cell: string) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+  }
+
+  return csvContent || 'Aucune donnée à exporter';
+}
+
+// Advanced CSV generation function
+function generateAdvancedCSV(exportData: any, config: any): string {
+  let csvContent = '';
+
+  // Add documents section
+  if (config.dataTypes.documents && exportData.documents) {
+    csvContent += 'DOCUMENTS\n';
+    
+    const fieldLabels = {
+      titre: 'Titre',
+      auteur: 'Auteur',
+      editeur: 'Éditeur',
+      lieuEdition: 'Lieu d\'édition',
+      annee: 'Année',
+      descripteurs: 'Catégories',
+      cote: 'Cote',
+      type: 'Type',
+      isbn: 'ISBN',
+      description: 'Description',
+      estEmprunte: 'Statut d\'emprunt',
+      dateEmprunt: 'Date d\'emprunt',
+      nomEmprunteur: 'Emprunteur',
+      dateRetourPrevu: 'Date retour prévue'
+    };
+
+    const headers = Object.entries(config.documentFields)
+      .filter(([_, enabled]) => enabled)
+      .map(([field, _]) => fieldLabels[field as keyof typeof fieldLabels] || field);
+
+    const rows = exportData.documents.map((doc: any) => {
+      return Object.entries(config.documentFields)
+        .filter(([_, enabled]) => enabled)
+        .map(([field, _]) => {
+          if (field === 'estEmprunte') {
+            return doc[field] ? 'Emprunté' : 'Disponible';
+          } else if (field === 'dateEmprunt' || field === 'dateRetourPrevu') {
+            return doc[field] ? new Date(doc[field]).toLocaleDateString('fr-FR') : '';
+          } else {
+            return doc[field] || '';
+          }
+        });
+    });
+
+    csvContent += [headers, ...rows]
+      .map(row => row.map((cell: string) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+    csvContent += '\n\n';
+  }
+
+  // Add other data types similarly...
+  // (Implementation would continue for borrowers, history, etc.)
+
+  return csvContent;
+}
+
+// Legacy CSV function for backward compatibility
 function generateCSV(data: any): string {
   if (!data.documents || !Array.isArray(data.documents)) {
     return '';

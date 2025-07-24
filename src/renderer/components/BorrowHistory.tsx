@@ -16,6 +16,7 @@ import {
   Briefcase
 } from 'lucide-react';
 import { BorrowHistory as BorrowHistoryType, HistoryFilter } from '../../types';
+import { ExportDialog, ExportConfig } from './ExportDialog';
 
 import { SupabaseRendererService as SupabaseService } from '../services/SupabaseClient';
 
@@ -37,6 +38,7 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
   });
   
   const [searchQuery, setSearchQuery] = useState('');
+  const [showExportDialog, setShowExportDialog] = useState(false);
 
   useEffect(() => {
     loadHistory();
@@ -127,19 +129,21 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
     }
   };
 
-  const handleExport = async () => {
+  const handleExport = async (config: ExportConfig) => {
     try {
-      const exportData = {
-        history: filteredHistory,
-        filters,
-        stats: getFilteredStats()
-      };
-      const filePath = await window.electronAPI.exportCSV(exportData);
-      if (filePath) {
-        alert(`Fichier exporté : ${filePath.split(/[/\\]/).pop()}`);
+      const result = await window.electronAPI.exportAdvanced(config);
+      if (result.success && result.path) {
+        const fileName = result.path.split(/[/\\]/).pop();
+        alert(`Fichier exporté avec succès : ${fileName}`);
+      } else if (result.cancelled) {
+        // User cancelled the export
+        return;
+      } else {
+        alert(`Erreur lors de l'export : ${result.error || 'Erreur inconnue'}`);
       }
     } catch (error) {
       console.error('Erreur lors de l\'export:', error);
+      alert('Erreur lors de l\'export des données');
     }
   };
 
@@ -329,9 +333,9 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
             </div>
             
             <div className="export-actions">
-              <button className="btn-secondary" onClick={handleExport}>
+              <button className="btn-secondary" onClick={() => setShowExportDialog(true)}>
                 <Download size={16} />
-                Exporter CSV
+                Exporter Données
               </button>
               <button className="btn-primary" onClick={handlePrint}>
                 <Printer size={16} />
@@ -500,16 +504,14 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
         
         .history-modal {
           background: #FFFFFF;
-          border-radius: 24px;
+          border-radius: 20px;
           width: 100%;
           max-width: 1200px;
           max-height: 90vh;
           overflow: hidden;
           display: flex;
           flex-direction: column;
-          box-shadow: 
-            0 24px 48px rgba(62, 92, 73, 0.2),
-            0 8px 24px rgba(62, 92, 73, 0.12);
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
           border: 1px solid rgba(229, 220, 194, 0.3);
         }
         
@@ -569,8 +571,8 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
           display: flex;
           gap: 20px;
           padding: 24px 32px;
-          background: #F3EED9;
-          border-bottom: 1px solid #E5DCC2;
+          background: rgba(248, 246, 240, 0.5);
+          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
         }
         
         .stat-card {
@@ -591,7 +593,7 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #FFFFFF;
+          color: #F3EED9;
         }
         
         .stat-icon.total { background: #6E6E6E; }
@@ -1097,6 +1099,20 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
           }
         }
       `}</style>
+
+      {/* Export Dialog */}
+      {showExportDialog && (
+        <ExportDialog
+          isOpen={showExportDialog}
+          onClose={() => setShowExportDialog(false)}
+          onExport={handleExport}
+          availableData={{
+            documents: false,
+            borrowers: false,
+            borrowHistory: true
+          }}
+        />
+      )}
     </div>
   );
 };

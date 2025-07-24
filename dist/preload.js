@@ -229,6 +229,7 @@ const electronAPI = {
     printBorrowHistory: (data) => electron_1.ipcRenderer?.invoke('print:borrow-history', data) || Promise.resolve(false),
     // Export operations
     exportCSV: (data) => electron_1.ipcRenderer?.invoke('export:csv', data) || Promise.resolve(null),
+    exportAdvanced: (config) => electron_1.ipcRenderer?.invoke('export:advanced', config) || Promise.resolve({ success: false, error: 'IPC not available' }),
     // File operations
     selectFile: (options) => electron_1.ipcRenderer?.invoke('file:select', options) || Promise.resolve(null),
     selectDirectory: () => electron_1.ipcRenderer?.invoke('file:selectDirectory') || Promise.resolve(null),

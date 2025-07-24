@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Document, Stats } from '../../preload';
 import { InstitutionSettings } from '../../preload';
+import { ExportDialog, ExportConfig } from './ExportDialog';
 
 interface PrintManagerProps {
   documents: Document[];
@@ -31,6 +32,7 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
   const [selectedType, setSelectedType] = useState<PrintType>('inventory');
   const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [showExportDialog, setShowExportDialog] = useState(false);
   const [institutionSettings, setInstitutionSettings] = useState<InstitutionSettings>({
     name: 'Bibliothèque Numérique',
     address: '',
@@ -160,24 +162,22 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
     }
   };
 
-  const handleExportCSV = async () => {
+  const handleExport = async (config: ExportConfig) => {
     setIsProcessing(true);
     try {
-      const exportData = { 
-        documents, 
-        stats, 
-        institution: institutionSettings 
-      };
-      const filePath = await window.electronAPI.exportCSV(exportData);
-      
-      if (filePath) {
-        showMessage('success', `Fichier CSV exporté : ${filePath.split(/[/\\]/).pop()}`);
+      const result = await window.electronAPI.exportAdvanced(config);
+      if (result.success && result.path) {
+        const fileName = result.path.split(/[/\\]/).pop();
+        showMessage('success', `Fichier exporté avec succès : ${fileName}`);
+      } else if (result.cancelled) {
+        // User cancelled the export
+        return;
       } else {
-        showMessage('error', 'Export annulé ou erreur');
+        showMessage('error', `Erreur lors de l'export : ${result.error || 'Erreur inconnue'}`);
       }
     } catch (error) {
       console.error('Export error:', error);
-      showMessage('error', 'Erreur lors de l\'export CSV');
+      showMessage('error', 'Erreur lors de l\'export des données');
     } finally {
       setIsProcessing(false);
     }
@@ -415,18 +415,18 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
             </div>
             <div className="info-item">
               <Download size={16} />
-              <span>Export CSV pour données</span>
+              <span>Export Excel/CSV pour données</span>
             </div>
           </div>
           
           <div className="footer-actions">
             <button 
               className="btn-secondary"
-              onClick={handleExportCSV}
+              onClick={() => setShowExportDialog(true)}
               disabled={isProcessing}
             >
               <Download size={18} />
-              {isProcessing ? 'Export...' : 'Exporter CSV'}
+              {isProcessing ? 'Export...' : 'Exporter Données'}
             </button>
             <button 
               className="btn-primary"
@@ -1162,6 +1162,20 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
           }
         }
       `}</style>
+
+      {/* Export Dialog */}
+      {showExportDialog && (
+        <ExportDialog
+          isOpen={showExportDialog}
+          onClose={() => setShowExportDialog(false)}
+          onExport={handleExport}
+          availableData={{
+            documents: true,
+            borrowers: true,
+            borrowHistory: false
+          }}
+        />
+      )}
     </div>
   );
 };

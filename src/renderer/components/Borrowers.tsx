@@ -666,18 +666,15 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         
         .borrowers-modal {
           background: #FFFFFF;
-          border-radius: 24px;
+          border-radius: 20px;
           width: 100%;
           max-width: 1200px;
           max-height: 90vh;
           overflow: hidden;
           display: flex;
           flex-direction: column;
-          box-shadow: 
-            0 32px 64px rgba(0, 0, 0, 0.25),
-            0 16px 32px rgba(0, 0, 0, 0.15),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+          border: 1px solid rgba(229, 220, 194, 0.3);
           animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         
@@ -687,7 +684,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           justify-content: space-between;
           padding: 32px;
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: #FFFFFF;
+          color: #F3EED9;
           position: relative;
           overflow: hidden;
         }
@@ -712,15 +709,13 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         }
         
         .header-icon {
-          width: 60px;
-          height: 60px;
-          background: rgba(255, 255, 255, 0.2);
-          border-radius: 20px;
+          width: 56px;
+          height: 56px;
+          background: rgba(243, 238, 217, 0.2);
+          border-radius: 16px;
           display: flex;
           align-items: center;
           justify-content: center;
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .modal-title {
@@ -738,30 +733,29 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         }
         
         .close-button {
-          background: rgba(255, 255, 255, 0.2);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          color: #FFFFFF;
-          padding: 12px;
+          width: 44px;
+          height: 44px;
+          border: none;
+          background: rgba(243, 238, 217, 0.1);
+          color: #F3EED9;
           border-radius: 12px;
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          backdrop-filter: blur(10px);
-          position: relative;
-          z-index: 1001;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
         }
         
         .close-button:hover {
-          background: rgba(255, 255, 255, 0.3);
-          transform: scale(1.05);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+          background: rgba(243, 238, 217, 0.2);
         }
         
         .stats-section {
           display: flex;
           gap: 24px;
           padding: 32px;
-          background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+          background: rgba(248, 246, 240, 0.5);
+          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
         }
         
         .stat-card {
@@ -770,20 +764,17 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           gap: 16px;
           background: #FFFFFF;
           padding: 24px;
-          border-radius: 16px;
-          box-shadow: 
-            0 8px 32px rgba(0, 0, 0, 0.12),
-            0 2px 8px rgba(0, 0, 0, 0.08);
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.1);
+          border: 1px solid rgba(229, 220, 194, 0.3);
           flex: 1;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          border: 1px solid rgba(255, 255, 255, 0.8);
         }
         
         .stat-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 
-            0 16px 40px rgba(0, 0, 0, 0.15),
-            0 4px 12px rgba(0, 0, 0, 0.1);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(62, 92, 73, 0.15);
+          border-color: rgba(62, 92, 73, 0.2);
         }
         
         .stat-icon {
@@ -793,7 +784,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #FFFFFF;
+          color: #F3EED9;
         }
         
         .stat-icon.student {
@@ -801,11 +792,11 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         }
         
         .stat-icon.staff {
-          background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
         }
         
         .stat-icon.total {
-          background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+          background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
         }
         
         .stat-content {
@@ -816,14 +807,14 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         .stat-value {
           font-size: 28px;
           font-weight: 800;
-          color: #2c3e50;
+          color: #2E2E2E;
           display: block;
           line-height: 1;
         }
         
         .stat-label {
           font-size: 14px;
-          color: #7f8c8d;
+          color: #6E6E6E;
           text-transform: uppercase;
           letter-spacing: 1px;
           font-weight: 600;

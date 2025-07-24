@@ -512,6 +512,8 @@ const electronAPI = {
   
   // Export operations
   exportCSV: (data: any): Promise<string | null> => ipcRenderer?.invoke('export:csv', data) || Promise.resolve(null),
+  exportAdvanced: (config: any): Promise<{ success: boolean; path?: string; error?: string; cancelled?: boolean }> => 
+    ipcRenderer?.invoke('export:advanced', config) || Promise.resolve({ success: false, error: 'IPC not available' }),
   
   // File operations
   selectFile: (options?: any): Promise<string | null> => ipcRenderer?.invoke('file:select', options) || Promise.resolve(null),

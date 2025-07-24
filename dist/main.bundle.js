@@ -5626,19 +5626,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check-circle.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-triangle.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/history.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/search.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/calendar.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/filter.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/download.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/printer.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/briefcase.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check-circle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-triangle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/history.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/search.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/calendar.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/filter.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/download.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/printer.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/briefcase.mjs");
+/* harmony import */ var _ExportDialog__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ExportDialog */ "./src/renderer/components/ExportDialog.tsx");
+
 
 
 
@@ -5653,6 +5655,7 @@ const BorrowHistory = ({ onClose }) => {
         status: 'all'
     });
     const [searchQuery, setSearchQuery] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
+    const [showExportDialog, setShowExportDialog] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
         loadHistory();
     }, []);
@@ -5724,20 +5727,24 @@ const BorrowHistory = ({ onClose }) => {
             console.error('Erreur lors de l\'impression:', error);
         }
     };
-    const handleExport = async () => {
+    const handleExport = async (config) => {
         try {
-            const exportData = {
-                history: filteredHistory,
-                filters,
-                stats: getFilteredStats()
-            };
-            const filePath = await window.electronAPI.exportCSV(exportData);
-            if (filePath) {
-                alert(`Fichier exporté : ${filePath.split(/[/\\]/).pop()}`);
+            const result = await window.electronAPI.exportAdvanced(config);
+            if (result.success && result.path) {
+                const fileName = result.path.split(/[/\\]/).pop();
+                alert(`Fichier exporté avec succès : ${fileName}`);
+            }
+            else if (result.cancelled) {
+                // User cancelled the export
+                return;
+            }
+            else {
+                alert(`Erreur lors de l'export : ${result.error || 'Erreur inconnue'}`);
             }
         }
         catch (error) {
             console.error('Erreur lors de l\'export:', error);
+            alert('Erreur lors de l\'export des données');
         }
     };
     const getFilteredStats = () => {
@@ -5752,13 +5759,13 @@ const BorrowHistory = ({ onClose }) => {
     const getStatusIcon = (status) => {
         switch (status) {
             case 'active':
-                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 16, className: "text-blue-500" });
+                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16, className: "text-blue-500" });
             case 'returned':
-                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16, className: "text-green-500" });
+                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 16, className: "text-green-500" });
             case 'overdue':
-                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 16, className: "text-red-500" });
+                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 16, className: "text-red-500" });
             default:
-                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 16 });
+                return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16 });
         }
     };
     const getStatusLabel = (status) => {
@@ -5774,13 +5781,13 @@ const BorrowHistory = ({ onClose }) => {
         }
     };
     const stats = getFilteredStats();
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "history-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "history-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 28 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "modal-title", children: "Historique des Emprunts" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "modal-subtitle", children: [stats.total, " emprunt(s) \u2022 ", stats.active, " actif(s) \u2022 ", stats.returned, " rendu(s)"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-button", onClick: onClose, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon total", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: stats.total }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Total" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon active", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: stats.active }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "En cours" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon returned", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: stats.returned }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Rendus" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon overdue", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: stats.overdue }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "En retard" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filters-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filters-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "search-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { className: "search-icon", size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", placeholder: "Rechercher par document, auteur, emprunteur...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }), searchQuery && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "clear-search", onClick: () => setSearchQuery(''), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 16 }) }))] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-controls", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "date", value: filters.startDate, onChange: (e) => handleFilterChange('startDate', e.target.value), className: "date-input", placeholder: "Date d\u00E9but" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "filter-separator", children: "\u00E0" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "date", value: filters.endDate, onChange: (e) => handleFilterChange('endDate', e.target.value), className: "date-input", placeholder: "Date fin" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filters.borrowerType, onChange: (e) => handleFilterChange('borrowerType', e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous les emprunteurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "staff", children: "Personnel" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "filter-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filters.status, onChange: (e) => handleFilterChange('status', e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous les statuts" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "active", children: "En cours" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "returned", children: "Rendus" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "overdue", children: "En retard" })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "reset-filters-btn", onClick: resetFilters, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 16 }), "R\u00E9initialiser"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "actions-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "results-info", children: [filteredHistory.length, " r\u00E9sultat(s) affich\u00E9(s)"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "export-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "btn-secondary", onClick: handleExport, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), "Exporter CSV"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "btn-primary", onClick: handlePrint, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), "Imprimer"] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "history-content", children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Chargement de l'historique..." })] })) : filteredHistory.length > 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "history-list", children: filteredHistory.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `history-item ${item.status}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "item-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-section", children: [getStatusIcon(item.status), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "status-label", children: getStatusLabel(item.status) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dates-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "borrow-date", children: ["Emprunt\u00E9 le ", new Date(item.borrowDate).toLocaleDateString('fr-FR')] }), item.actualReturnDate && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "return-date", children: ["Rendu le ", new Date(item.actualReturnDate).toLocaleDateString('fr-FR')] }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "item-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "book-cover", children: item.document?.couverture ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("img", { src: item.document?.couverture, alt: item.document?.titre })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 24 })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "book-title", children: item.document?.titre }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "book-author", children: ["par ", item.document?.auteur] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "book-category", children: item.document?.descripteurs })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-type", children: [item.borrower?.type === 'student' ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 16 })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: item.borrower?.type === 'student' ? 'Étudiant' : 'Personnel' })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h4", { className: "borrower-name", children: [item.borrower?.firstName, " ", item.borrower?.lastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "borrower-details", children: [item.borrower?.matricule, item.borrower?.type === 'student' && item.borrower.classe &&
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "history-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "history-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 28 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "modal-title", children: "Historique des Emprunts" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "modal-subtitle", children: [stats.total, " emprunt(s) \u2022 ", stats.active, " actif(s) \u2022 ", stats.returned, " rendu(s)"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-button", onClick: onClose, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon total", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: stats.total }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Total" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon active", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: stats.active }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "En cours" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon returned", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: stats.returned }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Rendus" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon overdue", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: stats.overdue }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "En retard" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filters-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filters-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "search-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { className: "search-icon", size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", placeholder: "Rechercher par document, auteur, emprunteur...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }), searchQuery && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "clear-search", onClick: () => setSearchQuery(''), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 16 }) }))] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-controls", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "date", value: filters.startDate, onChange: (e) => handleFilterChange('startDate', e.target.value), className: "date-input", placeholder: "Date d\u00E9but" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "filter-separator", children: "\u00E0" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "date", value: filters.endDate, onChange: (e) => handleFilterChange('endDate', e.target.value), className: "date-input", placeholder: "Date fin" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filters.borrowerType, onChange: (e) => handleFilterChange('borrowerType', e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous les emprunteurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "staff", children: "Personnel" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "filter-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filters.status, onChange: (e) => handleFilterChange('status', e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous les statuts" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "active", children: "En cours" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "returned", children: "Rendus" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "overdue", children: "En retard" })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "reset-filters-btn", onClick: resetFilters, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 16 }), "R\u00E9initialiser"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "actions-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "results-info", children: [filteredHistory.length, " r\u00E9sultat(s) affich\u00E9(s)"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "export-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "btn-secondary", onClick: () => setShowExportDialog(true), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), "Exporter Donn\u00E9es"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "btn-primary", onClick: handlePrint, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }), "Imprimer"] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "history-content", children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Chargement de l'historique..." })] })) : filteredHistory.length > 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "history-list", children: filteredHistory.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `history-item ${item.status}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "item-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-section", children: [getStatusIcon(item.status), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "status-label", children: getStatusLabel(item.status) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dates-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "borrow-date", children: ["Emprunt\u00E9 le ", new Date(item.borrowDate).toLocaleDateString('fr-FR')] }), item.actualReturnDate && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "return-date", children: ["Rendu le ", new Date(item.actualReturnDate).toLocaleDateString('fr-FR')] }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "item-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "book-cover", children: item.document?.couverture ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("img", { src: item.document?.couverture, alt: item.document?.titre })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 24 })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "book-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "book-title", children: item.document?.titre }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "book-author", children: ["par ", item.document?.auteur] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "book-category", children: item.document?.descripteurs })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-type", children: [item.borrower?.type === 'student' ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: item.borrower?.type === 'student' ? 'Étudiant' : 'Personnel' })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h4", { className: "borrower-name", children: [item.borrower?.firstName, " ", item.borrower?.lastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "borrower-details", children: [item.borrower?.matricule, item.borrower?.type === 'student' && item.borrower.classe &&
                                                                         ` • ${item.borrower.classe}`, item.borrower?.type === 'staff' && item.borrower.position &&
                                                                         ` • ${item.borrower.position}`] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "timeline-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "timeline-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "timeline-dot borrow" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "timeline-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "timeline-label", children: "Emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "timeline-date", children: [new Date(item.borrowDate).toLocaleDateString('fr-FR'), " \u00E0", ' ', new Date(item.borrowDate).toLocaleTimeString('fr-FR', {
                                                                                 hour: '2-digit', minute: '2-digit'
                                                                             })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "timeline-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "timeline-dot expected" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "timeline-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "timeline-label", children: "Retour pr\u00E9vu" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "timeline-date", children: new Date(item.expectedReturnDate).toLocaleDateString('fr-FR') })] })] }), item.actualReturnDate && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "timeline-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "timeline-dot return" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "timeline-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "timeline-label", children: "Retour effectu\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "timeline-date", children: [new Date(item.actualReturnDate).toLocaleDateString('fr-FR'), " \u00E0", ' ', new Date(item.actualReturnDate).toLocaleTimeString('fr-FR', {
                                                                                 hour: '2-digit', minute: '2-digit'
-                                                                            })] })] })] }))] })] }), item.notes && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "item-notes", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: "Notes :" }), " ", item.notes] }))] }, item.id))) })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "empty-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 64 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Aucun historique trouv\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: Object.values(filters).some(f => f && f !== 'all') || searchQuery
+                                                                            })] })] })] }))] })] }), item.notes && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "item-notes", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: "Notes :" }), " ", item.notes] }))] }, item.id))) })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "empty-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 64 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Aucun historique trouv\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: Object.values(filters).some(f => f && f !== 'all') || searchQuery
                                         ? 'Aucun résultat pour les critères sélectionnés'
                                         : 'L\'historique des emprunts apparaîtra ici' }), (Object.values(filters).some(f => f && f !== 'all') || searchQuery) && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "btn-secondary", onClick: resetFilters, children: "Effacer les filtres" }))] })) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .history-overlay {
@@ -5800,16 +5807,14 @@ const BorrowHistory = ({ onClose }) => {
         
         .history-modal {
           background: #FFFFFF;
-          border-radius: 24px;
+          border-radius: 20px;
           width: 100%;
           max-width: 1200px;
           max-height: 90vh;
           overflow: hidden;
           display: flex;
           flex-direction: column;
-          box-shadow: 
-            0 24px 48px rgba(62, 92, 73, 0.2),
-            0 8px 24px rgba(62, 92, 73, 0.12);
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
           border: 1px solid rgba(229, 220, 194, 0.3);
         }
         
@@ -5869,8 +5874,8 @@ const BorrowHistory = ({ onClose }) => {
           display: flex;
           gap: 20px;
           padding: 24px 32px;
-          background: #F3EED9;
-          border-bottom: 1px solid #E5DCC2;
+          background: rgba(248, 246, 240, 0.5);
+          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
         }
         
         .stat-card {
@@ -5891,7 +5896,7 @@ const BorrowHistory = ({ onClose }) => {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #FFFFFF;
+          color: #F3EED9;
         }
         
         .stat-icon.total { background: #6E6E6E; }
@@ -6396,7 +6401,11 @@ const BorrowHistory = ({ onClose }) => {
             align-items: center;
           }
         }
-      ` })] }));
+      ` }), showExportDialog && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_ExportDialog__WEBPACK_IMPORTED_MODULE_2__.ExportDialog, { isOpen: showExportDialog, onClose: () => setShowExportDialog(false), onExport: handleExport, availableData: {
+                    documents: false,
+                    borrowers: false,
+                    borrowHistory: true
+                } }))] }));
 };
 
 
@@ -6704,8 +6713,6 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
           left: 0;
           width: 60px;
           height: 3px;
-          background: linear-gradient(90deg, var(--warm-brown) 0%, var(--warm-beige) 100%);
-          border-radius: 2px;
         }
 
         .page-subtitle {
@@ -7784,18 +7791,15 @@ function Borrowers({ onClose, onRefreshData }) {
         
         .borrowers-modal {
           background: #FFFFFF;
-          border-radius: 24px;
+          border-radius: 20px;
           width: 100%;
           max-width: 1200px;
           max-height: 90vh;
           overflow: hidden;
           display: flex;
           flex-direction: column;
-          box-shadow: 
-            0 32px 64px rgba(0, 0, 0, 0.25),
-            0 16px 32px rgba(0, 0, 0, 0.15),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+          border: 1px solid rgba(229, 220, 194, 0.3);
           animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         
@@ -7805,7 +7809,7 @@ function Borrowers({ onClose, onRefreshData }) {
           justify-content: space-between;
           padding: 32px;
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: #FFFFFF;
+          color: #F3EED9;
           position: relative;
           overflow: hidden;
         }
@@ -7830,15 +7834,13 @@ function Borrowers({ onClose, onRefreshData }) {
         }
         
         .header-icon {
-          width: 60px;
-          height: 60px;
-          background: rgba(255, 255, 255, 0.2);
-          border-radius: 20px;
+          width: 56px;
+          height: 56px;
+          background: rgba(243, 238, 217, 0.2);
+          border-radius: 16px;
           display: flex;
           align-items: center;
           justify-content: center;
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .modal-title {
@@ -7856,30 +7858,29 @@ function Borrowers({ onClose, onRefreshData }) {
         }
         
         .close-button {
-          background: rgba(255, 255, 255, 0.2);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          color: #FFFFFF;
-          padding: 12px;
+          width: 44px;
+          height: 44px;
+          border: none;
+          background: rgba(243, 238, 217, 0.1);
+          color: #F3EED9;
           border-radius: 12px;
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          backdrop-filter: blur(10px);
-          position: relative;
-          z-index: 1001;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
         }
         
         .close-button:hover {
-          background: rgba(255, 255, 255, 0.3);
-          transform: scale(1.05);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+          background: rgba(243, 238, 217, 0.2);
         }
         
         .stats-section {
           display: flex;
           gap: 24px;
           padding: 32px;
-          background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+          background: rgba(248, 246, 240, 0.5);
+          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
         }
         
         .stat-card {
@@ -7888,20 +7889,17 @@ function Borrowers({ onClose, onRefreshData }) {
           gap: 16px;
           background: #FFFFFF;
           padding: 24px;
-          border-radius: 16px;
-          box-shadow: 
-            0 8px 32px rgba(0, 0, 0, 0.12),
-            0 2px 8px rgba(0, 0, 0, 0.08);
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.1);
+          border: 1px solid rgba(229, 220, 194, 0.3);
           flex: 1;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          border: 1px solid rgba(255, 255, 255, 0.8);
         }
         
         .stat-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 
-            0 16px 40px rgba(0, 0, 0, 0.15),
-            0 4px 12px rgba(0, 0, 0, 0.1);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(62, 92, 73, 0.15);
+          border-color: rgba(62, 92, 73, 0.2);
         }
         
         .stat-icon {
@@ -7911,7 +7909,7 @@ function Borrowers({ onClose, onRefreshData }) {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #FFFFFF;
+          color: #F3EED9;
         }
         
         .stat-icon.student {
@@ -7919,11 +7917,11 @@ function Borrowers({ onClose, onRefreshData }) {
         }
         
         .stat-icon.staff {
-          background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
         }
         
         .stat-icon.total {
-          background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+          background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
         }
         
         .stat-content {
@@ -7934,14 +7932,14 @@ function Borrowers({ onClose, onRefreshData }) {
         .stat-value {
           font-size: 28px;
           font-weight: 800;
-          color: #2c3e50;
+          color: #2E2E2E;
           display: block;
           line-height: 1;
         }
         
         .stat-label {
           font-size: 14px;
-          color: #7f8c8d;
+          color: #6E6E6E;
           text-transform: uppercase;
           letter-spacing: 1px;
           font-weight: 600;
@@ -12612,6 +12610,593 @@ const EnhancedStats = ({ stats, className = '' }) => {
 
 /***/ }),
 
+/***/ "./src/renderer/components/ExportDialog.tsx":
+/*!**************************************************!*\
+  !*** ./src/renderer/components/ExportDialog.tsx ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ExportDialog: () => (/* binding */ ExportDialog)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/file-spreadsheet.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/file-text.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check-circle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/circle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/database.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/file-bar-chart.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/download.mjs");
+/* harmony import */ var _MicroInteractions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MicroInteractions */ "./src/renderer/components/MicroInteractions.tsx");
+/* harmony import */ var _ToastSystem__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
+
+
+
+
+
+const ExportDialog = ({ isOpen, onClose, onExport, availableData }) => {
+    const { success, error } = (0,_ToastSystem__WEBPACK_IMPORTED_MODULE_3__.useQuickToast)();
+    const [isExporting, setIsExporting] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [config, setConfig] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({
+        format: 'excel',
+        dataTypes: {
+            documents: true,
+            borrowers: false,
+            borrowHistory: false,
+            authors: false,
+            categories: false,
+            stats: false
+        },
+        documentFields: {
+            titre: true,
+            auteur: true,
+            editeur: true,
+            lieuEdition: false,
+            annee: true,
+            descripteurs: true,
+            cote: true,
+            type: false,
+            isbn: false,
+            description: false,
+            estEmprunte: true,
+            dateEmprunt: false,
+            nomEmprunteur: false,
+            dateRetourPrevu: false
+        },
+        borrowerFields: {
+            firstName: true,
+            lastName: true,
+            type: true,
+            matricule: true,
+            classe: true,
+            position: true,
+            email: false,
+            phone: false,
+            cniNumber: false
+        },
+        historyFields: {
+            documentTitle: true,
+            borrowerName: true,
+            borrowDate: true,
+            expectedReturnDate: true,
+            actualReturnDate: true,
+            status: true,
+            notes: false,
+            duration: false,
+            overdueDays: false
+        },
+        dateRange: {
+            enabled: false,
+            startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            endDate: new Date().toISOString().split('T')[0]
+        },
+        filters: {
+            documentStatus: 'all',
+            borrowerType: 'all',
+            historyStatus: 'all'
+        }
+    });
+    const updateDataType = (dataType, enabled) => {
+        setConfig(prev => ({
+            ...prev,
+            dataTypes: { ...prev.dataTypes, [dataType]: enabled }
+        }));
+    };
+    const updateDocumentField = (field, enabled) => {
+        setConfig(prev => ({
+            ...prev,
+            documentFields: { ...prev.documentFields, [field]: enabled }
+        }));
+    };
+    const updateBorrowerField = (field, enabled) => {
+        setConfig(prev => ({
+            ...prev,
+            borrowerFields: { ...prev.borrowerFields, [field]: enabled }
+        }));
+    };
+    const updateHistoryField = (field, enabled) => {
+        setConfig(prev => ({
+            ...prev,
+            historyFields: { ...prev.historyFields, [field]: enabled }
+        }));
+    };
+    const handleExport = async () => {
+        const selectedDataTypes = Object.entries(config.dataTypes).filter(([_, enabled]) => enabled);
+        if (selectedDataTypes.length === 0) {
+            error('Sélection requise', 'Veuillez sélectionner au moins un type de données à exporter');
+            return;
+        }
+        setIsExporting(true);
+        try {
+            await onExport(config);
+            success('Export réussi', 'Les données ont été exportées avec succès');
+            onClose();
+        }
+        catch (err) {
+            error('Erreur d\'export', 'Une erreur est survenue lors de l\'export');
+        }
+        finally {
+            setIsExporting(false);
+        }
+    };
+    const selectAllDocumentFields = () => {
+        setConfig(prev => ({
+            ...prev,
+            documentFields: Object.keys(prev.documentFields).reduce((acc, key) => ({
+                ...acc,
+                [key]: true
+            }), {})
+        }));
+    };
+    const deselectAllDocumentFields = () => {
+        setConfig(prev => ({
+            ...prev,
+            documentFields: Object.keys(prev.documentFields).reduce((acc, key) => ({
+                ...acc,
+                [key]: false
+            }), {})
+        }));
+    };
+    if (!isOpen)
+        return null;
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "export-dialog-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "export-dialog", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dialog-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 28 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "dialog-title", children: "Exporter les Donn\u00E9es" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "dialog-subtitle", children: "Choisissez les donn\u00E9es et le format d'export" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-button", onClick: onClose, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dialog-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Format d'Export" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "format-options", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `format-option ${config.format === 'excel' ? 'selected' : ''}`, onClick: () => setConfig(prev => ({ ...prev, format: 'excel' })), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Excel (.xlsx)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "format-badge", children: "Recommand\u00E9" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `format-option ${config.format === 'csv' ? 'selected' : ''}`, onClick: () => setConfig(prev => ({ ...prev, format: 'csv' })), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "CSV (.csv)" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Types de Donn\u00E9es" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "data-types-grid", children: [availableData.documents && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `data-type-card ${config.dataTypes.documents ? 'selected' : ''}`, onClick: () => updateDataType('documents', !config.dataTypes.documents), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Documents" }), config.dataTypes.documents ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 })] })), availableData.borrowers && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `data-type-card ${config.dataTypes.borrowers ? 'selected' : ''}`, onClick: () => updateDataType('borrowers', !config.dataTypes.borrowers), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Emprunteurs" }), config.dataTypes.borrowers ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 })] })), availableData.borrowHistory && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `data-type-card ${config.dataTypes.borrowHistory ? 'selected' : ''}`, onClick: () => updateDataType('borrowHistory', !config.dataTypes.borrowHistory), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Historique" }), config.dataTypes.borrowHistory ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `data-type-card ${config.dataTypes.authors ? 'selected' : ''}`, onClick: () => updateDataType('authors', !config.dataTypes.authors), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Auteurs" }), config.dataTypes.authors ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `data-type-card ${config.dataTypes.categories ? 'selected' : ''}`, onClick: () => updateDataType('categories', !config.dataTypes.categories), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Cat\u00E9gories" }), config.dataTypes.categories ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `data-type-card ${config.dataTypes.stats ? 'selected' : ''}`, onClick: () => updateDataType('stats', !config.dataTypes.stats), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Statistiques" }), config.dataTypes.stats ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 })] })] })] }), config.dataTypes.documents && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Champs Documents" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "field-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "action-link", onClick: selectAllDocumentFields, children: "Tout s\u00E9lectionner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "action-link", onClick: deselectAllDocumentFields, children: "Tout d\u00E9s\u00E9lectionner" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "fields-grid", children: Object.entries({
+                                            titre: 'Titre',
+                                            auteur: 'Auteur',
+                                            editeur: 'Éditeur',
+                                            lieuEdition: 'Lieu d\'édition',
+                                            annee: 'Année',
+                                            descripteurs: 'Catégories',
+                                            cote: 'Cote',
+                                            type: 'Type',
+                                            isbn: 'ISBN',
+                                            description: 'Description',
+                                            estEmprunte: 'Statut d\'emprunt',
+                                            dateEmprunt: 'Date d\'emprunt',
+                                            nomEmprunteur: 'Emprunteur',
+                                            dateRetourPrevu: 'Date retour prévue'
+                                        }).map(([field, label]) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `field-checkbox ${config.documentFields[field] ? 'checked' : ''}`, onClick: () => updateDocumentField(field, !config.documentFields[field]), children: [config.documentFields[field] ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: label })] }, field))) })] })), config.dataTypes.borrowers && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Champs Emprunteurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "fields-grid", children: Object.entries({
+                                            firstName: 'Prénom',
+                                            lastName: 'Nom',
+                                            type: 'Type',
+                                            matricule: 'Matricule',
+                                            classe: 'Classe',
+                                            position: 'Poste',
+                                            email: 'Email',
+                                            phone: 'Téléphone',
+                                            cniNumber: 'CNI'
+                                        }).map(([field, label]) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `field-checkbox ${config.borrowerFields[field] ? 'checked' : ''}`, onClick: () => updateBorrowerField(field, !config.borrowerFields[field]), children: [config.borrowerFields[field] ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: label })] }, field))) })] })), config.dataTypes.borrowHistory && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Champs Historique" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "fields-grid", children: Object.entries({
+                                            documentTitle: 'Titre du document',
+                                            borrowerName: 'Nom emprunteur',
+                                            borrowDate: 'Date emprunt',
+                                            expectedReturnDate: 'Date retour prévue',
+                                            actualReturnDate: 'Date retour effective',
+                                            status: 'Statut',
+                                            notes: 'Notes',
+                                            duration: 'Durée (jours)',
+                                            overdueDays: 'Retard (jours)'
+                                        }).map(([field, label]) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `field-checkbox ${config.historyFields[field] ? 'checked' : ''}`, onClick: () => updateHistoryField(field, !config.historyFields[field]), children: [config.historyFields[field] ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: label })] }, field))) })] })), config.dataTypes.borrowHistory && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Filtre par Date" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "toggle-switch", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "checkbox", id: "dateRange", checked: config.dateRange.enabled, onChange: (e) => setConfig(prev => ({
+                                                            ...prev,
+                                                            dateRange: { ...prev.dateRange, enabled: e.target.checked }
+                                                        })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { htmlFor: "dateRange" })] })] }), config.dateRange.enabled && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "date-range-inputs", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "date-input", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Date de d\u00E9but" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "date", value: config.dateRange.startDate, onChange: (e) => setConfig(prev => ({
+                                                            ...prev,
+                                                            dateRange: { ...prev.dateRange, startDate: e.target.value }
+                                                        })) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "date-input", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Date de fin" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "date", value: config.dateRange.endDate, onChange: (e) => setConfig(prev => ({
+                                                            ...prev,
+                                                            dateRange: { ...prev.dateRange, endDate: e.target.value }
+                                                        })) })] })] }))] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Filtres" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filters-grid", children: [config.dataTypes.documents && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Statut Documents" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: config.filters.documentStatus, onChange: (e) => setConfig(prev => ({
+                                                            ...prev,
+                                                            filters: { ...prev.filters, documentStatus: e.target.value }
+                                                        })), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "available", children: "Disponibles" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "borrowed", children: "Emprunt\u00E9s" })] })] })), config.dataTypes.borrowers && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Type Emprunteurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: config.filters.borrowerType, onChange: (e) => setConfig(prev => ({
+                                                            ...prev,
+                                                            filters: { ...prev.filters, borrowerType: e.target.value }
+                                                        })), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "staff", children: "Personnel" })] })] })), config.dataTypes.borrowHistory && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Statut Historique" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: config.filters.historyStatus, onChange: (e) => setConfig(prev => ({
+                                                            ...prev,
+                                                            filters: { ...prev.filters, historyStatus: e.target.value }
+                                                        })), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "active", children: "En cours" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "returned", children: "Rendus" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "overdue", children: "En retard" })] })] }))] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dialog-footer", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "secondary", onClick: onClose, children: "Annuler" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "success", icon: lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], onClick: handleExport, disabled: isExporting, children: isExporting ? 'Export en cours...' : `Exporter en ${config.format.toUpperCase()}` })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+        .export-dialog-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 20px;
+          backdrop-filter: blur(8px);
+        }
+
+        .export-dialog {
+          background: #FFFFFF;
+          border-radius: 20px;
+          width: 100%;
+          max-width: 900px;
+          max-height: 90vh;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+          border: 1px solid rgba(229, 220, 194, 0.3);
+        }
+
+        .dialog-header {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+          padding: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .header-content {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+        }
+
+        .header-icon {
+          width: 56px;
+          height: 56px;
+          background: rgba(243, 238, 217, 0.2);
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .dialog-title {
+          font-size: 24px;
+          font-weight: 700;
+          margin: 0 0 4px 0;
+        }
+
+        .dialog-subtitle {
+          font-size: 14px;
+          opacity: 0.8;
+          margin: 0;
+        }
+
+        .close-button {
+          width: 44px;
+          height: 44px;
+          border: none;
+          background: rgba(243, 238, 217, 0.1);
+          color: #F3EED9;
+          border-radius: 12px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+        }
+
+        .close-button:hover {
+          background: rgba(243, 238, 217, 0.2);
+        }
+
+        .dialog-content {
+          flex: 1;
+          overflow-y: auto;
+          padding: 32px;
+        }
+
+        .section {
+          margin-bottom: 32px;
+        }
+
+        .section-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0 0 16px 0;
+        }
+
+        .section-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 16px;
+        }
+
+        .field-actions {
+          display: flex;
+          gap: 16px;
+        }
+
+        .action-link {
+          background: none;
+          border: none;
+          color: #3E5C49;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          text-decoration: underline;
+          transition: color 0.2s ease;
+        }
+
+        .action-link:hover {
+          color: #2E453A;
+        }
+
+        .format-options {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 16px;
+        }
+
+        .format-option {
+          padding: 20px;
+          border: 2px solid #E5DCC2;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          position: relative;
+        }
+
+        .format-option:hover {
+          border-color: #3E5C49;
+          background: rgba(62, 92, 73, 0.05);
+        }
+
+        .format-option.selected {
+          border-color: #3E5C49;
+          background: rgba(62, 92, 73, 0.1);
+        }
+
+        .format-badge {
+          position: absolute;
+          top: -8px;
+          right: -8px;
+          background: #C2571B;
+          color: #F3EED9;
+          font-size: 10px;
+          font-weight: 600;
+          padding: 4px 8px;
+          border-radius: 12px;
+        }
+
+        .data-types-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 16px;
+        }
+
+        .data-type-card {
+          padding: 20px;
+          border: 2px solid #E5DCC2;
+          border-radius: 12px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          text-align: center;
+          position: relative;
+        }
+
+        .data-type-card:hover {
+          border-color: #3E5C49;
+          background: rgba(62, 92, 73, 0.05);
+        }
+
+        .data-type-card.selected {
+          border-color: #3E5C49;
+          background: rgba(62, 92, 73, 0.1);
+        }
+
+        .data-type-card svg:last-child {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          color: #3E5C49;
+        }
+
+        .fields-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 12px;
+        }
+
+        .field-checkbox {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px;
+          border: 1px solid #E5DCC2;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .field-checkbox:hover {
+          border-color: #3E5C49;
+          background: rgba(62, 92, 73, 0.05);
+        }
+
+        .field-checkbox.checked {
+          border-color: #3E5C49;
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+        }
+
+        .toggle-switch {
+          position: relative;
+          display: inline-block;
+          width: 50px;
+          height: 24px;
+        }
+
+        .toggle-switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+
+        .toggle-switch label {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ccc;
+          transition: .4s;
+          border-radius: 24px;
+        }
+
+        .toggle-switch label:before {
+          position: absolute;
+          content: "";
+          height: 18px;
+          width: 18px;
+          left: 3px;
+          bottom: 3px;
+          background-color: white;
+          transition: .4s;
+          border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + label {
+          background-color: #3E5C49;
+        }
+
+        .toggle-switch input:checked + label:before {
+          transform: translateX(26px);
+        }
+
+        .date-range-inputs {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+          margin-top: 16px;
+        }
+
+        .date-input label {
+          display: block;
+          font-size: 14px;
+          font-weight: 500;
+          color: #2E2E2E;
+          margin-bottom: 8px;
+        }
+
+        .date-input input {
+          width: 100%;
+          padding: 12px;
+          border: 2px solid #E5DCC2;
+          border-radius: 8px;
+          font-size: 14px;
+          background: #FFFFFF;
+          color: #2E2E2E;
+          transition: all 0.3s ease;
+        }
+
+        .date-input input:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+
+        .filters-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 16px;
+        }
+
+        .filter-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .filter-group label {
+          font-size: 14px;
+          font-weight: 500;
+          color: #2E2E2E;
+        }
+
+        .filter-group select {
+          padding: 12px;
+          border: 2px solid #E5DCC2;
+          border-radius: 8px;
+          font-size: 14px;
+          background: #FFFFFF;
+          color: #2E2E2E;
+          transition: all 0.3s ease;
+        }
+
+        .filter-group select:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+
+        .dialog-footer {
+          padding: 24px 32px;
+          border-top: 1px solid #E5DCC2;
+          display: flex;
+          justify-content: flex-end;
+          gap: 16px;
+        }
+
+        @media (max-width: 768px) {
+          .export-dialog {
+            margin: 12px;
+          }
+
+          .data-types-grid,
+          .fields-grid,
+          .filters-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .format-options {
+            grid-template-columns: 1fr;
+          }
+
+          .date-range-inputs {
+            grid-template-columns: 1fr;
+          }
+
+          .dialog-content {
+            padding: 20px;
+          }
+        }
+      ` })] }));
+};
+
+
+/***/ }),
+
 /***/ "./src/renderer/components/InitialSetup.tsx":
 /*!**************************************************!*\
   !*** ./src/renderer/components/InitialSetup.tsx ***!
@@ -15099,17 +15684,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/file-text.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/bar-chart-3.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/printer.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-circle.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/download.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/zap.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/file-text.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/bar-chart-3.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/printer.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-circle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/download.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/zap.mjs");
+/* harmony import */ var _ExportDialog__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ExportDialog */ "./src/renderer/components/ExportDialog.tsx");
+
 
 
 
@@ -15117,6 +15704,7 @@ const PrintManager = ({ documents, stats, onClose }) => {
     const [selectedType, setSelectedType] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('inventory');
     const [isProcessing, setIsProcessing] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [message, setMessage] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+    const [showExportDialog, setShowExportDialog] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [institutionSettings, setInstitutionSettings] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({
         name: 'Bibliothèque Numérique',
         address: '',
@@ -15174,7 +15762,7 @@ const PrintManager = ({ documents, stats, onClose }) => {
             id: 'inventory',
             title: 'Inventaire Complet',
             description: 'Liste détaillée de tous les documents avec statuts',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"],
             color: '#3E5C49',
             gradient: 'linear-gradient(135deg, #3E5C49 0%, #2E453A 100%)',
             count: documents.length,
@@ -15184,7 +15772,7 @@ const PrintManager = ({ documents, stats, onClose }) => {
             id: 'available',
             title: 'Documents Disponibles',
             description: 'Collection des ouvrages disponibles à l\'emprunt',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"],
             color: '#3E5C49',
             gradient: 'linear-gradient(135deg, #3E5C49 0%, #4A6B57 100%)',
             count: documents.filter(doc => !doc.estEmprunte).length,
@@ -15194,7 +15782,7 @@ const PrintManager = ({ documents, stats, onClose }) => {
             id: 'borrowed',
             title: 'Documents Empruntés',
             description: 'Suivi des emprunts en cours avec emprunteurs',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"],
             color: '#C2571B',
             gradient: 'linear-gradient(135deg, #C2571B 0%, #A8481A 100%)',
             count: documents.filter(doc => doc.estEmprunte).length,
@@ -15240,25 +15828,25 @@ const PrintManager = ({ documents, stats, onClose }) => {
             setIsProcessing(false);
         }
     };
-    const handleExportCSV = async () => {
+    const handleExport = async (config) => {
         setIsProcessing(true);
         try {
-            const exportData = {
-                documents,
-                stats,
-                institution: institutionSettings
-            };
-            const filePath = await window.electronAPI.exportCSV(exportData);
-            if (filePath) {
-                showMessage('success', `Fichier CSV exporté : ${filePath.split(/[/\\]/).pop()}`);
+            const result = await window.electronAPI.exportAdvanced(config);
+            if (result.success && result.path) {
+                const fileName = result.path.split(/[/\\]/).pop();
+                showMessage('success', `Fichier exporté avec succès : ${fileName}`);
+            }
+            else if (result.cancelled) {
+                // User cancelled the export
+                return;
             }
             else {
-                showMessage('error', 'Export annulé ou erreur');
+                showMessage('error', `Erreur lors de l'export : ${result.error || 'Erreur inconnue'}`);
             }
         }
         catch (error) {
             console.error('Export error:', error);
-            showMessage('error', 'Erreur lors de l\'export CSV');
+            showMessage('error', 'Erreur lors de l\'export des données');
         }
         finally {
             setIsProcessing(false);
@@ -15271,21 +15859,21 @@ const PrintManager = ({ documents, stats, onClose }) => {
                     title: 'Inventaire Complet',
                     items: documents,
                     description: `${documents.length} document(s) au total`,
-                    icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"]
+                    icon: lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"]
                 };
             case 'available':
                 return {
                     title: 'Documents Disponibles',
                     items: documents.filter(doc => !doc.estEmprunte),
                     description: `${documents.filter(doc => !doc.estEmprunte).length} document(s) disponible(s)`,
-                    icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"]
+                    icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"]
                 };
             case 'borrowed':
                 return {
                     title: 'Documents Empruntés',
                     items: documents.filter(doc => doc.estEmprunte),
                     description: `${documents.filter(doc => doc.estEmprunte).length} document(s) emprunté(s)`,
-                    icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"]
+                    icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"]
                 };
         }
     };
@@ -15294,7 +15882,7 @@ const PrintManager = ({ documents, stats, onClose }) => {
     if (!selectedOption) {
         return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { children: "Erreur: option s\u00E9lectionn\u00E9e invalide" });
     }
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "print-manager-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "print-manager-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 28 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "modal-title", children: "Impression & Export" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "modal-subtitle", children: "G\u00E9n\u00E9rez des rapports professionnels de votre biblioth\u00E8que" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-button", onClick: onClose, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 20 }) })] }), message && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `message ${message.type}`, children: [message.type === 'success' ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 20 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: message.text })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "options-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Choisir le type de rapport" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "section-description", children: "S\u00E9lectionnez le contenu \u00E0 inclure dans votre document" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "print-options", children: printOptions.map((option) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `option-card ${selectedType === option.id ? 'selected' : ''}`, onClick: () => setSelectedType(option.id), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "option-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "option-icon", style: { background: option.gradient }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(option.icon, { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "option-badge", children: [option.count, " \u00E9l\u00E9ment", option.count > 1 ? 's' : ''] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "option-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "option-title", children: option.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "option-description", children: option.description }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "option-features", children: option.features.map((feature, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "feature-tag", children: feature }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "option-indicator", children: selectedType === option.id && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) })] }, option.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-title-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Aper\u00E7u du contenu" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-stats", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(previewData.icon, { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: previewData.description })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "preview-button", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), "Pr\u00E9visualiser"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-header", children: [institutionSettings.logo && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "institution-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("img", { src: institutionSettings.logo, alt: "Logo" }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "institution-name", children: institutionSettings.name }), institutionSettings.address && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "institution-address", children: [institutionSettings.address, ", ", institutionSettings.city] })), institutionSettings.phone && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "institution-contact", children: ["T\u00E9l: ", institutionSettings.phone, institutionSettings.email && ` • ${institutionSettings.email}`] }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "report-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "preview-icon", style: { background: selectedOption?.gradient }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(selectedOption.icon, { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "preview-title", children: previewData.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "preview-subtitle", children: ["G\u00E9n\u00E9r\u00E9 le ", new Date().toLocaleDateString('fr-FR')] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "preview-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-table", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "table-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Titre" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Auteur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Cat\u00E9gorie" }), selectedType === 'borrowed' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Emprunteur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Date" })] })), selectedType !== 'borrowed' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Statut" }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "table-body", children: [previewData.items.slice(0, 4).map((doc, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "table-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "cell-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "book-title", children: doc.titre }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: doc.auteur }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "category-badge", children: doc.descripteurs }) }), selectedType === 'borrowed' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: doc.nomEmprunteur || '-' }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: doc.dateEmprunt ? new Date(doc.dateEmprunt).toLocaleDateString('fr-FR') : '-' })] })), selectedType !== 'borrowed' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: `status-badge ${doc.estEmprunte ? 'borrowed' : 'available'}`, children: doc.estEmprunte ? 'Emprunté' : 'Disponible' }) }))] }, index))), previewData.items.length > 4 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-row more-items", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "table-cell more-text", children: ["... et ", previewData.items.length - 4, " autre(s) \u00E9l\u00E9ment(s)"] }) }))] })] }) })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-footer", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "footer-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Format PDF professionnel" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Export CSV pour donn\u00E9es" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "footer-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "btn-secondary", onClick: handleExportCSV, disabled: isProcessing, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }), isProcessing ? 'Export...' : 'Exporter CSV'] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "btn-primary", onClick: handlePrint, disabled: isProcessing, children: isProcessing ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }), "G\u00E9n\u00E9ration..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }), "Imprimer"] })) })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "print-manager-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "print-manager-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 28 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "modal-title", children: "Impression & Export" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "modal-subtitle", children: "G\u00E9n\u00E9rez des rapports professionnels de votre biblioth\u00E8que" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-button", onClick: onClose, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 20 }) })] }), message && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `message ${message.type}`, children: [message.type === 'success' ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: message.text })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "options-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Choisir le type de rapport" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "section-description", children: "S\u00E9lectionnez le contenu \u00E0 inclure dans votre document" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "print-options", children: printOptions.map((option) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `option-card ${selectedType === option.id ? 'selected' : ''}`, onClick: () => setSelectedType(option.id), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "option-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "option-icon", style: { background: option.gradient }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(option.icon, { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "option-badge", children: [option.count, " \u00E9l\u00E9ment", option.count > 1 ? 's' : ''] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "option-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "option-title", children: option.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "option-description", children: option.description }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "option-features", children: option.features.map((feature, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "feature-tag", children: feature }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "option-indicator", children: selectedType === option.id && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }) })] }, option.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-title-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Aper\u00E7u du contenu" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-stats", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(previewData.icon, { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: previewData.description })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "preview-button", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), "Pr\u00E9visualiser"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-header", children: [institutionSettings.logo && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "institution-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("img", { src: institutionSettings.logo, alt: "Logo" }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "institution-name", children: institutionSettings.name }), institutionSettings.address && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "institution-address", children: [institutionSettings.address, ", ", institutionSettings.city] })), institutionSettings.phone && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "institution-contact", children: ["T\u00E9l: ", institutionSettings.phone, institutionSettings.email && ` • ${institutionSettings.email}`] }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "report-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "preview-icon", style: { background: selectedOption?.gradient }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(selectedOption.icon, { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "preview-title", children: previewData.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "preview-subtitle", children: ["G\u00E9n\u00E9r\u00E9 le ", new Date().toLocaleDateString('fr-FR')] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "preview-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-table", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "table-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Titre" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Auteur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Cat\u00E9gorie" }), selectedType === 'borrowed' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Emprunteur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Date" })] })), selectedType !== 'borrowed' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Statut" }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "table-body", children: [previewData.items.slice(0, 4).map((doc, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "table-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "cell-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "book-title", children: doc.titre }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: doc.auteur }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "category-badge", children: doc.descripteurs }) }), selectedType === 'borrowed' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: doc.nomEmprunteur || '-' }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: doc.dateEmprunt ? new Date(doc.dateEmprunt).toLocaleDateString('fr-FR') : '-' })] })), selectedType !== 'borrowed' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: `status-badge ${doc.estEmprunte ? 'borrowed' : 'available'}`, children: doc.estEmprunte ? 'Emprunté' : 'Disponible' }) }))] }, index))), previewData.items.length > 4 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-row more-items", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "table-cell more-text", children: ["... et ", previewData.items.length - 4, " autre(s) \u00E9l\u00E9ment(s)"] }) }))] })] }) })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-footer", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "footer-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Format PDF professionnel" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Export Excel/CSV pour donn\u00E9es" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "footer-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "btn-secondary", onClick: () => setShowExportDialog(true), disabled: isProcessing, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }), isProcessing ? 'Export...' : 'Exporter Données'] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "btn-primary", onClick: handlePrint, disabled: isProcessing, children: isProcessing ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 18 }), "G\u00E9n\u00E9ration..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 18 }), "Imprimer"] })) })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .print-manager-overlay {
           position: fixed;
           top: 0;
@@ -16006,7 +16594,11 @@ const PrintManager = ({ documents, stats, onClose }) => {
             border-bottom: none;
           }
         }
-      ` })] }));
+      ` }), showExportDialog && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_ExportDialog__WEBPACK_IMPORTED_MODULE_2__.ExportDialog, { isOpen: showExportDialog, onClose: () => setShowExportDialog(false), onExport: handleExport, availableData: {
+                    documents: true,
+                    borrowers: true,
+                    borrowHistory: false
+                } }))] }));
 };
 
 
