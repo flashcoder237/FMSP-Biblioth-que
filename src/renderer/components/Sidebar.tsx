@@ -17,17 +17,18 @@ import {
   Info,
   Users,
   History,
-  Settings
+  Settings,
+  User
 } from 'lucide-react';
 import { Stats } from '../../types';
 import { MicroButton } from './MicroInteractions';
-import { SupabaseRendererService as SupabaseService, User, Institution } from '../services/SupabaseClient';
+import { SupabaseRendererService as SupabaseService, User as UserType, Institution } from '../services/SupabaseClient';
 
 interface SidebarProps {
   currentView: string;
-  onNavigate: (view: 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'app-settings' | 'donation' | 'about') => void;
+  onNavigate: (view: 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'app-settings' | 'user-profile' | 'donation' | 'about') => void;
   stats: Stats;
-  currentUser: User | null;
+  currentUser: UserType | null;
   currentInstitution: Institution | null;
 }
 
@@ -49,7 +50,7 @@ interface MenuItem extends BaseMenuItem {
   support?: boolean;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats, currentUser, currentInstitution }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const menuItems: MenuItem[] = [
@@ -213,6 +214,35 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           </div>
         )}
       </div>
+
+      {/* User Profile Section */}
+      {!isCollapsed && currentUser && (
+        <div className="user-profile-section">
+          <div className="user-profile">
+            <div className="user-avatar">
+              <span className="avatar-text">
+                {currentUser.firstName?.charAt(0)?.toUpperCase() || currentUser.email?.charAt(0)?.toUpperCase() || 'U'}
+              </span>
+            </div>
+            <div className="user-info">
+              <div className="user-name">
+                {currentUser.firstName ? `${currentUser.firstName} ${currentUser.lastName || ''}`.trim() : currentUser.email}
+              </div>
+              <div className="user-role">{currentUser.role || 'Utilisateur'}</div>
+              {currentInstitution && (
+                <div className="user-institution">{currentInstitution.name}</div>
+              )}
+            </div>
+            <button 
+              className="user-settings-btn"
+              onClick={() => onNavigate('user-profile')}
+              title="Profil utilisateur"
+            >
+              <User size={16} />
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="sidebar-content">
         {/* Main Navigation */}
@@ -1338,6 +1368,103 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           font-size: 13px;
           font-weight: 600;
           line-height: 1.3;
+        }
+
+        /* User Profile Section */
+        .user-profile-section {
+          padding: 16px 20px;
+          border-bottom: 1px solid rgba(243, 238, 217, 0.1);
+          position: relative;
+          z-index: 1;
+        }
+
+        .user-profile {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          background: rgba(243, 238, 217, 0.08);
+          border-radius: 12px;
+          padding: 12px;
+          border: 1px solid rgba(243, 238, 217, 0.15);
+          transition: all 0.2s ease;
+        }
+
+        .user-profile:hover {
+          background: rgba(243, 238, 217, 0.12);
+          border-color: rgba(243, 238, 217, 0.25);
+        }
+
+        .user-avatar {
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          box-shadow: 0 4px 12px rgba(194, 87, 27, 0.3);
+        }
+
+        .avatar-text {
+          color: #F3EED9;
+          font-weight: 700;
+          font-size: 14px;
+          text-transform: uppercase;
+        }
+
+        .user-info {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .user-name {
+          font-size: 14px;
+          font-weight: 600;
+          color: #F3EED9;
+          margin-bottom: 2px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .user-role {
+          font-size: 11px;
+          color: rgba(243, 238, 217, 0.7);
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 2px;
+        }
+
+        .user-institution {
+          font-size: 10px;
+          color: rgba(243, 238, 217, 0.6);
+          font-weight: 500;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .user-settings-btn {
+          width: 28px;
+          height: 28px;
+          border: none;
+          background: rgba(243, 238, 217, 0.1);
+          color: rgba(243, 238, 217, 0.7);
+          border-radius: 8px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+          flex-shrink: 0;
+        }
+
+        .user-settings-btn:hover {
+          background: rgba(243, 238, 217, 0.2);
+          color: #F3EED9;
+          transform: scale(1.05);
         }
       `}</style>
     </div>

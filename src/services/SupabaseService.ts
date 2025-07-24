@@ -415,8 +415,68 @@ export class SupabaseService {
   }
 
   async returnDocument(borrowHistoryId: number, notes?: string): Promise<boolean> {
-    console.log('returnDocument appelé avec:', { borrowHistoryId, notes });
-    return true;
+    try {
+      console.log('returnDocument appelé avec:', { borrowHistoryId, notes });
+      
+      if (!this.supabase) {
+        throw new Error('Supabase client not initialized');
+      }
+
+      // D'abord récupérer les informations de l'emprunt
+      const { data: borrowHistory, error: fetchError } = await this.supabase
+        .from('borrow_history')
+        .select('documentId')
+        .eq('id', borrowHistoryId)
+        .eq('status', 'active')
+        .single();
+
+      if (fetchError || !borrowHistory) {
+        console.error('Erreur lors de la récupération de l\'historique d\'emprunt:', fetchError);
+        return false;
+      }
+
+      // Mettre à jour l'historique d'emprunt
+      const { error: historyError } = await this.supabase
+        .from('borrow_history')
+        .update({
+          status: 'returned',
+          actualReturnDate: new Date().toISOString(),
+          notes: notes || null,
+          lastModified: new Date().toISOString()
+        })
+        .eq('id', borrowHistoryId);
+
+      if (historyError) {
+        console.error('Erreur lors de la mise à jour de l\'historique d\'emprunt:', historyError);
+        return false;
+      }
+
+      // Mettre à jour le document pour le marquer comme disponible
+      const { error: documentError } = await this.supabase
+        .from('documents')
+        .update({
+          estEmprunte: false,
+          emprunteurId: null,
+          dateEmprunt: null,
+          dateRetourPrevu: null,
+          dateRetour: new Date().toISOString(),
+          nomEmprunteur: null,
+          lastModified: new Date().toISOString(),
+          syncStatus: 'pending'
+        })
+        .eq('id', borrowHistory.documentId);
+
+      if (documentError) {
+        console.error('Erreur lors de la mise à jour du document:', documentError);
+        return false;
+      }
+
+      console.log('Document retourné avec succès');
+      return true;
+    } catch (error) {
+      console.error('Erreur lors du retour du document:', error);
+      return false;
+    }
   }
 
   // Compatibility method

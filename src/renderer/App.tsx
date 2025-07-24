@@ -21,10 +21,11 @@ import { SupabaseRendererService, Institution, User } from './services/SupabaseC
 import { ConfigService } from './services/ConfigService';
 import { LocalAuthService } from './services/LocalAuthService';
 import { AppSettings } from './components/AppSettings';
+import { UserProfile } from './components/UserProfile';
 import { ToastProvider, useQuickToast } from './components/ToastSystem';
 import { KeyboardShortcutsProvider } from './components/KeyboardShortcuts';
 
-type ViewType = 'initial_setup' | 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'settings' | 'app-settings' | 'donation' | 'about' | 'auth' | 'institution_setup';
+type ViewType = 'initial_setup' | 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'settings' | 'app-settings' | 'user-profile' | 'donation' | 'about' | 'auth' | 'institution_setup';
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewType>('initial_setup');
@@ -654,6 +655,12 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleUserUpdate = (updatedUser: User) => {
+    setCurrentUser(updatedUser);
+    // Optionnel: Recharger les données si nécessaire
+    // loadData();
+  };
+
   const handleAddDocument = async (document: Omit<Document, 'id'>) => {
     try {
       if (appMode === 'offline') {
@@ -1062,6 +1069,15 @@ export const App: React.FC = () => {
       case 'app-settings':
         return (
           <AppSettings onClose={() => setCurrentView('dashboard')} />
+        );
+      case 'user-profile':
+        return (
+          <UserProfile 
+            currentUser={currentUser}
+            currentInstitution={currentInstitution}
+            onClose={() => setCurrentView('dashboard')}
+            onUserUpdate={handleUserUpdate}
+          />
         );
       default:
         return (
