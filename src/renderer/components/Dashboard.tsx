@@ -298,9 +298,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       {showPrintManager && (
         <PrintManager
-          books={documents}
+          documents={documents}
           stats={stats}
-          categories={categories}
           onClose={() => setShowPrintManager(false)}
         />
       )}

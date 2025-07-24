@@ -73,16 +73,22 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
       return;
     }
 
+    if (!document.id) {
+      error('Erreur document', 'ID du document manquant');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      await onBorrow(document.id!, selectedBorrowerId, returnDate);
+      await onBorrow(document.id, selectedBorrowerId, returnDate);
       const borrower = borrowers.find(b => b.id === selectedBorrowerId);
       success(
         'Emprunt enregistré', 
         `"${document.titre}" emprunté par ${borrower?.firstName} ${borrower?.lastName}`
       );
     } catch (err) {
-      error('Erreur d\'emprunt', 'Impossible d\'enregistrer l\'emprunt');
+      console.error('Erreur d\'emprunt:', err);
+      error('Erreur d\'emprunt', `Impossible d'enregistrer l'emprunt: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
     } finally {
       setIsLoading(false);
     }

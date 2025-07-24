@@ -15,13 +15,16 @@ import { About } from './components/About';
 import { EnhancedAuthentication } from './components/EnhancedAuthentication';
 import { InstitutionSetup } from './components/InstitutionSetup';
 import { InitialSetup, AppMode } from './components/InitialSetup';
+import { AppPasswordScreen } from './components/AppPasswordScreen';
 import { Document, Author, Category, Stats, Borrower, BorrowHistory as BorrowHistoryType } from '../types';
 import { SupabaseRendererService, Institution, User } from './services/SupabaseClient';
 import { ConfigService } from './services/ConfigService';
+import { LocalAuthService } from './services/LocalAuthService';
+import { AppSettings } from './components/AppSettings';
 import { ToastProvider, useQuickToast } from './components/ToastSystem';
 import { KeyboardShortcutsProvider } from './components/KeyboardShortcuts';
 
-type ViewType = 'initial_setup' | 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'settings' | 'donation' | 'about' | 'auth' | 'institution_setup';
+type ViewType = 'initial_setup' | 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'settings' | 'app-settings' | 'donation' | 'about' | 'auth' | 'institution_setup';
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewType>('initial_setup');
@@ -32,6 +35,10 @@ export const App: React.FC = () => {
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [appMode, setAppMode] = useState<AppMode>('offline');
   const [isAppConfigured, setIsAppConfigured] = useState(false);
+  
+  // App security states
+  const [isAppLocked, setIsAppLocked] = useState(true);
+  const [needsPasswordSetup, setNeedsPasswordSetup] = useState(false);
   
   // Data states
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -60,8 +67,38 @@ export const App: React.FC = () => {
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    checkInitialConfiguration();
+    checkAppSecurity();
   }, []);
+
+  const checkAppSecurity = async () => {
+    try {
+      // Vérifier si un mot de passe d'application est requis
+      const appSettings = LocalAuthService.getAppSettings();
+      
+      if (appSettings.requireAppPassword) {
+        setIsAppLocked(true);
+        setNeedsPasswordSetup(false);
+      } else {
+        setIsAppLocked(false);
+        await checkInitialConfiguration();
+      }
+    } catch (error) {
+      console.error('Erreur lors de la vérification de sécurité:', error);
+      setIsAppLocked(false);
+      await checkInitialConfiguration();
+    }
+  };
+
+  const handleAppUnlock = async () => {
+    setIsAppLocked(false);
+    await checkInitialConfiguration();
+  };
+
+  const handlePasswordSetup = async () => {
+    setNeedsPasswordSetup(false);
+    setIsAppLocked(false);
+    await checkInitialConfiguration();
+  };
 
   const checkInitialConfiguration = async () => {
     try {
@@ -71,9 +108,29 @@ export const App: React.FC = () => {
       
       setIsAppConfigured(configured);
       setAppMode(mode);
+
+      // Charger les informations de dernière connexion si disponibles
+      const lastLogin = LocalAuthService.getLastLoginInfo();
       
       if (configured) {
         console.log(`Application configurée en mode: ${mode}`);
+        
+        // Si auto-login activé et informations disponibles
+        if (lastLogin && lastLogin.password && LocalAuthService.getAppSettings().autoLogin) {
+          console.log('Tentative de connexion automatique...');
+          try {
+            await handleAuthentication({
+              email: lastLogin.email,
+              password: lastLogin.password,
+              institutionCode: lastLogin.institutionCode,
+              mode: 'login'
+            });
+            return;
+          } catch (error) {
+            console.log('Échec de la connexion automatique:', error);
+          }
+        }
+        
         setCurrentView('auth');
         await checkAuthStatus();
       } else {
@@ -138,32 +195,84 @@ export const App: React.FC = () => {
   };
 
   const loadData = async () => {
-    if (!supabaseService.isAuthenticated()) return;
+    if (appMode === 'online' && !supabaseService.isAuthenticated()) return;
 
     try {
       setIsLoading(true);
-      const [
-        documentsData, 
-        authorsData, 
-        categoriesData, 
-        borrowersData,
-        borrowedDocumentsData,
-        statsData
-      ] = await Promise.all([
-        supabaseService.getDocuments(),
-        supabaseService.getAuthors(),
-        supabaseService.getCategories(),
-        supabaseService.getBorrowers(),
-        supabaseService.getBorrowedDocuments(),
-        supabaseService.getStats()
-      ]);
+      
+      if (appMode === 'offline') {
+        // Mode offline - charger les données depuis SQLite via electronAPI
+        const [
+          documentsData, 
+          authorsData, 
+          categoriesData, 
+          borrowersData,
+          borrowedDocumentsData
+        ] = await Promise.all([
+          window.electronAPI.getDocuments(),
+          window.electronAPI.getAuthors(),
+          window.electronAPI.getCategories(),
+          window.electronAPI.getBorrowers(),
+          window.electronAPI.getBorrowHistory()
+        ]);
 
-      setDocuments(documentsData);
-      setAuthors(authorsData);
-      setCategories(categoriesData);
-      setBorrowers(borrowersData);
-      setBorrowedDocuments(borrowedDocumentsData);
-      setStats(statsData);
+        setDocuments(documentsData || []);
+        setAuthors(authorsData || []);
+        setCategories(categoriesData || []);
+        setBorrowers(borrowersData || []);
+        setBorrowedDocuments(borrowedDocumentsData || []);
+        
+        // Calculer les statistiques manuellement pour le mode offline
+        const totalDocuments = documentsData?.length || 0;
+        const borrowedCount = borrowedDocumentsData?.filter(bh => bh.status === 'active').length || 0;
+        const availableDocuments = totalDocuments - borrowedCount;
+        const totalAuthors = authorsData?.length || 0;
+        const totalCategories = categoriesData?.length || 0;
+        const totalBorrowers = borrowersData?.length || 0;
+        const totalStudents = borrowersData?.filter(b => b.type === 'student').length || 0;
+        const totalStaff = borrowersData?.filter(b => b.type === 'staff').length || 0;
+        const overdueDocuments = borrowedDocumentsData?.filter(bh => {
+          if (bh.status !== 'active') return false;
+          const expectedReturnDate = new Date(bh.expectedReturnDate);
+          return expectedReturnDate < new Date();
+        }).length || 0;
+        
+        setStats({
+          totalDocuments,
+          borrowedDocuments: borrowedCount,
+          availableDocuments,
+          totalAuthors,
+          totalCategories,
+          totalBorrowers,
+          totalStudents,
+          totalStaff,
+          overdueDocuments
+        });
+      } else {
+        // Mode online - utiliser Supabase
+        const [
+          documentsData, 
+          authorsData, 
+          categoriesData, 
+          borrowersData,
+          borrowedDocumentsData,
+          statsData
+        ] = await Promise.all([
+          supabaseService.getDocuments(),
+          supabaseService.getAuthors(),
+          supabaseService.getCategories(),
+          supabaseService.getBorrowers(),
+          supabaseService.getBorrowedDocuments(),
+          supabaseService.getStats()
+        ]);
+
+        setDocuments(documentsData);
+        setAuthors(authorsData);
+        setCategories(categoriesData);
+        setBorrowers(borrowersData);
+        setBorrowedDocuments(borrowedDocumentsData);
+        setStats(statsData);
+      }
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
       setError('Erreur lors du chargement des données');
@@ -355,44 +464,66 @@ export const App: React.FC = () => {
       setError('');
 
       if (credentials.mode === 'login') {
-        // En mode offline, utiliser une authentification simplifiée
+        // En mode offline, utiliser le nouveau service d'authentification
         if (appMode === 'offline') {
-          console.log('Mode offline - authentification simplifiée');
+          console.log('Mode offline - authentification avec LocalAuthService');
           
-          // Vérifier le code d'accès établissement
-          const validInstitutionCodes = ['BIBLIO2024', 'OFFLINE', 'LOCAL', 'TEST'];
-          if (!credentials.institutionCode || !validInstitutionCodes.includes(credentials.institutionCode.toUpperCase())) {
-            throw new Error('Code d\'accès établissement invalide');
-          }
-          
-          // Authentification simplifiée - accepter quelques identifiants par défaut
-          const validCredentials = [
-            { email: 'admin@local', password: 'admin' },
-            { email: 'bibliothecaire@local', password: 'biblio' },
-            { email: 'test@local', password: 'test' }
-          ];
-          
-          const isValidCredential = validCredentials.some(
-            cred => cred.email === credentials.email && cred.password === credentials.password
+          // Utiliser le service d'authentification local
+          const authResult = LocalAuthService.authenticate(
+            credentials.email,
+            credentials.password,
+            credentials.institutionCode || ''
           );
           
-          if (isValidCredential || credentials.password === 'demo') {
-            // Créer un utilisateur local basé sur l'email
-            const emailParts = credentials.email.split('@')[0].split('.');
-            const localUser: User = {
-              id: Date.now().toString(),
-              firstName: emailParts[0]?.charAt(0).toUpperCase() + emailParts[0]?.slice(1) || 'Utilisateur',
-              lastName: emailParts[1]?.charAt(0).toUpperCase() + emailParts[1]?.slice(1) || 'Local',
-              email: credentials.email,
-              role: credentials.email.includes('admin') ? 'admin' : 
-                    credentials.email.includes('bibliothecaire') ? 'librarian' : 'user'
+          if (!authResult.success) {
+            throw new Error(authResult.message || 'Échec de l\'authentification');
+          }
+          
+          const localUser = authResult.user!;
+          
+          // Sauvegarder les informations de connexion si demandé
+          LocalAuthService.saveLastLoginInfo(
+            credentials.email,
+            credentials.institutionCode || '',
+            true, // Toujours mémoriser le mot de passe en mode offline
+            credentials.password
+          );
+          
+          if (localUser) {
+            // Convertir l'utilisateur local au format User
+            const appUser: User = {
+              id: localUser.id,
+              firstName: localUser.firstName,
+              lastName: localUser.lastName,
+              email: localUser.email,
+              role: localUser.role as 'super_admin' | 'admin' | 'librarian' | 'user'
             };
 
-            // Institution locale par défaut
-            const localInstitution: Institution = {
-              id: 'offline-institution',
+            // Chercher l'institution correspondante ou créer une par défaut
+            const institution = LocalAuthService.findInstitutionByCode(localUser.institutionCode);
+            const appInstitution: Institution = institution ? {
+              id: institution.id,
+              name: institution.name,
+              code: institution.code,
+              address: institution.address,
+              city: institution.city,
+              country: institution.country,
+              phone: institution.phone,
+              email: institution.email,
+              website: institution.website,
+              logo: institution.logo,
+              description: institution.description,
+              type: institution.type as 'school' | 'university' | 'library' | 'other',
+              status: 'active',
+              subscription_plan: 'basic',
+              max_books: 10000,
+              max_users: 100,
+              created_at: institution.created_at,
+              updated_at: new Date().toISOString()
+            } : {
+              id: 'default-offline',
               name: 'Ma Bibliothèque',
-              code: credentials.institutionCode || 'BIBLIO2024',
+              code: localUser.institutionCode,
               address: '',
               city: '',
               country: '',
@@ -400,7 +531,7 @@ export const App: React.FC = () => {
               email: '',
               website: '',
               logo: '',
-              description: 'Institution locale (mode hors ligne)',
+              description: 'Institution locale par défaut',
               type: 'library',
               status: 'active',
               subscription_plan: 'basic',
@@ -410,15 +541,13 @@ export const App: React.FC = () => {
               updated_at: new Date().toISOString()
             };
 
-            setCurrentUser(localUser);
-            setCurrentInstitution(localInstitution);
+            setCurrentUser(appUser);
+            setCurrentInstitution(appInstitution);
             setIsAuthenticated(true);
             setIsDemoMode(false);
             setCurrentView('dashboard');
             await loadData();
             return;
-          } else {
-            throw new Error('Identifiants incorrects. Utilisez: admin@local/admin, bibliothecaire@local/biblio, test@local/test ou tout mot de passe "demo"');
           }
         }
 
@@ -445,23 +574,43 @@ export const App: React.FC = () => {
         alert('Compte créé avec succès ! Veuillez vérifier votre email et vous connecter.');
         
       } else if (credentials.mode === 'create_institution') {
-        // Création d'institution
-        const institutionResult = await supabaseService.createInstitution(credentials.userData.institution);
-        setInstitutionCode(institutionResult.code);
+        // Création d'institution locale
+        const institutionData = credentials.userData.institution;
         
-        // Créer le compte administrateur
-        const adminResult = await supabaseService.signUp(
-          credentials.email,
-          credentials.password,
-          {
-            firstName: credentials.userData.admin.firstName,
-            lastName: credentials.userData.admin.lastName,
-            institutionCode: credentials.userData.institution.code || 'DEFAULT'
+        // Créer l'institution avec le service local
+        const newInstitution = LocalAuthService.createInstitution({
+          name: institutionData.name,
+          address: institutionData.address || '',
+          city: institutionData.city || '',
+          country: institutionData.country || '',
+          phone: institutionData.phone || '',
+          email: institutionData.email || '',
+          website: institutionData.website || '',
+          logo: institutionData.logo || '',
+          description: institutionData.description || '',
+          type: institutionData.type || 'library',
+          adminEmail: credentials.email
+        });
+        
+        setInstitutionCode(newInstitution.code);
+        
+        // Créer le compte administrateur local
+        const adminUser = LocalAuthService.addUser({
+          email: credentials.email,
+          password: credentials.password,
+          firstName: credentials.userData.admin.firstName,
+          lastName: credentials.userData.admin.lastName,
+          role: 'admin',
+          institutionCode: newInstitution.code,
+          preferences: {
+            rememberMe: true,
+            autoLogin: false,
+            theme: 'light'
           }
-        );
+        });
 
-        if (!adminResult.success) {
-          throw new Error(adminResult.error);
+        if (!adminUser) {
+          throw new Error('Erreur lors de la création du compte administrateur');
         }
 
         setCurrentView('institution_setup');
@@ -507,8 +656,52 @@ export const App: React.FC = () => {
 
   const handleAddDocument = async (document: Omit<Document, 'id'>) => {
     try {
-      if (isDemoMode) {
-        // Mode démo - ajouter localement
+      if (appMode === 'offline') {
+        // Mode offline - utiliser l'API électron pour SQLite
+        if (editingDocument) {
+          // Modification d'un document existant
+          const documentToUpdate = { ...document, id: editingDocument.id } as Document;
+          await window.electronAPI.updateDocument(documentToUpdate);
+          console.log('Document modifié en mode offline:', editingDocument.id);
+        } else {
+          // Ajout d'un nouveau document
+          const documentId = await window.electronAPI.addDocument(document);
+          console.log('Document ajouté en mode offline avec ID:', documentId);
+        }
+        
+        // Ajouter l'auteur s'il n'existe pas
+        if (!authors.find(a => a.name === document.auteur)) {
+          await window.electronAPI.addAuthor({
+            name: document.auteur,
+            biography: '',
+            birthDate: '',
+            nationality: '',
+            syncStatus: 'pending',
+            lastModified: new Date().toISOString(),
+            version: 1,
+            createdAt: new Date().toISOString()
+          });
+        }
+        
+        // Ajouter la catégorie si elle n'existe pas (basée sur les descripteurs)
+        const categoryName = document.descripteurs.split(',')[0]?.trim();
+        if (categoryName && !categories.find(c => c.name === categoryName)) {
+          await window.electronAPI.addCategory({
+            name: categoryName,
+            description: `Catégorie créée automatiquement pour ${categoryName}`,
+            color: '#3E5C49',
+            syncStatus: 'pending',
+            lastModified: new Date().toISOString(),
+            version: 1,
+            createdAt: new Date().toISOString()
+          });
+        }
+        
+        // Recharger les données pour mettre à jour l'interface
+        await loadData();
+        
+      } else if (isDemoMode) {
+        // Mode démo - ajouter localement en mémoire
         const newId = Math.max(...documents.map(d => d.id || 0)) + 1;
         const newDocument: Document = {
           ...document,
@@ -547,11 +740,13 @@ export const App: React.FC = () => {
         console.log('Document ajouté en mode démo:', newDocument);
         
       } else {
-        // Mode normal - utiliser Supabase
+        // Mode online - utiliser Supabase
         await supabaseService.addDocument(document);
         await loadData();
       }
       
+      // Nettoyer l'état d'édition et retourner à la liste des documents
+      setEditingDocument(null);
       setCurrentView('documents');
     } catch (error: any) {
       console.error('Erreur lors de l\'ajout du document:', error);
@@ -566,7 +761,14 @@ export const App: React.FC = () => {
       return;
     }
     try {
-      await supabaseService.returnBook(borrowHistoryId.toString(), notes);
+      if (appMode === 'offline') {
+        // Mode offline - utiliser l'API électron pour SQLite
+        await window.electronAPI.returnBook(borrowHistoryId, notes);
+        console.log('Document retourné en mode offline:', borrowHistoryId);
+      } else {
+        // Mode online - utiliser Supabase
+        await supabaseService.returnBook(borrowHistoryId.toString(), notes);
+      }
       await loadData();
     } catch (error: any) {
       console.error('Erreur lors du retour:', error);
@@ -576,8 +778,16 @@ export const App: React.FC = () => {
 
   const handleDeleteDocument = async (documentId: number) => {
     try {
-      if (isDemoMode) {
-        // Mode démo - supprimer localement
+      if (appMode === 'offline') {
+        // Mode offline - utiliser l'API électron pour SQLite
+        await window.electronAPI.deleteDocument(documentId);
+        console.log('Document supprimé en mode offline:', documentId);
+        
+        // Recharger les données pour mettre à jour l'interface
+        await loadData();
+        
+      } else if (isDemoMode) {
+        // Mode démo - supprimer localement en mémoire
         const updatedDocuments = documents.filter(d => d.id !== documentId);
         setDocuments(updatedDocuments);
         
@@ -590,7 +800,7 @@ export const App: React.FC = () => {
         
         console.log('Document supprimé en mode démo:', documentId);
       } else {
-        // Mode normal - utiliser Supabase
+        // Mode online - utiliser Supabase
         await supabaseService.deleteDocument(documentId.toString());
         await loadData();
       }
@@ -617,7 +827,11 @@ export const App: React.FC = () => {
 
   const handleBorrow = async (documentId: number, borrowerId: number, returnDate: string) => {
     try {
-      if (isDemoMode) {
+      if (appMode === 'offline') {
+        // Mode offline - utiliser l'API électron pour SQLite
+        await window.electronAPI.borrowDocument(documentId, borrowerId, returnDate);
+        console.log('Document emprunté en mode offline:', { documentId, borrowerId, returnDate });
+      } else if (isDemoMode) {
         // Mode démo - simuler l'emprunt
         const updatedDocuments = documents.map(doc => 
           doc.id === documentId 
@@ -657,15 +871,16 @@ export const App: React.FC = () => {
           }));
         }
       } else {
-        // Mode normal - utiliser Supabase
+        // Mode online - utiliser Supabase
         await supabaseService.borrowDocument({
           documentId: documentId.toString(),
           borrowerId: borrowerId.toString(),
           expectedReturnDate: returnDate
         });
-        await loadData();
       }
       
+      // Recharger les données après l'opération
+      await loadData();
       closeBorrowModal();
     } catch (error) {
       console.error('Erreur lors de l\'emprunt:', error);
@@ -675,7 +890,20 @@ export const App: React.FC = () => {
 
   const handleReturn = async (documentId: number) => {
     try {
-      if (isDemoMode) {
+      if (appMode === 'offline') {
+        // Mode offline - trouver l'emprunt actif et le retourner
+        const activeBorrow = borrowedDocuments.find(bh => 
+          bh.documentId === documentId && bh.status === 'active'
+        );
+        
+        if (activeBorrow && activeBorrow.id) {
+          await window.electronAPI.returnBook(activeBorrow.id);
+          console.log('Document retourné en mode offline:', documentId);
+        } else {
+          console.error('Aucun emprunt actif trouvé pour le document:', documentId);
+          return;
+        }
+      } else if (isDemoMode) {
         // Mode démo - simuler le retour
         const updatedDocuments = documents.map(doc => 
           doc.id === documentId 
@@ -699,11 +927,12 @@ export const App: React.FC = () => {
           availableDocuments: prev.availableDocuments + 1
         }));
       } else {
-        // Mode normal - utiliser Supabase
+        // Mode online - utiliser Supabase
         await supabaseService.returnDocument(documentId.toString());
-        await loadData();
       }
       
+      // Recharger les données après l'opération
+      await loadData();
       closeBorrowModal();
     } catch (error) {
       console.error('Erreur lors du retour:', error);
@@ -830,6 +1059,10 @@ export const App: React.FC = () => {
         return (
           <About onClose={() => setCurrentView('dashboard')} />
         );
+      case 'app-settings':
+        return (
+          <AppSettings onClose={() => setCurrentView('dashboard')} />
+        );
       default:
         return (
           <Dashboard 
@@ -841,6 +1074,17 @@ export const App: React.FC = () => {
         );
     }
   };
+
+  // Rendu des écrans de sécurité
+  if (isAppLocked || needsPasswordSetup) {
+    return (
+      <AppPasswordScreen
+        onUnlock={handleAppUnlock}
+        onSkip={needsPasswordSetup ? handlePasswordSetup : undefined}
+        isSetup={needsPasswordSetup}
+      />
+    );
+  }
 
   return (
     <ToastProvider>

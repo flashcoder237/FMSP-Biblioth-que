@@ -27,56 +27,36 @@ interface BorrowersProps {
 }
 
 export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
-  // Données mockées pour la démo
-  const [borrowers, setBorrowers] = useState<Borrower[]>([
-    {
-      id: 1,
-      type: 'student',
-      firstName: 'Marie',
-      lastName: 'Dupont',
-      matricule: 'STU001',
-      classe: 'Terminale C',
-      email: 'marie.dupont@example.com',
-      phone: '+237 123 456 789',
-      syncStatus: 'synced',
-      lastModified: new Date().toISOString(),
-      version: 1,
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 2,
-      type: 'staff',
-      firstName: 'Jean',
-      lastName: 'Martin',
-      matricule: 'STAFF001',
-      position: 'Professeur de Mathématiques',
-      cniNumber: '123456789',
-      email: 'jean.martin@example.com',
-      syncStatus: 'synced',
-      lastModified: new Date().toISOString(),
-      version: 1,
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 3,
-      type: 'student',
-      firstName: 'Paul',
-      lastName: 'Nguyen',
-      matricule: 'STU002',
-      classe: 'Première D',
-      email: 'paul.nguyen@example.com',
-      syncStatus: 'pending',
-      lastModified: new Date().toISOString(),
-      version: 1,
-      createdAt: new Date().toISOString()
-    }
-  ]);
+  const [borrowers, setBorrowers] = useState<Borrower[]>([]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'student' | 'staff'>('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingBorrower, setEditingBorrower] = useState<Borrower | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [appMode, setAppMode] = useState<'offline' | 'online'>('offline');
+
+  // Charger les emprunteurs au montage du composant
+  useEffect(() => {
+    loadBorrowers();
+    // Détecter le mode de l'application
+    const mode = localStorage.getItem('appMode') || 'offline';
+    setAppMode(mode as 'offline' | 'online');
+  }, []);
+
+  const loadBorrowers = async () => {
+    setDataLoading(true);
+    try {
+      const borrowersList = await window.electronAPI.getBorrowers();
+      setBorrowers(borrowersList || []);
+    } catch (error) {
+      console.error('Erreur lors du chargement des emprunteurs:', error);
+      setBorrowers([]);
+    } finally {
+      setDataLoading(false);
+    }
+  };
 
   const [borrower, setBorrower] = useState<Omit<Borrower, 'id'>>({
     type: 'student',
@@ -180,22 +160,49 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
     setIsLoading(true);
 
     try {
-      // Simulation d'ajout/modification
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       if (editingBorrower) {
+        // Modification d'un emprunteur existant
+        const updatedBorrower = {
+          ...borrower,
+          id: editingBorrower.id,
+          lastModified: new Date().toISOString(),
+          version: (editingBorrower.version || 1) + 1
+        };
+        
+        if (appMode === 'offline') {
+          await window.electronAPI.updateBorrower(updatedBorrower);
+        }
+        
         setBorrowers(prev => prev.map(b => 
-          b.id === editingBorrower.id 
-            ? { ...borrower, id: editingBorrower.id } 
-            : b
+          b.id === editingBorrower.id ? updatedBorrower : b
         ));
       } else {
-        const newBorrower = { ...borrower, id: Date.now() };
-        setBorrowers(prev => [...prev, newBorrower]);
+        // Ajout d'un nouvel emprunteur
+        const newBorrowerData = {
+          ...borrower,
+          syncStatus: 'pending' as const,
+          lastModified: new Date().toISOString(),
+          version: 1,
+          createdAt: new Date().toISOString()
+        };
+        
+        if (appMode === 'offline') {
+          const savedBorrowerId = await window.electronAPI.addBorrower(newBorrowerData);
+          const savedBorrower = { ...newBorrowerData, id: savedBorrowerId };
+          setBorrowers(prev => [...prev, savedBorrower]);
+        } else {
+          const newBorrower = { ...newBorrowerData, id: Date.now() };
+          setBorrowers(prev => [...prev, newBorrower]);
+        }
       }
       
       setShowAddModal(false);
       resetForm();
+      
+      // Rafraîchir les données dans le composant parent si nécessaire
+      if (onRefreshData) {
+        await onRefreshData();
+      }
     } catch (error: any) {
       console.error('Erreur:', error);
       alert(error.message || 'Erreur lors de l\'opération');
@@ -206,7 +213,21 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
 
   const handleDelete = async (borrowerToDelete: Borrower) => {
     if (window.confirm(`Êtes-vous sûr de vouloir supprimer ${borrowerToDelete.firstName} ${borrowerToDelete.lastName} ?`)) {
-      setBorrowers(prev => prev.filter(b => b.id !== borrowerToDelete.id));
+      try {
+        if (appMode === 'offline' && borrowerToDelete.id) {
+          await window.electronAPI.deleteBorrower(borrowerToDelete.id);
+        }
+        
+        setBorrowers(prev => prev.filter(b => b.id !== borrowerToDelete.id));
+        
+        // Rafraîchir les données dans le composant parent si nécessaire
+        if (onRefreshData) {
+          await onRefreshData();
+        }
+      } catch (error: any) {
+        console.error('Erreur lors de la suppression:', error);
+        alert(error.message || 'Erreur lors de la suppression');
+      }
     }
   };
 
@@ -331,7 +352,12 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
 
         {/* Borrowers List */}
         <div className="borrowers-content">
-          {filteredBorrowers.length > 0 ? (
+          {dataLoading ? (
+            <div className="loading-state">
+              <div className="loading-spinner"></div>
+              <p>Chargement des emprunteurs...</p>
+            </div>
+          ) : filteredBorrowers.length > 0 ? (
             <div className="borrowers-grid">
               {filteredBorrowers.map((borrower) => (
                 <div key={borrower.id} className={`borrower-card ${borrower.type}`}>

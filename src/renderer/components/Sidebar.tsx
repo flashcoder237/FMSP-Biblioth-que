@@ -25,7 +25,7 @@ import { SupabaseRendererService as SupabaseService, User, Institution } from '.
 
 interface SidebarProps {
   currentView: string;
-  onNavigate: (view: 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'donation' | 'about') => void;
+  onNavigate: (view: 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'app-settings' | 'donation' | 'about') => void;
   stats: Stats;
   currentUser: User | null;
   currentInstitution: Institution | null;
@@ -112,6 +112,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
   ];
 
   const supportItems: MenuItem[] = [
+    {
+      id: 'app-settings',
+      label: 'Paramètres',
+      icon: Settings,
+      description: 'Configuration de l\'application',
+      gradient: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)'
+    },
     {
       id: 'donation',
       label: 'Soutenir le projet',

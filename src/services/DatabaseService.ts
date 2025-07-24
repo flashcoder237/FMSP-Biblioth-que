@@ -137,6 +137,88 @@ export class DatabaseService {
           }
         });
 
+        // Vérifier et recréer la table borrow_history si nécessaire (migration)
+        this.db.get(`SELECT name FROM sqlite_master WHERE type='table' AND name='borrow_history'`, (err, row) => {
+          if (err) {
+            console.error('Erreur lors de la vérification de borrow_history:', err);
+            return;
+          }
+          
+          if (!row) {
+            console.log('Table borrow_history manquante, création...');
+            // La table n'existe pas, la créer
+            this.db.run(`
+              CREATE TABLE borrow_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                documentId INTEGER NOT NULL,
+                borrowerId INTEGER NOT NULL,
+                borrowDate DATETIME NOT NULL,
+                expectedReturnDate DATETIME NOT NULL,
+                actualReturnDate DATETIME,
+                status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'returned', 'overdue')),
+                notes TEXT,
+                localId TEXT UNIQUE,
+                remoteId TEXT,
+                syncStatus TEXT DEFAULT 'pending' CHECK (syncStatus IN ('synced', 'pending', 'conflict', 'error')),
+                lastModified DATETIME DEFAULT CURRENT_TIMESTAMP,
+                version INTEGER DEFAULT 1,
+                deletedAt DATETIME,
+                createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (documentId) REFERENCES documents(id),
+                FOREIGN KEY (borrowerId) REFERENCES borrowers(id)
+              )
+            `, (createErr) => {
+              if (createErr) {
+                console.error('Erreur lors de la création de borrow_history:', createErr);
+              } else {
+                console.log('Table borrow_history créée avec succès');
+              }
+            });
+          } else {
+            // Vérifier les colonnes de la table existante
+            this.db.all(`PRAGMA table_info(borrow_history)`, (pragmaErr, columns) => {
+              if (pragmaErr) {
+                console.error('Erreur lors de la vérification des colonnes:', pragmaErr);
+                return;
+              }
+              
+              const columnNames = columns.map((col: any) => col.name);
+              if (!columnNames.includes('documentId')) {
+                console.error('Colonne documentId manquante dans borrow_history!');
+                // Recréer la table avec le bon schéma
+                this.db.run(`DROP TABLE IF EXISTS borrow_history`);
+                this.db.run(`
+                  CREATE TABLE borrow_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    documentId INTEGER NOT NULL,
+                    borrowerId INTEGER NOT NULL,
+                    borrowDate DATETIME NOT NULL,
+                    expectedReturnDate DATETIME NOT NULL,
+                    actualReturnDate DATETIME,
+                    status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'returned', 'overdue')),
+                    notes TEXT,
+                    localId TEXT UNIQUE,
+                    remoteId TEXT,
+                    syncStatus TEXT DEFAULT 'pending' CHECK (syncStatus IN ('synced', 'pending', 'conflict', 'error')),
+                    lastModified DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    version INTEGER DEFAULT 1,
+                    deletedAt DATETIME,
+                    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (documentId) REFERENCES documents(id),
+                    FOREIGN KEY (borrowerId) REFERENCES borrowers(id)
+                  )
+                `, (recreateErr) => {
+                  if (recreateErr) {
+                    console.error('Erreur lors de la recréation de borrow_history:', recreateErr);
+                  } else {
+                    console.log('Table borrow_history recréée avec succès');
+                  }
+                });
+              }
+            });
+          }
+        });
+
         // Vue pour compatibilité avec l'ancienne table books
         this.db.run(`
           CREATE VIEW IF NOT EXISTS books_view AS
@@ -1054,37 +1136,44 @@ export class DatabaseService {
   async clearDatabase(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.db.serialize(() => {
-        this.db.run('DELETE FROM borrow_history', (err) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          this.db.run('DELETE FROM documents', (err) => {
+        // Vérifier et supprimer les tables existantes
+        const tables = ['borrow_history', 'documents', 'borrowers', 'authors', 'categories'];
+        let deletedCount = 0;
+        
+        const deleteFromTable = (tableName: string) => {
+          this.db.get(`SELECT name FROM sqlite_master WHERE type='table' AND name=?`, [tableName], (err, row) => {
             if (err) {
+              console.error(`Erreur lors de la vérification de la table ${tableName}:`, err);
               reject(err);
               return;
             }
-            this.db.run('DELETE FROM borrowers', (err) => {
-              if (err) {
-                reject(err);
-                return;
-              }
-              this.db.run('DELETE FROM authors', (err) => {
-                if (err) {
-                  reject(err);
+            
+            if (row) {
+              // La table existe, on peut la vider
+              this.db.run(`DELETE FROM ${tableName}`, (deleteErr) => {
+                if (deleteErr) {
+                  console.error(`Erreur lors de la suppression de ${tableName}:`, deleteErr);
+                  reject(deleteErr);
                   return;
                 }
-                this.db.run('DELETE FROM categories', (err) => {
-                  if (err) {
-                    reject(err);
-                    return;
-                  }
+                console.log(`Table ${tableName} vidée avec succès`);
+                deletedCount++;
+                if (deletedCount === tables.length) {
                   resolve();
-                });
+                }
               });
-            });
+            } else {
+              console.log(`Table ${tableName} n'existe pas, ignorée`);
+              deletedCount++;
+              if (deletedCount === tables.length) {
+                resolve();
+              }
+            }
           });
-        });
+        };
+        
+        // Supprimer de toutes les tables
+        tables.forEach(deleteFromTable);
       });
     });
   }
@@ -1467,6 +1556,61 @@ export class DatabaseService {
           else resolve();
         }
       );
+    });
+  }
+
+  // Fonction pour nettoyer toutes les données (pour debug et réinitialisation)
+  async clearAllData(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.db.serialize(() => {
+        // Vérifier et supprimer les données de toutes les tables
+        const tables = ['borrow_history', 'documents', 'borrowers', 'authors', 'categories'];
+        let processedCount = 0;
+        let hasError = false;
+        
+        const clearTable = (tableName: string) => {
+          this.db.get(`SELECT name FROM sqlite_master WHERE type='table' AND name=?`, [tableName], (err, row) => {
+            if (err) {
+              console.error(`Erreur lors de la vérification de la table ${tableName}:`, err);
+              if (!hasError) {
+                hasError = true;
+                reject(err);
+              }
+              return;
+            }
+            
+            if (row) {
+              // La table existe, on peut la vider
+              this.db.run(`DELETE FROM ${tableName}`, (deleteErr) => {
+                if (deleteErr) {
+                  console.error(`Erreur lors de la suppression de ${tableName}:`, deleteErr);
+                  if (!hasError) {
+                    hasError = true;
+                    reject(deleteErr);
+                  }
+                  return;
+                }
+                console.log(`Table ${tableName} vidée avec succès`);
+                processedCount++;
+                if (processedCount === tables.length && !hasError) {
+                  console.log('Toutes les données ont été supprimées avec succès');
+                  resolve(true);
+                }
+              });
+            } else {
+              console.log(`Table ${tableName} n'existe pas, ignorée`);
+              processedCount++;
+              if (processedCount === tables.length && !hasError) {
+                console.log('Toutes les données ont été supprimées avec succès');
+                resolve(true);
+              }
+            }
+          });
+        };
+        
+        // Nettoyer toutes les tables
+        tables.forEach(clearTable);
+      });
     });
   }
 }

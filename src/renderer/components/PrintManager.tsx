@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Printer, 
   Download, 
@@ -12,26 +12,53 @@ import {
   Zap,
   BarChart3
 } from 'lucide-react';
-import { Book, Stats, Category } from '../../types';
+import { Document, Stats } from '../../preload';
+import { InstitutionSettings } from '../../preload';
 
 interface PrintManagerProps {
-  books: Book[];
+  documents: Document[];
   stats: Stats;
-  categories: Category[];
   onClose: () => void;
 }
 
 type PrintType = 'inventory' | 'available' | 'borrowed';
 
 export const PrintManager: React.FC<PrintManagerProps> = ({ 
-  books, 
+  documents, 
   stats, 
-  categories, 
   onClose 
 }) => {
   const [selectedType, setSelectedType] = useState<PrintType>('inventory');
   const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [institutionSettings, setInstitutionSettings] = useState<InstitutionSettings>({
+    name: 'Bibliothèque Numérique',
+    address: '',
+    city: '',
+    country: '',
+    phone: '',
+    email: '',
+    website: '',
+    logo: '',
+    description: 'Système de gestion de bibliothèque moderne'
+  });
+
+  useEffect(() => {
+    // Charger les informations de l'institution depuis localStorage
+    const loadInstitutionSettings = () => {
+      try {
+        const stored = localStorage.getItem('institutionSettings');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          setInstitutionSettings(prev => ({ ...prev, ...parsed }));
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des paramètres d\'institution:', error);
+      }
+    };
+
+    loadInstitutionSettings();
+  }, []);
 
   const printOptions = [
     {
@@ -41,7 +68,7 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
       icon: FileText,
       color: '#3E5C49',
       gradient: 'linear-gradient(135deg, #3E5C49 0%, #2E453A 100%)',
-      count: stats.totalDocuments,
+      count: documents.length,
       features: ['Informations complètes', 'Statuts des emprunts', 'Métadonnées']
     },
     {
@@ -51,7 +78,7 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
       icon: BookOpen,
       color: '#3E5C49',
       gradient: 'linear-gradient(135deg, #3E5C49 0%, #4A6B57 100%)',
-      count: stats.availableDocuments,
+      count: documents.filter(doc => !doc.estEmprunte).length,
       features: ['Documents en rayon', 'Prêts à emprunter', 'Tri par catégorie']
     },
     {
@@ -61,7 +88,7 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
       icon: Clock,
       color: '#C2571B',
       gradient: 'linear-gradient(135deg, #C2571B 0%, #A8481A 100%)',
-      count: stats.borrowedDocuments,
+      count: documents.filter(doc => doc.estEmprunte).length,
       features: ['Noms des emprunteurs', 'Dates d\'emprunt', 'Alertes retard']
     }
   ];
@@ -74,7 +101,11 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
   const handlePrint = async () => {
     setIsProcessing(true);
     try {
-      const printData = { books, stats, categories };
+      const printData = { 
+        documents, 
+        stats, 
+        institution: institutionSettings 
+      };
 
       let success = false;
       switch (selectedType) {
@@ -105,7 +136,11 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
   const handleExportCSV = async () => {
     setIsProcessing(true);
     try {
-      const exportData = { books, stats, categories };
+      const exportData = { 
+        documents, 
+        stats, 
+        institution: institutionSettings 
+      };
       const filePath = await window.electronAPI.exportCSV(exportData);
       
       if (filePath) {
@@ -126,22 +161,22 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
       case 'inventory':
         return {
           title: 'Inventaire Complet',
-          items: books,
-          description: `${stats.totalDocuments} document(s) au total`,
+          items: documents,
+          description: `${documents.length} document(s) au total`,
           icon: BarChart3
         };
       case 'available':
         return {
           title: 'Documents Disponibles',
-          items: books.filter(book => !book.isBorrowed),
-          description: `${stats.availableDocuments} document(s) disponible(s)`,
+          items: documents.filter(doc => !doc.estEmprunte),
+          description: `${documents.filter(doc => !doc.estEmprunte).length} document(s) disponible(s)`,
           icon: BookOpen
         };
       case 'borrowed':
         return {
           title: 'Documents Empruntés',
-          items: books.filter(book => book.isBorrowed),
-          description: `${stats.borrowedDocuments} document(s) emprunté(s)`,
+          items: documents.filter(doc => doc.estEmprunte),
+          description: `${documents.filter(doc => doc.estEmprunte).length} document(s) emprunté(s)`,
           icon: Clock
         };
     }
@@ -246,15 +281,38 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
             
             <div className="preview-card">
               <div className="preview-header">
-                <div 
-                  className="preview-icon"
-                  style={{ background: selectedOption?.gradient }}
-                >
-                  <selectedOption.icon size={20} />
+                <div className="institution-header">
+                  {institutionSettings.logo && (
+                    <div className="institution-logo">
+                      <img src={institutionSettings.logo} alt="Logo" />
+                    </div>
+                  )}
+                  <div className="institution-info">
+                    <h3 className="institution-name">{institutionSettings.name}</h3>
+                    {institutionSettings.address && (
+                      <p className="institution-address">
+                        {institutionSettings.address}, {institutionSettings.city}
+                      </p>
+                    )}
+                    {institutionSettings.phone && (
+                      <p className="institution-contact">
+                        Tél: {institutionSettings.phone}
+                        {institutionSettings.email && ` • ${institutionSettings.email}`}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div className="preview-info">
-                  <h4 className="preview-title">{previewData.title}</h4>
-                  <p className="preview-subtitle">Généré le {new Date().toLocaleDateString('fr-FR')}</p>
+                <div className="report-header">
+                  <div 
+                    className="preview-icon"
+                    style={{ background: selectedOption?.gradient }}
+                  >
+                    <selectedOption.icon size={20} />
+                  </div>
+                  <div className="preview-info">
+                    <h4 className="preview-title">{previewData.title}</h4>
+                    <p className="preview-subtitle">Généré le {new Date().toLocaleDateString('fr-FR')}</p>
+                  </div>
                 </div>
               </div>
               
@@ -276,31 +334,31 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
                   </div>
                   
                   <div className="table-body">
-                    {previewData.items.slice(0, 4).map((book, index) => (
+                    {previewData.items.slice(0, 4).map((doc, index) => (
                       <div key={index} className="table-row">
                         <div className="table-cell">
                           <div className="cell-content">
-                            <div className="book-title">{book.title}</div>
+                            <div className="book-title">{doc.titre}</div>
                           </div>
                         </div>
-                        <div className="table-cell">{book.author}</div>
+                        <div className="table-cell">{doc.auteur}</div>
                         <div className="table-cell">
-                          <span className="category-badge">{book.category}</span>
+                          <span className="category-badge">{doc.descripteurs}</span>
                         </div>
                         {selectedType === 'borrowed' && (
                           <>
                             <div className="table-cell">
-                              <strong>{book.borrowerName}</strong>
+                              <strong>{doc.nomEmprunteur || '-'}</strong>
                             </div>
                             <div className="table-cell">
-                              {book.borrowDate ? new Date(book.borrowDate).toLocaleDateString('fr-FR') : '-'}
+                              {doc.dateEmprunt ? new Date(doc.dateEmprunt).toLocaleDateString('fr-FR') : '-'}
                             </div>
                           </>
                         )}
                         {selectedType !== 'borrowed' && (
                           <div className="table-cell">
-                            <span className={`status-badge ${book.isBorrowed ? 'borrowed' : 'available'}`}>
-                              {book.isBorrowed ? 'Emprunté' : 'Disponible'}
+                            <span className={`status-badge ${doc.estEmprunte ? 'borrowed' : 'available'}`}>
+                              {doc.estEmprunte ? 'Emprunté' : 'Disponible'}
                             </span>
                           </div>
                         )}
@@ -684,11 +742,65 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
         }
         
         .preview-header {
+          padding: 24px;
+          background: #F3EED9;
+        }
+
+        .institution-header {
+          display: flex;
+          align-items: flex-start;
+          gap: 16px;
+          margin-bottom: 20px;
+          padding-bottom: 16px;
+          border-bottom: 1px solid rgba(229, 220, 194, 0.5);
+        }
+
+        .institution-logo {
+          width: 60px;
+          height: 60px;
+          border-radius: 12px;
+          overflow: hidden;
+          border: 2px solid #E5DCC2;
+          background: #FFFFFF;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .institution-logo img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .institution-info {
+          flex: 1;
+        }
+
+        .institution-name {
+          font-size: 18px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 4px 0;
+        }
+
+        .institution-address {
+          font-size: 13px;
+          color: #6E6E6E;
+          margin: 0 0 2px 0;
+        }
+
+        .institution-contact {
+          font-size: 12px;
+          color: #6E6E6E;
+          margin: 0;
+        }
+
+        .report-header {
           display: flex;
           align-items: center;
           gap: 16px;
-          padding: 20px 24px;
-          background: #F3EED9;
           border-bottom: 1px solid #E5DCC2;
         }
         

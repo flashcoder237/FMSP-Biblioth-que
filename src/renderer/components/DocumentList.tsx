@@ -125,8 +125,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
   const handleBorrow = (document: Document) => {
     if (onBorrow) {
       onBorrow(document);
-      const action = document.estEmprunte ? 'retourné' : 'emprunté';
-      toast.success(`Document ${action}`, `"${document.titre}" a été ${action} avec succès`);
+      // Ne pas afficher de notification ici - elle sera affichée après confirmation dans le modal
     }
   };
 

@@ -761,6 +761,76 @@ electron_1.ipcMain.handle('sync:retry', async (_, operationId) => {
         return false;
     }
 });
+// Print Operations
+electron_1.ipcMain.handle('print:inventory', async (_, data) => {
+    try {
+        return await createPrintWindow(data, 'inventory');
+    }
+    catch (error) {
+        console.error('Erreur print:inventory:', error);
+        return false;
+    }
+});
+electron_1.ipcMain.handle('print:available-books', async (_, data) => {
+    try {
+        return await createPrintWindow(data, 'available');
+    }
+    catch (error) {
+        console.error('Erreur print:available-books:', error);
+        return false;
+    }
+});
+electron_1.ipcMain.handle('print:borrowed-books', async (_, data) => {
+    try {
+        return await createPrintWindow(data, 'borrowed');
+    }
+    catch (error) {
+        console.error('Erreur print:borrowed-books:', error);
+        return false;
+    }
+});
+electron_1.ipcMain.handle('export:csv', async (_, data) => {
+    try {
+        const result = await electron_1.dialog.showSaveDialog(mainWindow, {
+            title: 'Exporter en CSV',
+            defaultPath: `bibliotheque_export_${new Date().toISOString().split('T')[0]}.csv`,
+            filters: [
+                { name: 'Fichiers CSV', extensions: ['csv'] },
+                { name: 'Tous les fichiers', extensions: ['*'] }
+            ]
+        });
+        if (result.canceled || !result.filePath) {
+            return null;
+        }
+        const csvContent = generateCSV(data);
+        fs.writeFileSync(result.filePath, csvContent, 'utf8');
+        return result.filePath;
+    }
+    catch (error) {
+        console.error('Erreur export:csv:', error);
+        return null;
+    }
+});
+function generateCSV(data) {
+    if (!data.documents || !Array.isArray(data.documents)) {
+        return '';
+    }
+    const headers = ['Titre', 'Auteur', 'Éditeur', 'Année', 'Catégorie', 'Cote', 'Statut', 'Emprunteur', 'Date d\'emprunt'];
+    const rows = data.documents.map((doc) => [
+        doc.titre || '',
+        doc.auteur || '',
+        doc.editeur || '',
+        doc.annee || '',
+        doc.descripteurs || '',
+        doc.cote || '',
+        doc.estEmprunte ? 'Emprunté' : 'Disponible',
+        doc.nomEmprunteur || '',
+        doc.dateEmprunt ? new Date(doc.dateEmprunt).toLocaleDateString('fr-FR') : ''
+    ]);
+    return [headers, ...rows]
+        .map(row => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+}
 async function createPrintWindow(data, type) {
     return new Promise((resolve) => {
         const printWindow = new electron_1.BrowserWindow({
@@ -798,6 +868,7 @@ function generatePrintHTML(data, type) {
         hour: '2-digit',
         minute: '2-digit'
     });
+    const institution = data.institution || {};
     let title = '';
     let content = '';
     switch (type) {
@@ -841,6 +912,40 @@ function generatePrintHTML(data, type) {
           border-bottom: 3px solid #3E5C49;
           padding-bottom: 20px; 
           margin-bottom: 30px;
+        }
+        .institution-header {
+          display: flex;
+          align-items: flex-start;
+          gap: 20px;
+          margin-bottom: 20px;
+          padding-bottom: 15px;
+          border-bottom: 1px solid #E5DCC2;
+        }
+        .institution-logo {
+          width: 80px;
+          height: 80px;
+          object-fit: cover;
+          border-radius: 8px;
+          border: 2px solid #E5DCC2;
+        }
+        .institution-info h2 {
+          color: #3E5C49;
+          font-size: 20px;
+          font-weight: 700;
+          margin: 0 0 5px 0;
+        }
+        .institution-address {
+          font-size: 12px;
+          color: #6E6E6E;
+          margin: 0 0 3px 0;
+        }
+        .institution-contact {
+          font-size: 11px;
+          color: #6E6E6E;
+          margin: 0;
+        }
+        .report-title {
+          margin-top: 15px;
         }
         .header h1 {
           color: #3E5C49; 
@@ -942,9 +1047,25 @@ function generatePrintHTML(data, type) {
     </head>
     <body>
       <div class="header">
-        <h1>${title}</h1>
-        <div class="subtitle">Système de Gestion de Bibliothèque</div>
-        <div class="date">Généré le ${now}</div>
+        ${institution.name || institution.logo ? `
+        <div class="institution-header">
+          ${institution.logo ? `<img src="${institution.logo}" alt="Logo" class="institution-logo" />` : ''}
+          <div class="institution-info">
+            <h2>${institution.name || 'Bibliothèque Numérique'}</h2>
+            ${institution.address ? `<div class="institution-address">${institution.address}${institution.city ? ', ' + institution.city : ''}</div>` : ''}
+            ${institution.phone || institution.email ? `
+            <div class="institution-contact">
+              ${institution.phone ? 'Tél: ' + institution.phone : ''}
+              ${institution.phone && institution.email ? ' • ' : ''}
+              ${institution.email ? institution.email : ''}
+            </div>` : ''}
+          </div>
+        </div>` : ''}
+        <div class="report-title">
+          <h1>${title}</h1>
+          <div class="subtitle">${institution.description || 'Système de Gestion de Bibliothèque'}</div>
+          <div class="date">Généré le ${now}</div>
+        </div>
       </div>
       ${content}
     </body>
@@ -952,23 +1073,23 @@ function generatePrintHTML(data, type) {
     `;
 }
 function generateInventoryContent(data) {
-    const { books, stats } = data;
+    const { documents, stats } = data;
     return `
     <div class="stats-summary">
       <div class="stat-item">
-        <div class="stat-value">${stats.totalDocuments}</div>
-        <div class="stat-label">Total Livres</div>
+        <div class="stat-value">${documents?.length || 0}</div>
+        <div class="stat-label">Total Documents</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${stats.availableDocuments}</div>
+        <div class="stat-value">${documents?.filter((d) => !d.estEmprunte).length || 0}</div>
         <div class="stat-label">Disponibles</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${stats.borrowedDocuments}</div>
+        <div class="stat-value">${documents?.filter((d) => d.estEmprunte).length || 0}</div>
         <div class="stat-label">Empruntés</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${stats.totalAuthors}</div>
+        <div class="stat-value">${[...new Set(documents?.map((d) => d.auteur).filter(Boolean))].length || 0}</div>
         <div class="stat-label">Auteurs</div>
       </div>
     </div>
@@ -978,51 +1099,51 @@ function generateInventoryContent(data) {
         <tr>
           <th style="width: 25%;">Titre</th>
           <th style="width: 20%;">Auteur</th>
-          <th style="width: 15%;">Catégorie</th>
-          <th style="width: 10%;">ISBN</th>
+          <th style="width: 15%;">Éditeur</th>
           <th style="width: 8%;">Année</th>
+          <th style="width: 10%;">Cote</th>
           <th style="width: 10%;">Statut</th>
           <th style="width: 12%;">Emprunteur/Date</th>
         </tr>
       </thead>
       <tbody>
-        ${books.map((book) => `
+        ${documents?.map((doc) => `
           <tr>
-            <td><strong>${book.title}</strong></td>
-            <td>${book.author}</td>
-            <td><span class="category-tag">${book.category}</span></td>
-            <td>${book.isbn || '-'}</td>
-            <td>${book.publishedDate || '-'}</td>
+            <td><strong>${doc.titre || '-'}</strong></td>
+            <td>${doc.auteur || '-'}</td>
+            <td>${doc.editeur || '-'}</td>
+            <td>${doc.annee || '-'}</td>
+            <td>${doc.cote || '-'}</td>
             <td>
-              <span class="${book.isBorrowed ? 'status-borrowed' : 'status-available'}">
-                ${book.isBorrowed ? 'Emprunté' : 'Disponible'}
+              <span class="${doc.estEmprunte ? 'status-borrowed' : 'status-available'}">
+                ${doc.estEmprunte ? 'Emprunté' : 'Disponible'}
               </span>
             </td>
             <td>
-              ${book.borrowerId ? `${book.borrower?.firstName || ''} ${book.borrower?.lastName || ''}<br/>` : '-'}
-              ${book.borrowDate ? new Date(book.borrowDate).toLocaleDateString('fr-FR') : ''}
+              ${doc.nomEmprunteur ? `${doc.nomEmprunteur}<br/>` : '-'}
+              ${doc.dateEmprunt ? new Date(doc.dateEmprunt).toLocaleDateString('fr-FR') : ''}
             </td>
           </tr>
-        `).join('')}
+        `).join('') || '<tr><td colspan="7">Aucun document trouvé</td></tr>'}
       </tbody>
     </table>
   `;
 }
 function generateAvailableBooksContent(data) {
-    const { books, stats } = data;
-    const availableBooks = books.filter((book) => !book.isBorrowed);
+    const { documents } = data;
+    const availableDocuments = documents?.filter((doc) => !doc.estEmprunte) || [];
     return `
     <div class="stats-summary">
       <div class="stat-item">
-        <div class="stat-value">${availableBooks.length}</div>
-        <div class="stat-label">Livres Disponibles</div>
+        <div class="stat-value">${availableDocuments.length}</div>
+        <div class="stat-label">Documents Disponibles</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${stats.totalDocuments}</div>
-        <div class="stat-label">Total Livres</div>
+        <div class="stat-value">${documents?.length || 0}</div>
+        <div class="stat-label">Total Documents</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${((availableBooks.length / (stats.totalDocuments || 1)) * 100).toFixed(1)}%</div>
+        <div class="stat-value">${((availableDocuments.length / (documents?.length || 1)) * 100).toFixed(1)}%</div>
         <div class="stat-label">Taux Disponibilité</div>
       </div>
     </div>
@@ -1032,90 +1153,77 @@ function generateAvailableBooksContent(data) {
         <tr>
           <th style="width: 30%;">Titre</th>
           <th style="width: 25%;">Auteur</th>
-          <th style="width: 15%;">Catégorie</th>
-          <th style="width: 15%;">ISBN</th>
-          <th style="width: 15%;">Année Publication</th>
+          <th style="width: 15%;">Éditeur</th>
+          <th style="width: 15%;">Cote</th>
+          <th style="width: 15%;">Année</th>
         </tr>
       </thead>
       <tbody>
-        ${availableBooks.map((book) => `
+        ${availableDocuments.map((doc) => `
           <tr>
-            <td><strong>${book.title}</strong></td>
-            <td>${book.author}</td>
-            <td><span class="category-tag">${book.category}</span></td>
-            <td>${book.isbn || '-'}</td>
-            <td>${book.publishedDate || '-'}</td>
+            <td><strong>${doc.titre || '-'}</strong></td>
+            <td>${doc.auteur || '-'}</td>
+            <td>${doc.editeur || '-'}</td>
+            <td>${doc.cote || '-'}</td>
+            <td>${doc.annee || '-'}</td>
           </tr>
-        `).join('')}
+        `).join('') || '<tr><td colspan="5">Aucun document disponible</td></tr>'}
       </tbody>
     </table>
   `;
 }
 function generateBorrowedBooksContent(data) {
-    const { history } = data;
+    const { documents } = data;
+    const borrowedDocuments = documents?.filter((doc) => doc.estEmprunte) || [];
     return `
     <div class="stats-summary">
       <div class="stat-item">
-        <div class="stat-value">${history.length}</div>
-        <div class="stat-label">Livres Empruntés</div>
+        <div class="stat-value">${borrowedDocuments.length}</div>
+        <div class="stat-label">Documents Empruntés</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${history.filter((h) => h.status === 'overdue').length}</div>
+        <div class="stat-value">${borrowedDocuments.filter((doc) => {
+        const returnDate = new Date(doc.dateRetourPrevu || '');
+        return returnDate < new Date();
+    }).length}</div>
         <div class="stat-label">En Retard</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${history.filter((h) => h.borrower?.type === 'student').length}</div>
-        <div class="stat-label">Étudiants</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value">${history.filter((h) => h.borrower?.type === 'staff').length}</div>
-        <div class="stat-label">Personnel</div>
+        <div class="stat-value">${documents?.length || 0}</div>
+        <div class="stat-label">Total Documents</div>
       </div>
     </div>
     
     <table class="content-table">
       <thead>
         <tr>
-          <th style="width: 20%;">Livre</th>
-          <th style="width: 15%;">Auteur</th>
-          <th style="width: 15%;">Emprunteur</th>
-          <th style="width: 10%;">Type</th>
-          <th style="width: 12%;">Matricule/Classe</th>
-          <th style="width: 10%;">Date Emprunt</th>
-          <th style="width: 10%;">Retour Prévu</th>
-          <th style="width: 8%;">Statut</th>
+          <th style="width: 25%;">Titre</th>
+          <th style="width: 20%;">Auteur</th>
+          <th style="width: 20%;">Emprunteur</th>
+          <th style="width: 12%;">Date Emprunt</th>
+          <th style="width: 12%;">Retour Prévu</th>
+          <th style="width: 11%;">Statut</th>
         </tr>
       </thead>
       <tbody>
-        ${history.map((item) => {
-        const borrowDate = new Date(item.borrowDate);
-        const expectedDate = new Date(item.expectedReturnDate);
+        ${borrowedDocuments.map((doc) => {
+        const borrowDate = doc.dateEmprunt ? new Date(doc.dateEmprunt) : null;
+        const expectedDate = doc.dateRetourPrevu ? new Date(doc.dateRetourPrevu) : null;
         const today = new Date();
-        const isOverdue = today > expectedDate && item.status === 'active';
+        const isOverdue = expectedDate && today > expectedDate;
         return `
             <tr>
-              <td><strong>${item.book?.title}</strong></td>
-              <td>${item.book?.author}</td>
-              <td><strong>${item.borrower?.firstName} ${item.borrower?.lastName}</strong></td>
+              <td><strong>${doc.titre || '-'}</strong></td>
+              <td>${doc.auteur || '-'}</td>
+              <td><strong>${doc.nomEmprunteur || '-'}</strong></td>
+              <td>${borrowDate ? borrowDate.toLocaleDateString('fr-FR') : '-'}</td>
+              <td>${expectedDate ? expectedDate.toLocaleDateString('fr-FR') : '-'}</td>
               <td>
-                <span class="borrower-type">
-                  ${item.borrower?.type === 'student' ? 'Étudiant' : 'Personnel'}
-                </span>
-              </td>
-              <td>
-                ${item.borrower?.matricule}<br/>
-                <small>${item.borrower?.type === 'student' ? item.borrower?.classe || '' : item.borrower?.position || ''}</small>
-              </td>
-              <td>${borrowDate.toLocaleDateString('fr-FR')}</td>
-              <td>${expectedDate.toLocaleDateString('fr-FR')}</td>
-              <td>
-                <span class="${isOverdue ? 'status-overdue' : item.status === 'returned' ? 'status-returned' : 'status-borrowed'}">
-                  ${isOverdue ? 'En retard' : item.status === 'returned' ? 'Rendu' : 'En cours'}
-                </span>
+                <span class="${isOverdue ? 'status-overdue' : 'status-borrowed'}">${isOverdue ? 'En retard' : 'En cours'}</span>
               </td>
             </tr>
           `;
-    }).join('')}
+    }).join('') || '<tr><td colspan="6">Aucun document emprunté</td></tr>'}
       </tbody>
     </table>
   `;
@@ -3142,6 +3250,88 @@ class DatabaseService {
                         console.error('Erreur lors de l\'ajout de la colonne type:', err);
                     }
                 });
+                // Vérifier et recréer la table borrow_history si nécessaire (migration)
+                this.db.get(`SELECT name FROM sqlite_master WHERE type='table' AND name='borrow_history'`, (err, row) => {
+                    if (err) {
+                        console.error('Erreur lors de la vérification de borrow_history:', err);
+                        return;
+                    }
+                    if (!row) {
+                        console.log('Table borrow_history manquante, création...');
+                        // La table n'existe pas, la créer
+                        this.db.run(`
+              CREATE TABLE borrow_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                documentId INTEGER NOT NULL,
+                borrowerId INTEGER NOT NULL,
+                borrowDate DATETIME NOT NULL,
+                expectedReturnDate DATETIME NOT NULL,
+                actualReturnDate DATETIME,
+                status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'returned', 'overdue')),
+                notes TEXT,
+                localId TEXT UNIQUE,
+                remoteId TEXT,
+                syncStatus TEXT DEFAULT 'pending' CHECK (syncStatus IN ('synced', 'pending', 'conflict', 'error')),
+                lastModified DATETIME DEFAULT CURRENT_TIMESTAMP,
+                version INTEGER DEFAULT 1,
+                deletedAt DATETIME,
+                createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (documentId) REFERENCES documents(id),
+                FOREIGN KEY (borrowerId) REFERENCES borrowers(id)
+              )
+            `, (createErr) => {
+                            if (createErr) {
+                                console.error('Erreur lors de la création de borrow_history:', createErr);
+                            }
+                            else {
+                                console.log('Table borrow_history créée avec succès');
+                            }
+                        });
+                    }
+                    else {
+                        // Vérifier les colonnes de la table existante
+                        this.db.all(`PRAGMA table_info(borrow_history)`, (pragmaErr, columns) => {
+                            if (pragmaErr) {
+                                console.error('Erreur lors de la vérification des colonnes:', pragmaErr);
+                                return;
+                            }
+                            const columnNames = columns.map((col) => col.name);
+                            if (!columnNames.includes('documentId')) {
+                                console.error('Colonne documentId manquante dans borrow_history!');
+                                // Recréer la table avec le bon schéma
+                                this.db.run(`DROP TABLE IF EXISTS borrow_history`);
+                                this.db.run(`
+                  CREATE TABLE borrow_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    documentId INTEGER NOT NULL,
+                    borrowerId INTEGER NOT NULL,
+                    borrowDate DATETIME NOT NULL,
+                    expectedReturnDate DATETIME NOT NULL,
+                    actualReturnDate DATETIME,
+                    status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'returned', 'overdue')),
+                    notes TEXT,
+                    localId TEXT UNIQUE,
+                    remoteId TEXT,
+                    syncStatus TEXT DEFAULT 'pending' CHECK (syncStatus IN ('synced', 'pending', 'conflict', 'error')),
+                    lastModified DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    version INTEGER DEFAULT 1,
+                    deletedAt DATETIME,
+                    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (documentId) REFERENCES documents(id),
+                    FOREIGN KEY (borrowerId) REFERENCES borrowers(id)
+                  )
+                `, (recreateErr) => {
+                                    if (recreateErr) {
+                                        console.error('Erreur lors de la recréation de borrow_history:', recreateErr);
+                                    }
+                                    else {
+                                        console.log('Table borrow_history recréée avec succès');
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
                 // Vue pour compatibilité avec l'ancienne table books
                 this.db.run(`
           CREATE VIEW IF NOT EXISTS books_view AS
@@ -3998,37 +4188,42 @@ class DatabaseService {
     async clearDatabase() {
         return new Promise((resolve, reject) => {
             this.db.serialize(() => {
-                this.db.run('DELETE FROM borrow_history', (err) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    this.db.run('DELETE FROM documents', (err) => {
+                // Vérifier et supprimer les tables existantes
+                const tables = ['borrow_history', 'documents', 'borrowers', 'authors', 'categories'];
+                let deletedCount = 0;
+                const deleteFromTable = (tableName) => {
+                    this.db.get(`SELECT name FROM sqlite_master WHERE type='table' AND name=?`, [tableName], (err, row) => {
                         if (err) {
+                            console.error(`Erreur lors de la vérification de la table ${tableName}:`, err);
                             reject(err);
                             return;
                         }
-                        this.db.run('DELETE FROM borrowers', (err) => {
-                            if (err) {
-                                reject(err);
-                                return;
-                            }
-                            this.db.run('DELETE FROM authors', (err) => {
-                                if (err) {
-                                    reject(err);
+                        if (row) {
+                            // La table existe, on peut la vider
+                            this.db.run(`DELETE FROM ${tableName}`, (deleteErr) => {
+                                if (deleteErr) {
+                                    console.error(`Erreur lors de la suppression de ${tableName}:`, deleteErr);
+                                    reject(deleteErr);
                                     return;
                                 }
-                                this.db.run('DELETE FROM categories', (err) => {
-                                    if (err) {
-                                        reject(err);
-                                        return;
-                                    }
+                                console.log(`Table ${tableName} vidée avec succès`);
+                                deletedCount++;
+                                if (deletedCount === tables.length) {
                                     resolve();
-                                });
+                                }
                             });
-                        });
+                        }
+                        else {
+                            console.log(`Table ${tableName} n'existe pas, ignorée`);
+                            deletedCount++;
+                            if (deletedCount === tables.length) {
+                                resolve();
+                            }
+                        }
                     });
-                });
+                };
+                // Supprimer de toutes les tables
+                tables.forEach(deleteFromTable);
             });
         });
     }
@@ -4381,6 +4576,58 @@ class DatabaseService {
                     reject(err);
                 else
                     resolve();
+            });
+        });
+    }
+    // Fonction pour nettoyer toutes les données (pour debug et réinitialisation)
+    async clearAllData() {
+        return new Promise((resolve, reject) => {
+            this.db.serialize(() => {
+                // Vérifier et supprimer les données de toutes les tables
+                const tables = ['borrow_history', 'documents', 'borrowers', 'authors', 'categories'];
+                let processedCount = 0;
+                let hasError = false;
+                const clearTable = (tableName) => {
+                    this.db.get(`SELECT name FROM sqlite_master WHERE type='table' AND name=?`, [tableName], (err, row) => {
+                        if (err) {
+                            console.error(`Erreur lors de la vérification de la table ${tableName}:`, err);
+                            if (!hasError) {
+                                hasError = true;
+                                reject(err);
+                            }
+                            return;
+                        }
+                        if (row) {
+                            // La table existe, on peut la vider
+                            this.db.run(`DELETE FROM ${tableName}`, (deleteErr) => {
+                                if (deleteErr) {
+                                    console.error(`Erreur lors de la suppression de ${tableName}:`, deleteErr);
+                                    if (!hasError) {
+                                        hasError = true;
+                                        reject(deleteErr);
+                                    }
+                                    return;
+                                }
+                                console.log(`Table ${tableName} vidée avec succès`);
+                                processedCount++;
+                                if (processedCount === tables.length && !hasError) {
+                                    console.log('Toutes les données ont été supprimées avec succès');
+                                    resolve(true);
+                                }
+                            });
+                        }
+                        else {
+                            console.log(`Table ${tableName} n'existe pas, ignorée`);
+                            processedCount++;
+                            if (processedCount === tables.length && !hasError) {
+                                console.log('Toutes les données ont été supprimées avec succès');
+                                resolve(true);
+                            }
+                        }
+                    });
+                };
+                // Nettoyer toutes les tables
+                tables.forEach(clearTable);
             });
         });
     }

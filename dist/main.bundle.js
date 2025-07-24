@@ -30,12 +30,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_EnhancedAuthentication__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./components/EnhancedAuthentication */ "./src/renderer/components/EnhancedAuthentication.tsx");
 /* harmony import */ var _components_InstitutionSetup__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./components/InstitutionSetup */ "./src/renderer/components/InstitutionSetup.tsx");
 /* harmony import */ var _components_InitialSetup__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./components/InitialSetup */ "./src/renderer/components/InitialSetup.tsx");
-/* harmony import */ var _services_SupabaseClient__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./services/SupabaseClient */ "./src/renderer/services/SupabaseClient.ts");
-/* harmony import */ var _services_ConfigService__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./services/ConfigService */ "./src/renderer/services/ConfigService.ts");
-/* harmony import */ var _components_ToastSystem__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./components/ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
-/* harmony import */ var _components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./components/KeyboardShortcuts */ "./src/renderer/components/KeyboardShortcuts.tsx");
+/* harmony import */ var _components_AppPasswordScreen__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./components/AppPasswordScreen */ "./src/renderer/components/AppPasswordScreen.tsx");
+/* harmony import */ var _services_SupabaseClient__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./services/SupabaseClient */ "./src/renderer/services/SupabaseClient.ts");
+/* harmony import */ var _services_ConfigService__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./services/ConfigService */ "./src/renderer/services/ConfigService.ts");
+/* harmony import */ var _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./services/LocalAuthService */ "./src/renderer/services/LocalAuthService.ts");
+/* harmony import */ var _components_AppSettings__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./components/AppSettings */ "./src/renderer/components/AppSettings.tsx");
+/* harmony import */ var _components_ToastSystem__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./components/ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
+/* harmony import */ var _components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./components/KeyboardShortcuts */ "./src/renderer/components/KeyboardShortcuts.tsx");
 
 // src/renderer/App.tsx - Version modifiée pour Supabase
+
+
+
 
 
 
@@ -65,6 +71,9 @@ const App = () => {
     const [isDemoMode, setIsDemoMode] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [appMode, setAppMode] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('offline');
     const [isAppConfigured, setIsAppConfigured] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    // App security states
+    const [isAppLocked, setIsAppLocked] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(true);
+    const [needsPasswordSetup, setNeedsPasswordSetup] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     // Data states
     const [documents, setDocuments] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
     const [authors, setAuthors] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
@@ -83,24 +92,70 @@ const App = () => {
         overdueDocuments: 0
     });
     // Services
-    const [supabaseService] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(() => new _services_SupabaseClient__WEBPACK_IMPORTED_MODULE_17__.SupabaseRendererService());
+    const [supabaseService] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(() => new _services_SupabaseClient__WEBPACK_IMPORTED_MODULE_18__.SupabaseRendererService());
     const [showBorrowModal, setShowBorrowModal] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [selectedDocumentForBorrow, setSelectedDocumentForBorrow] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
     const [editingDocument, setEditingDocument] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
     const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [error, setError] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
     (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
-        checkInitialConfiguration();
+        checkAppSecurity();
     }, []);
+    const checkAppSecurity = async () => {
+        try {
+            // Vérifier si un mot de passe d'application est requis
+            const appSettings = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__.LocalAuthService.getAppSettings();
+            if (appSettings.requireAppPassword) {
+                setIsAppLocked(true);
+                setNeedsPasswordSetup(false);
+            }
+            else {
+                setIsAppLocked(false);
+                await checkInitialConfiguration();
+            }
+        }
+        catch (error) {
+            console.error('Erreur lors de la vérification de sécurité:', error);
+            setIsAppLocked(false);
+            await checkInitialConfiguration();
+        }
+    };
+    const handleAppUnlock = async () => {
+        setIsAppLocked(false);
+        await checkInitialConfiguration();
+    };
+    const handlePasswordSetup = async () => {
+        setNeedsPasswordSetup(false);
+        setIsAppLocked(false);
+        await checkInitialConfiguration();
+    };
     const checkInitialConfiguration = async () => {
         try {
             // Vérifier si l'application a été configurée
-            const configured = _services_ConfigService__WEBPACK_IMPORTED_MODULE_18__.ConfigService.isConfigured();
-            const mode = _services_ConfigService__WEBPACK_IMPORTED_MODULE_18__.ConfigService.getMode();
+            const configured = _services_ConfigService__WEBPACK_IMPORTED_MODULE_19__.ConfigService.isConfigured();
+            const mode = _services_ConfigService__WEBPACK_IMPORTED_MODULE_19__.ConfigService.getMode();
             setIsAppConfigured(configured);
             setAppMode(mode);
+            // Charger les informations de dernière connexion si disponibles
+            const lastLogin = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__.LocalAuthService.getLastLoginInfo();
             if (configured) {
                 console.log(`Application configurée en mode: ${mode}`);
+                // Si auto-login activé et informations disponibles
+                if (lastLogin && lastLogin.password && _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__.LocalAuthService.getAppSettings().autoLogin) {
+                    console.log('Tentative de connexion automatique...');
+                    try {
+                        await handleAuthentication({
+                            email: lastLogin.email,
+                            password: lastLogin.password,
+                            institutionCode: lastLogin.institutionCode,
+                            mode: 'login'
+                        });
+                        return;
+                    }
+                    catch (error) {
+                        console.log('Échec de la connexion automatique:', error);
+                    }
+                }
                 setCurrentView('auth');
                 await checkAuthStatus();
             }
@@ -118,7 +173,7 @@ const App = () => {
         try {
             console.log(`Configuration initiale: mode ${mode}`);
             // Sauvegarder la configuration
-            _services_ConfigService__WEBPACK_IMPORTED_MODULE_18__.ConfigService.configureApp(mode);
+            _services_ConfigService__WEBPACK_IMPORTED_MODULE_19__.ConfigService.configureApp(mode);
             // Mettre à jour l'état local
             setAppMode(mode);
             setIsAppConfigured(true);
@@ -160,24 +215,68 @@ const App = () => {
         }
     };
     const loadData = async () => {
-        if (!supabaseService.isAuthenticated())
+        if (appMode === 'online' && !supabaseService.isAuthenticated())
             return;
         try {
             setIsLoading(true);
-            const [documentsData, authorsData, categoriesData, borrowersData, borrowedDocumentsData, statsData] = await Promise.all([
-                supabaseService.getDocuments(),
-                supabaseService.getAuthors(),
-                supabaseService.getCategories(),
-                supabaseService.getBorrowers(),
-                supabaseService.getBorrowedDocuments(),
-                supabaseService.getStats()
-            ]);
-            setDocuments(documentsData);
-            setAuthors(authorsData);
-            setCategories(categoriesData);
-            setBorrowers(borrowersData);
-            setBorrowedDocuments(borrowedDocumentsData);
-            setStats(statsData);
+            if (appMode === 'offline') {
+                // Mode offline - charger les données depuis SQLite via electronAPI
+                const [documentsData, authorsData, categoriesData, borrowersData, borrowedDocumentsData] = await Promise.all([
+                    window.electronAPI.getDocuments(),
+                    window.electronAPI.getAuthors(),
+                    window.electronAPI.getCategories(),
+                    window.electronAPI.getBorrowers(),
+                    window.electronAPI.getBorrowHistory()
+                ]);
+                setDocuments(documentsData || []);
+                setAuthors(authorsData || []);
+                setCategories(categoriesData || []);
+                setBorrowers(borrowersData || []);
+                setBorrowedDocuments(borrowedDocumentsData || []);
+                // Calculer les statistiques manuellement pour le mode offline
+                const totalDocuments = documentsData?.length || 0;
+                const borrowedCount = borrowedDocumentsData?.filter(bh => bh.status === 'active').length || 0;
+                const availableDocuments = totalDocuments - borrowedCount;
+                const totalAuthors = authorsData?.length || 0;
+                const totalCategories = categoriesData?.length || 0;
+                const totalBorrowers = borrowersData?.length || 0;
+                const totalStudents = borrowersData?.filter(b => b.type === 'student').length || 0;
+                const totalStaff = borrowersData?.filter(b => b.type === 'staff').length || 0;
+                const overdueDocuments = borrowedDocumentsData?.filter(bh => {
+                    if (bh.status !== 'active')
+                        return false;
+                    const expectedReturnDate = new Date(bh.expectedReturnDate);
+                    return expectedReturnDate < new Date();
+                }).length || 0;
+                setStats({
+                    totalDocuments,
+                    borrowedDocuments: borrowedCount,
+                    availableDocuments,
+                    totalAuthors,
+                    totalCategories,
+                    totalBorrowers,
+                    totalStudents,
+                    totalStaff,
+                    overdueDocuments
+                });
+            }
+            else {
+                // Mode online - utiliser Supabase
+                const [documentsData, authorsData, categoriesData, borrowersData, borrowedDocumentsData, statsData] = await Promise.all([
+                    supabaseService.getDocuments(),
+                    supabaseService.getAuthors(),
+                    supabaseService.getCategories(),
+                    supabaseService.getBorrowers(),
+                    supabaseService.getBorrowedDocuments(),
+                    supabaseService.getStats()
+                ]);
+                setDocuments(documentsData);
+                setAuthors(authorsData);
+                setCategories(categoriesData);
+                setBorrowers(borrowersData);
+                setBorrowedDocuments(borrowedDocumentsData);
+                setStats(statsData);
+            }
         }
         catch (error) {
             console.error('Erreur lors du chargement des données:', error);
@@ -358,37 +457,52 @@ const App = () => {
             setIsLoading(true);
             setError('');
             if (credentials.mode === 'login') {
-                // En mode offline, utiliser une authentification simplifiée
+                // En mode offline, utiliser le nouveau service d'authentification
                 if (appMode === 'offline') {
-                    console.log('Mode offline - authentification simplifiée');
-                    // Vérifier le code d'accès établissement
-                    const validInstitutionCodes = ['BIBLIO2024', 'OFFLINE', 'LOCAL', 'TEST'];
-                    if (!credentials.institutionCode || !validInstitutionCodes.includes(credentials.institutionCode.toUpperCase())) {
-                        throw new Error('Code d\'accès établissement invalide');
+                    console.log('Mode offline - authentification avec LocalAuthService');
+                    // Utiliser le service d'authentification local
+                    const authResult = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__.LocalAuthService.authenticate(credentials.email, credentials.password, credentials.institutionCode || '');
+                    if (!authResult.success) {
+                        throw new Error(authResult.message || 'Échec de l\'authentification');
                     }
-                    // Authentification simplifiée - accepter quelques identifiants par défaut
-                    const validCredentials = [
-                        { email: 'admin@local', password: 'admin' },
-                        { email: 'bibliothecaire@local', password: 'biblio' },
-                        { email: 'test@local', password: 'test' }
-                    ];
-                    const isValidCredential = validCredentials.some(cred => cred.email === credentials.email && cred.password === credentials.password);
-                    if (isValidCredential || credentials.password === 'demo') {
-                        // Créer un utilisateur local basé sur l'email
-                        const emailParts = credentials.email.split('@')[0].split('.');
-                        const localUser = {
-                            id: Date.now().toString(),
-                            firstName: emailParts[0]?.charAt(0).toUpperCase() + emailParts[0]?.slice(1) || 'Utilisateur',
-                            lastName: emailParts[1]?.charAt(0).toUpperCase() + emailParts[1]?.slice(1) || 'Local',
-                            email: credentials.email,
-                            role: credentials.email.includes('admin') ? 'admin' :
-                                credentials.email.includes('bibliothecaire') ? 'librarian' : 'user'
+                    const localUser = authResult.user;
+                    // Sauvegarder les informations de connexion si demandé
+                    _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__.LocalAuthService.saveLastLoginInfo(credentials.email, credentials.institutionCode || '', true, // Toujours mémoriser le mot de passe en mode offline
+                    credentials.password);
+                    if (localUser) {
+                        // Convertir l'utilisateur local au format User
+                        const appUser = {
+                            id: localUser.id,
+                            firstName: localUser.firstName,
+                            lastName: localUser.lastName,
+                            email: localUser.email,
+                            role: localUser.role
                         };
-                        // Institution locale par défaut
-                        const localInstitution = {
-                            id: 'offline-institution',
+                        // Chercher l'institution correspondante ou créer une par défaut
+                        const institution = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__.LocalAuthService.findInstitutionByCode(localUser.institutionCode);
+                        const appInstitution = institution ? {
+                            id: institution.id,
+                            name: institution.name,
+                            code: institution.code,
+                            address: institution.address,
+                            city: institution.city,
+                            country: institution.country,
+                            phone: institution.phone,
+                            email: institution.email,
+                            website: institution.website,
+                            logo: institution.logo,
+                            description: institution.description,
+                            type: institution.type,
+                            status: 'active',
+                            subscription_plan: 'basic',
+                            max_books: 10000,
+                            max_users: 100,
+                            created_at: institution.created_at,
+                            updated_at: new Date().toISOString()
+                        } : {
+                            id: 'default-offline',
                             name: 'Ma Bibliothèque',
-                            code: credentials.institutionCode || 'BIBLIO2024',
+                            code: localUser.institutionCode,
                             address: '',
                             city: '',
                             country: '',
@@ -396,7 +510,7 @@ const App = () => {
                             email: '',
                             website: '',
                             logo: '',
-                            description: 'Institution locale (mode hors ligne)',
+                            description: 'Institution locale par défaut',
                             type: 'library',
                             status: 'active',
                             subscription_plan: 'basic',
@@ -405,16 +519,13 @@ const App = () => {
                             created_at: new Date().toISOString(),
                             updated_at: new Date().toISOString()
                         };
-                        setCurrentUser(localUser);
-                        setCurrentInstitution(localInstitution);
+                        setCurrentUser(appUser);
+                        setCurrentInstitution(appInstitution);
                         setIsAuthenticated(true);
                         setIsDemoMode(false);
                         setCurrentView('dashboard');
                         await loadData();
                         return;
-                    }
-                    else {
-                        throw new Error('Identifiants incorrects. Utilisez: admin@local/admin, bibliothecaire@local/biblio, test@local/test ou tout mot de passe "demo"');
                     }
                 }
                 // Mode online (désactivé pour cette version)
@@ -434,17 +545,39 @@ const App = () => {
                 alert('Compte créé avec succès ! Veuillez vérifier votre email et vous connecter.');
             }
             else if (credentials.mode === 'create_institution') {
-                // Création d'institution
-                const institutionResult = await supabaseService.createInstitution(credentials.userData.institution);
-                setInstitutionCode(institutionResult.code);
-                // Créer le compte administrateur
-                const adminResult = await supabaseService.signUp(credentials.email, credentials.password, {
+                // Création d'institution locale
+                const institutionData = credentials.userData.institution;
+                // Créer l'institution avec le service local
+                const newInstitution = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__.LocalAuthService.createInstitution({
+                    name: institutionData.name,
+                    address: institutionData.address || '',
+                    city: institutionData.city || '',
+                    country: institutionData.country || '',
+                    phone: institutionData.phone || '',
+                    email: institutionData.email || '',
+                    website: institutionData.website || '',
+                    logo: institutionData.logo || '',
+                    description: institutionData.description || '',
+                    type: institutionData.type || 'library',
+                    adminEmail: credentials.email
+                });
+                setInstitutionCode(newInstitution.code);
+                // Créer le compte administrateur local
+                const adminUser = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__.LocalAuthService.addUser({
+                    email: credentials.email,
+                    password: credentials.password,
                     firstName: credentials.userData.admin.firstName,
                     lastName: credentials.userData.admin.lastName,
-                    institutionCode: credentials.userData.institution.code || 'DEFAULT'
+                    role: 'admin',
+                    institutionCode: newInstitution.code,
+                    preferences: {
+                        rememberMe: true,
+                        autoLogin: false,
+                        theme: 'light'
+                    }
                 });
-                if (!adminResult.success) {
-                    throw new Error(adminResult.error);
+                if (!adminUser) {
+                    throw new Error('Erreur lors de la création du compte administrateur');
                 }
                 setCurrentView('institution_setup');
             }
@@ -488,8 +621,50 @@ const App = () => {
     };
     const handleAddDocument = async (document) => {
         try {
-            if (isDemoMode) {
-                // Mode démo - ajouter localement
+            if (appMode === 'offline') {
+                // Mode offline - utiliser l'API électron pour SQLite
+                if (editingDocument) {
+                    // Modification d'un document existant
+                    const documentToUpdate = { ...document, id: editingDocument.id };
+                    await window.electronAPI.updateDocument(documentToUpdate);
+                    console.log('Document modifié en mode offline:', editingDocument.id);
+                }
+                else {
+                    // Ajout d'un nouveau document
+                    const documentId = await window.electronAPI.addDocument(document);
+                    console.log('Document ajouté en mode offline avec ID:', documentId);
+                }
+                // Ajouter l'auteur s'il n'existe pas
+                if (!authors.find(a => a.name === document.auteur)) {
+                    await window.electronAPI.addAuthor({
+                        name: document.auteur,
+                        biography: '',
+                        birthDate: '',
+                        nationality: '',
+                        syncStatus: 'pending',
+                        lastModified: new Date().toISOString(),
+                        version: 1,
+                        createdAt: new Date().toISOString()
+                    });
+                }
+                // Ajouter la catégorie si elle n'existe pas (basée sur les descripteurs)
+                const categoryName = document.descripteurs.split(',')[0]?.trim();
+                if (categoryName && !categories.find(c => c.name === categoryName)) {
+                    await window.electronAPI.addCategory({
+                        name: categoryName,
+                        description: `Catégorie créée automatiquement pour ${categoryName}`,
+                        color: '#3E5C49',
+                        syncStatus: 'pending',
+                        lastModified: new Date().toISOString(),
+                        version: 1,
+                        createdAt: new Date().toISOString()
+                    });
+                }
+                // Recharger les données pour mettre à jour l'interface
+                await loadData();
+            }
+            else if (isDemoMode) {
+                // Mode démo - ajouter localement en mémoire
                 const newId = Math.max(...documents.map(d => d.id || 0)) + 1;
                 const newDocument = {
                     ...document,
@@ -524,10 +699,12 @@ const App = () => {
                 console.log('Document ajouté en mode démo:', newDocument);
             }
             else {
-                // Mode normal - utiliser Supabase
+                // Mode online - utiliser Supabase
                 await supabaseService.addDocument(document);
                 await loadData();
             }
+            // Nettoyer l'état d'édition et retourner à la liste des documents
+            setEditingDocument(null);
             setCurrentView('documents');
         }
         catch (error) {
@@ -541,7 +718,15 @@ const App = () => {
             return;
         }
         try {
-            await supabaseService.returnBook(borrowHistoryId.toString(), notes);
+            if (appMode === 'offline') {
+                // Mode offline - utiliser l'API électron pour SQLite
+                await window.electronAPI.returnBook(borrowHistoryId, notes);
+                console.log('Document retourné en mode offline:', borrowHistoryId);
+            }
+            else {
+                // Mode online - utiliser Supabase
+                await supabaseService.returnBook(borrowHistoryId.toString(), notes);
+            }
             await loadData();
         }
         catch (error) {
@@ -551,8 +736,15 @@ const App = () => {
     };
     const handleDeleteDocument = async (documentId) => {
         try {
-            if (isDemoMode) {
-                // Mode démo - supprimer localement
+            if (appMode === 'offline') {
+                // Mode offline - utiliser l'API électron pour SQLite
+                await window.electronAPI.deleteDocument(documentId);
+                console.log('Document supprimé en mode offline:', documentId);
+                // Recharger les données pour mettre à jour l'interface
+                await loadData();
+            }
+            else if (isDemoMode) {
+                // Mode démo - supprimer localement en mémoire
                 const updatedDocuments = documents.filter(d => d.id !== documentId);
                 setDocuments(updatedDocuments);
                 // Mettre à jour les statistiques
@@ -564,7 +756,7 @@ const App = () => {
                 console.log('Document supprimé en mode démo:', documentId);
             }
             else {
-                // Mode normal - utiliser Supabase
+                // Mode online - utiliser Supabase
                 await supabaseService.deleteDocument(documentId.toString());
                 await loadData();
             }
@@ -588,7 +780,12 @@ const App = () => {
     };
     const handleBorrow = async (documentId, borrowerId, returnDate) => {
         try {
-            if (isDemoMode) {
+            if (appMode === 'offline') {
+                // Mode offline - utiliser l'API électron pour SQLite
+                await window.electronAPI.borrowDocument(documentId, borrowerId, returnDate);
+                console.log('Document emprunté en mode offline:', { documentId, borrowerId, returnDate });
+            }
+            else if (isDemoMode) {
                 // Mode démo - simuler l'emprunt
                 const updatedDocuments = documents.map(doc => doc.id === documentId
                     ? { ...doc, estEmprunte: true, syncStatus: 'synced' }
@@ -623,14 +820,15 @@ const App = () => {
                 }
             }
             else {
-                // Mode normal - utiliser Supabase
+                // Mode online - utiliser Supabase
                 await supabaseService.borrowDocument({
                     documentId: documentId.toString(),
                     borrowerId: borrowerId.toString(),
                     expectedReturnDate: returnDate
                 });
-                await loadData();
             }
+            // Recharger les données après l'opération
+            await loadData();
             closeBorrowModal();
         }
         catch (error) {
@@ -640,7 +838,19 @@ const App = () => {
     };
     const handleReturn = async (documentId) => {
         try {
-            if (isDemoMode) {
+            if (appMode === 'offline') {
+                // Mode offline - trouver l'emprunt actif et le retourner
+                const activeBorrow = borrowedDocuments.find(bh => bh.documentId === documentId && bh.status === 'active');
+                if (activeBorrow && activeBorrow.id) {
+                    await window.electronAPI.returnBook(activeBorrow.id);
+                    console.log('Document retourné en mode offline:', documentId);
+                }
+                else {
+                    console.error('Aucun emprunt actif trouvé pour le document:', documentId);
+                    return;
+                }
+            }
+            else if (isDemoMode) {
                 // Mode démo - simuler le retour
                 const updatedDocuments = documents.map(doc => doc.id === documentId
                     ? { ...doc, estEmprunte: false, syncStatus: 'synced' }
@@ -659,10 +869,11 @@ const App = () => {
                 }));
             }
             else {
-                // Mode normal - utiliser Supabase
+                // Mode online - utiliser Supabase
                 await supabaseService.returnDocument(documentId.toString());
-                await loadData();
             }
+            // Recharger les données après l'opération
+            await loadData();
             closeBorrowModal();
         }
         catch (error) {
@@ -728,14 +939,20 @@ const App = () => {
                 return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Donation__WEBPACK_IMPORTED_MODULE_12__.Donation, { onClose: () => setCurrentView('dashboard') }));
             case 'about':
                 return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_About__WEBPACK_IMPORTED_MODULE_13__.About, { onClose: () => setCurrentView('dashboard') }));
+            case 'app-settings':
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_AppSettings__WEBPACK_IMPORTED_MODULE_21__.AppSettings, { onClose: () => setCurrentView('dashboard') }));
             default:
                 return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Dashboard__WEBPACK_IMPORTED_MODULE_4__.Dashboard, { stats: stats, onNavigate: setCurrentView, documents: documents, categories: categories }));
         }
     };
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_19__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_20__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, { onRefresh: refreshData, isAuthenticated: isAuthenticated }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-container", children: isAuthenticated ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(AppContent, { isDemoMode: isDemoMode, currentView: currentView, setCurrentView: setCurrentView, isLoading: isLoading, error: error, setError: setError, renderCurrentView: renderCurrentView, showBorrowModal: showBorrowModal, selectedDocumentForBorrow: selectedDocumentForBorrow, closeBorrowModal: closeBorrowModal, handleBorrow: handleBorrow, handleReturn: handleReturn, refreshData: refreshData, supabaseService: supabaseService, borrowers: borrowers, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution, isAuthenticated: isAuthenticated })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-container", children: renderAuthenticatedContent() })) })] }) }) }));
+    // Rendu des écrans de sécurité
+    if (isAppLocked || needsPasswordSetup) {
+        return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_AppPasswordScreen__WEBPACK_IMPORTED_MODULE_17__.AppPasswordScreen, { onUnlock: handleAppUnlock, onSkip: needsPasswordSetup ? handlePasswordSetup : undefined, isSetup: needsPasswordSetup }));
+    }
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_22__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_23__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, { onRefresh: refreshData, isAuthenticated: isAuthenticated }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-container", children: isAuthenticated ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(AppContent, { isDemoMode: isDemoMode, currentView: currentView, setCurrentView: setCurrentView, isLoading: isLoading, error: error, setError: setError, renderCurrentView: renderCurrentView, showBorrowModal: showBorrowModal, selectedDocumentForBorrow: selectedDocumentForBorrow, closeBorrowModal: closeBorrowModal, handleBorrow: handleBorrow, handleReturn: handleReturn, refreshData: refreshData, supabaseService: supabaseService, borrowers: borrowers, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution, isAuthenticated: isAuthenticated })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-container", children: renderAuthenticatedContent() })) })] }) }) }));
 };
 const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error, setError, renderCurrentView, showBorrowModal, selectedDocumentForBorrow, closeBorrowModal, handleBorrow, handleReturn, refreshData, supabaseService, borrowers, stats, currentUser, currentInstitution, isAuthenticated }) => {
-    const { info } = (0,_components_ToastSystem__WEBPACK_IMPORTED_MODULE_19__.useQuickToast)();
+    const { info } = (0,_components_ToastSystem__WEBPACK_IMPORTED_MODULE_22__.useQuickToast)();
     const [demoNotificationShown, setDemoNotificationShown] = react__WEBPACK_IMPORTED_MODULE_1___default().useState(false);
     react__WEBPACK_IMPORTED_MODULE_1___default().useEffect(() => {
         if (isDemoMode && !demoNotificationShown) {
@@ -2922,6 +3139,1065 @@ const AnimatedBackground = ({ variant = 'books', intensity = 'medium' }) => {
 
 /***/ }),
 
+/***/ "./src/renderer/components/AppPasswordScreen.tsx":
+/*!*******************************************************!*\
+  !*** ./src/renderer/components/AppPasswordScreen.tsx ***!
+  \*******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   AppPasswordScreen: () => (/* binding */ AppPasswordScreen)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/lock.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/shield.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/key-round.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye-off.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-circle.mjs");
+
+// src/renderer/components/AppPasswordScreen.tsx
+
+
+const AppPasswordScreen = ({ onUnlock, onSkip, isSetup = false }) => {
+    const [password, setPassword] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
+    const [confirmPassword, setConfirmPassword] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
+    const [showPassword, setShowPassword] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [error, setError] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
+    const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setIsLoading(true);
+        try {
+            if (isSetup) {
+                // Configuration d'un nouveau mot de passe
+                if (password.length < 4) {
+                    throw new Error('Le mot de passe doit contenir au moins 4 caractères');
+                }
+                if (password !== confirmPassword) {
+                    throw new Error('Les mots de passe ne correspondent pas');
+                }
+                // Sauvegarder le mot de passe (via le service LocalAuthService)
+                const { LocalAuthService } = await Promise.resolve(/*! import() */).then(__webpack_require__.bind(__webpack_require__, /*! ../services/LocalAuthService */ "./src/renderer/services/LocalAuthService.ts"));
+                LocalAuthService.setAppPassword(password);
+                onUnlock();
+            }
+            else {
+                // Vérification du mot de passe existant
+                const { LocalAuthService } = await Promise.resolve(/*! import() */).then(__webpack_require__.bind(__webpack_require__, /*! ../services/LocalAuthService */ "./src/renderer/services/LocalAuthService.ts"));
+                if (LocalAuthService.verifyAppPassword(password)) {
+                    onUnlock();
+                }
+                else {
+                    throw new Error('Mot de passe incorrect');
+                }
+            }
+        }
+        catch (err) {
+            setError(err.message);
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app-password-screen", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "password-background", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "pattern-overlay" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-locks", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-lock", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-lock", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 32 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-lock", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 28 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "password-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "password-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "lock-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 48 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { children: isSetup ? 'Sécuriser l\'Application' : 'Application Verrouillée' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: isSetup
+                                    ? 'Définissez un mot de passe pour sécuriser l\'accès à l\'application'
+                                    : 'Entrez le mot de passe pour déverrouiller l\'application' })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "password-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: isSetup ? 'Nouveau mot de passe' : 'Mot de passe' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: password, onChange: (e) => setPassword(e.target.value), placeholder: isSetup ? 'Créez un mot de passe' : 'Entrez votre mot de passe', required: true, disabled: isLoading, autoFocus: true }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "toggle-password", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }) })] })] }), isSetup && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Confirmer le mot de passe" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: confirmPassword, onChange: (e) => setConfirmPassword(e.target.value), placeholder: "Confirmez votre mot de passe", required: true, disabled: isLoading })] })] })), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "error-message", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "password-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "unlock-btn", disabled: !password || isLoading || (isSetup && !confirmPassword), children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Traitement..." })] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: isSetup ? 'Définir le mot de passe' : 'Déverrouiller' })] })) }), (isSetup || onSkip) && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "skip-btn", onClick: onSkip, disabled: isLoading, children: isSetup ? 'Ignorer (non sécurisé)' : 'Réinitialiser' }))] }), isSetup && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "security-notice", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "notice-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "notice-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: "Conseil de s\u00E9curit\u00E9 :" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("ul", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Utilisez un mot de passe unique" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Conservez-le en lieu s\u00FBr" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Ne le partagez pas" })] })] })] }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+        .app-password-screen {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+        }
+
+        .password-background {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          opacity: 0.1;
+        }
+
+        .pattern-overlay {
+          width: 100%;
+          height: 100%;
+          background-image: 
+            radial-gradient(circle at 25% 25%, white 2px, transparent 2px),
+            radial-gradient(circle at 75% 75%, white 2px, transparent 2px);
+          background-size: 60px 60px;
+          animation: patternMove 25s linear infinite;
+        }
+
+        .floating-locks {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+        }
+
+        .floating-lock {
+          position: absolute;
+          color: rgba(255, 255, 255, 0.15);
+          animation: float 8s ease-in-out infinite;
+        }
+
+        .floating-lock:nth-child(1) {
+          top: 15%;
+          left: 15%;
+          animation-delay: 0s;
+        }
+
+        .floating-lock:nth-child(2) {
+          top: 25%;
+          right: 15%;
+          animation-delay: 3s;
+        }
+
+        .floating-lock:nth-child(3) {
+          bottom: 25%;
+          left: 25%;
+          animation-delay: 6s;
+        }
+
+        .password-container {
+          background: white;
+          border-radius: 20px;
+          padding: 40px;
+          max-width: 450px;
+          width: 90%;
+          box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+          position: relative;
+          z-index: 1;
+        }
+
+        .password-header {
+          text-align: center;
+          margin-bottom: 32px;
+        }
+
+        .lock-icon {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 80px;
+          height: 80px;
+          background: linear-gradient(135deg, #1e3a8a, #3730a3);
+          border-radius: 20px;
+          color: white;
+          margin-bottom: 20px;
+        }
+
+        .password-header h1 {
+          font-size: 2rem;
+          font-weight: 800;
+          color: #1f2937;
+          margin: 0 0 12px 0;
+        }
+
+        .password-header p {
+          color: #6b7280;
+          margin: 0;
+          line-height: 1.5;
+        }
+
+        .password-form {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .form-group label {
+          font-weight: 600;
+          color: #374151;
+          font-size: 0.9rem;
+        }
+
+        .input-group {
+          position: relative;
+          display: flex;
+          align-items: center;
+          border: 2px solid #e5e7eb;
+          border-radius: 12px;
+          padding: 0 16px;
+          transition: border-color 0.3s ease;
+        }
+
+        .input-group:focus-within {
+          border-color: #3730a3;
+          box-shadow: 0 0 0 3px rgba(55, 48, 163, 0.1);
+        }
+
+        .input-group svg {
+          color: #9ca3af;
+          margin-right: 12px;
+          flex-shrink: 0;
+        }
+
+        .input-group input {
+          flex: 1;
+          border: none;
+          padding: 16px 0;
+          font-size: 1rem;
+          outline: none;
+          background: transparent;
+        }
+
+        .toggle-password {
+          background: none;
+          border: none;
+          color: #9ca3af;
+          cursor: pointer;
+          padding: 4px;
+          margin-left: 8px;
+          border-radius: 4px;
+          transition: color 0.3s ease;
+        }
+
+        .toggle-password:hover {
+          color: #6b7280;
+        }
+
+        .error-message {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #dc2626;
+          background: #fef2f2;
+          padding: 12px 16px;
+          border-radius: 8px;
+          font-size: 0.9rem;
+          border: 1px solid #fecaca;
+        }
+
+        .password-actions {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-top: 8px;
+        }
+
+        .unlock-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          background: linear-gradient(135deg, #1e3a8a, #3730a3);
+          color: white;
+          border: none;
+          padding: 16px 24px;
+          border-radius: 12px;
+          font-size: 1.1rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .unlock-btn:not(:disabled):hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 30px rgba(30, 58, 138, 0.3);
+        }
+
+        .unlock-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        .skip-btn {
+          background: none;
+          border: 2px solid #e5e7eb;
+          color: #6b7280;
+          padding: 12px 24px;
+          border-radius: 12px;
+          font-size: 0.9rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .skip-btn:hover {
+          border-color: #d1d5db;
+          background: #f9fafb;
+        }
+
+        .security-notice {
+          background: #f0f9ff;
+          border: 1px solid #bae6fd;
+          border-radius: 12px;
+          padding: 16px;
+          margin-top: 8px;
+        }
+
+        .notice-icon {
+          color: #0284c7;
+          margin-bottom: 8px;
+        }
+
+        .notice-content p {
+          font-weight: 600;
+          color: #0c4a6e;
+          margin: 0 0 8px 0;
+          font-size: 0.9rem;
+        }
+
+        .notice-content ul {
+          margin: 0;
+          padding-left: 20px;
+          color: #075985;
+          font-size: 0.85rem;
+        }
+
+        .notice-content li {
+          margin-bottom: 4px;
+        }
+
+        .spinner {
+          width: 16px;
+          height: 16px;
+          border: 2px solid transparent;
+          border-top: 2px solid currentColor;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes patternMove {
+          0% { transform: translateX(0) translateY(0); }
+          100% { transform: translateX(60px) translateY(60px); }
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-30px); }
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 500px) {
+          .password-container {
+            padding: 24px;
+            width: 95%;
+          }
+
+          .password-header h1 {
+            font-size: 1.6rem;
+          }
+
+          .lock-icon {
+            width: 60px;
+            height: 60px;
+          }
+        }
+      ` })] }));
+};
+
+
+/***/ }),
+
+/***/ "./src/renderer/components/AppSettings.tsx":
+/*!*************************************************!*\
+  !*** ./src/renderer/components/AppSettings.tsx ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   AppSettings: () => (/* binding */ AppSettings)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/settings.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/database.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/shield.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/building.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/info.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/upload.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/wifi-off.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/wifi.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/rotate-ccw.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/save.mjs");
+/* harmony import */ var _MicroInteractions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MicroInteractions */ "./src/renderer/components/MicroInteractions.tsx");
+/* harmony import */ var _ToastSystem__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
+
+
+
+
+
+const AppSettings = ({ onClose }) => {
+    const { success, error } = (0,_ToastSystem__WEBPACK_IMPORTED_MODULE_3__.useQuickToast)();
+    const [activeTab, setActiveTab] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('general');
+    const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [isAdmin, setIsAdmin] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [config, setConfig] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({
+        mode: 'offline',
+        autoBackup: false,
+        backupFrequency: 'weekly',
+        requireAppPassword: false,
+        sessionTimeout: 30,
+        theme: 'light'
+    });
+    const [institutionSettings, setInstitutionSettings] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({
+        name: 'Bibliothèque Numérique',
+        address: '',
+        city: '',
+        country: '',
+        phone: '',
+        email: '',
+        website: '',
+        logo: '',
+        description: 'Système de gestion de bibliothèque moderne'
+    });
+    (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+        loadConfig();
+        checkAdminStatus();
+    }, []);
+    const loadConfig = () => {
+        // Charger la configuration depuis localStorage
+        const storedMode = localStorage.getItem('appMode') || 'offline';
+        const storedConfig = localStorage.getItem('appConfig');
+        if (storedConfig) {
+            try {
+                const parsed = JSON.parse(storedConfig);
+                setConfig({ ...config, mode: storedMode, ...parsed });
+            }
+            catch (e) {
+                console.warn('Could not parse stored config:', e);
+            }
+        }
+        else {
+            setConfig(prev => ({ ...prev, mode: storedMode }));
+        }
+        // Charger les paramètres d'institution
+        const storedInstitution = localStorage.getItem('institutionSettings');
+        if (storedInstitution) {
+            try {
+                const parsed = JSON.parse(storedInstitution);
+                setInstitutionSettings(prev => ({ ...prev, ...parsed }));
+            }
+            catch (e) {
+                console.warn('Could not parse institution settings:', e);
+            }
+        }
+    };
+    const checkAdminStatus = () => {
+        // Vérifier si l'utilisateur connecté est un admin
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser) {
+            try {
+                const user = JSON.parse(currentUser);
+                setIsAdmin(user.role === 'admin' || user.isAdmin === true);
+            }
+            catch (e) {
+                console.warn('Could not parse current user:', e);
+                setIsAdmin(false);
+            }
+        }
+    };
+    const saveConfig = async () => {
+        setIsLoading(true);
+        try {
+            // Sauvegarder la configuration
+            localStorage.setItem('appMode', config.mode);
+            localStorage.setItem('appConfig', JSON.stringify({
+                autoBackup: config.autoBackup,
+                backupFrequency: config.backupFrequency,
+                requireAppPassword: config.requireAppPassword,
+                sessionTimeout: config.sessionTimeout,
+                theme: config.theme
+            }));
+            // Sauvegarder les paramètres d'institution si admin
+            if (isAdmin) {
+                localStorage.setItem('institutionSettings', JSON.stringify(institutionSettings));
+            }
+            success('Configuration sauvegardée', 'Les paramètres ont été enregistrés avec succès');
+            // Redémarrer l'application si le mode a changé
+            if (config.mode !== localStorage.getItem('appMode')) {
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
+        }
+        catch (err) {
+            error('Erreur de sauvegarde', 'Impossible de sauvegarder la configuration');
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    const resetToDefaults = () => {
+        if (window.confirm('Êtes-vous sûr de vouloir réinitialiser tous les paramètres ?')) {
+            setConfig({
+                mode: 'offline',
+                autoBackup: false,
+                backupFrequency: 'weekly',
+                requireAppPassword: false,
+                sessionTimeout: 30,
+                theme: 'light'
+            });
+        }
+    };
+    const resetDatabase = async () => {
+        if (window.confirm('🔧 Réinitialiser la base de données ?\n\nCela va corriger les problèmes de schéma mais supprimera toutes les données.')) {
+            try {
+                // Supprimer toutes les données
+                await window.electronAPI?.clearAllData();
+                success('Base de données réinitialisée', 'Le schéma de la base de données a été corrigé. L\'application va redémarrer.');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            }
+            catch (err) {
+                error('Erreur', 'Impossible de réinitialiser la base de données');
+                console.error('Erreur de réinitialisation:', err);
+            }
+        }
+    };
+    const clearAllData = async () => {
+        if (window.confirm('⚠️ ATTENTION: Cette action supprimera TOUTES les données de l\'application. Êtes-vous absolument sûr ?')) {
+            if (window.confirm('Cette action est IRRÉVERSIBLE. Tapez "CONFIRMER" dans la prochaine boîte pour continuer.')) {
+                const confirmation = window.prompt('Tapez "CONFIRMER" pour supprimer toutes les données:');
+                if (confirmation === 'CONFIRMER') {
+                    try {
+                        // Nettoyer la base de données
+                        await window.electronAPI?.clearAllData();
+                        // Nettoyer le localStorage
+                        localStorage.clear();
+                        success('Données supprimées', 'Toutes les données ont été supprimées. L\'application va redémarrer.');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    }
+                    catch (err) {
+                        error('Erreur', 'Impossible de supprimer les données');
+                    }
+                }
+            }
+        }
+    };
+    const handleInputChange = (field, value) => {
+        setConfig(prev => ({ ...prev, [field]: value }));
+    };
+    const handleInstitutionChange = (field, value) => {
+        setInstitutionSettings(prev => ({ ...prev, [field]: value }));
+    };
+    const handleLogoUpload = (event) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const result = e.target?.result;
+                setInstitutionSettings(prev => ({ ...prev, logo: result }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    const tabs = [
+        { id: 'general', label: 'Général', icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"] },
+        { id: 'database', label: 'Base de données', icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"] },
+        { id: 'security', label: 'Sécurité', icon: lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"] },
+        ...(isAdmin ? [{ id: 'institution', label: 'Institution', icon: lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"] }] : []),
+        { id: 'about', label: 'À propos', icon: lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"] }
+    ];
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "settings-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "settings-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 28 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "modal-title", children: "Param\u00E8tres de l'application" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "modal-subtitle", children: "Configurez votre biblioth\u00E8que num\u00E9rique" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-button", onClick: onClose, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "settings-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tabs-container", children: tabs.map(tab => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab-button ${activeTab === tab.id ? 'active' : ''}`, onClick: () => setActiveTab(tab.id), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(tab.icon, { size: 18 }), tab.label] }, tab.id))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tab-content", children: [activeTab === 'general' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tab-panel", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "group-title", children: "Mode de fonctionnement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "setting-label", children: "Mode de l'application" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setting-description", children: "Choisissez entre le mode hors ligne (SQLite local) ou en ligne (Supabase)" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setting-control", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: config.mode, onChange: (e) => handleInputChange('mode', e.target.value), className: "setting-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "offline", children: "\uD83D\uDD12 Hors ligne (SQLite)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "online", children: "\uD83C\uDF10 En ligne (Supabase)" })] }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "group-title", children: "Th\u00E8me" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "setting-label", children: "Apparence" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setting-description", children: "Choisissez le th\u00E8me de l'interface" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setting-control", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: config.theme, onChange: (e) => handleInputChange('theme', e.target.value), className: "setting-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "light", children: "\u2600\uFE0F Clair" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "dark", children: "\uD83C\uDF19 Sombre" })] }) })] })] })] })), activeTab === 'database' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tab-panel", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "group-title", children: "Sauvegarde automatique" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "setting-label", children: "Activer la sauvegarde automatique" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setting-description", children: "Sauvegarder automatiquement la base de donn\u00E9es" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setting-control", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "toggle", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "checkbox", checked: config.autoBackup, onChange: (e) => handleInputChange('autoBackup', e.target.checked) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "slider" })] }) })] }), config.autoBackup && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "setting-label", children: "Fr\u00E9quence de sauvegarde" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setting-description", children: "\u00C0 quelle fr\u00E9quence sauvegarder" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setting-control", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: config.backupFrequency, onChange: (e) => handleInputChange('backupFrequency', e.target.value), className: "setting-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "daily", children: "Quotidienne" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "weekly", children: "Hebdomadaire" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "monthly", children: "Mensuelle" })] }) })] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-group danger", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "group-title", children: "Zone de danger" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "setting-label", children: "R\u00E9initialiser la base de donn\u00E9es" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setting-description", children: "\uD83D\uDD27 Corrige les probl\u00E8mes de sch\u00E9ma de base de donn\u00E9es en recr\u00E9ant les tables" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setting-control", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "btn-warning", onClick: resetDatabase, children: "R\u00E9initialiser DB" }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "setting-label", children: "Supprimer toutes les donn\u00E9es" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setting-description", children: "\u26A0\uFE0F Supprime d\u00E9finitivement tous les documents, emprunteurs et historiques" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setting-control", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "btn-danger", onClick: clearAllData, children: "Supprimer tout" }) })] })] })] })), activeTab === 'security' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tab-panel", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "group-title", children: "Mot de passe d'application" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "setting-label", children: "Exiger un mot de passe au d\u00E9marrage" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setting-description", children: "Prot\u00E9gez l'acc\u00E8s \u00E0 l'application avec un mot de passe" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setting-control", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "toggle", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "checkbox", checked: config.requireAppPassword, onChange: (e) => handleInputChange('requireAppPassword', e.target.checked) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "slider" })] }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "setting-label", children: "D\u00E9lai d'expiration de session (minutes)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setting-description", children: "Dur\u00E9e avant verrouillage automatique de l'application" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setting-control", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "number", min: "5", max: "120", value: config.sessionTimeout, onChange: (e) => handleInputChange('sessionTimeout', parseInt(e.target.value)), className: "setting-input" }) })] })] }) })), activeTab === 'institution' && isAdmin && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tab-panel", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "group-title", children: "Informations g\u00E9n\u00E9rales" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "setting-label", children: "Logo de l'institution" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setting-description", children: "Logo qui appara\u00EEtra sur les rapports et documents officiels" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setting-control", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "logo-upload-container", children: [institutionSettings.logo && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "logo-preview", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("img", { src: institutionSettings.logo, alt: "Logo" }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "upload-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "file", id: "logo-upload", accept: "image/*", onChange: handleLogoUpload, style: { display: 'none' } }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { htmlFor: "logo-upload", className: "upload-button", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), institutionSettings.logo ? 'Changer' : 'Ajouter'] }), institutionSettings.logo && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: () => setInstitutionSettings(prev => ({ ...prev, logo: '' })), className: "remove-button", children: "Supprimer" }))] })] }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "setting-label", children: "Nom de l'institution" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setting-description", children: "Nom officiel de votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setting-control", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionSettings.name, onChange: (e) => handleInstitutionChange('name', e.target.value), className: "setting-input", placeholder: "Nom de l'institution" }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "setting-label", children: "Description" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setting-description", children: "Br\u00E8ve description de l'institution" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setting-control", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("textarea", { value: institutionSettings.description, onChange: (e) => handleInstitutionChange('description', e.target.value), className: "setting-textarea", placeholder: "Description de l'institution" }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "group-title", children: "Coordonn\u00E9es" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "setting-label", children: "Adresse" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setting-description", children: "Adresse postale compl\u00E8te" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setting-control", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionSettings.address, onChange: (e) => handleInstitutionChange('address', e.target.value), className: "setting-input", placeholder: "Adresse" }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "setting-label", children: "Ville" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setting-description", children: "Ville et code postal" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setting-control", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionSettings.city, onChange: (e) => handleInstitutionChange('city', e.target.value), className: "setting-input", placeholder: "Ville" }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "setting-label", children: "Pays" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setting-description", children: "Pays de l'institution" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setting-control", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionSettings.country, onChange: (e) => handleInstitutionChange('country', e.target.value), className: "setting-input", placeholder: "Pays" }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "setting-label", children: "T\u00E9l\u00E9phone" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setting-description", children: "Num\u00E9ro de t\u00E9l\u00E9phone principal" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setting-control", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "tel", value: institutionSettings.phone, onChange: (e) => handleInstitutionChange('phone', e.target.value), className: "setting-input", placeholder: "T\u00E9l\u00E9phone" }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "setting-label", children: "Email" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setting-description", children: "Adresse email officielle" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setting-control", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: institutionSettings.email, onChange: (e) => handleInstitutionChange('email', e.target.value), className: "setting-input", placeholder: "Email" }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setting-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "setting-label", children: "Site web" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setting-description", children: "URL du site web institutionnel" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setting-control", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "url", value: institutionSettings.website, onChange: (e) => handleInstitutionChange('website', e.target.value), className: "setting-input", placeholder: "https://www.example.com" }) })] })] })] })), activeTab === 'about' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tab-panel", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "about-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 48 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Biblioth\u00E8que Num\u00E9rique" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "version", children: "Version 1.0.0" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "description", children: "Syst\u00E8me de gestion de biblioth\u00E8que moderne pour \u00E9tablissements scolaires" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: "Mode actuel:" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: `mode-badge ${config.mode}`, children: config.mode === 'offline' ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 14 }), "Hors ligne"] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 14 }), "En ligne"] })) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: "Base de donn\u00E9es:" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: config.mode === 'offline' ? 'SQLite locale' : 'Supabase cloud' })] })] })] }) }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "secondary", onClick: resetToDefaults, icon: lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], children: "R\u00E9initialiser" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "success", onClick: saveConfig, disabled: isLoading, icon: lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], children: isLoading ? 'Sauvegarde...' : 'Sauvegarder' })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+        .settings-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 20px;
+          backdrop-filter: blur(8px);
+        }
+
+        .settings-modal {
+          background: #FFFFFF;
+          border-radius: 20px;
+          width: 100%;
+          max-width: 800px;
+          max-height: 90vh;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+          border: 1px solid rgba(229, 220, 194, 0.3);
+        }
+
+        .modal-header {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+          padding: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          position: relative;
+        }
+
+        .header-content {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+        }
+
+        .header-icon {
+          width: 56px;
+          height: 56px;
+          background: rgba(243, 238, 217, 0.2);
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .modal-title {
+          font-size: 24px;
+          font-weight: 700;
+          margin: 0 0 4px 0;
+        }
+
+        .modal-subtitle {
+          font-size: 14px;
+          opacity: 0.8;
+          margin: 0;
+        }
+
+        .close-button {
+          width: 44px;
+          height: 44px;
+          border: none;
+          background: rgba(243, 238, 217, 0.1);
+          color: #F3EED9;
+          border-radius: 12px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+          position: absolute;
+          top: 32px;
+          right: 32px;
+          z-index: 1001;
+        }
+
+        .close-button:hover {
+          background: rgba(243, 238, 217, 0.2);
+        }
+
+        .settings-content {
+          flex: 1;
+          display: flex;
+          overflow: hidden;
+        }
+
+        .tabs-container {
+          width: 200px;
+          background: #F3EED9;
+          border-right: 1px solid #E5DCC2;
+          padding: 24px 0;
+        }
+
+        .tab-button {
+          width: 100%;
+          padding: 16px 24px;
+          border: none;
+          background: transparent;
+          color: #6E6E6E;
+          text-align: left;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 14px;
+          font-weight: 500;
+          transition: all 0.2s ease;
+        }
+
+        .tab-button:hover {
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+        }
+
+        .tab-button.active {
+          background: #3E5C49;
+          color: #F3EED9;
+          font-weight: 600;
+        }
+
+        .tab-content {
+          flex: 1;
+          overflow-y: auto;
+          padding: 32px;
+        }
+
+        .tab-panel {
+          max-width: 600px;
+        }
+
+        .setting-group {
+          margin-bottom: 32px;
+          padding: 24px;
+          background: rgba(243, 238, 217, 0.1);
+          border-radius: 12px;
+          border: 1px solid rgba(243, 238, 217, 0.3);
+        }
+
+        .setting-group.danger {
+          background: rgba(220, 38, 38, 0.05);
+          border-color: rgba(220, 38, 38, 0.2);
+        }
+
+        .group-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0 0 20px 0;
+        }
+
+        .setting-item {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 24px;
+          margin-bottom: 20px;
+        }
+
+        .setting-item:last-child {
+          margin-bottom: 0;
+        }
+
+        .setting-info {
+          flex: 1;
+        }
+
+        .setting-label {
+          font-size: 14px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0 0 4px 0;
+          display: block;
+        }
+
+        .setting-description {
+          font-size: 12px;
+          color: #6E6E6E;
+          margin: 0;
+          line-height: 1.4;
+        }
+
+        .setting-control {
+          flex-shrink: 0;
+        }
+
+        .setting-select, .setting-input {
+          border: 2px solid #E5DCC2;
+          border-radius: 8px;
+          padding: 8px 12px;
+          background: #FFFFFF;
+          color: #2E2E2E;
+          font-size: 14px;
+        }
+
+        .setting-input {
+          width: 80px;
+          text-align: center;
+        }
+
+        .setting-textarea {
+          border: 2px solid #E5DCC2;
+          border-radius: 8px;
+          padding: 8px 12px;
+          background: #FFFFFF;
+          color: #2E2E2E;
+          font-size: 14px;
+          width: 200px;
+          min-height: 60px;
+          resize: vertical;
+          font-family: inherit;
+        }
+
+        .logo-upload-container {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          align-items: flex-start;
+        }
+
+        .logo-preview {
+          width: 80px;
+          height: 80px;
+          border-radius: 12px;
+          overflow: hidden;
+          border: 2px solid #E5DCC2;
+          background: #F3EED9;
+        }
+
+        .logo-preview img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .upload-actions {
+          display: flex;
+          gap: 8px;
+        }
+
+        .upload-button {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 12px;
+          background: #3E5C49;
+          color: #F3EED9;
+          border: none;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .upload-button:hover {
+          background: #2E453A;
+        }
+
+        .remove-button {
+          padding: 8px 12px;
+          background: #DC2626;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .remove-button:hover {
+          background: #B91C1C;
+        }
+
+        .toggle {
+          position: relative;
+          display: inline-block;
+          width: 50px;
+          height: 24px;
+        }
+
+        .toggle input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+
+        .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ccc;
+          transition: 0.4s;
+          border-radius: 24px;
+        }
+
+        .slider:before {
+          position: absolute;
+          content: "";
+          height: 18px;
+          width: 18px;
+          left: 3px;
+          bottom: 3px;
+          background-color: white;
+          transition: 0.4s;
+          border-radius: 50%;
+        }
+
+        input:checked + .slider {
+          background-color: #3E5C49;
+        }
+
+        input:checked + .slider:before {
+          transform: translateX(26px);
+        }
+
+        .btn-warning {
+          background: #F59E0B;
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .btn-warning:hover {
+          background: #D97706;
+        }
+
+        .btn-danger {
+          background: #DC2626;
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .btn-danger:hover {
+          background: #B91C1C;
+        }
+
+        .about-content {
+          text-align: center;
+        }
+
+        .app-info {
+          margin-bottom: 32px;
+        }
+
+        .app-icon {
+          width: 80px;
+          height: 80px;
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #F3EED9;
+          margin: 0 auto 16px;
+        }
+
+        .app-info h3 {
+          font-size: 24px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 8px 0;
+        }
+
+        .version {
+          font-size: 14px;
+          color: #6E6E6E;
+          margin: 0 0 16px 0;
+        }
+
+        .description {
+          font-size: 14px;
+          color: #4A4A4A;
+          margin: 0;
+          line-height: 1.5;
+        }
+
+        .info-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+          text-align: left;
+        }
+
+        .info-item {
+          background: rgba(243, 238, 217, 0.1);
+          padding: 16px;
+          border-radius: 8px;
+        }
+
+        .info-item strong {
+          display: block;
+          font-size: 12px;
+          color: #6E6E6E;
+          margin-bottom: 4px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .mode-badge {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 14px;
+          font-weight: 500;
+        }
+
+        .mode-badge.offline {
+          color: #3E5C49;
+        }
+
+        .mode-badge.online {
+          color: #2563EB;
+        }
+
+        .modal-actions {
+          padding: 24px 32px;
+          border-top: 1px solid #E5DCC2;
+          display: flex;
+          justify-content: flex-end;
+          gap: 16px;
+        }
+
+        @media (max-width: 768px) {
+          .settings-modal {
+            margin: 12px;
+          }
+
+          .settings-content {
+            flex-direction: column;
+          }
+
+          .tabs-container {
+            width: 100%;
+            display: flex;
+            overflow-x: auto;
+            padding: 16px 24px;
+          }
+
+          .tab-button {
+            white-space: nowrap;
+            padding: 12px 16px;
+          }
+
+          .setting-item {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+          }
+
+          .info-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      ` })] }));
+};
+
+
+/***/ }),
+
 /***/ "./src/renderer/components/BorrowDocument.tsx":
 /*!****************************************************!*\
   !*** ./src/renderer/components/BorrowDocument.tsx ***!
@@ -2988,6 +4264,10 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
             error('Informations manquantes', 'Veuillez sélectionner un emprunteur et une date de retour');
             return;
         }
+        if (!document.id) {
+            error('Erreur document', 'ID du document manquant');
+            return;
+        }
         setIsLoading(true);
         try {
             await onBorrow(document.id, selectedBorrowerId, returnDate);
@@ -2995,7 +4275,8 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
             success('Emprunt enregistré', `"${document.titre}" emprunté par ${borrower?.firstName} ${borrower?.lastName}`);
         }
         catch (err) {
-            error('Erreur d\'emprunt', 'Impossible d\'enregistrer l\'emprunt');
+            console.error('Erreur d\'emprunt:', err);
+            error('Erreur d\'emprunt', `Impossible d'enregistrer l'emprunt: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
         }
         finally {
             setIsLoading(false);
@@ -4941,55 +6222,35 @@ __webpack_require__.r(__webpack_exports__);
 
 
 function Borrowers({ onClose, onRefreshData }) {
-    // Données mockées pour la démo
-    const [borrowers, setBorrowers] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([
-        {
-            id: 1,
-            type: 'student',
-            firstName: 'Marie',
-            lastName: 'Dupont',
-            matricule: 'STU001',
-            classe: 'Terminale C',
-            email: 'marie.dupont@example.com',
-            phone: '+237 123 456 789',
-            syncStatus: 'synced',
-            lastModified: new Date().toISOString(),
-            version: 1,
-            createdAt: new Date().toISOString()
-        },
-        {
-            id: 2,
-            type: 'staff',
-            firstName: 'Jean',
-            lastName: 'Martin',
-            matricule: 'STAFF001',
-            position: 'Professeur de Mathématiques',
-            cniNumber: '123456789',
-            email: 'jean.martin@example.com',
-            syncStatus: 'synced',
-            lastModified: new Date().toISOString(),
-            version: 1,
-            createdAt: new Date().toISOString()
-        },
-        {
-            id: 3,
-            type: 'student',
-            firstName: 'Paul',
-            lastName: 'Nguyen',
-            matricule: 'STU002',
-            classe: 'Première D',
-            email: 'paul.nguyen@example.com',
-            syncStatus: 'pending',
-            lastModified: new Date().toISOString(),
-            version: 1,
-            createdAt: new Date().toISOString()
-        }
-    ]);
+    const [borrowers, setBorrowers] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
     const [searchQuery, setSearchQuery] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
     const [filterType, setFilterType] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('all');
     const [showAddModal, setShowAddModal] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [editingBorrower, setEditingBorrower] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
     const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [dataLoading, setDataLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(true);
+    const [appMode, setAppMode] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('offline');
+    // Charger les emprunteurs au montage du composant
+    (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+        loadBorrowers();
+        // Détecter le mode de l'application
+        const mode = localStorage.getItem('appMode') || 'offline';
+        setAppMode(mode);
+    }, []);
+    const loadBorrowers = async () => {
+        setDataLoading(true);
+        try {
+            const borrowersList = await window.electronAPI.getBorrowers();
+            setBorrowers(borrowersList || []);
+        }
+        catch (error) {
+            console.error('Erreur lors du chargement des emprunteurs:', error);
+            setBorrowers([]);
+        }
+        finally {
+            setDataLoading(false);
+        }
+    };
     const [borrower, setBorrower] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({
         type: 'student',
         firstName: '',
@@ -5080,19 +6341,44 @@ function Borrowers({ onClose, onRefreshData }) {
         }
         setIsLoading(true);
         try {
-            // Simulation d'ajout/modification
-            await new Promise(resolve => setTimeout(resolve, 1000));
             if (editingBorrower) {
-                setBorrowers(prev => prev.map(b => b.id === editingBorrower.id
-                    ? { ...borrower, id: editingBorrower.id }
-                    : b));
+                // Modification d'un emprunteur existant
+                const updatedBorrower = {
+                    ...borrower,
+                    id: editingBorrower.id,
+                    lastModified: new Date().toISOString(),
+                    version: (editingBorrower.version || 1) + 1
+                };
+                if (appMode === 'offline') {
+                    await window.electronAPI.updateBorrower(updatedBorrower);
+                }
+                setBorrowers(prev => prev.map(b => b.id === editingBorrower.id ? updatedBorrower : b));
             }
             else {
-                const newBorrower = { ...borrower, id: Date.now() };
-                setBorrowers(prev => [...prev, newBorrower]);
+                // Ajout d'un nouvel emprunteur
+                const newBorrowerData = {
+                    ...borrower,
+                    syncStatus: 'pending',
+                    lastModified: new Date().toISOString(),
+                    version: 1,
+                    createdAt: new Date().toISOString()
+                };
+                if (appMode === 'offline') {
+                    const savedBorrowerId = await window.electronAPI.addBorrower(newBorrowerData);
+                    const savedBorrower = { ...newBorrowerData, id: savedBorrowerId };
+                    setBorrowers(prev => [...prev, savedBorrower]);
+                }
+                else {
+                    const newBorrower = { ...newBorrowerData, id: Date.now() };
+                    setBorrowers(prev => [...prev, newBorrower]);
+                }
             }
             setShowAddModal(false);
             resetForm();
+            // Rafraîchir les données dans le composant parent si nécessaire
+            if (onRefreshData) {
+                await onRefreshData();
+            }
         }
         catch (error) {
             console.error('Erreur:', error);
@@ -5104,7 +6390,20 @@ function Borrowers({ onClose, onRefreshData }) {
     };
     const handleDelete = async (borrowerToDelete) => {
         if (window.confirm(`Êtes-vous sûr de vouloir supprimer ${borrowerToDelete.firstName} ${borrowerToDelete.lastName} ?`)) {
-            setBorrowers(prev => prev.filter(b => b.id !== borrowerToDelete.id));
+            try {
+                if (appMode === 'offline' && borrowerToDelete.id) {
+                    await window.electronAPI.deleteBorrower(borrowerToDelete.id);
+                }
+                setBorrowers(prev => prev.filter(b => b.id !== borrowerToDelete.id));
+                // Rafraîchir les données dans le composant parent si nécessaire
+                if (onRefreshData) {
+                    await onRefreshData();
+                }
+            }
+            catch (error) {
+                console.error('Erreur lors de la suppression:', error);
+                alert(error.message || 'Erreur lors de la suppression');
+            }
         }
     };
     const filteredBorrowers = borrowers.filter(borrower => {
@@ -5120,7 +6419,7 @@ function Borrowers({ onClose, onRefreshData }) {
     });
     const studentCount = borrowers.filter(b => b.type === 'student').length;
     const staffCount = borrowers.filter(b => b.type === 'staff').length;
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrowers-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrowers-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 28 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "modal-title", children: "Gestion des Emprunteurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "modal-subtitle", children: [borrowers.length, " emprunteur(s) \u2022 ", studentCount, " \u00E9tudiant(s) \u2022 ", staffCount, " personnel(s)"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-button", onClick: onClose, type: "button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon student", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: studentCount }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "\u00C9tudiants" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon staff", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: staffCount }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Personnel" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon total", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: borrowers.length }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Total" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "controls-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "search-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { className: "search-icon", size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", placeholder: "Rechercher par nom, pr\u00E9nom, matricule...", value: searchQuery, onChange: (e) => handleSearch(e.target.value), className: "search-input" }), searchQuery && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "clear-search", onClick: () => handleSearch(''), type: "button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16 }) }))] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "controls-right", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filterType, onChange: (e) => setFilterType(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "staff", children: "Personnel" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "btn-primary", onClick: handleAddBorrower, type: "button", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 18 }), "Ajouter"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrowers-content", children: filteredBorrowers.length > 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrowers-grid", children: filteredBorrowers.map((borrower) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `borrower-card ${borrower.type}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-type", children: [borrower.type === 'student' ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: borrower.type === 'student' ? 'Étudiant' : 'Personnel' })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "action-btn view", onClick: () => { }, title: "Voir d\u00E9tails", type: "button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "action-btn edit", onClick: () => handleEditBorrower(borrower), title: "Modifier", type: "button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "action-btn delete", onClick: () => handleDelete(borrower), title: "Supprimer", type: "button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { className: "borrower-name", children: [borrower.firstName, " ", borrower.lastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: borrower.matricule })] }), borrower.type === 'student' && borrower.classe && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: borrower.classe })] })), borrower.type === 'staff' && borrower.position && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: borrower.position })] })), borrower.email && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: borrower.email })] }))] })] })] }, borrower.id))) })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "empty-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 64 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Aucun emprunteur trouv\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: searchQuery || filterType !== 'all'
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrowers-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrowers-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 28 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "modal-title", children: "Gestion des Emprunteurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "modal-subtitle", children: [borrowers.length, " emprunteur(s) \u2022 ", studentCount, " \u00E9tudiant(s) \u2022 ", staffCount, " personnel(s)"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-button", onClick: onClose, type: "button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon student", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: studentCount }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "\u00C9tudiants" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon staff", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: staffCount }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Personnel" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon total", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: borrowers.length }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Total" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "controls-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "search-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { className: "search-icon", size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", placeholder: "Rechercher par nom, pr\u00E9nom, matricule...", value: searchQuery, onChange: (e) => handleSearch(e.target.value), className: "search-input" }), searchQuery && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "clear-search", onClick: () => handleSearch(''), type: "button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16 }) }))] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "controls-right", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filterType, onChange: (e) => setFilterType(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "staff", children: "Personnel" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "btn-primary", onClick: handleAddBorrower, type: "button", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 18 }), "Ajouter"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrowers-content", children: dataLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Chargement des emprunteurs..." })] })) : filteredBorrowers.length > 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrowers-grid", children: filteredBorrowers.map((borrower) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `borrower-card ${borrower.type}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-type", children: [borrower.type === 'student' ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: borrower.type === 'student' ? 'Étudiant' : 'Personnel' })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "action-btn view", onClick: () => { }, title: "Voir d\u00E9tails", type: "button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "action-btn edit", onClick: () => handleEditBorrower(borrower), title: "Modifier", type: "button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "action-btn delete", onClick: () => handleDelete(borrower), title: "Supprimer", type: "button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { className: "borrower-name", children: [borrower.firstName, " ", borrower.lastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: borrower.matricule })] }), borrower.type === 'student' && borrower.classe && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: borrower.classe })] })), borrower.type === 'staff' && borrower.position && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: borrower.position })] })), borrower.email && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: borrower.email })] }))] })] })] }, borrower.id))) })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "empty-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 64 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Aucun emprunteur trouv\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: searchQuery || filterType !== 'all'
                                         ? 'Aucun résultat pour les critères sélectionnés'
                                         : 'Commencez par ajouter des emprunteurs' })] })) }), showAddModal && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "add-modal-overlay", onClick: () => setShowAddModal(false), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "add-modal", onClick: (e) => e.stopPropagation(), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "add-modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { children: [editingBorrower ? 'Modifier' : 'Ajouter', " un emprunteur"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "modal-close", onClick: () => setShowAddModal(false), type: "button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "add-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Type d'emprunteur *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "type-selector", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "button", className: `type-button ${borrower.type === 'student' ? 'active' : ''}`, onClick: () => setBorrower(prev => ({ ...prev, type: 'student' })), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }), "\u00C9tudiant"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "button", className: `type-button ${borrower.type === 'staff' ? 'active' : ''}`, onClick: () => setBorrower(prev => ({ ...prev, type: 'staff' })), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }), "Personnel"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Pr\u00E9nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: borrower.firstName, onChange: (e) => {
                                                                 setBorrower(prev => ({ ...prev, firstName: e.target.value }));
@@ -6452,7 +7751,7 @@ const Dashboard = ({ stats, onNavigate, documents = [], categories = [] }) => {
     return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dashboard", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_AnimatedBackground__WEBPACK_IMPORTED_MODULE_5__.AnimatedBackground, { variant: "books", intensity: "low" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-section", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "hero-title", children: "Bienvenue dans votre biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "hero-subtitle", children: ["G\u00E9rez votre collection de ", stats.totalDocuments, " documents avec facilit\u00E9 et \u00E9l\u00E9gance"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-search", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_SmartSearch__WEBPACK_IMPORTED_MODULE_4__.SmartSearch, { onSearch: (query, filters) => {
                                             console.log('Recherche:', query, filters);
                                             onNavigate('documents');
-                                        }, data: documents, placeholder: "Rechercher un document, auteur, cat\u00E9gorie..." }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-actions", children: heroActions.map((action, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `hero-button ${action.primary ? 'primary' : 'secondary'}`, onClick: action.action, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(action.icon, { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: action.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-visual", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Collection" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-stats", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: stats.totalDocuments }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Documents" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: stats.borrowedDocuments }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Emprunt\u00E9s" })] })] })] }) })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dashboard-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "section-title", children: "Vue d'ensemble" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-subtitle", children: "Statistiques avanc\u00E9es de votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_EnhancedStats__WEBPACK_IMPORTED_MODULE_3__.EnhancedStats, { stats: stats })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dashboard-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "quick-actions-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-header", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Actions rapides" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "actions-grid", children: quickActions.map((action, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "action-card card-elevated", onClick: action.action, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-icon", style: { backgroundColor: action.color }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(action.icon, { size: 20 }), action.badge && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-badge" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-title", children: action.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-description", children: action.description })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16, className: "action-arrow" })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-header", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Utilisation" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-card card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "progress-label", children: "Taux d'emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "progress-value", children: [borrowRate, "%"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-fill", style: { width: `${borrowRate}%` } }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-metrics", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metric", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Tendance stable" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metric", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Mis \u00E0 jour maintenant" })] })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Activit\u00E9 r\u00E9cente" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_6__.MicroButton, { variant: "secondary", size: "small", icon: lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], children: "Voir tout" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_6__.MicroCard, { className: "activity-list", children: recentActivity.map((activity, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(activity.icon, { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-title", children: activity.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-description", children: activity.description })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-time", children: activity.time })] }, index))) })] })] }), showPrintManager && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_PrintManager__WEBPACK_IMPORTED_MODULE_2__.PrintManager, { books: documents, stats: stats, categories: categories, onClose: () => setShowPrintManager(false) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-actions", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_6__.FloatingButton, { icon: lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], onClick: () => onNavigate('add-document'), tooltip: "Ajouter un document", color: "#10B981" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+                                        }, data: documents, placeholder: "Rechercher un document, auteur, cat\u00E9gorie..." }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-actions", children: heroActions.map((action, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `hero-button ${action.primary ? 'primary' : 'secondary'}`, onClick: action.action, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(action.icon, { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: action.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-visual", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Collection" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-stats", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: stats.totalDocuments }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Documents" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: stats.borrowedDocuments }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Emprunt\u00E9s" })] })] })] }) })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dashboard-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "section-title", children: "Vue d'ensemble" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-subtitle", children: "Statistiques avanc\u00E9es de votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_EnhancedStats__WEBPACK_IMPORTED_MODULE_3__.EnhancedStats, { stats: stats })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "dashboard-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "quick-actions-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-header", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Actions rapides" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "actions-grid", children: quickActions.map((action, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "action-card card-elevated", onClick: action.action, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-icon", style: { backgroundColor: action.color }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(action.icon, { size: 20 }), action.badge && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-badge" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-title", children: action.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-description", children: action.description })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16, className: "action-arrow" })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-header", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Utilisation" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-card card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "progress-label", children: "Taux d'emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "progress-value", children: [borrowRate, "%"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-fill", style: { width: `${borrowRate}%` } }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-metrics", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metric", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Tendance stable" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metric", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Mis \u00E0 jour maintenant" })] })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Activit\u00E9 r\u00E9cente" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_6__.MicroButton, { variant: "secondary", size: "small", icon: lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], children: "Voir tout" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_6__.MicroCard, { className: "activity-list", children: recentActivity.map((activity, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(activity.icon, { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-title", children: activity.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-description", children: activity.description })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-time", children: activity.time })] }, index))) })] })] }), showPrintManager && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_PrintManager__WEBPACK_IMPORTED_MODULE_2__.PrintManager, { documents: documents, stats: stats, onClose: () => setShowPrintManager(false) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-actions", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_6__.FloatingButton, { icon: lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], onClick: () => onNavigate('add-document'), tooltip: "Ajouter un document", color: "#10B981" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .dashboard {
           height: 100%;
           overflow-y: auto;
@@ -7096,8 +8395,7 @@ const DocumentList = ({ documents, onAdd, onEdit, onBorrow, onDelete, onRefresh,
     const handleBorrow = (document) => {
         if (onBorrow) {
             onBorrow(document);
-            const action = document.estEmprunte ? 'retourné' : 'emprunté';
-            toast.success(`Document ${action}`, `"${document.titre}" a été ${action} avec succès`);
+            // Ne pas afficher de notification ici - elle sera affichée après confirmation dans le modal
         }
     };
     const handleDelete = (id) => {
@@ -8733,10 +10031,27 @@ const EnhancedAuthentication = ({ onLogin }) => {
     const [success, setSuccess] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
     const [showPassword, setShowPassword] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     // Données du formulaire de connexion
-    const [loginData, setLoginData] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({
-        email: '',
-        password: '',
-        institutionCode: ''
+    const [loginData, setLoginData] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(() => {
+        // Charger les informations de dernière connexion
+        try {
+            const { LocalAuthService } = __webpack_require__(/*! ../services/LocalAuthService */ "./src/renderer/services/LocalAuthService.ts");
+            const lastLogin = LocalAuthService.getLastLoginInfo();
+            if (lastLogin) {
+                return {
+                    email: lastLogin.email,
+                    password: lastLogin.password || '',
+                    institutionCode: lastLogin.institutionCode
+                };
+            }
+        }
+        catch (error) {
+            console.log('Impossible de charger les dernières informations de connexion');
+        }
+        return {
+            email: '',
+            password: '',
+            institutionCode: ''
+        };
     });
     // Données pour la création d'établissement
     const [institutionData, setInstitutionData] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({
@@ -12494,10 +13809,37 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const PrintManager = ({ books, stats, categories, onClose }) => {
+const PrintManager = ({ documents, stats, onClose }) => {
     const [selectedType, setSelectedType] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('inventory');
     const [isProcessing, setIsProcessing] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [message, setMessage] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+    const [institutionSettings, setInstitutionSettings] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({
+        name: 'Bibliothèque Numérique',
+        address: '',
+        city: '',
+        country: '',
+        phone: '',
+        email: '',
+        website: '',
+        logo: '',
+        description: 'Système de gestion de bibliothèque moderne'
+    });
+    (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+        // Charger les informations de l'institution depuis localStorage
+        const loadInstitutionSettings = () => {
+            try {
+                const stored = localStorage.getItem('institutionSettings');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    setInstitutionSettings(prev => ({ ...prev, ...parsed }));
+                }
+            }
+            catch (error) {
+                console.error('Erreur lors du chargement des paramètres d\'institution:', error);
+            }
+        };
+        loadInstitutionSettings();
+    }, []);
     const printOptions = [
         {
             id: 'inventory',
@@ -12506,7 +13848,7 @@ const PrintManager = ({ books, stats, categories, onClose }) => {
             icon: lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"],
             color: '#3E5C49',
             gradient: 'linear-gradient(135deg, #3E5C49 0%, #2E453A 100%)',
-            count: stats.totalDocuments,
+            count: documents.length,
             features: ['Informations complètes', 'Statuts des emprunts', 'Métadonnées']
         },
         {
@@ -12516,7 +13858,7 @@ const PrintManager = ({ books, stats, categories, onClose }) => {
             icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"],
             color: '#3E5C49',
             gradient: 'linear-gradient(135deg, #3E5C49 0%, #4A6B57 100%)',
-            count: stats.availableDocuments,
+            count: documents.filter(doc => !doc.estEmprunte).length,
             features: ['Documents en rayon', 'Prêts à emprunter', 'Tri par catégorie']
         },
         {
@@ -12526,7 +13868,7 @@ const PrintManager = ({ books, stats, categories, onClose }) => {
             icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"],
             color: '#C2571B',
             gradient: 'linear-gradient(135deg, #C2571B 0%, #A8481A 100%)',
-            count: stats.borrowedDocuments,
+            count: documents.filter(doc => doc.estEmprunte).length,
             features: ['Noms des emprunteurs', 'Dates d\'emprunt', 'Alertes retard']
         }
     ];
@@ -12537,7 +13879,11 @@ const PrintManager = ({ books, stats, categories, onClose }) => {
     const handlePrint = async () => {
         setIsProcessing(true);
         try {
-            const printData = { books, stats, categories };
+            const printData = {
+                documents,
+                stats,
+                institution: institutionSettings
+            };
             let success = false;
             switch (selectedType) {
                 case 'inventory':
@@ -12568,7 +13914,11 @@ const PrintManager = ({ books, stats, categories, onClose }) => {
     const handleExportCSV = async () => {
         setIsProcessing(true);
         try {
-            const exportData = { books, stats, categories };
+            const exportData = {
+                documents,
+                stats,
+                institution: institutionSettings
+            };
             const filePath = await window.electronAPI.exportCSV(exportData);
             if (filePath) {
                 showMessage('success', `Fichier CSV exporté : ${filePath.split(/[/\\]/).pop()}`);
@@ -12590,22 +13940,22 @@ const PrintManager = ({ books, stats, categories, onClose }) => {
             case 'inventory':
                 return {
                     title: 'Inventaire Complet',
-                    items: books,
-                    description: `${stats.totalDocuments} document(s) au total`,
+                    items: documents,
+                    description: `${documents.length} document(s) au total`,
                     icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"]
                 };
             case 'available':
                 return {
                     title: 'Documents Disponibles',
-                    items: books.filter(book => !book.isBorrowed),
-                    description: `${stats.availableDocuments} document(s) disponible(s)`,
+                    items: documents.filter(doc => !doc.estEmprunte),
+                    description: `${documents.filter(doc => !doc.estEmprunte).length} document(s) disponible(s)`,
                     icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"]
                 };
             case 'borrowed':
                 return {
                     title: 'Documents Empruntés',
-                    items: books.filter(book => book.isBorrowed),
-                    description: `${stats.borrowedDocuments} document(s) emprunté(s)`,
+                    items: documents.filter(doc => doc.estEmprunte),
+                    description: `${documents.filter(doc => doc.estEmprunte).length} document(s) emprunté(s)`,
                     icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"]
                 };
         }
@@ -12615,7 +13965,7 @@ const PrintManager = ({ books, stats, categories, onClose }) => {
     if (!selectedOption) {
         return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { children: "Erreur: option s\u00E9lectionn\u00E9e invalide" });
     }
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "print-manager-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "print-manager-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 28 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "modal-title", children: "Impression & Export" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "modal-subtitle", children: "G\u00E9n\u00E9rez des rapports professionnels de votre biblioth\u00E8que" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-button", onClick: onClose, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 20 }) })] }), message && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `message ${message.type}`, children: [message.type === 'success' ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 20 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: message.text })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "options-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Choisir le type de rapport" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "section-description", children: "S\u00E9lectionnez le contenu \u00E0 inclure dans votre document" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "print-options", children: printOptions.map((option) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `option-card ${selectedType === option.id ? 'selected' : ''}`, onClick: () => setSelectedType(option.id), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "option-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "option-icon", style: { background: option.gradient }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(option.icon, { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "option-badge", children: [option.count, " \u00E9l\u00E9ment", option.count > 1 ? 's' : ''] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "option-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "option-title", children: option.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "option-description", children: option.description }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "option-features", children: option.features.map((feature, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "feature-tag", children: feature }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "option-indicator", children: selectedType === option.id && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) })] }, option.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-title-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Aper\u00E7u du contenu" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-stats", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(previewData.icon, { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: previewData.description })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "preview-button", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), "Pr\u00E9visualiser"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "preview-icon", style: { background: selectedOption?.gradient }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(selectedOption.icon, { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "preview-title", children: previewData.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "preview-subtitle", children: ["G\u00E9n\u00E9r\u00E9 le ", new Date().toLocaleDateString('fr-FR')] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "preview-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-table", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "table-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Titre" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Auteur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Cat\u00E9gorie" }), selectedType === 'borrowed' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Emprunteur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Date" })] })), selectedType !== 'borrowed' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Statut" }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "table-body", children: [previewData.items.slice(0, 4).map((book, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "table-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "cell-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "book-title", children: book.title }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: book.author }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "category-badge", children: book.category }) }), selectedType === 'borrowed' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: book.borrowerName }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: book.borrowDate ? new Date(book.borrowDate).toLocaleDateString('fr-FR') : '-' })] })), selectedType !== 'borrowed' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: `status-badge ${book.isBorrowed ? 'borrowed' : 'available'}`, children: book.isBorrowed ? 'Emprunté' : 'Disponible' }) }))] }, index))), previewData.items.length > 4 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-row more-items", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "table-cell more-text", children: ["... et ", previewData.items.length - 4, " autre(s) \u00E9l\u00E9ment(s)"] }) }))] })] }) })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-footer", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "footer-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Format PDF professionnel" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Export CSV pour donn\u00E9es" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "footer-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "btn-secondary", onClick: handleExportCSV, disabled: isProcessing, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }), isProcessing ? 'Export...' : 'Exporter CSV'] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "btn-primary", onClick: handlePrint, disabled: isProcessing, children: isProcessing ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }), "G\u00E9n\u00E9ration..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }), "Imprimer"] })) })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "print-manager-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "print-manager-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 28 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "modal-title", children: "Impression & Export" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "modal-subtitle", children: "G\u00E9n\u00E9rez des rapports professionnels de votre biblioth\u00E8que" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-button", onClick: onClose, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 20 }) })] }), message && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `message ${message.type}`, children: [message.type === 'success' ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 20 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: message.text })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "options-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Choisir le type de rapport" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "section-description", children: "S\u00E9lectionnez le contenu \u00E0 inclure dans votre document" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "print-options", children: printOptions.map((option) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `option-card ${selectedType === option.id ? 'selected' : ''}`, onClick: () => setSelectedType(option.id), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "option-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "option-icon", style: { background: option.gradient }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(option.icon, { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "option-badge", children: [option.count, " \u00E9l\u00E9ment", option.count > 1 ? 's' : ''] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "option-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "option-title", children: option.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "option-description", children: option.description }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "option-features", children: option.features.map((feature, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "feature-tag", children: feature }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "option-indicator", children: selectedType === option.id && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) })] }, option.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-title-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Aper\u00E7u du contenu" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-stats", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(previewData.icon, { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: previewData.description })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "preview-button", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), "Pr\u00E9visualiser"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-header", children: [institutionSettings.logo && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "institution-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("img", { src: institutionSettings.logo, alt: "Logo" }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "institution-name", children: institutionSettings.name }), institutionSettings.address && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "institution-address", children: [institutionSettings.address, ", ", institutionSettings.city] })), institutionSettings.phone && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "institution-contact", children: ["T\u00E9l: ", institutionSettings.phone, institutionSettings.email && ` • ${institutionSettings.email}`] }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "report-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "preview-icon", style: { background: selectedOption?.gradient }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(selectedOption.icon, { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "preview-title", children: previewData.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "preview-subtitle", children: ["G\u00E9n\u00E9r\u00E9 le ", new Date().toLocaleDateString('fr-FR')] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "preview-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-table", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "table-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Titre" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Auteur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Cat\u00E9gorie" }), selectedType === 'borrowed' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Emprunteur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Date" })] })), selectedType !== 'borrowed' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-cell", children: "Statut" }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "table-body", children: [previewData.items.slice(0, 4).map((doc, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "table-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "cell-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "book-title", children: doc.titre }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: doc.auteur }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "category-badge", children: doc.descripteurs }) }), selectedType === 'borrowed' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: doc.nomEmprunteur || '-' }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: doc.dateEmprunt ? new Date(doc.dateEmprunt).toLocaleDateString('fr-FR') : '-' })] })), selectedType !== 'borrowed' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-cell", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: `status-badge ${doc.estEmprunte ? 'borrowed' : 'available'}`, children: doc.estEmprunte ? 'Emprunté' : 'Disponible' }) }))] }, index))), previewData.items.length > 4 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "table-row more-items", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "table-cell more-text", children: ["... et ", previewData.items.length - 4, " autre(s) \u00E9l\u00E9ment(s)"] }) }))] })] }) })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-footer", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "footer-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Format PDF professionnel" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Export CSV pour donn\u00E9es" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "footer-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "btn-secondary", onClick: handleExportCSV, disabled: isProcessing, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }), isProcessing ? 'Export...' : 'Exporter CSV'] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "btn-primary", onClick: handlePrint, disabled: isProcessing, children: isProcessing ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }), "G\u00E9n\u00E9ration..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }), "Imprimer"] })) })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .print-manager-overlay {
           position: fixed;
           top: 0;
@@ -12935,11 +14285,65 @@ const PrintManager = ({ books, stats, categories, onClose }) => {
         }
         
         .preview-header {
+          padding: 24px;
+          background: #F3EED9;
+        }
+
+        .institution-header {
+          display: flex;
+          align-items: flex-start;
+          gap: 16px;
+          margin-bottom: 20px;
+          padding-bottom: 16px;
+          border-bottom: 1px solid rgba(229, 220, 194, 0.5);
+        }
+
+        .institution-logo {
+          width: 60px;
+          height: 60px;
+          border-radius: 12px;
+          overflow: hidden;
+          border: 2px solid #E5DCC2;
+          background: #FFFFFF;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .institution-logo img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .institution-info {
+          flex: 1;
+        }
+
+        .institution-name {
+          font-size: 18px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 4px 0;
+        }
+
+        .institution-address {
+          font-size: 13px;
+          color: #6E6E6E;
+          margin: 0 0 2px 0;
+        }
+
+        .institution-contact {
+          font-size: 12px;
+          color: #6E6E6E;
+          margin: 0;
+        }
+
+        .report-header {
           display: flex;
           align-items: center;
           gap: 16px;
-          padding: 20px 24px;
-          background: #F3EED9;
           border-bottom: 1px solid #E5DCC2;
         }
         
@@ -14621,16 +16025,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/history.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/heart.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/info.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/bar-chart-3.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/briefcase.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-right.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-left.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/zap.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trending-up.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/settings.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/heart.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/info.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/bar-chart-3.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/briefcase.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-right.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-left.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/zap.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trending-up.mjs");
 
 
 
@@ -14694,9 +16099,16 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
     ];
     const supportItems = [
         {
+            id: 'app-settings',
+            label: 'Paramètres',
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"],
+            description: 'Configuration de l\'application',
+            gradient: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)'
+        },
+        {
             id: 'donation',
             label: 'Soutenir le projet',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"],
             description: 'Faire une donation',
             gradient: 'linear-gradient(135deg, #E91E63 0%, #C2185B 100%)',
             support: true
@@ -14704,7 +16116,7 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
         {
             id: 'about',
             label: 'À propos',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"],
             description: 'Développeur & crédits',
             gradient: 'linear-gradient(135deg, #607D8B 0%, #455A64 100%)'
         }
@@ -14727,14 +16139,14 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
         {
             label: 'Empruntés',
             value: stats.borrowedDocuments,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"],
             color: '#C2571B',
             percentage: stats.totalDocuments > 0 ? Math.round((stats.borrowedDocuments / stats.totalDocuments) * 100) : 0
         },
         {
             label: 'En retard',
             value: stats.overdueDocuments,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"],
             color: '#DC2626',
             urgent: stats.overdueDocuments > 0
         }
@@ -14743,13 +16155,13 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
         {
             label: 'Étudiants',
             value: stats.totalStudents,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"],
             color: '#3E5C49'
         },
         {
             label: 'Personnel',
             value: stats.totalStaff,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"],
             color: '#C2571B'
         }
     ];
@@ -14758,15 +16170,15 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
             return 0;
         return Math.round((stats.borrowedDocuments / stats.totalDocuments) * 100);
     };
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `sidebar ${isCollapsed ? 'collapsed' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "sidebar-toggle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "toggle-button", onClick: () => setIsCollapsed(!isCollapsed), title: isCollapsed ? 'Développer le menu' : 'Réduire le menu', children: isCollapsed ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 18 }) }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-brand", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "brand-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "brand-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "brand-title", children: "Biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "brand-subtitle", children: "Syst\u00E8me de gestion moderne" })] })] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("nav", { className: "sidebar-nav", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Principal" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: menuItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.urgent ? 'urgent' : ''} ${item.highlight ? 'highlight' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `sidebar ${isCollapsed ? 'collapsed' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "sidebar-toggle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "toggle-button", onClick: () => setIsCollapsed(!isCollapsed), title: isCollapsed ? 'Développer le menu' : 'Réduire le menu', children: isCollapsed ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 18 }) }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-brand", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "brand-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "brand-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "brand-title", children: "Biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "brand-subtitle", children: "Syst\u00E8me de gestion moderne" })] })] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("nav", { className: "sidebar-nav", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Principal" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: menuItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.urgent ? 'urgent' : ''} ${item.highlight ? 'highlight' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
                                                     '--item-gradient': item.gradient
-                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''} ${item.urgent ? 'urgent' : ''}`, children: item.count })), item.highlight && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-highlight", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 14 }) }))] })), isCollapsed && item.badge && stats.borrowedDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-indicator ${item.urgent ? 'urgent' : ''}` }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Actions" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: actionItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.highlight ? 'highlight' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
+                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''} ${item.urgent ? 'urgent' : ''}`, children: item.count })), item.highlight && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-highlight", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 14 }) }))] })), isCollapsed && item.badge && stats.borrowedDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-indicator ${item.urgent ? 'urgent' : ''}` }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Actions" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: actionItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.highlight ? 'highlight' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
                                                     '--item-gradient': item.gradient
-                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''}`, children: item.count })), item.highlight && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-highlight", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 14 }) }))] }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Rapports" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: reportItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
+                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''}`, children: item.count })), item.highlight && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-highlight", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 14 }) }))] }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Rapports" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: reportItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
                                                     '--item-gradient': item.gradient
                                                 }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Communaut\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: supportItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.support ? 'support' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
                                                     '--item-gradient': item.gradient
-                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }))] }) }, item.id))) })] })] }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Statistiques de collection" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "popularity-score", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [getPopularityScore(), "% popularit\u00E9"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stats-grid", children: quickStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `stat-card ${stat.urgent ? 'urgent' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-label", children: stat.label }), stat.trend && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-trend", children: stat.trend })), stat.percentage !== undefined && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-percentage", children: [stat.percentage, "%"] }))] })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "users-stats", children: userStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 18 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-label", children: stat.label })] })] }, index))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "total-users", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "total-label", children: "Total des utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "total-value", children: stats.totalBorrowers })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Activit\u00E9 r\u00E9cente" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-pulse" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-summary", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot available" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.availableDocuments, " documents pr\u00EAts \u00E0 emprunter"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot borrowed" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.borrowedDocuments, " emprunts en cours"] })] }), stats.overdueDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item urgent", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot overdue" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.overdueDocuments, " document(s) en retard"] })] }))] })] })] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }))] }) }, item.id))) })] })] }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Statistiques de collection" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "popularity-score", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [getPopularityScore(), "% popularit\u00E9"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stats-grid", children: quickStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `stat-card ${stat.urgent ? 'urgent' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-label", children: stat.label }), stat.trend && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-trend", children: stat.trend })), stat.percentage !== undefined && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-percentage", children: [stat.percentage, "%"] }))] })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "users-stats", children: userStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 18 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-label", children: stat.label })] })] }, index))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "total-users", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "total-label", children: "Total des utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "total-value", children: stats.totalBorrowers })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Activit\u00E9 r\u00E9cente" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-pulse" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-summary", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot available" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.availableDocuments, " documents pr\u00EAts \u00E0 emprunter"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot borrowed" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.borrowedDocuments, " emprunts en cours"] })] }), stats.overdueDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item urgent", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot overdue" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.overdueDocuments, " document(s) en retard"] })] }))] })] })] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .sidebar {
           width: 300px;
           background: linear-gradient(180deg, #3E5C49 0%, #2E453A 100%);
@@ -15584,7 +16996,7 @@ const Sidebar = ({ currentView, onNavigate, stats }) => {
             border-width: 2px;
           }
         }
-      ` }), !isCollapsed && stats.overdueDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "emergency-alert", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "alert-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "alert-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "alert-title", children: "Action requise" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "alert-message", children: [stats.overdueDocuments, " document(s) en retard"] })] })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+      ` }), !isCollapsed && stats.overdueDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "emergency-alert", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "alert-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "alert-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "alert-title", children: "Action requise" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "alert-message", children: [stats.overdueDocuments, " document(s) en retard"] })] })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .emergency-alert {
           margin: 16px 20px;
           background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
@@ -16930,6 +18342,228 @@ ConfigService.DEFAULT_CONFIG = {
     configuredAt: '',
     version: '1.0.0'
 };
+
+
+/***/ }),
+
+/***/ "./src/renderer/services/LocalAuthService.ts":
+/*!***************************************************!*\
+  !*** ./src/renderer/services/LocalAuthService.ts ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   LocalAuthService: () => (/* binding */ LocalAuthService)
+/* harmony export */ });
+// src/renderer/services/LocalAuthService.ts
+// Service pour gérer l'authentification et les établissements locaux
+class LocalAuthService {
+    // === GESTION DES PARAMÈTRES DE L'APPLICATION ===
+    static getAppSettings() {
+        const settings = localStorage.getItem(this.SETTINGS_KEY);
+        return settings ? JSON.parse(settings) : {
+            requireAppPassword: false,
+            autoLogin: false,
+            rememberLastUser: true
+        };
+    }
+    static saveAppSettings(settings) {
+        localStorage.setItem(this.SETTINGS_KEY, JSON.stringify(settings));
+    }
+    static setAppPassword(password) {
+        const settings = this.getAppSettings();
+        settings.requireAppPassword = true;
+        settings.appPassword = password; // En production, il faut hasher
+        this.saveAppSettings(settings);
+    }
+    static verifyAppPassword(password) {
+        const settings = this.getAppSettings();
+        return !settings.requireAppPassword || settings.appPassword === password;
+    }
+    static clearAppPassword() {
+        const settings = this.getAppSettings();
+        settings.requireAppPassword = false;
+        delete settings.appPassword;
+        this.saveAppSettings(settings);
+    }
+    // === GESTION DES UTILISATEURS LOCAUX ===
+    static getUsers() {
+        const users = localStorage.getItem(this.USERS_KEY);
+        return users ? JSON.parse(users) : [];
+    }
+    static saveUsers(users) {
+        localStorage.setItem(this.USERS_KEY, JSON.stringify(users));
+    }
+    static addUser(user) {
+        const users = this.getUsers();
+        const newUser = {
+            ...user,
+            id: Date.now().toString(),
+            lastLogin: new Date().toISOString()
+        };
+        // Vérifier si l'utilisateur existe déjà
+        const existingUserIndex = users.findIndex(u => u.email === user.email);
+        if (existingUserIndex !== -1) {
+            users[existingUserIndex] = newUser;
+        }
+        else {
+            users.push(newUser);
+        }
+        this.saveUsers(users);
+        return newUser;
+    }
+    static findUser(email, password, institutionCode) {
+        const users = this.getUsers();
+        return users.find(u => u.email === email &&
+            u.password === password &&
+            u.institutionCode === institutionCode) || null;
+    }
+    static updateUserLastLogin(userId) {
+        const users = this.getUsers();
+        const userIndex = users.findIndex(u => u.id === userId);
+        if (userIndex !== -1) {
+            users[userIndex].lastLogin = new Date().toISOString();
+            this.saveUsers(users);
+        }
+    }
+    static updateUserPreferences(userId, preferences) {
+        const users = this.getUsers();
+        const userIndex = users.findIndex(u => u.id === userId);
+        if (userIndex !== -1) {
+            users[userIndex].preferences = {
+                rememberMe: false,
+                autoLogin: false,
+                theme: 'light',
+                ...users[userIndex].preferences,
+                ...preferences
+            };
+            this.saveUsers(users);
+        }
+    }
+    // === GESTION DES ÉTABLISSEMENTS LOCAUX ===
+    static getInstitutions() {
+        const institutions = localStorage.getItem(this.INSTITUTIONS_KEY);
+        return institutions ? JSON.parse(institutions) : [];
+    }
+    static saveInstitutions(institutions) {
+        localStorage.setItem(this.INSTITUTIONS_KEY, JSON.stringify(institutions));
+    }
+    static createInstitution(institutionData) {
+        const institutions = this.getInstitutions();
+        // Générer un code unique
+        let code;
+        do {
+            code = this.generateInstitutionCode();
+        } while (institutions.some(inst => inst.code === code));
+        const newInstitution = {
+            ...institutionData,
+            id: Date.now().toString(),
+            code,
+            created_at: new Date().toISOString()
+        };
+        institutions.push(newInstitution);
+        this.saveInstitutions(institutions);
+        return newInstitution;
+    }
+    static findInstitutionByCode(code) {
+        const institutions = this.getInstitutions();
+        return institutions.find(inst => inst.code === code) || null;
+    }
+    static getAllValidCodes() {
+        const institutions = this.getInstitutions();
+        const institutionCodes = institutions.map(inst => inst.code);
+        // Ajouter les codes par défaut
+        const defaultCodes = ['BIBLIO2024', 'OFFLINE', 'LOCAL', 'TEST'];
+        return [...defaultCodes, ...institutionCodes];
+    }
+    static generateInstitutionCode() {
+        // Génère un code de 8 caractères alphanumériques
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = '';
+        for (let i = 0; i < 8; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+    // === GESTION DE LA DERNIÈRE CONNEXION ===
+    static saveLastLoginInfo(email, institutionCode, rememberPassword = false, password) {
+        const settings = this.getAppSettings();
+        if (settings.rememberLastUser) {
+            const info = {
+                email,
+                institutionCode,
+                timestamp: new Date().toISOString()
+            };
+            if (rememberPassword && password) {
+                info.password = password; // En production, il faut hasher
+            }
+            localStorage.setItem(this.LAST_LOGIN_KEY, JSON.stringify(info));
+        }
+    }
+    static getLastLoginInfo() {
+        const info = localStorage.getItem(this.LAST_LOGIN_KEY);
+        return info ? JSON.parse(info) : null;
+    }
+    static clearLastLoginInfo() {
+        localStorage.removeItem(this.LAST_LOGIN_KEY);
+    }
+    // === UTILISATEURS PAR DÉFAUT ===
+    static getDefaultUsers() {
+        return [
+            { email: 'admin@local', password: 'admin', role: 'Administrateur' },
+            { email: 'bibliothecaire@local', password: 'biblio', role: 'Bibliothécaire' },
+            { email: 'test@local', password: 'test', role: 'Utilisateur' }
+        ];
+    }
+    static isDefaultUser(email, password) {
+        return this.getDefaultUsers().some(u => u.email === email && u.password === password);
+    }
+    // === MÉTHODES D'AUTHENTIFICATION ===
+    static authenticate(email, password, institutionCode) {
+        // Vérifier si le code d'établissement est valide
+        const validCodes = this.getAllValidCodes();
+        if (!validCodes.includes(institutionCode.toUpperCase())) {
+            return { success: false, message: 'Code d\'établissement invalide' };
+        }
+        // Chercher un utilisateur local d'abord
+        const localUser = this.findUser(email, password, institutionCode);
+        if (localUser) {
+            this.updateUserLastLogin(localUser.id);
+            return { success: true, user: localUser };
+        }
+        // Vérifier les utilisateurs par défaut
+        if (this.isDefaultUser(email, password) || password === 'demo') {
+            // Créer/mettre à jour l'utilisateur par défaut
+            const defaultUser = this.addUser({
+                email,
+                password,
+                firstName: email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1),
+                lastName: 'Local',
+                role: email.includes('admin') ? 'admin' : email.includes('bibliothecaire') ? 'librarian' : 'user',
+                institutionCode,
+                preferences: {
+                    rememberMe: false,
+                    autoLogin: false,
+                    theme: 'light'
+                }
+            });
+            return { success: true, user: defaultUser };
+        }
+        return { success: false, message: 'Identifiants invalides' };
+    }
+    // === NETTOYAGE ===
+    static clearAllData() {
+        localStorage.removeItem(this.USERS_KEY);
+        localStorage.removeItem(this.INSTITUTIONS_KEY);
+        localStorage.removeItem(this.SETTINGS_KEY);
+        localStorage.removeItem(this.LAST_LOGIN_KEY);
+    }
+}
+LocalAuthService.USERS_KEY = 'local_users';
+LocalAuthService.INSTITUTIONS_KEY = 'local_institutions';
+LocalAuthService.SETTINGS_KEY = 'app_settings';
+LocalAuthService.LAST_LOGIN_KEY = 'last_login_info';
 
 
 /***/ }),

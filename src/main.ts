@@ -755,6 +755,82 @@ ipcMain.handle('sync:retry', async (_, operationId: string) => {
   }
 });
 
+// Print Operations
+ipcMain.handle('print:inventory', async (_, data) => {
+  try {
+    return await createPrintWindow(data, 'inventory');
+  } catch (error) {
+    console.error('Erreur print:inventory:', error);
+    return false;
+  }
+});
+
+ipcMain.handle('print:available-books', async (_, data) => {
+  try {
+    return await createPrintWindow(data, 'available');
+  } catch (error) {
+    console.error('Erreur print:available-books:', error);
+    return false;
+  }
+});
+
+ipcMain.handle('print:borrowed-books', async (_, data) => {
+  try {
+    return await createPrintWindow(data, 'borrowed');
+  } catch (error) {
+    console.error('Erreur print:borrowed-books:', error);
+    return false;
+  }
+});
+
+ipcMain.handle('export:csv', async (_, data) => {
+  try {
+    const result = await dialog.showSaveDialog(mainWindow, {
+      title: 'Exporter en CSV',
+      defaultPath: `bibliotheque_export_${new Date().toISOString().split('T')[0]}.csv`,
+      filters: [
+        { name: 'Fichiers CSV', extensions: ['csv'] },
+        { name: 'Tous les fichiers', extensions: ['*'] }
+      ]
+    });
+
+    if (result.canceled || !result.filePath) {
+      return null;
+    }
+
+    const csvContent = generateCSV(data);
+    fs.writeFileSync(result.filePath, csvContent, 'utf8');
+    return result.filePath;
+
+  } catch (error) {
+    console.error('Erreur export:csv:', error);
+    return null;
+  }
+});
+
+function generateCSV(data: any): string {
+  if (!data.documents || !Array.isArray(data.documents)) {
+    return '';
+  }
+
+  const headers = ['Titre', 'Auteur', 'Éditeur', 'Année', 'Catégorie', 'Cote', 'Statut', 'Emprunteur', 'Date d\'emprunt'];
+  const rows = data.documents.map((doc: any) => [
+    doc.titre || '',
+    doc.auteur || '',
+    doc.editeur || '',
+    doc.annee || '',
+    doc.descripteurs || '',
+    doc.cote || '',
+    doc.estEmprunte ? 'Emprunté' : 'Disponible',
+    doc.nomEmprunteur || '',
+    doc.dateEmprunt ? new Date(doc.dateEmprunt).toLocaleDateString('fr-FR') : ''
+  ]);
+
+  return [headers, ...rows]
+    .map(row => row.map((cell: string) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    .join('\n');
+}
+
 async function createPrintWindow(data: any, type: string): Promise<boolean> {
   return new Promise((resolve) => {
     const printWindow = new BrowserWindow({
@@ -797,6 +873,8 @@ function generatePrintHTML(data: any, type: string): string {
     minute: '2-digit'
   });
 
+  const institution = data.institution || {};
+  
   let title = '';
   let content = '';
 
@@ -842,6 +920,40 @@ function generatePrintHTML(data: any, type: string): string {
           border-bottom: 3px solid #3E5C49;
           padding-bottom: 20px; 
           margin-bottom: 30px;
+        }
+        .institution-header {
+          display: flex;
+          align-items: flex-start;
+          gap: 20px;
+          margin-bottom: 20px;
+          padding-bottom: 15px;
+          border-bottom: 1px solid #E5DCC2;
+        }
+        .institution-logo {
+          width: 80px;
+          height: 80px;
+          object-fit: cover;
+          border-radius: 8px;
+          border: 2px solid #E5DCC2;
+        }
+        .institution-info h2 {
+          color: #3E5C49;
+          font-size: 20px;
+          font-weight: 700;
+          margin: 0 0 5px 0;
+        }
+        .institution-address {
+          font-size: 12px;
+          color: #6E6E6E;
+          margin: 0 0 3px 0;
+        }
+        .institution-contact {
+          font-size: 11px;
+          color: #6E6E6E;
+          margin: 0;
+        }
+        .report-title {
+          margin-top: 15px;
         }
         .header h1 {
           color: #3E5C49; 
@@ -943,9 +1055,25 @@ function generatePrintHTML(data: any, type: string): string {
     </head>
     <body>
       <div class="header">
-        <h1>${title}</h1>
-        <div class="subtitle">Système de Gestion de Bibliothèque</div>
-        <div class="date">Généré le ${now}</div>
+        ${institution.name || institution.logo ? `
+        <div class="institution-header">
+          ${institution.logo ? `<img src="${institution.logo}" alt="Logo" class="institution-logo" />` : ''}
+          <div class="institution-info">
+            <h2>${institution.name || 'Bibliothèque Numérique'}</h2>
+            ${institution.address ? `<div class="institution-address">${institution.address}${institution.city ? ', ' + institution.city : ''}</div>` : ''}
+            ${institution.phone || institution.email ? `
+            <div class="institution-contact">
+              ${institution.phone ? 'Tél: ' + institution.phone : ''}
+              ${institution.phone && institution.email ? ' • ' : ''}
+              ${institution.email ? institution.email : ''}
+            </div>` : ''}
+          </div>
+        </div>` : ''}
+        <div class="report-title">
+          <h1>${title}</h1>
+          <div class="subtitle">${institution.description || 'Système de Gestion de Bibliothèque'}</div>
+          <div class="date">Généré le ${now}</div>
+        </div>
       </div>
       ${content}
     </body>
@@ -954,24 +1082,24 @@ function generatePrintHTML(data: any, type: string): string {
 }
 
 function generateInventoryContent(data: any): string {
-  const { books, stats } = data;
+  const { documents, stats } = data;
   
   return `
     <div class="stats-summary">
       <div class="stat-item">
-        <div class="stat-value">${stats.totalDocuments}</div>
-        <div class="stat-label">Total Livres</div>
+        <div class="stat-value">${documents?.length || 0}</div>
+        <div class="stat-label">Total Documents</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${stats.availableDocuments}</div>
+        <div class="stat-value">${documents?.filter((d: any) => !d.estEmprunte).length || 0}</div>
         <div class="stat-label">Disponibles</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${stats.borrowedDocuments}</div>
+        <div class="stat-value">${documents?.filter((d: any) => d.estEmprunte).length || 0}</div>
         <div class="stat-label">Empruntés</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${stats.totalAuthors}</div>
+        <div class="stat-value">${[...new Set(documents?.map((d: any) => d.auteur).filter(Boolean))].length || 0}</div>
         <div class="stat-label">Auteurs</div>
       </div>
     </div>
@@ -981,53 +1109,53 @@ function generateInventoryContent(data: any): string {
         <tr>
           <th style="width: 25%;">Titre</th>
           <th style="width: 20%;">Auteur</th>
-          <th style="width: 15%;">Catégorie</th>
-          <th style="width: 10%;">ISBN</th>
+          <th style="width: 15%;">Éditeur</th>
           <th style="width: 8%;">Année</th>
+          <th style="width: 10%;">Cote</th>
           <th style="width: 10%;">Statut</th>
           <th style="width: 12%;">Emprunteur/Date</th>
         </tr>
       </thead>
       <tbody>
-        ${books.map((book: any) => `
+        ${documents?.map((doc: any) => `
           <tr>
-            <td><strong>${book.title}</strong></td>
-            <td>${book.author}</td>
-            <td><span class="category-tag">${book.category}</span></td>
-            <td>${book.isbn || '-'}</td>
-            <td>${book.publishedDate || '-'}</td>
+            <td><strong>${doc.titre || '-'}</strong></td>
+            <td>${doc.auteur || '-'}</td>
+            <td>${doc.editeur || '-'}</td>
+            <td>${doc.annee || '-'}</td>
+            <td>${doc.cote || '-'}</td>
             <td>
-              <span class="${book.isBorrowed ? 'status-borrowed' : 'status-available'}">
-                ${book.isBorrowed ? 'Emprunté' : 'Disponible'}
+              <span class="${doc.estEmprunte ? 'status-borrowed' : 'status-available'}">
+                ${doc.estEmprunte ? 'Emprunté' : 'Disponible'}
               </span>
             </td>
             <td>
-              ${book.borrowerId ? `${book.borrower?.firstName || ''} ${book.borrower?.lastName || ''}<br/>` : '-'}
-              ${book.borrowDate ? new Date(book.borrowDate).toLocaleDateString('fr-FR') : ''}
+              ${doc.nomEmprunteur ? `${doc.nomEmprunteur}<br/>` : '-'}
+              ${doc.dateEmprunt ? new Date(doc.dateEmprunt).toLocaleDateString('fr-FR') : ''}
             </td>
           </tr>
-        `).join('')}
+        `).join('') || '<tr><td colspan="7">Aucun document trouvé</td></tr>'}
       </tbody>
     </table>
   `;
 }
 
 function generateAvailableBooksContent(data: any): string {
-  const { books, stats } = data;
-  const availableBooks = books.filter((book: any) => !book.isBorrowed);
+  const { documents } = data;
+  const availableDocuments = documents?.filter((doc: any) => !doc.estEmprunte) || [];
   
   return `
     <div class="stats-summary">
       <div class="stat-item">
-        <div class="stat-value">${availableBooks.length}</div>
-        <div class="stat-label">Livres Disponibles</div>
+        <div class="stat-value">${availableDocuments.length}</div>
+        <div class="stat-label">Documents Disponibles</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${stats.totalDocuments}</div>
-        <div class="stat-label">Total Livres</div>
+        <div class="stat-value">${documents?.length || 0}</div>
+        <div class="stat-label">Total Documents</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${((availableBooks.length / (stats.totalDocuments || 1)) * 100).toFixed(1)}%</div>
+        <div class="stat-value">${((availableDocuments.length / (documents?.length || 1)) * 100).toFixed(1)}%</div>
         <div class="stat-label">Taux Disponibilité</div>
       </div>
     </div>
@@ -1037,93 +1165,80 @@ function generateAvailableBooksContent(data: any): string {
         <tr>
           <th style="width: 30%;">Titre</th>
           <th style="width: 25%;">Auteur</th>
-          <th style="width: 15%;">Catégorie</th>
-          <th style="width: 15%;">ISBN</th>
-          <th style="width: 15%;">Année Publication</th>
+          <th style="width: 15%;">Éditeur</th>
+          <th style="width: 15%;">Cote</th>
+          <th style="width: 15%;">Année</th>
         </tr>
       </thead>
       <tbody>
-        ${availableBooks.map((book: any) => `
+        ${availableDocuments.map((doc: any) => `
           <tr>
-            <td><strong>${book.title}</strong></td>
-            <td>${book.author}</td>
-            <td><span class="category-tag">${book.category}</span></td>
-            <td>${book.isbn || '-'}</td>
-            <td>${book.publishedDate || '-'}</td>
+            <td><strong>${doc.titre || '-'}</strong></td>
+            <td>${doc.auteur || '-'}</td>
+            <td>${doc.editeur || '-'}</td>
+            <td>${doc.cote || '-'}</td>
+            <td>${doc.annee || '-'}</td>
           </tr>
-        `).join('')}
+        `).join('') || '<tr><td colspan="5">Aucun document disponible</td></tr>'}
       </tbody>
     </table>
   `;
 }
 
 function generateBorrowedBooksContent(data: any): string {
-  const { history } = data;
+  const { documents } = data;
+  const borrowedDocuments = documents?.filter((doc: any) => doc.estEmprunte) || [];
   
   return `
     <div class="stats-summary">
       <div class="stat-item">
-        <div class="stat-value">${history.length}</div>
-        <div class="stat-label">Livres Empruntés</div>
+        <div class="stat-value">${borrowedDocuments.length}</div>
+        <div class="stat-label">Documents Empruntés</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${history.filter((h: any) => h.status === 'overdue').length}</div>
+        <div class="stat-value">${borrowedDocuments.filter((doc: any) => {
+          const returnDate = new Date(doc.dateRetourPrevu || '');
+          return returnDate < new Date();
+        }).length}</div>
         <div class="stat-label">En Retard</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">${history.filter((h: any) => h.borrower?.type === 'student').length}</div>
-        <div class="stat-label">Étudiants</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value">${history.filter((h: any) => h.borrower?.type === 'staff').length}</div>
-        <div class="stat-label">Personnel</div>
+        <div class="stat-value">${documents?.length || 0}</div>
+        <div class="stat-label">Total Documents</div>
       </div>
     </div>
     
     <table class="content-table">
       <thead>
         <tr>
-          <th style="width: 20%;">Livre</th>
-          <th style="width: 15%;">Auteur</th>
-          <th style="width: 15%;">Emprunteur</th>
-          <th style="width: 10%;">Type</th>
-          <th style="width: 12%;">Matricule/Classe</th>
-          <th style="width: 10%;">Date Emprunt</th>
-          <th style="width: 10%;">Retour Prévu</th>
-          <th style="width: 8%;">Statut</th>
+          <th style="width: 25%;">Titre</th>
+          <th style="width: 20%;">Auteur</th>
+          <th style="width: 20%;">Emprunteur</th>
+          <th style="width: 12%;">Date Emprunt</th>
+          <th style="width: 12%;">Retour Prévu</th>
+          <th style="width: 11%;">Statut</th>
         </tr>
       </thead>
       <tbody>
-        ${history.map((item: any) => {
-          const borrowDate = new Date(item.borrowDate);
-          const expectedDate = new Date(item.expectedReturnDate);
+        ${borrowedDocuments.map((doc: any) => {
+          const borrowDate = doc.dateEmprunt ? new Date(doc.dateEmprunt) : null;
+          const expectedDate = doc.dateRetourPrevu ? new Date(doc.dateRetourPrevu) : null;
           const today = new Date();
-          const isOverdue = today > expectedDate && item.status === 'active';
+          const isOverdue = expectedDate && today > expectedDate;
           
           return `
             <tr>
-              <td><strong>${item.book?.title}</strong></td>
-              <td>${item.book?.author}</td>
-              <td><strong>${item.borrower?.firstName} ${item.borrower?.lastName}</strong></td>
+              <td><strong>${doc.titre || '-'}</strong></td>
+              <td>${doc.auteur || '-'}</td>
+              <td><strong>${doc.nomEmprunteur || '-'}</strong></td>
+              <td>${borrowDate ? borrowDate.toLocaleDateString('fr-FR') : '-'}</td>
+              <td>${expectedDate ? expectedDate.toLocaleDateString('fr-FR') : '-'}</td>
               <td>
-                <span class="borrower-type">
-                  ${item.borrower?.type === 'student' ? 'Étudiant' : 'Personnel'}
-                </span>
-              </td>
-              <td>
-                ${item.borrower?.matricule}<br/>
-                <small>${item.borrower?.type === 'student' ? item.borrower?.classe || '' : item.borrower?.position || ''}</small>
-              </td>
-              <td>${borrowDate.toLocaleDateString('fr-FR')}</td>
-              <td>${expectedDate.toLocaleDateString('fr-FR')}</td>
-              <td>
-                <span class="${isOverdue ? 'status-overdue' : item.status === 'returned' ? 'status-returned' : 'status-borrowed'}">
-                  ${isOverdue ? 'En retard' : item.status === 'returned' ? 'Rendu' : 'En cours'}
-                </span>
+                <span class="${isOverdue ? 'status-overdue' : 'status-borrowed'}">${isOverdue ? 'En retard' : 'En cours'}</span>
               </td>
             </tr>
           `;
-        }).join('')}
+        }).join('') || '<tr><td colspan="6">Aucun document emprunté</td></tr>'}
       </tbody>
     </table>
   `;

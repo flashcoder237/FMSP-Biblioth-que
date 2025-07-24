@@ -44,10 +44,27 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
   const [showPassword, setShowPassword] = useState(false);
 
   // Données du formulaire de connexion
-  const [loginData, setLoginData] = useState({
-    email: '',
-    password: '',
-    institutionCode: ''
+  const [loginData, setLoginData] = useState(() => {
+    // Charger les informations de dernière connexion
+    try {
+      const { LocalAuthService } = require('../services/LocalAuthService');
+      const lastLogin = LocalAuthService.getLastLoginInfo();
+      if (lastLogin) {
+        return {
+          email: lastLogin.email,
+          password: lastLogin.password || '',
+          institutionCode: lastLogin.institutionCode
+        };
+      }
+    } catch (error) {
+      console.log('Impossible de charger les dernières informations de connexion');
+    }
+    
+    return {
+      email: '',
+      password: '',
+      institutionCode: ''
+    };
   });
 
   // Données pour la création d'établissement
