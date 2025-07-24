@@ -183,7 +183,7 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
           left: 0;
           right: 0;
           bottom: 0;
-          background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #399b5dff 100%);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -263,7 +263,7 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
           justify-content: center;
           width: 80px;
           height: 80px;
-          background: linear-gradient(135deg, #1e3a8a, #3730a3);
+          background: linear-gradient(135deg, #3E5C49, #399b5dff);
           border-radius: 20px;
           color: white;
           margin-bottom: 20px;
@@ -311,7 +311,7 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
         }
 
         .input-group:focus-within {
-          border-color: #3730a3;
+          border-color: #399b5dff;
           box-shadow: 0 0 0 3px rgba(55, 48, 163, 0.1);
         }
 
@@ -369,7 +369,7 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
           align-items: center;
           justify-content: center;
           gap: 10px;
-          background: linear-gradient(135deg, #1e3a8a, #3730a3);
+          background: linear-gradient(135deg, #3E5C49, #399b5dff);
           color: white;
           border: none;
           padding: 16px 24px;
@@ -382,7 +382,7 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
 
         .unlock-btn:not(:disabled):hover {
           transform: translateY(-2px);
-          box-shadow: 0 10px 30px rgba(30, 58, 138, 0.3);
+          box-shadow: 0 10px 30px rgba(30, 138, 100, 0.3);
         }
 
         .unlock-btn:disabled {
@@ -416,13 +416,13 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
         }
 
         .notice-icon {
-          color: #0284c7;
+          color: #02c78fff;
           margin-bottom: 8px;
         }
 
         .notice-content p {
           font-weight: 600;
-          color: #0c4a6e;
+          color: #0c6e52ff;
           margin: 0 0 8px 0;
           font-size: 0.9rem;
         }
@@ -430,7 +430,7 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
         .notice-content ul {
           margin: 0;
           padding-left: 20px;
-          color: #075985;
+          color: #078561ff;
           font-size: 0.85rem;
         }
 

@@ -22,16 +22,20 @@ import { ConfigService } from './services/ConfigService';
 import { LocalAuthService } from './services/LocalAuthService';
 import { AppSettings } from './components/AppSettings';
 import { UserProfile } from './components/UserProfile';
+import { BackupManager } from './components/BackupManager';
 import { ToastProvider, useQuickToast } from './components/ToastSystem';
 import { KeyboardShortcutsProvider } from './components/KeyboardShortcuts';
+import { UnifiedUser, UnifiedInstitution, convertToUnifiedUser, convertToUnifiedInstitution } from './types/UnifiedTypes';
 
-type ViewType = 'initial_setup' | 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'settings' | 'app-settings' | 'user-profile' | 'donation' | 'about' | 'auth' | 'institution_setup';
+type ViewType = 'initial_setup' | 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'settings' | 'app-settings' | 'user-profile' | 'backup-manager' | 'donation' | 'about' | 'auth' | 'institution_setup';
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewType>('initial_setup');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentInstitution, setCurrentInstitution] = useState<Institution | null>(null);
+  const [unifiedUser, setUnifiedUser] = useState<UnifiedUser | null>(null);
+  const [unifiedInstitution, setUnifiedInstitution] = useState<UnifiedInstitution | null>(null);
   const [institutionCode, setInstitutionCode] = useState<string>('');
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [appMode, setAppMode] = useState<AppMode>('offline');
@@ -544,6 +548,26 @@ export const App: React.FC = () => {
 
             setCurrentUser(appUser);
             setCurrentInstitution(appInstitution);
+            
+            // Créer les versions unifiées
+            setUnifiedUser(convertToUnifiedUser(localUser, 'offline'));
+            setUnifiedInstitution(convertToUnifiedInstitution(institution || {
+              id: 'default-offline',
+              name: 'Ma Bibliothèque',
+              code: localUser.institutionCode,
+              address: '',
+              city: '',
+              country: '',
+              phone: '',
+              email: '',
+              website: '',
+              logo: '',
+              description: 'Bibliothèque locale',
+              type: 'library',
+              adminEmail: localUser.email,
+              created_at: new Date().toISOString()
+            }, 'offline'));
+            
             setIsAuthenticated(true);
             setIsDemoMode(false);
             setCurrentView('dashboard');
@@ -655,10 +679,20 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleUserUpdate = (updatedUser: User) => {
-    setCurrentUser(updatedUser);
-    // Optionnel: Recharger les données si nécessaire
-    // loadData();
+  const handleUserUpdate = (updatedUser: UnifiedUser) => {
+    setUnifiedUser(updatedUser);
+    
+    // Mettre à jour aussi currentUser pour la compatibilité
+    if (appMode === 'offline') {
+      const appUser: User = {
+        id: updatedUser.id as string,
+        firstName: updatedUser.firstName || '',
+        lastName: updatedUser.lastName || '',
+        email: updatedUser.email,
+        role: updatedUser.role as 'super_admin' | 'admin' | 'librarian' | 'user'
+      };
+      setCurrentUser(appUser);
+    }
   };
 
   const handleAddDocument = async (document: Omit<Document, 'id'>) => {
@@ -1009,14 +1043,16 @@ export const App: React.FC = () => {
       case 'borrowed':
         return (
           <BorrowedDocuments
-            documents={borrowedDocuments.map(bh => ({
-              ...bh.document!,
-              nomEmprunteur: `${bh.borrower?.firstName} ${bh.borrower?.lastName}`,
-              dateEmprunt: bh.borrowDate,
-              dateRetourPrevu: bh.expectedReturnDate
-            }))}
+            documents={borrowedDocuments
+              .filter(bh => bh.status === 'active') // Seulement les emprunts actifs
+              .map(bh => ({
+                ...bh.document!,
+                nomEmprunteur: `${bh.borrower?.firstName} ${bh.borrower?.lastName}`,
+                dateEmprunt: bh.borrowDate,
+                dateRetourPrevu: bh.expectedReturnDate
+              }))}
             onReturn={(documentId) => {
-              const borrowHistory = borrowedDocuments.find(bh => bh.documentId === documentId);
+              const borrowHistory = borrowedDocuments.find(bh => bh.documentId === documentId && bh.status === 'active');
               if (borrowHistory) {
                 handleReturnDocument(borrowHistory.id!, undefined);
               }
@@ -1073,10 +1109,17 @@ export const App: React.FC = () => {
       case 'user-profile':
         return (
           <UserProfile 
-            currentUser={currentUser}
-            currentInstitution={currentInstitution}
+            currentUser={unifiedUser}
+            currentInstitution={unifiedInstitution}
+            appMode={appMode}
             onClose={() => setCurrentView('dashboard')}
             onUserUpdate={handleUserUpdate}
+          />
+        );
+      case 'backup-manager':
+        return (
+          <BackupManager 
+            onClose={() => setCurrentView('dashboard')}
           />
         );
       default:
@@ -1132,6 +1175,8 @@ export const App: React.FC = () => {
                 stats={stats}
                 currentUser={currentUser}
                 currentInstitution={currentInstitution}
+                unifiedUser={unifiedUser}
+                unifiedInstitution={unifiedInstitution}
                 isAuthenticated={isAuthenticated}
               />
             ) : (
@@ -1165,6 +1210,8 @@ interface AppContentProps {
   stats: Stats;
   currentUser: User | null;
   currentInstitution: Institution | null;
+  unifiedUser: UnifiedUser | null;
+  unifiedInstitution: UnifiedInstitution | null;
   isAuthenticated: boolean;
 }
 
@@ -1187,6 +1234,8 @@ const AppContent: React.FC<AppContentProps> = ({
   stats,
   currentUser,
   currentInstitution,
+  unifiedUser,
+  unifiedInstitution,
   isAuthenticated
 }) => {
   const { info } = useQuickToast();
@@ -1211,8 +1260,8 @@ const AppContent: React.FC<AppContentProps> = ({
         currentView={currentView}
         onNavigate={setCurrentView}
         stats={stats}
-        currentUser={currentUser}
-        currentInstitution={currentInstitution}
+        currentUser={unifiedUser}
+        currentInstitution={unifiedInstitution}
       />
       <main className="main-content">
         <div className="content-wrapper">

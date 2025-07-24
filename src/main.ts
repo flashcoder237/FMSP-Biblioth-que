@@ -71,6 +71,196 @@ function createWindow(): void {
   });
 }
 
+// Fonction pour enregistrer les handlers backup après l'initialisation des services
+function registerBackupHandlers(): void {
+  // ====================================================
+  // Backup Management - IPC Handlers
+  // ====================================================
+
+  // Créer une sauvegarde
+  ipcMain.handle('backup:create', async (_, name?: string, description?: string) => {
+    try {
+      const backupPath = await backupService.createBackup();
+      logger.info('Backup créé avec succès', 'BACKUP', { path: backupPath });
+      return { success: true, path: backupPath };
+    } catch (error) {
+      logger.error('Erreur lors de la création du backup', 'BACKUP', error as Error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Obtenir la liste des sauvegardes
+  ipcMain.handle('backup:getList', async () => {
+    try {
+      const backups = await backupService.getBackupList();
+      return { success: true, backups };
+    } catch (error) {
+      logger.error('Erreur lors de la récupération des backups', 'BACKUP', error as Error);
+      return { success: false, error: (error as Error).message, backups: [] };
+    }
+  });
+
+  // Restaurer une sauvegarde
+  ipcMain.handle('backup:restore', async (_, backupFilePath: string) => {
+    try {
+      const success = await backupService.restoreBackup(backupFilePath);
+      if (success) {
+        logger.info('Backup restauré avec succès', 'BACKUP', { path: backupFilePath });
+        
+        // Redémarrer les services après restauration
+        await dbService.initialize();
+        
+        return { success: true };
+      } else {
+        return { success: false, error: 'Échec de la restauration' };
+      }
+    } catch (error) {
+      logger.error('Erreur lors de la restauration du backup', 'BACKUP', error as Error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Supprimer une sauvegarde
+  ipcMain.handle('backup:delete', async (_, backupFilePath: string) => {
+    try {
+      const success = await backupService.deleteBackup(backupFilePath);
+      if (success) {
+        logger.info('Backup supprimé avec succès', 'BACKUP', { path: backupFilePath });
+        return { success: true };
+      } else {
+        return { success: false, error: 'Échec de la suppression' };
+      }
+    } catch (error) {
+      logger.error('Erreur lors de la suppression du backup', 'BACKUP', error as Error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Valider une sauvegarde
+  ipcMain.handle('backup:validate', async (_, backupFilePath: string) => {
+    try {
+      const isValid = await backupService.validateBackup(backupFilePath);
+      return { success: true, isValid };
+    } catch (error) {
+      logger.error('Erreur lors de la validation du backup', 'BACKUP', error as Error);
+      return { success: false, error: (error as Error).message, isValid: false };
+    }
+  });
+
+  // Nettoyer les anciennes sauvegardes
+  ipcMain.handle('backup:cleanOld', async (_, keepCount: number = 10) => {
+    try {
+      const deletedCount = await backupService.cleanOldBackups(keepCount);
+      logger.info(`${deletedCount} anciens backups supprimés`, 'BACKUP', { keepCount });
+      return { success: true, deletedCount };
+    } catch (error) {
+      logger.error('Erreur lors du nettoyage des backups', 'BACKUP', error as Error);
+      return { success: false, error: (error as Error).message, deletedCount: 0 };
+    }
+  });
+
+  // Obtenir les statistiques des sauvegardes
+  ipcMain.handle('backup:getStats', async () => {
+    try {
+      const totalSize = backupService.getBackupDirectorySize();
+      const backups = await backupService.getBackupList();
+      
+      return {
+        success: true,
+        stats: {
+          totalBackups: backups.length,
+          totalSize,
+          formattedSize: backupService.formatFileSize(totalSize),
+          oldestBackup: backups.length > 0 ? backups[backups.length - 1] : null,
+          newestBackup: backups.length > 0 ? backups[0] : null
+        }
+      };
+    } catch (error) {
+      logger.error('Erreur lors de la récupération des stats backup', 'BACKUP', error as Error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Export de base de données seule
+  ipcMain.handle('backup:exportDatabase', async () => {
+    try {
+      const result = await dialog.showSaveDialog(mainWindow, {
+        title: 'Exporter la base de données',
+        defaultPath: `bibliotheque_db_${new Date().toISOString().split('T')[0]}.db`,
+        filters: [
+          { name: 'Database Files', extensions: ['db', 'sqlite'] },
+          { name: 'All Files', extensions: ['*'] }
+        ]
+      });
+
+      if (!result.filePath) return { success: false, error: 'Export annulé' };
+
+      await backupService.exportDatabase(result.filePath);
+      logger.info('Base de données exportée', 'BACKUP', { path: result.filePath });
+      
+      return { success: true, path: result.filePath };
+    } catch (error) {
+      logger.error('Erreur lors de l\'export de la base de données', 'BACKUP', error as Error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Import de base de données
+  ipcMain.handle('backup:importDatabase', async () => {
+    try {
+      const result = await dialog.showOpenDialog(mainWindow, {
+        title: 'Importer une base de données',
+        filters: [
+          { name: 'Database Files', extensions: ['db', 'sqlite'] },
+          { name: 'All Files', extensions: ['*'] }
+        ],
+        properties: ['openFile']
+      });
+
+      if (!result.filePaths || result.filePaths.length === 0) {
+        return { success: false, error: 'Import annulé' };
+      }
+
+      await backupService.importDatabase(result.filePaths[0]);
+      
+      // Redémarrer les services après import
+      await dbService.initialize();
+      
+      logger.info('Base de données importée', 'BACKUP', { path: result.filePaths[0] });
+      
+      return { success: true, path: result.filePaths[0] };
+    } catch (error) {
+      logger.error('Erreur lors de l\'import de la base de données', 'BACKUP', error as Error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Sélectionner un fichier de sauvegarde pour restauration
+  ipcMain.handle('backup:selectFile', async () => {
+    try {
+      const result = await dialog.showOpenDialog(mainWindow, {
+        title: 'Sélectionner une sauvegarde à restaurer',
+        filters: [
+          { name: 'Backup Files', extensions: ['bak'] },
+          { name: 'All Files', extensions: ['*'] }
+        ],
+        properties: ['openFile']
+      });
+
+      if (!result.filePaths || result.filePaths.length === 0) {
+        return { success: false, error: 'Sélection annulée' };
+      }
+
+      return { success: true, filePath: result.filePaths[0] };
+    } catch (error) {
+      logger.error('Erreur lors de la sélection du fichier backup', 'BACKUP', error as Error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  logger.info('Handlers IPC backup enregistrés', 'BACKUP');
+}
+
 app.whenReady().then(async () => {
   // Initialiser les services de base d'abord
   try {
@@ -93,6 +283,10 @@ app.whenReady().then(async () => {
     logger.info('Service de synchronisation initialisé', 'Main');
     
     logger.info('Tous les services initialisés avec succès', 'Main');
+    
+    // Enregistrer les handlers IPC après l'initialisation des services
+    registerBackupHandlers();
+    
     createWindow();
     
   } catch (error) {
@@ -476,37 +670,6 @@ ipcMain.handle('settings:save', async (_, settings: ApplicationSettings) => {
     return settingsService.saveUserSettings(settings);
   } catch (error) {
     console.error('Erreur settings:save:', error);
-    return false;
-  }
-});
-
-// Backup Operations
-ipcMain.handle('backup:create', async () => {
-  try {
-    return await backupService.createBackup();
-  } catch (error) {
-    console.error('Erreur backup:create:', error);
-    throw error;
-  }
-});
-
-ipcMain.handle('backup:restore', async () => {
-  const result = await dialog.showOpenDialog(mainWindow, {
-    title: 'Sélectionner une sauvegarde',
-    filters: [
-      { name: 'Sauvegardes', extensions: ['bak', 'backup'] },
-      { name: 'Tous les fichiers', extensions: ['*'] }
-    ],
-    properties: ['openFile']
-  });
-
-  if (result.canceled || !result.filePaths[0]) return false;
-
-  try {
-    await backupService.restoreBackup(result.filePaths[0]);
-    return true;
-  } catch (error) {
-    console.error('Erreur lors de la restauration:', error);
     return false;
   }
 });

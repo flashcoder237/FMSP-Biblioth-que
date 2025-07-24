@@ -558,6 +558,7 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
           border-radius: 12px;
           cursor: pointer;
           transition: all 0.3s ease;
+          z-index: 1001;
         }
         
         .close-button:hover {

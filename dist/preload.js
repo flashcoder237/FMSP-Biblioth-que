@@ -209,13 +209,19 @@ const electronAPI = {
     // Settings management
     getSettings: () => electron_1.ipcRenderer?.invoke('settings:get') || Promise.resolve(null),
     saveSettings: (settings) => electron_1.ipcRenderer?.invoke('settings:save', settings) || Promise.resolve(false),
-    // Backup and restore operations
-    createBackup: () => electron_1.ipcRenderer?.invoke('backup:create') || Promise.resolve(''),
-    restoreBackup: () => electron_1.ipcRenderer?.invoke('backup:restore') || Promise.resolve(false),
+    // Backup and restore operations (complet)
+    createBackup: (name, description) => electron_1.ipcRenderer?.invoke('backup:create', name, description) || Promise.resolve({ success: false, error: 'IPC not available' }),
+    getBackupList: () => electron_1.ipcRenderer?.invoke('backup:getList') || Promise.resolve({ success: false, backups: [], error: 'IPC not available' }),
+    restoreBackup: (backupFilePath) => electron_1.ipcRenderer?.invoke('backup:restore', backupFilePath) || Promise.resolve({ success: false, error: 'IPC not available' }),
+    deleteBackup: (backupFilePath) => electron_1.ipcRenderer?.invoke('backup:delete', backupFilePath) || Promise.resolve({ success: false, error: 'IPC not available' }),
+    validateBackup: (backupFilePath) => electron_1.ipcRenderer?.invoke('backup:validate', backupFilePath) || Promise.resolve({ success: false, isValid: false, error: 'IPC not available' }),
+    cleanOldBackups: (keepCount) => electron_1.ipcRenderer?.invoke('backup:cleanOld', keepCount) || Promise.resolve({ success: false, deletedCount: 0, error: 'IPC not available' }),
+    getBackupStats: () => electron_1.ipcRenderer?.invoke('backup:getStats') || Promise.resolve({ success: false, error: 'IPC not available' }),
+    selectBackupFile: () => electron_1.ipcRenderer?.invoke('backup:selectFile') || Promise.resolve({ success: false, error: 'IPC not available' }),
     clearAllData: () => electron_1.ipcRenderer?.invoke('db:clearAll') || Promise.resolve(false),
-    // Export/Import operations
-    exportDatabase: (filePath) => electron_1.ipcRenderer?.invoke('db:export', filePath) || Promise.resolve(),
-    importDatabase: (filePath) => electron_1.ipcRenderer?.invoke('db:import', filePath) || Promise.resolve(false),
+    // Export/Import operations (enhanced)
+    exportDatabase: () => electron_1.ipcRenderer?.invoke('backup:exportDatabase') || Promise.resolve({ success: false, error: 'IPC not available' }),
+    importDatabase: () => electron_1.ipcRenderer?.invoke('backup:importDatabase') || Promise.resolve({ success: false, error: 'IPC not available' }),
     // Print operations
     printInventory: (data) => electron_1.ipcRenderer?.invoke('print:inventory', data) || Promise.resolve(false),
     printAvailableBooks: (data) => electron_1.ipcRenderer?.invoke('print:available-books', data) || Promise.resolve(false),

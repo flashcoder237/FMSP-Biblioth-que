@@ -36,10 +36,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./services/LocalAuthService */ "./src/renderer/services/LocalAuthService.ts");
 /* harmony import */ var _components_AppSettings__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./components/AppSettings */ "./src/renderer/components/AppSettings.tsx");
 /* harmony import */ var _components_UserProfile__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./components/UserProfile */ "./src/renderer/components/UserProfile.tsx");
-/* harmony import */ var _components_ToastSystem__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./components/ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
-/* harmony import */ var _components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./components/KeyboardShortcuts */ "./src/renderer/components/KeyboardShortcuts.tsx");
+/* harmony import */ var _components_BackupManager__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./components/BackupManager */ "./src/renderer/components/BackupManager.tsx");
+/* harmony import */ var _components_ToastSystem__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./components/ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
+/* harmony import */ var _components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./components/KeyboardShortcuts */ "./src/renderer/components/KeyboardShortcuts.tsx");
+/* harmony import */ var _types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./types/UnifiedTypes */ "./src/renderer/types/UnifiedTypes.ts");
 
 // src/renderer/App.tsx - Version modifiée pour Supabase
+
+
 
 
 
@@ -69,6 +73,8 @@ const App = () => {
     const [isAuthenticated, setIsAuthenticated] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [currentUser, setCurrentUser] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
     const [currentInstitution, setCurrentInstitution] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+    const [unifiedUser, setUnifiedUser] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+    const [unifiedInstitution, setUnifiedInstitution] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
     const [institutionCode, setInstitutionCode] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
     const [isDemoMode, setIsDemoMode] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [appMode, setAppMode] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('offline');
@@ -523,6 +529,24 @@ const App = () => {
                         };
                         setCurrentUser(appUser);
                         setCurrentInstitution(appInstitution);
+                        // Créer les versions unifiées
+                        setUnifiedUser((0,_types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_26__.convertToUnifiedUser)(localUser, 'offline'));
+                        setUnifiedInstitution((0,_types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_26__.convertToUnifiedInstitution)(institution || {
+                            id: 'default-offline',
+                            name: 'Ma Bibliothèque',
+                            code: localUser.institutionCode,
+                            address: '',
+                            city: '',
+                            country: '',
+                            phone: '',
+                            email: '',
+                            website: '',
+                            logo: '',
+                            description: 'Bibliothèque locale',
+                            type: 'library',
+                            adminEmail: localUser.email,
+                            created_at: new Date().toISOString()
+                        }, 'offline'));
                         setIsAuthenticated(true);
                         setIsDemoMode(false);
                         setCurrentView('dashboard');
@@ -622,9 +646,18 @@ const App = () => {
         }
     };
     const handleUserUpdate = (updatedUser) => {
-        setCurrentUser(updatedUser);
-        // Optionnel: Recharger les données si nécessaire
-        // loadData();
+        setUnifiedUser(updatedUser);
+        // Mettre à jour aussi currentUser pour la compatibilité
+        if (appMode === 'offline') {
+            const appUser = {
+                id: updatedUser.id,
+                firstName: updatedUser.firstName || '',
+                lastName: updatedUser.lastName || '',
+                email: updatedUser.email,
+                role: updatedUser.role
+            };
+            setCurrentUser(appUser);
+        }
     };
     const handleAddDocument = async (document) => {
         try {
@@ -920,13 +953,15 @@ const App = () => {
             case 'documents':
                 return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_DocumentList__WEBPACK_IMPORTED_MODULE_5__.DocumentList, { documents: documents, onAdd: () => setCurrentView('add-document'), onEdit: handleEditDocument, onBorrow: handleBorrowDocument, onDelete: handleDeleteDocument, onRefresh: refreshData, syncStatus: {}, networkStatus: {} }));
             case 'borrowed':
-                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowedDocuments__WEBPACK_IMPORTED_MODULE_6__.BorrowedDocuments, { documents: borrowedDocuments.map(bh => ({
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowedDocuments__WEBPACK_IMPORTED_MODULE_6__.BorrowedDocuments, { documents: borrowedDocuments
+                        .filter(bh => bh.status === 'active') // Seulement les emprunts actifs
+                        .map(bh => ({
                         ...bh.document,
                         nomEmprunteur: `${bh.borrower?.firstName} ${bh.borrower?.lastName}`,
                         dateEmprunt: bh.borrowDate,
                         dateRetourPrevu: bh.expectedReturnDate
                     })), onReturn: (documentId) => {
-                        const borrowHistory = borrowedDocuments.find(bh => bh.documentId === documentId);
+                        const borrowHistory = borrowedDocuments.find(bh => bh.documentId === documentId && bh.status === 'active');
                         if (borrowHistory) {
                             handleReturnDocument(borrowHistory.id, undefined);
                         }
@@ -949,7 +984,9 @@ const App = () => {
             case 'app-settings':
                 return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_AppSettings__WEBPACK_IMPORTED_MODULE_21__.AppSettings, { onClose: () => setCurrentView('dashboard') }));
             case 'user-profile':
-                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_UserProfile__WEBPACK_IMPORTED_MODULE_22__.UserProfile, { currentUser: currentUser, currentInstitution: currentInstitution, onClose: () => setCurrentView('dashboard'), onUserUpdate: handleUserUpdate }));
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_UserProfile__WEBPACK_IMPORTED_MODULE_22__.UserProfile, { currentUser: unifiedUser, currentInstitution: unifiedInstitution, appMode: appMode, onClose: () => setCurrentView('dashboard'), onUserUpdate: handleUserUpdate }));
+            case 'backup-manager':
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BackupManager__WEBPACK_IMPORTED_MODULE_23__.BackupManager, { onClose: () => setCurrentView('dashboard') }));
             default:
                 return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Dashboard__WEBPACK_IMPORTED_MODULE_4__.Dashboard, { stats: stats, onNavigate: setCurrentView, documents: documents, categories: categories }));
         }
@@ -958,10 +995,10 @@ const App = () => {
     if (isAppLocked || needsPasswordSetup) {
         return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_AppPasswordScreen__WEBPACK_IMPORTED_MODULE_17__.AppPasswordScreen, { onUnlock: handleAppUnlock, onSkip: needsPasswordSetup ? handlePasswordSetup : undefined, isSetup: needsPasswordSetup }));
     }
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_23__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_24__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, { onRefresh: refreshData, isAuthenticated: isAuthenticated }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-container", children: isAuthenticated ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(AppContent, { isDemoMode: isDemoMode, currentView: currentView, setCurrentView: setCurrentView, isLoading: isLoading, error: error, setError: setError, renderCurrentView: renderCurrentView, showBorrowModal: showBorrowModal, selectedDocumentForBorrow: selectedDocumentForBorrow, closeBorrowModal: closeBorrowModal, handleBorrow: handleBorrow, handleReturn: handleReturn, refreshData: refreshData, supabaseService: supabaseService, borrowers: borrowers, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution, isAuthenticated: isAuthenticated })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-container", children: renderAuthenticatedContent() })) })] }) }) }));
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_24__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_25__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, { onRefresh: refreshData, isAuthenticated: isAuthenticated }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-container", children: isAuthenticated ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(AppContent, { isDemoMode: isDemoMode, currentView: currentView, setCurrentView: setCurrentView, isLoading: isLoading, error: error, setError: setError, renderCurrentView: renderCurrentView, showBorrowModal: showBorrowModal, selectedDocumentForBorrow: selectedDocumentForBorrow, closeBorrowModal: closeBorrowModal, handleBorrow: handleBorrow, handleReturn: handleReturn, refreshData: refreshData, supabaseService: supabaseService, borrowers: borrowers, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution, unifiedUser: unifiedUser, unifiedInstitution: unifiedInstitution, isAuthenticated: isAuthenticated })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-container", children: renderAuthenticatedContent() })) })] }) }) }));
 };
-const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error, setError, renderCurrentView, showBorrowModal, selectedDocumentForBorrow, closeBorrowModal, handleBorrow, handleReturn, refreshData, supabaseService, borrowers, stats, currentUser, currentInstitution, isAuthenticated }) => {
-    const { info } = (0,_components_ToastSystem__WEBPACK_IMPORTED_MODULE_23__.useQuickToast)();
+const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error, setError, renderCurrentView, showBorrowModal, selectedDocumentForBorrow, closeBorrowModal, handleBorrow, handleReturn, refreshData, supabaseService, borrowers, stats, currentUser, currentInstitution, unifiedUser, unifiedInstitution, isAuthenticated }) => {
+    const { info } = (0,_components_ToastSystem__WEBPACK_IMPORTED_MODULE_24__.useQuickToast)();
     const [demoNotificationShown, setDemoNotificationShown] = react__WEBPACK_IMPORTED_MODULE_1___default().useState(false);
     react__WEBPACK_IMPORTED_MODULE_1___default().useEffect(() => {
         if (isDemoMode && !demoNotificationShown) {
@@ -972,7 +1009,7 @@ const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error,
             }, 1000);
         }
     }, [isDemoMode, demoNotificationShown, info]);
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Sidebar__WEBPACK_IMPORTED_MODULE_3__.Sidebar, { currentView: currentView, onNavigate: setCurrentView, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("main", { className: "main-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-wrapper", children: [isLoading && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Chargement..." })] })), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "error-banner", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => setError(''), children: "\u00D7" })] })), renderCurrentView()] }) }), showBorrowModal && selectedDocumentForBorrow && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowDocument__WEBPACK_IMPORTED_MODULE_8__.BorrowDocument, { document: selectedDocumentForBorrow, borrowers: borrowers, onBorrow: handleBorrow, onReturn: handleReturn, onCancel: closeBorrowModal })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Sidebar__WEBPACK_IMPORTED_MODULE_3__.Sidebar, { currentView: currentView, onNavigate: setCurrentView, stats: stats, currentUser: unifiedUser, currentInstitution: unifiedInstitution }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("main", { className: "main-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-wrapper", children: [isLoading && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Chargement..." })] })), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "error-banner", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => setError(''), children: "\u00D7" })] })), renderCurrentView()] }) }), showBorrowModal && selectedDocumentForBorrow && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowDocument__WEBPACK_IMPORTED_MODULE_8__.BorrowDocument, { document: selectedDocumentForBorrow, borrowers: borrowers, onBorrow: handleBorrow, onReturn: handleReturn, onCancel: closeBorrowModal })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .app {
           height: 100vh;
           display: flex;
@@ -3222,7 +3259,7 @@ const AppPasswordScreen = ({ onUnlock, onSkip, isSetup = false }) => {
           left: 0;
           right: 0;
           bottom: 0;
-          background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #399b5dff 100%);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -3302,7 +3339,7 @@ const AppPasswordScreen = ({ onUnlock, onSkip, isSetup = false }) => {
           justify-content: center;
           width: 80px;
           height: 80px;
-          background: linear-gradient(135deg, #1e3a8a, #3730a3);
+          background: linear-gradient(135deg, #3E5C49, #399b5dff);
           border-radius: 20px;
           color: white;
           margin-bottom: 20px;
@@ -3350,7 +3387,7 @@ const AppPasswordScreen = ({ onUnlock, onSkip, isSetup = false }) => {
         }
 
         .input-group:focus-within {
-          border-color: #3730a3;
+          border-color: #399b5dff;
           box-shadow: 0 0 0 3px rgba(55, 48, 163, 0.1);
         }
 
@@ -3408,7 +3445,7 @@ const AppPasswordScreen = ({ onUnlock, onSkip, isSetup = false }) => {
           align-items: center;
           justify-content: center;
           gap: 10px;
-          background: linear-gradient(135deg, #1e3a8a, #3730a3);
+          background: linear-gradient(135deg, #3E5C49, #399b5dff);
           color: white;
           border: none;
           padding: 16px 24px;
@@ -3421,7 +3458,7 @@ const AppPasswordScreen = ({ onUnlock, onSkip, isSetup = false }) => {
 
         .unlock-btn:not(:disabled):hover {
           transform: translateY(-2px);
-          box-shadow: 0 10px 30px rgba(30, 58, 138, 0.3);
+          box-shadow: 0 10px 30px rgba(30, 138, 100, 0.3);
         }
 
         .unlock-btn:disabled {
@@ -3455,13 +3492,13 @@ const AppPasswordScreen = ({ onUnlock, onSkip, isSetup = false }) => {
         }
 
         .notice-icon {
-          color: #0284c7;
+          color: #02c78fff;
           margin-bottom: 8px;
         }
 
         .notice-content p {
           font-weight: 600;
-          color: #0c4a6e;
+          color: #0c6e52ff;
           margin: 0 0 8px 0;
           font-size: 0.9rem;
         }
@@ -3469,7 +3506,7 @@ const AppPasswordScreen = ({ onUnlock, onSkip, isSetup = false }) => {
         .notice-content ul {
           margin: 0;
           padding-left: 20px;
-          color: #075985;
+          color: #078561ff;
           font-size: 0.85rem;
         }
 
@@ -4264,6 +4301,648 @@ const AppSettings = ({ onClose }) => {
 
           .info-grid {
             grid-template-columns: 1fr;
+          }
+        }
+      ` })] }));
+};
+
+
+/***/ }),
+
+/***/ "./src/renderer/components/BackupManager.tsx":
+/*!***************************************************!*\
+  !*** ./src/renderer/components/BackupManager.tsx ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   BackupManager: () => (/* binding */ BackupManager)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/hard-drive.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/database.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/calendar.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/upload.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/download.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/refresh-cw.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trash-2.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/file-text.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/rotate-ccw.mjs");
+/* harmony import */ var _MicroInteractions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MicroInteractions */ "./src/renderer/components/MicroInteractions.tsx");
+/* harmony import */ var _ToastSystem__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
+
+
+
+
+
+const BackupManager = ({ onClose }) => {
+    const { success, error, info, warning } = (0,_ToastSystem__WEBPACK_IMPORTED_MODULE_3__.useQuickToast)();
+    const [backups, setBackups] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
+    const [stats, setStats] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+    const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [selectedBackup, setSelectedBackup] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+    const [showCreateModal, setShowCreateModal] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [createBackupName, setCreateBackupName] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
+    const [createBackupDescription, setCreateBackupDescription] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
+    // Charger les données initiales
+    (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+        loadBackupData();
+    }, []);
+    const loadBackupData = async () => {
+        setIsLoading(true);
+        try {
+            const [backupResult, statsResult] = await Promise.all([
+                window.electronAPI.getBackupList(),
+                window.electronAPI.getBackupStats()
+            ]);
+            if (backupResult.success) {
+                setBackups(backupResult.backups);
+            }
+            else {
+                error('Erreur', 'Impossible de charger la liste des sauvegardes');
+            }
+            if (statsResult.success) {
+                setStats(statsResult.stats);
+            }
+        }
+        catch (err) {
+            error('Erreur', 'Erreur lors du chargement des données de sauvegarde');
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    const handleCreateBackup = async () => {
+        if (!createBackupName.trim()) {
+            warning('Attention', 'Veuillez saisir un nom pour la sauvegarde');
+            return;
+        }
+        setIsLoading(true);
+        try {
+            const result = await window.electronAPI.createBackup(createBackupName.trim(), createBackupDescription.trim() || undefined);
+            if (result.success) {
+                success('Succès', 'Sauvegarde créée avec succès');
+                setShowCreateModal(false);
+                setCreateBackupName('');
+                setCreateBackupDescription('');
+                await loadBackupData();
+            }
+            else {
+                error('Erreur', result.error || 'Échec de la création de la sauvegarde');
+            }
+        }
+        catch (err) {
+            error('Erreur', 'Erreur lors de la création de la sauvegarde');
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    const handleRestoreBackup = async (backup) => {
+        const confirmRestore = window.confirm(`Êtes-vous sûr de vouloir restaurer la sauvegarde "${backup.fileName}" ?\n\n` +
+            `Cette action remplacera toutes les données actuelles de l'application.\n` +
+            `Une sauvegarde automatique sera créée avant la restauration.`);
+        if (!confirmRestore)
+            return;
+        setIsLoading(true);
+        try {
+            const result = await window.electronAPI.restoreBackup(backup.filePath);
+            if (result.success) {
+                success('Succès', 'Sauvegarde restaurée avec succès. L\'application va se recharger.');
+                // Recharger l'application pour refléter les changements
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            }
+            else {
+                error('Erreur', result.error || 'Échec de la restauration');
+            }
+        }
+        catch (err) {
+            error('Erreur', 'Erreur lors de la restauration de la sauvegarde');
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    const handleDeleteBackup = async (backup) => {
+        const confirmDelete = window.confirm(`Êtes-vous sûr de vouloir supprimer la sauvegarde "${backup.fileName}" ?\n\n` +
+            `Cette action est irréversible.`);
+        if (!confirmDelete)
+            return;
+        setIsLoading(true);
+        try {
+            const result = await window.electronAPI.deleteBackup(backup.filePath);
+            if (result.success) {
+                success('Succès', 'Sauvegarde supprimée avec succès');
+                await loadBackupData();
+            }
+            else {
+                error('Erreur', result.error || 'Échec de la suppression');
+            }
+        }
+        catch (err) {
+            error('Erreur', 'Erreur lors de la suppression de la sauvegarde');
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    const handleRestoreFromFile = async () => {
+        try {
+            const fileResult = await window.electronAPI.selectBackupFile();
+            if (!fileResult.success || !fileResult.filePath) {
+                if (fileResult.error !== 'Sélection annulée') {
+                    error('Erreur', fileResult.error || 'Impossible de sélectionner le fichier');
+                }
+                return;
+            }
+            // Valider le fichier de sauvegarde
+            const validationResult = await window.electronAPI.validateBackup(fileResult.filePath);
+            if (!validationResult.success || !validationResult.isValid) {
+                error('Erreur', 'Le fichier sélectionné n\'est pas une sauvegarde valide');
+                return;
+            }
+            // Confirmer la restauration
+            const confirmRestore = window.confirm(`Êtes-vous sûr de vouloir restaurer cette sauvegarde ?\n\n` +
+                `Cette action remplacera toutes les données actuelles de l'application.\n` +
+                `Une sauvegarde automatique sera créée avant la restauration.`);
+            if (!confirmRestore)
+                return;
+            setIsLoading(true);
+            const result = await window.electronAPI.restoreBackup(fileResult.filePath);
+            if (result.success) {
+                success('Succès', 'Sauvegarde restaurée avec succès. L\'application va se recharger.');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            }
+            else {
+                error('Erreur', result.error || 'Échec de la restauration');
+            }
+        }
+        catch (err) {
+            error('Erreur', 'Erreur lors de la restauration depuis fichier');
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    const handleExportDatabase = async () => {
+        setIsLoading(true);
+        try {
+            const result = await window.electronAPI.exportDatabase();
+            if (result.success) {
+                success('Succès', `Base de données exportée vers: ${result.path}`);
+            }
+            else {
+                if (result.error !== 'Export annulé') {
+                    error('Erreur', result.error || 'Échec de l\'export');
+                }
+            }
+        }
+        catch (err) {
+            error('Erreur', 'Erreur lors de l\'export de la base de données');
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    const handleImportDatabase = async () => {
+        const confirmImport = window.confirm('Êtes-vous sûr de vouloir importer une base de données ?\n\n' +
+            'Cette action remplacera la base de données actuelle.\n' +
+            'Une sauvegarde automatique sera créée avant l\'import.');
+        if (!confirmImport)
+            return;
+        setIsLoading(true);
+        try {
+            const result = await window.electronAPI.importDatabase();
+            if (result.success) {
+                success('Succès', 'Base de données importée avec succès. L\'application va se recharger.');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            }
+            else {
+                if (result.error !== 'Import annulé') {
+                    error('Erreur', result.error || 'Échec de l\'import');
+                }
+            }
+        }
+        catch (err) {
+            error('Erreur', 'Erreur lors de l\'import de la base de données');
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    const handleCleanOldBackups = async () => {
+        const keepCount = window.prompt('Combien de sauvegardes récentes souhaitez-vous conserver ?', '10');
+        if (!keepCount || isNaN(parseInt(keepCount)))
+            return;
+        const count = parseInt(keepCount);
+        if (count < 1) {
+            warning('Attention', 'Le nombre doit être supérieur à 0');
+            return;
+        }
+        setIsLoading(true);
+        try {
+            const result = await window.electronAPI.cleanOldBackups(count);
+            if (result.success) {
+                success('Succès', `${result.deletedCount} anciennes sauvegardes supprimées`);
+                await loadBackupData();
+            }
+            else {
+                error('Erreur', result.error || 'Échec du nettoyage');
+            }
+        }
+        catch (err) {
+            error('Erreur', 'Erreur lors du nettoyage des sauvegardes');
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    const formatFileSize = (bytes) => {
+        const units = ['B', 'KB', 'MB', 'GB'];
+        let size = bytes;
+        let unitIndex = 0;
+        while (size >= 1024 && unitIndex < units.length - 1) {
+            size /= 1024;
+            unitIndex++;
+        }
+        return `${size.toFixed(1)} ${units[unitIndex]}`;
+    };
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleString('fr-FR', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "backup-manager-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "backup-manager-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 28 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "modal-title", children: "Gestionnaire de Sauvegardes" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "modal-subtitle", children: "Cr\u00E9ez et g\u00E9rez vos sauvegardes de donn\u00E9es" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-button", onClick: onClose, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-content", children: [stats && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stats-section", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-value", children: stats.totalBackups }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-label", children: "Sauvegardes" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-value", children: stats.formattedSize }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-label", children: "Espace utilis\u00E9" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-value", children: stats.newestBackup ? formatDate(stats.newestBackup.createdAt).split(' ')[0] : 'N/A' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-label", children: "Derni\u00E8re sauvegarde" })] })] })] }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "actions-section", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "actions-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "success", icon: lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], onClick: () => setShowCreateModal(true), disabled: isLoading, children: "Nouvelle Sauvegarde" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "secondary", icon: lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], onClick: handleRestoreFromFile, disabled: isLoading, children: "Restaurer depuis Fichier" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "secondary", icon: lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], onClick: handleExportDatabase, disabled: isLoading, children: "Exporter Base de Donn\u00E9es" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "secondary", icon: lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], onClick: handleImportDatabase, disabled: isLoading, children: "Importer Base de Donn\u00E9es" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "secondary", icon: lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], onClick: loadBackupData, disabled: isLoading, children: "Actualiser" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "danger", icon: lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], onClick: handleCleanOldBackups, disabled: isLoading, children: "Nettoyer Anciennes" })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "backups-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Sauvegardes Disponibles" }), isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { className: "loading-spinner", size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Chargement des sauvegardes..." })] })) : backups.length === 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "empty-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 48 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Aucune sauvegarde trouv\u00E9e" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Cr\u00E9ez votre premi\u00E8re sauvegarde pour commencer" })] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "backups-list", children: backups.map((backup, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "backup-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "backup-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "backup-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "backup-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "backup-name", children: backup.fileName }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "backup-date", children: formatDate(backup.createdAt) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "backup-size", children: formatFileSize(backup.size) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "backup-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "secondary", size: "small", icon: lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], onClick: () => handleRestoreBackup(backup), disabled: isLoading, children: "Restaurer" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "danger", size: "small", icon: lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], onClick: () => handleDeleteBackup(backup), disabled: isLoading, children: "Supprimer" })] })] }), backup.metadata && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "backup-metadata", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metadata-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metadata-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "metadata-label", children: "Documents:" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "metadata-value", children: backup.metadata.stats.totalDocuments })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metadata-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "metadata-label", children: "Emprunteurs:" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "metadata-value", children: backup.metadata.stats.totalBorrowers })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metadata-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "metadata-label", children: "Historique:" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "metadata-value", children: backup.metadata.stats.totalBorrowHistory })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metadata-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "metadata-label", children: "Version:" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "metadata-value", children: backup.metadata.appVersion })] })] }) }))] }, backup.filePath))) }))] })] }), showCreateModal && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "create-modal-overlay", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "create-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "create-modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Cr\u00E9er une Nouvelle Sauvegarde" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-button", onClick: () => setShowCreateModal(false), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 16 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "create-modal-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Nom de la sauvegarde *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: createBackupName, onChange: (e) => setCreateBackupName(e.target.value), placeholder: "Ex: Sauvegarde mensuelle janvier 2024", className: "form-input", maxLength: 100 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Description (optionnel)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("textarea", { value: createBackupDescription, onChange: (e) => setCreateBackupDescription(e.target.value), placeholder: "Description de cette sauvegarde...", className: "form-textarea", rows: 3, maxLength: 500 })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "create-modal-footer", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "secondary", onClick: () => setShowCreateModal(false), children: "Annuler" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "success", onClick: handleCreateBackup, disabled: isLoading || !createBackupName.trim(), icon: isLoading ? lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"] : lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], children: isLoading ? 'Création...' : 'Créer Sauvegarde' })] })] }) }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+        .backup-manager-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 20px;
+          backdrop-filter: blur(8px);
+        }
+
+        .backup-manager-modal {
+          background: #FFFFFF;
+          border-radius: 20px;
+          width: 100%;
+          max-width: 900px;
+          max-height: 90vh;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+          border: 1px solid rgba(229, 220, 194, 0.3);
+        }
+
+        .modal-header {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+          padding: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .header-content {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+        }
+
+        .header-icon {
+          width: 56px;
+          height: 56px;
+          background: rgba(243, 238, 217, 0.2);
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .modal-title {
+          font-size: 24px;
+          font-weight: 700;
+          margin: 0 0 4px 0;
+        }
+
+        .modal-subtitle {
+          font-size: 14px;
+          opacity: 0.8;
+          margin: 0;
+        }
+
+        .close-button {
+          width: 44px;
+          height: 44px;
+          border: none;
+          background: rgba(243, 238, 217, 0.1);
+          color: #F3EED9;
+          border-radius: 12px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+          z-index: 1001;
+        }
+
+        .close-button:hover {
+          background: rgba(243, 238, 217, 0.2);
+        }
+
+        .modal-content {
+          flex: 1;
+          overflow-y: auto;
+          padding: 32px;
+        }
+
+        .stats-section {
+          margin-bottom: 32px;
+        }
+
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 20px;
+        }
+
+        .stat-card {
+          background: rgba(243, 238, 217, 0.1);
+          border: 1px solid rgba(243, 238, 217, 0.2);
+          border-radius: 12px;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+
+        .stat-icon {
+          width: 44px;
+          height: 44px;
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .stat-value {
+          font-size: 24px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin-bottom: 4px;
+        }
+
+        .stat-label {
+          font-size: 14px;
+          color: #6E6E6E;
+        }
+
+        .actions-section {
+          margin-bottom: 32px;
+        }
+
+        .actions-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 16px;
+        }
+
+        .section-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0 0 20px 0;
+        }
+
+        .loading-state, .empty-state {
+          text-align: center;
+          padding: 60px 20px;
+          color: #6E6E6E;
+        }
+
+        .loading-spinner {
+          animation: spin 1s linear infinite;
+          margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        .empty-state svg {
+          color: #C2C2C2;
+          margin-bottom: 16px;
+        }
+
+        .backups-list {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .backup-card {
+          background: #FFFFFF;
+          border: 1px solid #E5DCC2;
+          border-radius: 12px;
+          padding: 20px;
+          transition: all 0.2s ease;
+        }
+
+        .backup-card:hover {
+          border-color: #3E5C49;
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.1);
+        }
+
+        .backup-header {
+          display: flex;
+          align-items: flex-start;
+          gap: 16px;
+        }
+
+        .backup-icon {
+          width: 40px;
+          height: 40px;
+          background: rgba(194, 87, 27, 0.1);
+          color: #C2571B;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .backup-info {
+          flex: 1;
+        }
+
+        .backup-name {
+          font-size: 16px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0 0 4px 0;
+        }
+
+        .backup-date, .backup-size {
+          font-size: 14px;
+          color: #6E6E6E;
+          margin: 2px 0;
+        }
+
+        .backup-actions {
+          display: flex;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+
+        .backup-metadata {
+          margin-top: 16px;
+          padding-top: 16px;
+          border-top: 1px solid rgba(229, 220, 194, 0.3);
+        }
+
+        .metadata-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+          gap: 16px;
+        }
+
+        .metadata-item {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .metadata-label {
+          font-size: 12px;
+          color: #6E6E6E;
+          font-weight: 500;
+        }
+
+        .metadata-value {
+          font-size: 14px;
+          color: #2E2E2E;
+          font-weight: 600;
+        }
+
+        .create-modal-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1001;
+        }
+
+        .create-modal {
+          background: #FFFFFF;
+          border-radius: 16px;
+          width: 100%;
+          max-width: 500px;
+          max-height: 80vh;
+          overflow: hidden;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .create-modal-header {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+          padding: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .create-modal-header h3 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 600;
+        }
+
+        .create-modal-content {
+          padding: 24px;
+        }
+
+        .form-group {
+          margin-bottom: 20px;
+        }
+
+        .form-label {
+          display: block;
+          font-size: 14px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin-bottom: 8px;
+        }
+
+        .form-input, .form-textarea {
+          width: 100%;
+          padding: 12px 16px;
+          border: 2px solid #E5DCC2;
+          border-radius: 8px;
+          font-size: 14px;
+          background: #FFFFFF;
+          color: #2E2E2E;
+          transition: all 0.3s ease;
+          resize: vertical;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+
+        .create-modal-footer {
+          padding: 24px;
+          border-top: 1px solid #E5DCC2;
+          display: flex;
+          justify-content: flex-end;
+          gap: 16px;
+        }
+
+        @media (max-width: 768px) {
+          .backup-manager-modal {
+            margin: 12px;
+          }
+
+          .stats-grid, .actions-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .backup-header {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          .backup-actions {
+            align-self: flex-end;
+          }
+
+          .metadata-grid {
+            grid-template-columns: repeat(2, 1fr);
           }
         }
       ` })] }));
@@ -5179,6 +5858,7 @@ const BorrowHistory = ({ onClose }) => {
           border-radius: 12px;
           cursor: pointer;
           transition: all 0.3s ease;
+          z-index: 1001;
         }
         
         .close-button:hover {
@@ -5813,9 +6493,42 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
         setSearchQuery('');
         setFilterStatus('all');
     };
+    // Mock data for demonstration
+    const mockDocuments = documents.length > 0 ? documents : [
+        {
+            id: 1,
+            titre: "Le Petit Prince",
+            auteur: "Antoine de Saint-Exupéry",
+            editeur: "Gallimard",
+            annee: "1943",
+            nomEmprunteur: "Marie Dubois",
+            dateEmprunt: "2025-07-15",
+            dateRetourPrevu: "2025-07-30"
+        },
+        {
+            id: 2,
+            titre: "1984",
+            auteur: "George Orwell",
+            editeur: "Secker & Warburg",
+            annee: "1949",
+            nomEmprunteur: "Jean Martin",
+            dateEmprunt: "2025-07-20",
+            dateRetourPrevu: "2025-07-22"
+        },
+        {
+            id: 3,
+            titre: "L'Étranger",
+            auteur: "Albert Camus",
+            editeur: "Gallimard",
+            annee: "1942",
+            nomEmprunteur: "Sophie Leroy",
+            dateEmprunt: "2025-07-10",
+            dateRetourPrevu: "2025-07-20"
+        }
+    ];
     // Processed documents with memoization for performance
     const processedDocuments = (0,react__WEBPACK_IMPORTED_MODULE_1__.useMemo)(() => {
-        return documents
+        return mockDocuments
             .filter(doc => {
             if (!searchQuery)
                 return true;
@@ -5846,12 +6559,35 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
                 default: return 0;
             }
         });
-    }, [documents, searchQuery, filterStatus, sortBy]);
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrowed-documents-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "page-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "page-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-main", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 36 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "page-title", children: "Documents emprunt\u00E9s" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "page-subtitle", children: [documents.length, " document(s) actuellement en circulation"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "enhanced-controls", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "controls-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(SearchBar, { searchQuery: searchQuery, onSearchChange: setSearchQuery }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(FilterControls, { sortBy: sortBy, filterStatus: filterStatus, onSortChange: setSortBy, onFilterChange: setFilterStatus })] }) })] }), searchQuery && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "results-summary", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "results-count", children: [processedDocuments.length, " r\u00E9sultat(s) pour \"", searchQuery, "\""] }) })), processedDocuments.length > 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "documents-grid", children: processedDocuments.map(document => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(DocumentCard, { document: document, onReturn: handleReturn }, document.id))) })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(EmptyState, { hasDocuments: documents.length > 0, searchQuery: searchQuery, filterStatus: filterStatus, onClearFilters: handleClearFilters }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+    }, [mockDocuments, searchQuery, filterStatus, sortBy]);
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrowed-documents-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "page-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "page-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-main", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 36 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "page-title", children: "Documents emprunt\u00E9s" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "page-subtitle", children: [mockDocuments.length, " document(s) actuellement en circulation"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "enhanced-controls", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "controls-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(SearchBar, { searchQuery: searchQuery, onSearchChange: setSearchQuery }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(FilterControls, { sortBy: sortBy, filterStatus: filterStatus, onSortChange: setSortBy, onFilterChange: setFilterStatus })] }) })] }), searchQuery && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "results-summary", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "results-count", children: [processedDocuments.length, " r\u00E9sultat(s) pour \"", searchQuery, "\""] }) })), processedDocuments.length > 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "documents-grid", children: processedDocuments.map(document => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(DocumentCard, { document: document, onReturn: handleReturn }, document.id))) })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(EmptyState, { hasDocuments: mockDocuments.length > 0, searchQuery: searchQuery, filterStatus: filterStatus, onClearFilters: handleClearFilters }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+        /* Variables CSS pour la palette de couleurs */
+        :root {
+          --dark-green: #3E5C49;
+          --medium-green: #5A7A65;
+          --light-green: #7A9A85;
+          --warm-brown: #C2571B;
+          --medium-brown: #A04315;
+          --dark-brown: #8A3612;
+          --cream: #F8F6F0;
+          --light-cream: #FEFDFB;
+          --beige: #E5DCC2;
+          --light-beige: #F3EED9;
+          --warm-beige: #C2A678;
+          --text-dark: #2A2A2A;
+          --text-medium: #4A4A4A;
+          --text-light: #6A6A6A;
+          --white: #FFFFFF;
+          --error: #DC2626;
+          --warning: #D97706;
+          --success: #059669;
+        }
+
         .borrowed-documents-container {
           height: 100%;
           overflow-y: auto;
-          background: #FAF9F6;
+          background: linear-gradient(135deg, var(--cream) 0%, var(--light-beige) 100%);
+          min-height: 100vh;
         }
 
         .page-content {
@@ -5860,53 +6596,150 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
           margin: 0 auto;
         }
 
-        /* Header Styles */
+        /* Header Styles - Fond vert sombre */
         .page-header {
-          background: #FFFFFF;
-          border-radius: 16px;
-          padding: 32px;
-          margin-bottom: 24px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
-          border: 1px solid rgba(229, 220, 194, 0.3);
+          background: linear-gradient(135deg, var(--dark-green) 0%, var(--medium-green) 100%);
+          border-radius: 24px;
+          padding: 0;
+          margin-bottom: 32px;
+          box-shadow: 
+            0 20px 60px rgba(62, 92, 73, 0.3),
+            0 8px 32px rgba(62, 92, 73, 0.2);
+          border: 1px solid rgba(62, 92, 73, 0.3);
+          backdrop-filter: blur(20px);
+          overflow: hidden;
+          position: relative;
+        }
+
+        .page-header::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 100%;
+          background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.1) 0%, 
+            rgba(255, 255, 255, 0.05) 50%, 
+            transparent 100%);
+          pointer-events: none;
         }
 
         .header-main {
           display: flex;
           align-items: center;
-          gap: 24px;
-          margin-bottom: 32px;
+          gap: 32px;
+          padding: 40px 40px 32px 40px;
+          position: relative;
+          z-index: 2;
         }
 
         .header-icon {
-          width: 72px;
-          height: 72px;
-          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
-          border-radius: 20px;
+          width: 100px;
+          height: 100px;
+          background: linear-gradient(135deg, var(--warm-brown) 0%, var(--medium-brown) 30%, var(--dark-brown) 100%);
+          border-radius: 28px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #F3EED9;
-          box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
+          color: var(--cream);
+          box-shadow: 
+            0 16px 40px rgba(194, 87, 27, 0.4),
+            inset 0 2px 4px rgba(255, 255, 255, 0.2);
+          position: relative;
+          transform: rotate(-2deg);
+          transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .header-icon:hover {
+          transform: rotate(0deg) scale(1.05);
+          box-shadow: 
+            0 20px 50px rgba(194, 87, 27, 0.5),
+            inset 0 2px 4px rgba(255, 255, 255, 0.3);
+        }
+
+        .header-icon::before {
+          content: '';
+          position: absolute;
+          inset: 3px;
+          background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.3) 0%, 
+            rgba(255, 255, 255, 0.1) 50%, 
+            transparent 100%);
+          border-radius: 25px;
+        }
+
+        .header-icon::after {
+          content: '';
+          position: absolute;
+          bottom: -2px;
+          right: -2px;
+          width: 24px;
+          height: 24px;
+          background: linear-gradient(135deg, var(--success) 0%, #047857 100%);
+          border-radius: 50%;
+          border: 3px solid var(--white);
+          box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4);
+        }
+
+        .header-text {
+          flex: 1;
         }
 
         .page-title {
-          font-size: 28px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 0 0 8px 0;
-          letter-spacing: -0.5px;
+          font-size: 36px;
+          font-weight: 900;
+          margin: 0 0 12px 0;
+          letter-spacing: -1px;
+          color: var(--cream);
+          position: relative;
+          line-height: 1.1;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title::after {
+          content: '';
+          position: absolute;
+          bottom: -4px;
+          left: 0;
+          width: 60px;
+          height: 3px;
+          background: linear-gradient(90deg, var(--warm-brown) 0%, var(--warm-beige) 100%);
+          border-radius: 2px;
         }
 
         .page-subtitle {
-          font-size: 16px;
-          color: #6e6e6eff;
+          font-size: 18px;
+          color: var(--beige);
           margin: 0;
+          font-weight: 600;
+          opacity: 0.95;
         }
 
         /* Controls Styles */
         .enhanced-controls {
-          border-top: 1px solid rgba(243, 238, 217, 0.3);
-          padding-top: 24px;
+          border-top: 1px solid rgba(255, 255, 255, 0.15);
+          padding: 32px 40px 40px 40px;
+          background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.1) 0%, 
+            rgba(255, 255, 255, 0.05) 100%);
+          position: relative;
+          z-index: 2;
+        }
+
+        .enhanced-controls::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 40px;
+          right: 40px;
+          height: 1px;
+          background: linear-gradient(90deg, 
+            transparent 0%, 
+            rgba(255, 255, 255, 0.3) 20%, 
+            rgba(194, 87, 27, 0.4) 50%, 
+            rgba(255, 255, 255, 0.3) 80%, 
+            transparent 100%);
         }
 
         .controls-row {
@@ -5919,7 +6752,7 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
 
         .search-container {
           flex: 1;
-          min-width: 300px;
+          min-width: 320px;
         }
 
         .search-input-wrapper {
@@ -5930,216 +6763,269 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
 
         .search-icon {
           position: absolute;
-          left: 16px;
-          color: #6E6E6E;
+          left: 18px;
+          color: var(--text-light);
           z-index: 2;
         }
 
         .search-input {
           width: 100%;
-          padding: 16px 16px 16px 48px;
-          border: 2px solid #B8A678;
-          border-radius: 12px;
-          font-size: 14px;
-          background: #FFFFFF;
+          padding: 18px 18px 18px 52px;
+          border: 2px solid var(--beige);
+          border-radius: 16px;
+          font-size: 15px;
+          background: var(--white);
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          color: #1A1A1A;
+          color: var(--text-dark);
+          font-weight: 500;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+        }
+
+        .search-input::placeholder {
+          color: var(--text-light);
+          font-weight: 400;
         }
 
         .search-input:focus {
           outline: none;
-          border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.25);
-          background: #FEFEFE;
+          border-color: var(--warm-brown);
+          box-shadow: 0 0 0 4px rgba(194, 87, 27, 0.15), 0 8px 24px rgba(0, 0, 0, 0.08);
+          background: var(--light-cream);
+          transform: translateY(-1px);
         }
 
         .clear-search {
           position: absolute;
-          right: 12px;
-          padding: 4px;
+          right: 14px;
+          padding: 6px;
           border: none;
-          background: transparent;
-          color: #6E6E6E;
+          background: var(--light-beige);
+          color: var(--text-medium);
           cursor: pointer;
-          border-radius: 4px;
+          border-radius: 8px;
           transition: all 0.2s ease;
         }
 
         .clear-search:hover {
-          background: #f5f5f5;
-          color: #2E2E2E;
+          background: var(--beige);
+          color: var(--text-dark);
+          transform: scale(1.05);
         }
 
         .filter-controls {
           display: flex;
-          gap: 12px;
+          gap: 16px;
         }
 
         .filter-select {
-          padding: 12px 16px;
-          border: 2px solid #B8A678;
-          border-radius: 8px;
-          background: #FFFFFF;
+          padding: 16px 20px;
+          border: 2px solid var(--beige);
+          border-radius: 12px;
+          background: var(--white);
           font-size: 14px;
-          color: #1A1A1A;
+          color: var(--text-dark);
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          min-width: 180px;
+          min-width: 190px;
+          font-weight: 500;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
         }
 
         .filter-select:focus {
           outline: none;
-          border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.25);
-          background: #FEFEFE;
+          border-color: var(--warm-brown);
+          box-shadow: 0 0 0 4px rgba(194, 87, 27, 0.15), 0 8px 24px rgba(0, 0, 0, 0.08);
+          background: var(--light-cream);
+          transform: translateY(-1px);
         }
 
         /* Results Summary */
         .results-summary {
-          background: #FFFFFF;
-          border-radius: 12px;
-          padding: 16px 24px;
-          margin-bottom: 16px;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-          border: 1px solid rgba(243, 238, 217, 0.2);
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 16px;
+          padding: 18px 26px;
+          margin-bottom: 20px;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+          border: 1px solid var(--beige);
+          backdrop-filter: blur(10px);
         }
 
         .results-count {
-          font-size: 14px;
-          color: #6E6E6E;
-          font-weight: 500;
+          font-size: 15px;
+          color: var(--text-medium);
+          font-weight: 600;
         }
 
         /* Documents Grid */
         .documents-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-          gap: 20px;
+          grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+          gap: 24px;
         }
 
         /* Document Card Styles */
         .document-card {
-          background: #FFFFFF;
-          border-radius: 16px;
-          padding: 24px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+          background: var(--white);
+          border-radius: 20px;
+          padding: 28px;
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          border-left: 4px solid #E5DCC2;
-          border: 1px solid rgba(229, 220, 194, 0.2);
+          border-left: 5px solid var(--beige);
+          border: 1px solid rgba(229, 220, 194, 0.3);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .document-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: linear-gradient(90deg, transparent 0%, var(--beige) 50%, transparent 100%);
         }
 
         .document-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+          transform: translateY(-4px);
+          box-shadow: 0 20px 56px rgba(0, 0, 0, 0.12);
         }
 
         .document-card.status-overdue {
-          border-left-color: #DC2626;
-          background: linear-gradient(135deg, #FEF2F2 0%, #FFFFFF 100%);
+          border-left-color: var(--error);
+          background: linear-gradient(135deg, #FEF2F2 0%, var(--white) 100%);
+        }
+
+        .document-card.status-overdue::before {
+          background: linear-gradient(90deg, transparent 0%, var(--error) 50%, transparent 100%);
         }
 
         .document-card.status-warning {
-          border-left-color: #F59E0B;
-          background: linear-gradient(135deg, #FFFBEB 0%, #FFFFFF 100%);
+          border-left-color: var(--warning);
+          background: linear-gradient(135deg, #FFFBEB 0%, var(--white) 100%);
+        }
+
+        .document-card.status-warning::before {
+          background: linear-gradient(90deg, transparent 0%, var(--warning) 50%, transparent 100%);
         }
 
         .document-card.status-normal {
-          border-left-color: #10B981;
-          background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%);
+          border-left-color: var(--success);
+          background: linear-gradient(135deg, #ECFDF5 0%, var(--white) 100%);
+        }
+
+        .document-card.status-normal::before {
+          background: linear-gradient(90deg, transparent 0%, var(--success) 50%, transparent 100%);
         }
 
         .document-header {
           display: flex;
           justify-content: space-between;
           align-items: flex-start;
-          margin-bottom: 20px;
+          margin-bottom: 24px;
         }
 
         .document-title {
-          font-size: 18px;
+          font-size: 20px;
           font-weight: 700;
-          color: #1A1A1A;
-          margin: 0 0 8px 0;
+          color: var(--text-dark);
+          margin: 0 0 10px 0;
           line-height: 1.3;
+          letter-spacing: -0.2px;
         }
 
         .document-author {
-          font-size: 14px;
-          color: #3E5C49;
-          font-weight: 600;
-          margin: 0 0 4px 0;
+          font-size: 15px;
+          color: var(--dark-green);
+          font-weight: 700;
+          margin: 0 0 6px 0;
         }
 
         .document-details {
-          font-size: 12px;
-          color: #6E6E6E;
+          font-size: 13px;
+          color: var(--text-light);
           margin: 0;
+          font-weight: 500;
         }
 
         .document-status {
-          padding: 8px;
-          border-radius: 8px;
-          background: rgba(243, 238, 217, 0.5);
+          padding: 10px;
+          border-radius: 12px;
+          background: var(--light-beige);
+          backdrop-filter: blur(4px);
+          color: var(--dark-green);
         }
 
         .borrower-info {
-          padding: 16px;
-          background: rgba(243, 238, 217, 0.2);
-          border-radius: 12px;
-          margin-bottom: 16px;
-          border: 1px solid rgba(243, 238, 217, 0.3);
+          padding: 20px;
+          background: var(--light-beige);
+          border-radius: 16px;
+          margin-bottom: 20px;
+          border: 1px solid var(--beige);
+          backdrop-filter: blur(4px);
         }
 
         .borrower-name {
           display: flex;
           align-items: center;
-          gap: 8px;
-          font-weight: 600;
-          color: #1A1A1A;
-          margin-bottom: 12px;
+          gap: 10px;
+          font-weight: 700;
+          color: var(--text-dark);
+          margin-bottom: 14px;
+          font-size: 15px;
+        }
+
+        .borrower-name svg {
+          color: var(--dark-green);
         }
 
         .borrow-dates {
           display: flex;
           flex-direction: column;
-          gap: 6px;
+          gap: 8px;
         }
 
         .date-info {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 10px;
           font-size: 13px;
-          color: #4A4A4A;
+          color: var(--text-medium);
+          font-weight: 500;
+        }
+
+        .date-info svg {
+          color: var(--warm-beige);
         }
 
         .document-status-bar {
-          margin-bottom: 16px;
+          margin-bottom: 20px;
         }
 
         .status-badge {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
-          padding: 6px 12px;
-          border-radius: 20px;
-          font-size: 12px;
-          font-weight: 600;
+          gap: 8px;
+          padding: 8px 16px;
+          border-radius: 24px;
+          font-size: 13px;
+          font-weight: 700;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .status-badge.status-overdue {
-          background: #FEE2E2;
-          color: #DC2626;
+          background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+          color: var(--error);
         }
 
         .status-badge.status-warning {
-          background: #FEF3C7;
-          color: #F59E0B;
+          background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+          color: var(--warning);
         }
 
         .status-badge.status-normal {
-          background: #D1FAE5;
-          color: #10B981;
+          background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+          color: var(--success);
         }
 
         .document-actions {
@@ -6150,85 +7036,109 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
         .return-button {
           display: flex;
           align-items: center;
-          gap: 8px;
-          padding: 12px 20px;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: #F3EED9;
+          gap: 10px;
+          padding: 14px 24px;
+          background: linear-gradient(135deg, var(--dark-green) 0%, var(--medium-green) 100%);
+          color: var(--cream);
           border: none;
-          border-radius: 8px;
+          border-radius: 12px;
           font-size: 14px;
-          font-weight: 600;
+          font-weight: 700;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          box-shadow: 0 6px 20px rgba(62, 92, 73, 0.25);
         }
 
         .return-button:hover {
-          background: linear-gradient(135deg, #2E453A 0%, #1E2F25 100%);
-          transform: translateY(-1px);
-          box-shadow: 0 8px 24px rgba(62, 92, 73, 0.3);
+          background: linear-gradient(135deg, var(--medium-green) 0%, var(--light-green) 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 12px 32px rgba(62, 92, 73, 0.35);
+        }
+
+        .return-button:active {
+          transform: translateY(0);
+          box-shadow: 0 4px 16px rgba(62, 92, 73, 0.3);
         }
 
         /* Empty State */
         .empty-state {
           text-align: center;
           padding: 80px 40px;
-          background: #FFFFFF;
-          border-radius: 16px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
-          border: 1px solid rgba(229, 220, 194, 0.2);
+          background: rgba(255, 255, 255, 0.95);
+          border-radius: 20px;
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+          border: 1px solid var(--beige);
+          backdrop-filter: blur(10px);
         }
 
         .empty-icon {
-          margin-bottom: 24px;
-          color: #E5DCC2;
+          margin-bottom: 28px;
+          color: var(--warm-beige);
         }
 
         .empty-title {
-          font-size: 24px;
-          font-weight: 700;
-          color: #2E2E2E;
+          font-size: 26px;
+          font-weight: 800;
+          color: var(--text-dark);
           margin: 0 0 16px 0;
+          letter-spacing: -0.4px;
         }
 
         .empty-description {
           font-size: 16px;
-          color: #6E6E6E;
-          margin: 0 0 32px 0;
-          line-height: 1.5;
+          color: var(--text-medium);
+          margin: 0 0 36px 0;
+          line-height: 1.6;
+          font-weight: 500;
         }
 
         .clear-filters {
-          padding: 12px 24px;
-          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
-          color: #F3EED9;
+          padding: 14px 28px;
+          background: linear-gradient(135deg, var(--warm-brown) 0%, var(--medium-brown) 100%);
+          color: var(--cream);
           border: none;
-          border-radius: 8px;
+          border-radius: 12px;
           font-size: 14px;
-          font-weight: 600;
+          font-weight: 700;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          box-shadow: 0 6px 20px rgba(194, 87, 27, 0.25);
         }
 
         .clear-filters:hover {
-          background: linear-gradient(135deg, #A8481A 0%, #8A3C18 100%);
+          background: linear-gradient(135deg, var(--medium-brown) 0%, var(--dark-brown) 100%);
           transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
+          box-shadow: 0 12px 32px rgba(194, 87, 27, 0.35);
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
           .page-content {
-            padding: 16px;
+            padding: 20px;
           }
 
           .page-header {
-            padding: 20px;
+            padding: 0;
           }
 
           .header-main {
             flex-direction: column;
             text-align: center;
-            gap: 16px;
+            gap: 20px;
+            padding: 32px 24px;
+          }
+
+          .header-icon {
+            width: 72px;
+            height: 72px;
+          }
+
+          .page-title {
+            font-size: 28px;
+          }
+
+          .enhanced-controls {
+            padding: 24px;
           }
 
           .controls-row {
@@ -6255,8 +7165,327 @@ const BorrowedDocuments = ({ documents, onReturn }) => {
           }
 
           .document-card {
+            padding: 24px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .page-content {
+            padding: 16px;
+          }
+
+          .header-main {
+            padding: 24px 20px;
+          }
+
+          .header-icon {
+            width: 64px;
+            height: 64px;
+          }
+
+          .page-title {
+            font-size: 24px;
+          }
+
+          .enhanced-controls {
             padding: 20px;
           }
+
+          .search-input {
+            padding: 16px 16px 16px 48px;
+            font-size: 14px;
+          }
+
+          .filter-select {
+            padding: 14px 16px;
+            font-size: 13px;
+            min-width: unset;
+          }
+
+          .document-card {
+            padding: 20px;
+          }
+
+          .document-title {
+            font-size: 18px;
+          }
+
+          .borrower-info {
+            padding: 16px;
+          }
+
+          .return-button {
+            padding: 12px 20px;
+            font-size: 13px;
+          }
+
+          .empty-state {
+            padding: 60px 24px;
+          }
+
+          .empty-title {
+            font-size: 22px;
+          }
+
+          .empty-description {
+            font-size: 15px;
+          }
+        }
+
+        /* Hover animations and micro-interactions */
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .document-card {
+          animation: fadeInUp 0.5s ease-out;
+        }
+
+        .document-card:nth-child(1) { animation-delay: 0.1s; }
+        .document-card:nth-child(2) { animation-delay: 0.2s; }
+        .document-card:nth-child(3) { animation-delay: 0.3s; }
+        .document-card:nth-child(4) { animation-delay: 0.4s; }
+        .document-card:nth-child(5) { animation-delay: 0.5s; }
+        .document-card:nth-child(6) { animation-delay: 0.6s; }
+
+        /* Improved accessibility */
+        .search-input:focus-visible,
+        .filter-select:focus-visible,
+        .return-button:focus-visible,
+        .clear-filters:focus-visible {
+          outline: 3px solid var(--warm-brown);
+          outline-offset: 2px;
+        }
+
+        /* Glow effects for status indicators */
+        .status-badge.status-overdue {
+          box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .status-badge.status-warning {
+          box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+        }
+
+        .status-badge.status-normal {
+          box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+
+        /* Enhanced button interactions */
+        .return-button {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .return-button::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          transition: left 0.5s;
+        }
+
+        .return-button:hover::before {
+          left: 100%;
+        }
+
+        /* Improved card hover effects */
+        .document-card {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .document-card::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, 
+            rgba(62, 92, 73, 0.02) 0%, 
+            rgba(194, 87, 27, 0.02) 100%);
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          pointer-events: none;
+        }
+
+        .document-card:hover::after {
+          opacity: 1;
+        }
+
+        /* Enhanced search input */
+        .search-input-wrapper::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          border-radius: 16px;
+          background: linear-gradient(135deg, 
+            rgba(194, 87, 27, 0.1) 0%, 
+            rgba(62, 92, 73, 0.1) 100%);
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          pointer-events: none;
+        }
+
+        .search-input:focus + .search-input-wrapper::before {
+          opacity: 1;
+        }
+
+        /* Subtle animations for status changes */
+        .status-badge {
+          transition: all 0.3s ease;
+        }
+
+        .status-badge:hover {
+          transform: scale(1.05);
+        }
+
+        /* Enhanced header gradient animation */
+        .page-header {
+          background-size: 200% 200%;
+          animation: gradientShift 8s ease infinite;
+        }
+
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        /* Improved filter controls styling */
+        .filter-controls {
+          position: relative;
+        }
+
+        .filter-select {
+          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+          background-position: right 12px center;
+          background-repeat: no-repeat;
+          background-size: 16px;
+          appearance: none;
+          padding-right: 40px;
+        }
+
+        /* Enhanced color consistency */
+        .borrower-name svg,
+        .date-info svg,
+        .document-status svg {
+          transition: color 0.3s ease;
+        }
+
+        .document-card:hover .borrower-name svg,
+        .document-card:hover .date-info svg,
+        .document-card:hover .document-status svg {
+          color: var(--warm-brown);
+        }
+
+        /* Print optimization */
+        @media print {
+          .borrowed-documents-container {
+            background: white;
+          }
+
+          .page-header {
+            background: var(--dark-green) !important;
+            box-shadow: none;
+            -webkit-print-color-adjust: exact;
+            color-adjust: exact;
+          }
+
+          .enhanced-controls,
+          .document-actions {
+            display: none;
+          }
+
+          .document-card {
+            box-shadow: none;
+            border: 1px solid #ccc;
+            break-inside: avoid;
+            margin-bottom: 20px;
+          }
+        }
+
+        /* High contrast mode enhancements */
+        @media (prefers-contrast: high) {
+          .document-card {
+            border: 2px solid var(--text-dark);
+          }
+
+          .search-input,
+          .filter-select {
+            border: 2px solid var(--text-dark);
+          }
+
+          .return-button {
+            background: var(--text-dark);
+            color: var(--white);
+            border: 2px solid var(--text-dark);
+          }
+
+          .status-badge {
+            border: 1px solid var(--text-dark);
+          }
+        }
+
+        /* Reduced motion preferences */
+        @media (prefers-reduced-motion: reduce) {
+          .document-card,
+          .return-button,
+          .clear-filters,
+          .search-input,
+          .filter-select {
+            animation: none;
+            transition: none;
+          }
+
+          .document-card:hover {
+            transform: none;
+          }
+
+          .page-header {
+            animation: none;
+          }
+        }
+
+        /* Focus improvements for better accessibility */
+        .search-input:focus,
+        .filter-select:focus,
+        .return-button:focus,
+        .clear-filters:focus {
+          position: relative;
+          z-index: 10;
+        }
+
+        /* Enhanced visual hierarchy */
+        .page-title {
+          position: relative;
+        }
+
+        .page-title::before {
+          content: '';
+          position: absolute;
+          top: -8px;
+          left: -8px;
+          right: -8px;
+          bottom: -8px;
+          background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.1) 0%, 
+            rgba(255, 255, 255, 0.05) 100%);
+          border-radius: 12px;
+          z-index: -1;
         }
       ` })] }));
 };
@@ -6636,7 +7865,7 @@ function Borrowers({ onClose, onRefreshData }) {
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           backdrop-filter: blur(10px);
           position: relative;
-          z-index: 2;
+          z-index: 1001;
         }
         
         .close-button:hover {
@@ -13083,6 +14312,7 @@ const KeyboardShortcutsProvider = ({ children, onNavigate, onOpenAddDocument, on
           color: white;
           cursor: pointer;
           transition: background 0.2s ease;
+          z-index: 1001;
         }
 
         .close-button:hover {
@@ -14926,8 +16156,20 @@ const Settings = ({ onClose, onLogout }) => {
         if (window.confirm('Êtes-vous sûr de vouloir restaurer une sauvegarde ? Cela remplacera toutes les données actuelles.')) {
             setIsLoading(true);
             try {
-                await window.electronAPI.restoreBackup();
-                showMessage('success', 'Données restaurées avec succès');
+                // Utiliser la nouvelle fonction selectBackupFile
+                const fileResult = await window.electronAPI.selectBackupFile();
+                if (fileResult.success && fileResult.filePath) {
+                    const restoreResult = await window.electronAPI.restoreBackup(fileResult.filePath);
+                    if (restoreResult.success) {
+                        showMessage('success', 'Données restaurées avec succès');
+                    }
+                    else {
+                        showMessage('error', restoreResult.error || 'Erreur lors de la restauration');
+                    }
+                }
+                else if (fileResult.error && fileResult.error !== 'Sélection annulée') {
+                    showMessage('error', fileResult.error);
+                }
             }
             catch (error) {
                 showMessage('error', 'Erreur lors de la restauration');
@@ -16125,17 +17367,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/history.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/settings.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/heart.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/info.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/bar-chart-3.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/briefcase.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-right.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-left.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/zap.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trending-up.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/hard-drive.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/heart.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/info.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/bar-chart-3.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/briefcase.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-right.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-left.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/zap.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trending-up.mjs");
 
 
 
@@ -16206,9 +17449,16 @@ const Sidebar = ({ currentView, onNavigate, stats, currentUser, currentInstituti
             gradient: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)'
         },
         {
+            id: 'backup-manager',
+            label: 'Sauvegardes',
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"],
+            description: 'Gérer les sauvegardes de données',
+            gradient: 'linear-gradient(135deg, #0891B2 0%, #0E7490 100%)'
+        },
+        {
             id: 'donation',
             label: 'Soutenir le projet',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"],
             description: 'Faire une donation',
             gradient: 'linear-gradient(135deg, #E91E63 0%, #C2185B 100%)',
             support: true
@@ -16216,7 +17466,7 @@ const Sidebar = ({ currentView, onNavigate, stats, currentUser, currentInstituti
         {
             id: 'about',
             label: 'À propos',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"],
             description: 'Développeur & crédits',
             gradient: 'linear-gradient(135deg, #607D8B 0%, #455A64 100%)'
         }
@@ -16239,14 +17489,14 @@ const Sidebar = ({ currentView, onNavigate, stats, currentUser, currentInstituti
         {
             label: 'Empruntés',
             value: stats.borrowedDocuments,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"],
             color: '#C2571B',
             percentage: stats.totalDocuments > 0 ? Math.round((stats.borrowedDocuments / stats.totalDocuments) * 100) : 0
         },
         {
             label: 'En retard',
             value: stats.overdueDocuments,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"],
             color: '#DC2626',
             urgent: stats.overdueDocuments > 0
         }
@@ -16255,13 +17505,13 @@ const Sidebar = ({ currentView, onNavigate, stats, currentUser, currentInstituti
         {
             label: 'Étudiants',
             value: stats.totalStudents,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"],
             color: '#3E5C49'
         },
         {
             label: 'Personnel',
             value: stats.totalStaff,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"],
             color: '#C2571B'
         }
     ];
@@ -16270,15 +17520,15 @@ const Sidebar = ({ currentView, onNavigate, stats, currentUser, currentInstituti
             return 0;
         return Math.round((stats.borrowedDocuments / stats.totalDocuments) * 100);
     };
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `sidebar ${isCollapsed ? 'collapsed' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "sidebar-toggle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "toggle-button", onClick: () => setIsCollapsed(!isCollapsed), title: isCollapsed ? 'Développer le menu' : 'Réduire le menu', children: isCollapsed ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 18 }) }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-brand", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "brand-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "brand-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "brand-title", children: "Biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "brand-subtitle", children: "Syst\u00E8me de gestion moderne" })] })] }))] }), !isCollapsed && currentUser && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-profile-section", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-profile", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-avatar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "avatar-text", children: currentUser.firstName?.charAt(0)?.toUpperCase() || currentUser.email?.charAt(0)?.toUpperCase() || 'U' }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-name", children: currentUser.firstName ? `${currentUser.firstName} ${currentUser.lastName || ''}`.trim() : currentUser.email }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-role", children: currentUser.role || 'Utilisateur' }), currentInstitution && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-institution", children: currentInstitution.name }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "user-settings-btn", onClick: () => onNavigate('user-profile'), title: "Profil utilisateur", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 16 }) })] }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("nav", { className: "sidebar-nav", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Principal" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: menuItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.urgent ? 'urgent' : ''} ${item.highlight ? 'highlight' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `sidebar ${isCollapsed ? 'collapsed' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "sidebar-toggle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "toggle-button", onClick: () => setIsCollapsed(!isCollapsed), title: isCollapsed ? 'Développer le menu' : 'Réduire le menu', children: isCollapsed ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 18 }) }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-brand", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "brand-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "brand-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "brand-title", children: "Biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "brand-subtitle", children: "Syst\u00E8me de gestion moderne" })] })] }))] }), currentUser && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-profile-section", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-profile", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-avatar", onClick: () => onNavigate('user-profile'), title: "Voir le profil utilisateur", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "avatar-text", children: currentUser.firstName?.charAt(0)?.toUpperCase() || currentUser.email?.charAt(0)?.toUpperCase() || 'U' }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-name", children: currentUser.firstName ? `${currentUser.firstName} ${currentUser.lastName || ''}`.trim() : currentUser.email }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-role", children: currentUser.role || 'Utilisateur' }), currentInstitution && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-institution", children: currentInstitution.name }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "user-settings-btn", onClick: () => onNavigate('user-profile'), title: "Modifier le profil", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 16 }) })] }))] }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("nav", { className: "sidebar-nav", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Principal" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: menuItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.urgent ? 'urgent' : ''} ${item.highlight ? 'highlight' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
                                                     '--item-gradient': item.gradient
-                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''} ${item.urgent ? 'urgent' : ''}`, children: item.count })), item.highlight && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-highlight", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 14 }) }))] })), isCollapsed && item.badge && stats.borrowedDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-indicator ${item.urgent ? 'urgent' : ''}` }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Actions" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: actionItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.highlight ? 'highlight' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
+                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''} ${item.urgent ? 'urgent' : ''}`, children: item.count })), item.highlight && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-highlight", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 14 }) }))] })), isCollapsed && item.badge && stats.borrowedDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-indicator ${item.urgent ? 'urgent' : ''}` }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Actions" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: actionItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.highlight ? 'highlight' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
                                                     '--item-gradient': item.gradient
-                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''}`, children: item.count })), item.highlight && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-highlight", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 14 }) }))] }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Rapports" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: reportItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
+                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''}`, children: item.count })), item.highlight && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-highlight", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 14 }) }))] }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Rapports" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: reportItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
                                                     '--item-gradient': item.gradient
                                                 }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Communaut\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: supportItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.support ? 'support' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
                                                     '--item-gradient': item.gradient
-                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }))] }) }, item.id))) })] })] }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Statistiques de collection" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "popularity-score", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [getPopularityScore(), "% popularit\u00E9"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stats-grid", children: quickStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `stat-card ${stat.urgent ? 'urgent' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-label", children: stat.label }), stat.trend && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-trend", children: stat.trend })), stat.percentage !== undefined && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-percentage", children: [stat.percentage, "%"] }))] })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "users-stats", children: userStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 18 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-label", children: stat.label })] })] }, index))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "total-users", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "total-label", children: "Total des utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "total-value", children: stats.totalBorrowers })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Activit\u00E9 r\u00E9cente" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-pulse" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-summary", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot available" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.availableDocuments, " documents pr\u00EAts \u00E0 emprunter"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot borrowed" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.borrowedDocuments, " emprunts en cours"] })] }), stats.overdueDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item urgent", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot overdue" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.overdueDocuments, " document(s) en retard"] })] }))] })] })] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }))] }) }, item.id))) })] })] }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Statistiques de collection" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "popularity-score", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [getPopularityScore(), "% popularit\u00E9"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stats-grid", children: quickStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `stat-card ${stat.urgent ? 'urgent' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-label", children: stat.label }), stat.trend && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-trend", children: stat.trend })), stat.percentage !== undefined && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-percentage", children: [stat.percentage, "%"] }))] })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "users-stats", children: userStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 18 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-label", children: stat.label })] })] }, index))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "total-users", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "total-label", children: "Total des utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "total-value", children: stats.totalBorrowers })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Activit\u00E9 r\u00E9cente" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-pulse" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-summary", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot available" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.availableDocuments, " documents pr\u00EAts \u00E0 emprunter"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot borrowed" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.borrowedDocuments, " emprunts en cours"] })] }), stats.overdueDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item urgent", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot overdue" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.overdueDocuments, " document(s) en retard"] })] }))] })] })] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .sidebar {
           width: 300px;
           background: linear-gradient(180deg, #3E5C49 0%, #2E453A 100%);
@@ -17096,7 +18346,7 @@ const Sidebar = ({ currentView, onNavigate, stats, currentUser, currentInstituti
             border-width: 2px;
           }
         }
-      ` }), !isCollapsed && stats.overdueDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "emergency-alert", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "alert-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "alert-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "alert-title", children: "Action requise" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "alert-message", children: [stats.overdueDocuments, " document(s) en retard"] })] })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+      ` }), !isCollapsed && stats.overdueDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "emergency-alert", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "alert-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "alert-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "alert-title", children: "Action requise" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "alert-message", children: [stats.overdueDocuments, " document(s) en retard"] })] })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .emergency-alert {
           margin: 16px 20px;
           background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
@@ -17184,6 +18434,15 @@ const Sidebar = ({ currentView, onNavigate, stats, currentUser, currentInstituti
           justify-content: center;
           flex-shrink: 0;
           box-shadow: 0 4px 12px rgba(194, 87, 27, 0.3);
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border: 2px solid transparent;
+        }
+
+        .user-avatar:hover {
+          border-color: rgba(243, 238, 217, 0.3);
+          transform: scale(1.05);
+          box-shadow: 0 6px 16px rgba(194, 87, 27, 0.4);
         }
 
         .avatar-text {
@@ -17227,11 +18486,11 @@ const Sidebar = ({ currentView, onNavigate, stats, currentUser, currentInstituti
         }
 
         .user-settings-btn {
-          width: 28px;
-          height: 28px;
-          border: none;
-          background: rgba(243, 238, 217, 0.1);
-          color: rgba(243, 238, 217, 0.7);
+          width: 30px;
+          height: 30px;
+          border: 1px solid rgba(243, 238, 217, 0.2);
+          background: rgba(243, 238, 217, 0.15);
+          color: #F3EED9;
           border-radius: 8px;
           cursor: pointer;
           display: flex;
@@ -17242,9 +18501,11 @@ const Sidebar = ({ currentView, onNavigate, stats, currentUser, currentInstituti
         }
 
         .user-settings-btn:hover {
-          background: rgba(243, 238, 217, 0.2);
+          background: rgba(243, 238, 217, 0.25);
+          border-color: rgba(243, 238, 217, 0.4);
           color: #F3EED9;
           transform: scale(1.05);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
       ` })] }));
 };
@@ -18433,7 +19694,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const UserProfile = ({ currentUser, currentInstitution, onClose, onUserUpdate }) => {
+const UserProfile = ({ currentUser, currentInstitution, appMode, onClose, onUserUpdate }) => {
     const { success, error } = (0,_ToastSystem__WEBPACK_IMPORTED_MODULE_3__.useQuickToast)();
     const [isEditing, setIsEditing] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
@@ -18485,39 +19746,56 @@ const UserProfile = ({ currentUser, currentInstitution, onClose, onUserUpdate })
     const handleSaveProfile = async () => {
         setIsLoading(true);
         try {
-            // Sauvegarder les informations de profil
-            const users = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.getUsers();
-            const userIndex = users.findIndex(u => u.id === currentUser.id);
-            if (userIndex === -1) {
-                error('Erreur', 'Utilisateur non trouvé');
+            if (appMode === 'offline') {
+                // Mode offline - utiliser LocalAuthService
+                const users = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.getUsers();
+                const userIndex = users.findIndex(u => u.id === currentUser?.id);
+                if (userIndex === -1) {
+                    error('Erreur', 'Utilisateur non trouvé');
+                    return;
+                }
+                const updatedUser = {
+                    ...users[userIndex],
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
+                    email: formData.email,
+                    lastModified: new Date().toISOString()
+                };
+                // Si changement de mot de passe demandé
+                if (showPasswordSection && formData.newPassword) {
+                    if (!validatePasswords()) {
+                        error('Erreur de validation', 'Veuillez vérifier les mots de passe');
+                        return;
+                    }
+                    // Vérifier le mot de passe actuel
+                    if (users[userIndex].password !== formData.currentPassword) {
+                        error('Mot de passe incorrect', 'Le mot de passe actuel est incorrect');
+                        return;
+                    }
+                    updatedUser.password = formData.newPassword;
+                }
+                users[userIndex] = updatedUser;
+                _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.saveUsers(users);
+                // Mettre à jour le currentUser dans localStorage aussi
+                localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+                // Notifier le parent avec l'utilisateur unifié
+                const unifiedUser = {
+                    id: updatedUser.id,
+                    firstName: updatedUser.firstName,
+                    lastName: updatedUser.lastName,
+                    email: updatedUser.email,
+                    role: updatedUser.role,
+                    institutionCode: updatedUser.institutionCode,
+                    lastLogin: updatedUser.lastLogin,
+                    preferences: updatedUser.preferences
+                };
+                onUserUpdate(unifiedUser);
+            }
+            else {
+                // Mode online - utiliser Supabase (à implémenter si nécessaire)
+                error('Mode non supporté', 'La modification du profil en mode online n\'est pas encore implémentée');
                 return;
             }
-            const updatedUser = {
-                ...users[userIndex],
-                firstName: formData.firstName,
-                lastName: formData.lastName,
-                email: formData.email,
-                lastModified: new Date().toISOString()
-            };
-            // Si changement de mot de passe demandé
-            if (showPasswordSection && formData.newPassword) {
-                if (!validatePasswords()) {
-                    error('Erreur de validation', 'Veuillez vérifier les mots de passe');
-                    return;
-                }
-                // Vérifier le mot de passe actuel
-                if (users[userIndex].password !== formData.currentPassword) {
-                    error('Mot de passe incorrect', 'Le mot de passe actuel est incorrect');
-                    return;
-                }
-                updatedUser.password = formData.newPassword;
-            }
-            users[userIndex] = updatedUser;
-            _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.saveUsers(users);
-            // Mettre à jour le currentUser dans localStorage aussi
-            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-            // Notifier le parent
-            onUserUpdate(updatedUser);
             success('Profil mis à jour', 'Vos informations ont été sauvegardées avec succès');
             setIsEditing(false);
             setShowPasswordSection(false);
@@ -18655,6 +19933,7 @@ const UserProfile = ({ currentUser, currentInstitution, onClose, onUserUpdate })
           align-items: center;
           justify-content: center;
           transition: all 0.2s ease;
+          z-index: 10;
         }
 
         .close-button:hover {
@@ -19690,6 +20969,85 @@ class SupabaseRendererService {
 const supabaseRenderer = new SupabaseRendererService();
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (supabaseRenderer);
 // No additional type exports needed - types are already exported above
+
+
+/***/ }),
+
+/***/ "./src/renderer/types/UnifiedTypes.ts":
+/*!********************************************!*\
+  !*** ./src/renderer/types/UnifiedTypes.ts ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   convertToUnifiedInstitution: () => (/* binding */ convertToUnifiedInstitution),
+/* harmony export */   convertToUnifiedUser: () => (/* binding */ convertToUnifiedUser)
+/* harmony export */ });
+// Types unifiés pour les modes offline et online
+// Fonctions utilitaires pour convertir entre les types
+const convertToUnifiedUser = (user, mode) => {
+    if (mode === 'offline') {
+        // Utilisateur de LocalAuthService
+        return {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            role: user.role,
+            institutionCode: user.institutionCode,
+            password: user.password,
+            lastLogin: user.lastLogin,
+            preferences: user.preferences
+        };
+    }
+    else {
+        // Utilisateur Supabase
+        return {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            role: user.role,
+            institutionCode: user.institutionCode,
+            lastLogin: user.lastLogin
+        };
+    }
+};
+const convertToUnifiedInstitution = (institution, mode) => {
+    if (mode === 'offline') {
+        // Institution de LocalAuthService
+        return {
+            id: institution.id,
+            code: institution.code,
+            name: institution.name,
+            address: institution.address,
+            city: institution.city,
+            country: institution.country,
+            phone: institution.phone,
+            email: institution.email,
+            website: institution.website,
+            logo: institution.logo,
+            description: institution.description
+        };
+    }
+    else {
+        // Institution Supabase
+        return {
+            id: institution.id,
+            code: institution.code,
+            name: institution.name,
+            address: institution.address,
+            city: institution.city,
+            country: institution.country,
+            phone: institution.phone,
+            email: institution.email,
+            website: institution.website,
+            logo: institution.logo,
+            description: institution.description
+        };
+    }
+};
 
 
 /***/ })

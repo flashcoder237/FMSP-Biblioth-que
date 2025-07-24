@@ -109,6 +109,184 @@ function createWindow() {
         }
     });
 }
+// Fonction pour enregistrer les handlers backup après l'initialisation des services
+function registerBackupHandlers() {
+    // ====================================================
+    // Backup Management - IPC Handlers
+    // ====================================================
+    // Créer une sauvegarde
+    electron_1.ipcMain.handle('backup:create', async (_, name, description) => {
+        try {
+            const backupPath = await backupService.createBackup();
+            LoggerService_1.logger.info('Backup créé avec succès', 'BACKUP', { path: backupPath });
+            return { success: true, path: backupPath };
+        }
+        catch (error) {
+            LoggerService_1.logger.error('Erreur lors de la création du backup', 'BACKUP', error);
+            return { success: false, error: error.message };
+        }
+    });
+    // Obtenir la liste des sauvegardes
+    electron_1.ipcMain.handle('backup:getList', async () => {
+        try {
+            const backups = await backupService.getBackupList();
+            return { success: true, backups };
+        }
+        catch (error) {
+            LoggerService_1.logger.error('Erreur lors de la récupération des backups', 'BACKUP', error);
+            return { success: false, error: error.message, backups: [] };
+        }
+    });
+    // Restaurer une sauvegarde
+    electron_1.ipcMain.handle('backup:restore', async (_, backupFilePath) => {
+        try {
+            const success = await backupService.restoreBackup(backupFilePath);
+            if (success) {
+                LoggerService_1.logger.info('Backup restauré avec succès', 'BACKUP', { path: backupFilePath });
+                // Redémarrer les services après restauration
+                await dbService.initialize();
+                return { success: true };
+            }
+            else {
+                return { success: false, error: 'Échec de la restauration' };
+            }
+        }
+        catch (error) {
+            LoggerService_1.logger.error('Erreur lors de la restauration du backup', 'BACKUP', error);
+            return { success: false, error: error.message };
+        }
+    });
+    // Supprimer une sauvegarde
+    electron_1.ipcMain.handle('backup:delete', async (_, backupFilePath) => {
+        try {
+            const success = await backupService.deleteBackup(backupFilePath);
+            if (success) {
+                LoggerService_1.logger.info('Backup supprimé avec succès', 'BACKUP', { path: backupFilePath });
+                return { success: true };
+            }
+            else {
+                return { success: false, error: 'Échec de la suppression' };
+            }
+        }
+        catch (error) {
+            LoggerService_1.logger.error('Erreur lors de la suppression du backup', 'BACKUP', error);
+            return { success: false, error: error.message };
+        }
+    });
+    // Valider une sauvegarde
+    electron_1.ipcMain.handle('backup:validate', async (_, backupFilePath) => {
+        try {
+            const isValid = await backupService.validateBackup(backupFilePath);
+            return { success: true, isValid };
+        }
+        catch (error) {
+            LoggerService_1.logger.error('Erreur lors de la validation du backup', 'BACKUP', error);
+            return { success: false, error: error.message, isValid: false };
+        }
+    });
+    // Nettoyer les anciennes sauvegardes
+    electron_1.ipcMain.handle('backup:cleanOld', async (_, keepCount = 10) => {
+        try {
+            const deletedCount = await backupService.cleanOldBackups(keepCount);
+            LoggerService_1.logger.info(`${deletedCount} anciens backups supprimés`, 'BACKUP', { keepCount });
+            return { success: true, deletedCount };
+        }
+        catch (error) {
+            LoggerService_1.logger.error('Erreur lors du nettoyage des backups', 'BACKUP', error);
+            return { success: false, error: error.message, deletedCount: 0 };
+        }
+    });
+    // Obtenir les statistiques des sauvegardes
+    electron_1.ipcMain.handle('backup:getStats', async () => {
+        try {
+            const totalSize = backupService.getBackupDirectorySize();
+            const backups = await backupService.getBackupList();
+            return {
+                success: true,
+                stats: {
+                    totalBackups: backups.length,
+                    totalSize,
+                    formattedSize: backupService.formatFileSize(totalSize),
+                    oldestBackup: backups.length > 0 ? backups[backups.length - 1] : null,
+                    newestBackup: backups.length > 0 ? backups[0] : null
+                }
+            };
+        }
+        catch (error) {
+            LoggerService_1.logger.error('Erreur lors de la récupération des stats backup', 'BACKUP', error);
+            return { success: false, error: error.message };
+        }
+    });
+    // Export de base de données seule
+    electron_1.ipcMain.handle('backup:exportDatabase', async () => {
+        try {
+            const result = await electron_1.dialog.showSaveDialog(mainWindow, {
+                title: 'Exporter la base de données',
+                defaultPath: `bibliotheque_db_${new Date().toISOString().split('T')[0]}.db`,
+                filters: [
+                    { name: 'Database Files', extensions: ['db', 'sqlite'] },
+                    { name: 'All Files', extensions: ['*'] }
+                ]
+            });
+            if (!result.filePath)
+                return { success: false, error: 'Export annulé' };
+            await backupService.exportDatabase(result.filePath);
+            LoggerService_1.logger.info('Base de données exportée', 'BACKUP', { path: result.filePath });
+            return { success: true, path: result.filePath };
+        }
+        catch (error) {
+            LoggerService_1.logger.error('Erreur lors de l\'export de la base de données', 'BACKUP', error);
+            return { success: false, error: error.message };
+        }
+    });
+    // Import de base de données
+    electron_1.ipcMain.handle('backup:importDatabase', async () => {
+        try {
+            const result = await electron_1.dialog.showOpenDialog(mainWindow, {
+                title: 'Importer une base de données',
+                filters: [
+                    { name: 'Database Files', extensions: ['db', 'sqlite'] },
+                    { name: 'All Files', extensions: ['*'] }
+                ],
+                properties: ['openFile']
+            });
+            if (!result.filePaths || result.filePaths.length === 0) {
+                return { success: false, error: 'Import annulé' };
+            }
+            await backupService.importDatabase(result.filePaths[0]);
+            // Redémarrer les services après import
+            await dbService.initialize();
+            LoggerService_1.logger.info('Base de données importée', 'BACKUP', { path: result.filePaths[0] });
+            return { success: true, path: result.filePaths[0] };
+        }
+        catch (error) {
+            LoggerService_1.logger.error('Erreur lors de l\'import de la base de données', 'BACKUP', error);
+            return { success: false, error: error.message };
+        }
+    });
+    // Sélectionner un fichier de sauvegarde pour restauration
+    electron_1.ipcMain.handle('backup:selectFile', async () => {
+        try {
+            const result = await electron_1.dialog.showOpenDialog(mainWindow, {
+                title: 'Sélectionner une sauvegarde à restaurer',
+                filters: [
+                    { name: 'Backup Files', extensions: ['bak'] },
+                    { name: 'All Files', extensions: ['*'] }
+                ],
+                properties: ['openFile']
+            });
+            if (!result.filePaths || result.filePaths.length === 0) {
+                return { success: false, error: 'Sélection annulée' };
+            }
+            return { success: true, filePath: result.filePaths[0] };
+        }
+        catch (error) {
+            LoggerService_1.logger.error('Erreur lors de la sélection du fichier backup', 'BACKUP', error);
+            return { success: false, error: error.message };
+        }
+    });
+    LoggerService_1.logger.info('Handlers IPC backup enregistrés', 'BACKUP');
+}
 electron_1.app.whenReady().then(async () => {
     // Initialiser les services de base d'abord
     try {
@@ -127,6 +305,8 @@ electron_1.app.whenReady().then(async () => {
         await syncService.initialize();
         LoggerService_1.logger.info('Service de synchronisation initialisé', 'Main');
         LoggerService_1.logger.info('Tous les services initialisés avec succès', 'Main');
+        // Enregistrer les handlers IPC après l'initialisation des services
+        registerBackupHandlers();
         createWindow();
     }
     catch (error) {
@@ -502,36 +682,6 @@ electron_1.ipcMain.handle('settings:save', async (_, settings) => {
     }
     catch (error) {
         console.error('Erreur settings:save:', error);
-        return false;
-    }
-});
-// Backup Operations
-electron_1.ipcMain.handle('backup:create', async () => {
-    try {
-        return await backupService.createBackup();
-    }
-    catch (error) {
-        console.error('Erreur backup:create:', error);
-        throw error;
-    }
-});
-electron_1.ipcMain.handle('backup:restore', async () => {
-    const result = await electron_1.dialog.showOpenDialog(mainWindow, {
-        title: 'Sélectionner une sauvegarde',
-        filters: [
-            { name: 'Sauvegardes', extensions: ['bak', 'backup'] },
-            { name: 'Tous les fichiers', extensions: ['*'] }
-        ],
-        properties: ['openFile']
-    });
-    if (result.canceled || !result.filePaths[0])
-        return false;
-    try {
-        await backupService.restoreBackup(result.filePaths[0]);
-        return true;
-    }
-    catch (error) {
-        console.error('Erreur lors de la restauration:', error);
         return false;
     }
 });
@@ -1688,13 +1838,19 @@ const electronAPI = {
     // Settings management
     getSettings: () => electron_1.ipcRenderer?.invoke('settings:get') || Promise.resolve(null),
     saveSettings: (settings) => electron_1.ipcRenderer?.invoke('settings:save', settings) || Promise.resolve(false),
-    // Backup and restore operations
-    createBackup: () => electron_1.ipcRenderer?.invoke('backup:create') || Promise.resolve(''),
-    restoreBackup: () => electron_1.ipcRenderer?.invoke('backup:restore') || Promise.resolve(false),
+    // Backup and restore operations (complet)
+    createBackup: (name, description) => electron_1.ipcRenderer?.invoke('backup:create', name, description) || Promise.resolve({ success: false, error: 'IPC not available' }),
+    getBackupList: () => electron_1.ipcRenderer?.invoke('backup:getList') || Promise.resolve({ success: false, backups: [], error: 'IPC not available' }),
+    restoreBackup: (backupFilePath) => electron_1.ipcRenderer?.invoke('backup:restore', backupFilePath) || Promise.resolve({ success: false, error: 'IPC not available' }),
+    deleteBackup: (backupFilePath) => electron_1.ipcRenderer?.invoke('backup:delete', backupFilePath) || Promise.resolve({ success: false, error: 'IPC not available' }),
+    validateBackup: (backupFilePath) => electron_1.ipcRenderer?.invoke('backup:validate', backupFilePath) || Promise.resolve({ success: false, isValid: false, error: 'IPC not available' }),
+    cleanOldBackups: (keepCount) => electron_1.ipcRenderer?.invoke('backup:cleanOld', keepCount) || Promise.resolve({ success: false, deletedCount: 0, error: 'IPC not available' }),
+    getBackupStats: () => electron_1.ipcRenderer?.invoke('backup:getStats') || Promise.resolve({ success: false, error: 'IPC not available' }),
+    selectBackupFile: () => electron_1.ipcRenderer?.invoke('backup:selectFile') || Promise.resolve({ success: false, error: 'IPC not available' }),
     clearAllData: () => electron_1.ipcRenderer?.invoke('db:clearAll') || Promise.resolve(false),
-    // Export/Import operations
-    exportDatabase: (filePath) => electron_1.ipcRenderer?.invoke('db:export', filePath) || Promise.resolve(),
-    importDatabase: (filePath) => electron_1.ipcRenderer?.invoke('db:import', filePath) || Promise.resolve(false),
+    // Export/Import operations (enhanced)
+    exportDatabase: () => electron_1.ipcRenderer?.invoke('backup:exportDatabase') || Promise.resolve({ success: false, error: 'IPC not available' }),
+    importDatabase: () => electron_1.ipcRenderer?.invoke('backup:importDatabase') || Promise.resolve({ success: false, error: 'IPC not available' }),
     // Print operations
     printInventory: (data) => electron_1.ipcRenderer?.invoke('print:inventory', data) || Promise.resolve(false),
     printAvailableBooks: (data) => electron_1.ipcRenderer?.invoke('print:available-books', data) || Promise.resolve(false),

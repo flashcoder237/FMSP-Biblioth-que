@@ -16,17 +16,20 @@ import {
 import { MicroButton, MicroCard } from './MicroInteractions';
 import { useQuickToast } from './ToastSystem';
 import { LocalAuthService } from '../services/LocalAuthService';
+import { UnifiedUser, UnifiedInstitution } from '../types/UnifiedTypes';
 
 interface UserProfileProps {
-  currentUser: any;
-  currentInstitution: any;
+  currentUser: UnifiedUser | null;
+  currentInstitution: UnifiedInstitution | null;
+  appMode: 'offline' | 'online';
   onClose: () => void;
-  onUserUpdate: (user: any) => void;
+  onUserUpdate: (user: UnifiedUser) => void;
 }
 
 export const UserProfile: React.FC<UserProfileProps> = ({ 
   currentUser, 
   currentInstitution, 
+  appMode, 
   onClose, 
   onUserUpdate 
 }) => {
@@ -90,47 +93,63 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   const handleSaveProfile = async () => {
     setIsLoading(true);
     try {
-      // Sauvegarder les informations de profil
-      const users = LocalAuthService.getUsers();
-      const userIndex = users.findIndex(u => u.id === currentUser.id);
-      
-      if (userIndex === -1) {
-        error('Erreur', 'Utilisateur non trouvé');
+      if (appMode === 'offline') {
+        // Mode offline - utiliser LocalAuthService
+        const users = LocalAuthService.getUsers();
+        const userIndex = users.findIndex(u => u.id === currentUser?.id);
+        
+        if (userIndex === -1) {
+          error('Erreur', 'Utilisateur non trouvé');
+          return;
+        }
+
+        const updatedUser = {
+          ...users[userIndex],
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          lastModified: new Date().toISOString()
+        };
+
+        // Si changement de mot de passe demandé
+        if (showPasswordSection && formData.newPassword) {
+          if (!validatePasswords()) {
+            error('Erreur de validation', 'Veuillez vérifier les mots de passe');
+            return;
+          }
+
+          // Vérifier le mot de passe actuel
+          if (users[userIndex].password !== formData.currentPassword) {
+            error('Mot de passe incorrect', 'Le mot de passe actuel est incorrect');
+            return;
+          }
+
+          updatedUser.password = formData.newPassword;
+        }
+
+        users[userIndex] = updatedUser;
+        LocalAuthService.saveUsers(users);
+
+        // Mettre à jour le currentUser dans localStorage aussi
+        localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+
+        // Notifier le parent avec l'utilisateur unifié
+        const unifiedUser: UnifiedUser = {
+          id: updatedUser.id,
+          firstName: updatedUser.firstName,
+          lastName: updatedUser.lastName,
+          email: updatedUser.email,
+          role: updatedUser.role,
+          institutionCode: updatedUser.institutionCode,
+          lastLogin: updatedUser.lastLogin,
+          preferences: updatedUser.preferences
+        };
+        onUserUpdate(unifiedUser);
+      } else {
+        // Mode online - utiliser Supabase (à implémenter si nécessaire)
+        error('Mode non supporté', 'La modification du profil en mode online n\'est pas encore implémentée');
         return;
       }
-
-      const updatedUser = {
-        ...users[userIndex],
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        lastModified: new Date().toISOString()
-      };
-
-      // Si changement de mot de passe demandé
-      if (showPasswordSection && formData.newPassword) {
-        if (!validatePasswords()) {
-          error('Erreur de validation', 'Veuillez vérifier les mots de passe');
-          return;
-        }
-
-        // Vérifier le mot de passe actuel
-        if (users[userIndex].password !== formData.currentPassword) {
-          error('Mot de passe incorrect', 'Le mot de passe actuel est incorrect');
-          return;
-        }
-
-        updatedUser.password = formData.newPassword;
-      }
-
-      users[userIndex] = updatedUser;
-      LocalAuthService.saveUsers(users);
-
-      // Mettre à jour le currentUser dans localStorage aussi
-      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-
-      // Notifier le parent
-      onUserUpdate(updatedUser);
 
       success('Profil mis à jour', 'Vos informations ont été sauvegardées avec succès');
       setIsEditing(false);
@@ -160,7 +179,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
     return roleMap[role] || role;
   };
 
-  const getInitials = (user: any) => {
+  const getInitials = (user: UnifiedUser | null) => {
     if (user?.firstName && user?.lastName) {
       return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
     }
@@ -482,6 +501,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           align-items: center;
           justify-content: center;
           transition: all 0.2s ease;
+          z-index: 10;
         }
 
         .close-button:hover {

@@ -747,7 +747,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           backdrop-filter: blur(10px);
           position: relative;
-          z-index: 2;
+          z-index: 1001;
         }
         
         .close-button:hover {

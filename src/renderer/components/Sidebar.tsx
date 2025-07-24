@@ -18,18 +18,19 @@ import {
   Users,
   History,
   Settings,
+  HardDrive,
   User
 } from 'lucide-react';
 import { Stats } from '../../types';
 import { MicroButton } from './MicroInteractions';
-import { SupabaseRendererService as SupabaseService, User as UserType, Institution } from '../services/SupabaseClient';
+import { UnifiedUser, UnifiedInstitution } from '../types/UnifiedTypes';
 
 interface SidebarProps {
   currentView: string;
   onNavigate: (view: 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'app-settings' | 'user-profile' | 'donation' | 'about') => void;
   stats: Stats;
-  currentUser: UserType | null;
-  currentInstitution: Institution | null;
+  currentUser: UnifiedUser | null;
+  currentInstitution: UnifiedInstitution | null;
 }
 
 // Types pour les items de menu
@@ -119,6 +120,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
       icon: Settings,
       description: 'Configuration de l\'application',
       gradient: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)'
+    },
+    {
+      id: 'backup-manager',
+      label: 'Sauvegardes',
+      icon: HardDrive,
+      description: 'Gérer les sauvegardes de données',
+      gradient: 'linear-gradient(135deg, #0891B2 0%, #0E7490 100%)'
     },
     {
       id: 'donation',
@@ -216,30 +224,34 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
       </div>
 
       {/* User Profile Section */}
-      {!isCollapsed && currentUser && (
+      {currentUser && (
         <div className="user-profile-section">
           <div className="user-profile">
-            <div className="user-avatar">
+            <div className="user-avatar" onClick={() => onNavigate('user-profile')} title="Voir le profil utilisateur">
               <span className="avatar-text">
                 {currentUser.firstName?.charAt(0)?.toUpperCase() || currentUser.email?.charAt(0)?.toUpperCase() || 'U'}
               </span>
             </div>
-            <div className="user-info">
-              <div className="user-name">
-                {currentUser.firstName ? `${currentUser.firstName} ${currentUser.lastName || ''}`.trim() : currentUser.email}
-              </div>
-              <div className="user-role">{currentUser.role || 'Utilisateur'}</div>
-              {currentInstitution && (
-                <div className="user-institution">{currentInstitution.name}</div>
-              )}
-            </div>
-            <button 
-              className="user-settings-btn"
-              onClick={() => onNavigate('user-profile')}
-              title="Profil utilisateur"
-            >
-              <User size={16} />
-            </button>
+            {!isCollapsed && (
+              <>
+                <div className="user-info">
+                  <div className="user-name">
+                    {currentUser.firstName ? `${currentUser.firstName} ${currentUser.lastName || ''}`.trim() : currentUser.email}
+                  </div>
+                  <div className="user-role">{currentUser.role || 'Utilisateur'}</div>
+                  {currentInstitution && (
+                    <div className="user-institution">{currentInstitution.name}</div>
+                  )}
+                </div>
+                <button 
+                  className="user-settings-btn"
+                  onClick={() => onNavigate('user-profile')}
+                  title="Modifier le profil"
+                >
+                  <User size={16} />
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -1404,6 +1416,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           justify-content: center;
           flex-shrink: 0;
           box-shadow: 0 4px 12px rgba(194, 87, 27, 0.3);
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border: 2px solid transparent;
+        }
+
+        .user-avatar:hover {
+          border-color: rgba(243, 238, 217, 0.3);
+          transform: scale(1.05);
+          box-shadow: 0 6px 16px rgba(194, 87, 27, 0.4);
         }
 
         .avatar-text {
@@ -1447,11 +1468,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
         }
 
         .user-settings-btn {
-          width: 28px;
-          height: 28px;
-          border: none;
-          background: rgba(243, 238, 217, 0.1);
-          color: rgba(243, 238, 217, 0.7);
+          width: 30px;
+          height: 30px;
+          border: 1px solid rgba(243, 238, 217, 0.2);
+          background: rgba(243, 238, 217, 0.15);
+          color: #F3EED9;
           border-radius: 8px;
           cursor: pointer;
           display: flex;
@@ -1462,9 +1483,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
         }
 
         .user-settings-btn:hover {
-          background: rgba(243, 238, 217, 0.2);
+          background: rgba(243, 238, 217, 0.25);
+          border-color: rgba(243, 238, 217, 0.4);
           color: #F3EED9;
           transform: scale(1.05);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
       `}</style>
     </div>

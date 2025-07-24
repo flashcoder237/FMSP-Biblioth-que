@@ -479,14 +479,30 @@ const electronAPI = {
   getSettings: (): Promise<ApplicationSettings | null> => ipcRenderer?.invoke('settings:get') || Promise.resolve(null),
   saveSettings: (settings: ApplicationSettings): Promise<boolean> => ipcRenderer?.invoke('settings:save', settings) || Promise.resolve(false),
   
-  // Backup and restore operations
-  createBackup: (): Promise<string> => ipcRenderer?.invoke('backup:create') || Promise.resolve(''),
-  restoreBackup: (): Promise<boolean> => ipcRenderer?.invoke('backup:restore') || Promise.resolve(false),
+  // Backup and restore operations (complet)
+  createBackup: (name?: string, description?: string): Promise<{success: boolean; path?: string; error?: string}> => 
+    ipcRenderer?.invoke('backup:create', name, description) || Promise.resolve({success: false, error: 'IPC not available'}),
+  getBackupList: (): Promise<{success: boolean; backups: any[]; error?: string}> => 
+    ipcRenderer?.invoke('backup:getList') || Promise.resolve({success: false, backups: [], error: 'IPC not available'}),
+  restoreBackup: (backupFilePath: string): Promise<{success: boolean; error?: string}> => 
+    ipcRenderer?.invoke('backup:restore', backupFilePath) || Promise.resolve({success: false, error: 'IPC not available'}),
+  deleteBackup: (backupFilePath: string): Promise<{success: boolean; error?: string}> => 
+    ipcRenderer?.invoke('backup:delete', backupFilePath) || Promise.resolve({success: false, error: 'IPC not available'}),
+  validateBackup: (backupFilePath: string): Promise<{success: boolean; isValid: boolean; error?: string}> => 
+    ipcRenderer?.invoke('backup:validate', backupFilePath) || Promise.resolve({success: false, isValid: false, error: 'IPC not available'}),
+  cleanOldBackups: (keepCount?: number): Promise<{success: boolean; deletedCount: number; error?: string}> => 
+    ipcRenderer?.invoke('backup:cleanOld', keepCount) || Promise.resolve({success: false, deletedCount: 0, error: 'IPC not available'}),
+  getBackupStats: (): Promise<{success: boolean; stats?: any; error?: string}> => 
+    ipcRenderer?.invoke('backup:getStats') || Promise.resolve({success: false, error: 'IPC not available'}),
+  selectBackupFile: (): Promise<{success: boolean; filePath?: string; error?: string}> => 
+    ipcRenderer?.invoke('backup:selectFile') || Promise.resolve({success: false, error: 'IPC not available'}),
   clearAllData: (): Promise<boolean> => ipcRenderer?.invoke('db:clearAll') || Promise.resolve(false),
   
-  // Export/Import operations
-  exportDatabase: (filePath: string): Promise<void> => ipcRenderer?.invoke('db:export', filePath) || Promise.resolve(),
-  importDatabase: (filePath: string): Promise<boolean> => ipcRenderer?.invoke('db:import', filePath) || Promise.resolve(false),
+  // Export/Import operations (enhanced)
+  exportDatabase: (): Promise<{success: boolean; path?: string; error?: string}> => 
+    ipcRenderer?.invoke('backup:exportDatabase') || Promise.resolve({success: false, error: 'IPC not available'}),
+  importDatabase: (): Promise<{success: boolean; path?: string; error?: string}> => 
+    ipcRenderer?.invoke('backup:importDatabase') || Promise.resolve({success: false, error: 'IPC not available'}),
   
   // Print operations
   printInventory: (data: any): Promise<boolean> => ipcRenderer?.invoke('print:inventory', data) || Promise.resolve(false),

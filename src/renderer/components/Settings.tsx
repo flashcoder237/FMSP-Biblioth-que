@@ -179,8 +179,18 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
     if (window.confirm('Êtes-vous sûr de vouloir restaurer une sauvegarde ? Cela remplacera toutes les données actuelles.')) {
       setIsLoading(true);
       try {
-        await window.electronAPI.restoreBackup();
-        showMessage('success', 'Données restaurées avec succès');
+        // Utiliser la nouvelle fonction selectBackupFile
+        const fileResult = await window.electronAPI.selectBackupFile();
+        if (fileResult.success && fileResult.filePath) {
+          const restoreResult = await window.electronAPI.restoreBackup(fileResult.filePath);
+          if (restoreResult.success) {
+            showMessage('success', 'Données restaurées avec succès');
+          } else {
+            showMessage('error', restoreResult.error || 'Erreur lors de la restauration');
+          }
+        } else if (fileResult.error && fileResult.error !== 'Sélection annulée') {
+          showMessage('error', fileResult.error);
+        }
       } catch (error) {
         showMessage('error', 'Erreur lors de la restauration');
       } finally {

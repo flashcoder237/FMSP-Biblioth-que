@@ -442,6 +442,7 @@ export const KeyboardShortcutsProvider: React.FC<KeyboardShortcutsProviderProps>
           color: white;
           cursor: pointer;
           transition: background 0.2s ease;
+          z-index: 1001;
         }
 
         .close-button:hover {

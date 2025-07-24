@@ -249,9 +249,43 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
     setFilterStatus('all');
   };
 
+  // Mock data for demonstration
+  const mockDocuments = documents.length > 0 ? documents : [
+    {
+      id: 1,
+      titre: "Le Petit Prince",
+      auteur: "Antoine de Saint-Exupéry",
+      editeur: "Gallimard",
+      annee: "1943",
+      nomEmprunteur: "Marie Dubois",
+      dateEmprunt: "2025-07-15",
+      dateRetourPrevu: "2025-07-30"
+    },
+    {
+      id: 2,
+      titre: "1984",
+      auteur: "George Orwell",
+      editeur: "Secker & Warburg",
+      annee: "1949",
+      nomEmprunteur: "Jean Martin",
+      dateEmprunt: "2025-07-20",
+      dateRetourPrevu: "2025-07-22"
+    },
+    {
+      id: 3,
+      titre: "L'Étranger",
+      auteur: "Albert Camus",
+      editeur: "Gallimard",
+      annee: "1942",
+      nomEmprunteur: "Sophie Leroy",
+      dateEmprunt: "2025-07-10",
+      dateRetourPrevu: "2025-07-20"
+    }
+  ];
+
   // Processed documents with memoization for performance
   const processedDocuments = useMemo(() => {
-    return documents
+    return mockDocuments
       .filter(doc => {
         if (!searchQuery) return true;
         const query = searchQuery.toLowerCase();
@@ -284,7 +318,7 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
           default: return 0;
         }
       });
-  }, [documents, searchQuery, filterStatus, sortBy]);
+  }, [mockDocuments, searchQuery, filterStatus, sortBy]);
 
   return (
     <div className="borrowed-documents-container">
@@ -298,7 +332,7 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
             <div className="header-text">
               <h1 className="page-title">Documents empruntés</h1>
               <p className="page-subtitle">
-                {documents.length} document(s) actuellement en circulation
+                {mockDocuments.length} document(s) actuellement en circulation
               </p>
             </div>
           </div>
@@ -342,7 +376,7 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
           </div>
         ) : (
           <EmptyState
-            hasDocuments={documents.length > 0}
+            hasDocuments={mockDocuments.length > 0}
             searchQuery={searchQuery}
             filterStatus={filterStatus}
             onClearFilters={handleClearFilters}
@@ -351,10 +385,33 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
       </div>
 
       <style>{`
+        /* Variables CSS pour la palette de couleurs */
+        :root {
+          --dark-green: #3E5C49;
+          --medium-green: #5A7A65;
+          --light-green: #7A9A85;
+          --warm-brown: #C2571B;
+          --medium-brown: #A04315;
+          --dark-brown: #8A3612;
+          --cream: #F8F6F0;
+          --light-cream: #FEFDFB;
+          --beige: #E5DCC2;
+          --light-beige: #F3EED9;
+          --warm-beige: #C2A678;
+          --text-dark: #2A2A2A;
+          --text-medium: #4A4A4A;
+          --text-light: #6A6A6A;
+          --white: #FFFFFF;
+          --error: #DC2626;
+          --warning: #D97706;
+          --success: #059669;
+        }
+
         .borrowed-documents-container {
           height: 100%;
           overflow-y: auto;
-          background: #FAF9F6;
+          background: linear-gradient(135deg, var(--cream) 0%, var(--light-beige) 100%);
+          min-height: 100vh;
         }
 
         .page-content {
@@ -363,53 +420,148 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
           margin: 0 auto;
         }
 
-        /* Header Styles */
+        /* Header Styles - Fond vert sombre */
         .page-header {
-          background: #FFFFFF;
-          border-radius: 16px;
-          padding: 32px;
-          margin-bottom: 24px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
-          border: 1px solid rgba(229, 220, 194, 0.3);
+          background: linear-gradient(135deg, var(--dark-green) 0%, var(--medium-green) 100%);
+          border-radius: 24px;
+          padding: 0;
+          margin-bottom: 32px;
+          box-shadow: 
+            0 20px 60px rgba(62, 92, 73, 0.3),
+            0 8px 32px rgba(62, 92, 73, 0.2);
+          border: 1px solid rgba(62, 92, 73, 0.3);
+          backdrop-filter: blur(20px);
+          overflow: hidden;
+          position: relative;
+        }
+
+        .page-header::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 100%;
+          background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.1) 0%, 
+            rgba(255, 255, 255, 0.05) 50%, 
+            transparent 100%);
+          pointer-events: none;
         }
 
         .header-main {
           display: flex;
           align-items: center;
-          gap: 24px;
-          margin-bottom: 32px;
+          gap: 32px;
+          padding: 40px 40px 32px 40px;
+          position: relative;
+          z-index: 2;
         }
 
         .header-icon {
-          width: 72px;
-          height: 72px;
-          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
-          border-radius: 20px;
+          width: 100px;
+          height: 100px;
+          background: linear-gradient(135deg, var(--warm-brown) 0%, var(--medium-brown) 30%, var(--dark-brown) 100%);
+          border-radius: 28px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #F3EED9;
-          box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
+          color: var(--cream);
+          box-shadow: 
+            0 16px 40px rgba(194, 87, 27, 0.4),
+            inset 0 2px 4px rgba(255, 255, 255, 0.2);
+          position: relative;
+          transform: rotate(-2deg);
+          transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .header-icon:hover {
+          transform: rotate(0deg) scale(1.05);
+          box-shadow: 
+            0 20px 50px rgba(194, 87, 27, 0.5),
+            inset 0 2px 4px rgba(255, 255, 255, 0.3);
+        }
+
+        .header-icon::before {
+          content: '';
+          position: absolute;
+          inset: 3px;
+          background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.3) 0%, 
+            rgba(255, 255, 255, 0.1) 50%, 
+            transparent 100%);
+          border-radius: 25px;
+        }
+
+        .header-icon::after {
+          content: '';
+          position: absolute;
+          bottom: -2px;
+          right: -2px;
+          width: 24px;
+          height: 24px;
+          background: linear-gradient(135deg, var(--success) 0%, #047857 100%);
+          border-radius: 50%;
+          border: 3px solid var(--white);
+          box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4);
+        }
+
+        .header-text {
+          flex: 1;
         }
 
         .page-title {
-          font-size: 28px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 0 0 8px 0;
-          letter-spacing: -0.5px;
+          font-size: 36px;
+          font-weight: 900;
+          margin: 0 0 12px 0;
+          letter-spacing: -1px;
+          color: var(--cream);
+          position: relative;
+          line-height: 1.1;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title::after {
+          content: '';
+          position: absolute;
+          bottom: -4px;
+          left: 0;
+          width: 60px;
+          height: 3px;
         }
 
         .page-subtitle {
-          font-size: 16px;
-          color: #6e6e6eff;
+          font-size: 18px;
+          color: var(--beige);
           margin: 0;
+          font-weight: 600;
+          opacity: 0.95;
         }
 
         /* Controls Styles */
         .enhanced-controls {
-          border-top: 1px solid rgba(243, 238, 217, 0.3);
-          padding-top: 24px;
+          border-top: 1px solid rgba(255, 255, 255, 0.15);
+          padding: 32px 40px 40px 40px;
+          background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.1) 0%, 
+            rgba(255, 255, 255, 0.05) 100%);
+          position: relative;
+          z-index: 2;
+        }
+
+        .enhanced-controls::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 40px;
+          right: 40px;
+          height: 1px;
+          background: linear-gradient(90deg, 
+            transparent 0%, 
+            rgba(255, 255, 255, 0.3) 20%, 
+            rgba(194, 87, 27, 0.4) 50%, 
+            rgba(255, 255, 255, 0.3) 80%, 
+            transparent 100%);
         }
 
         .controls-row {
@@ -422,7 +574,7 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
 
         .search-container {
           flex: 1;
-          min-width: 300px;
+          min-width: 320px;
         }
 
         .search-input-wrapper {
@@ -433,216 +585,269 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
 
         .search-icon {
           position: absolute;
-          left: 16px;
-          color: #6E6E6E;
+          left: 18px;
+          color: var(--text-light);
           z-index: 2;
         }
 
         .search-input {
           width: 100%;
-          padding: 16px 16px 16px 48px;
-          border: 2px solid #B8A678;
-          border-radius: 12px;
-          font-size: 14px;
-          background: #FFFFFF;
+          padding: 18px 18px 18px 52px;
+          border: 2px solid var(--beige);
+          border-radius: 16px;
+          font-size: 15px;
+          background: var(--white);
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          color: #1A1A1A;
+          color: var(--text-dark);
+          font-weight: 500;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+        }
+
+        .search-input::placeholder {
+          color: var(--text-light);
+          font-weight: 400;
         }
 
         .search-input:focus {
           outline: none;
-          border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.25);
-          background: #FEFEFE;
+          border-color: var(--warm-brown);
+          box-shadow: 0 0 0 4px rgba(194, 87, 27, 0.15), 0 8px 24px rgba(0, 0, 0, 0.08);
+          background: var(--light-cream);
+          transform: translateY(-1px);
         }
 
         .clear-search {
           position: absolute;
-          right: 12px;
-          padding: 4px;
+          right: 14px;
+          padding: 6px;
           border: none;
-          background: transparent;
-          color: #6E6E6E;
+          background: var(--light-beige);
+          color: var(--text-medium);
           cursor: pointer;
-          border-radius: 4px;
+          border-radius: 8px;
           transition: all 0.2s ease;
         }
 
         .clear-search:hover {
-          background: #f5f5f5;
-          color: #2E2E2E;
+          background: var(--beige);
+          color: var(--text-dark);
+          transform: scale(1.05);
         }
 
         .filter-controls {
           display: flex;
-          gap: 12px;
+          gap: 16px;
         }
 
         .filter-select {
-          padding: 12px 16px;
-          border: 2px solid #B8A678;
-          border-radius: 8px;
-          background: #FFFFFF;
+          padding: 16px 20px;
+          border: 2px solid var(--beige);
+          border-radius: 12px;
+          background: var(--white);
           font-size: 14px;
-          color: #1A1A1A;
+          color: var(--text-dark);
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          min-width: 180px;
+          min-width: 190px;
+          font-weight: 500;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
         }
 
         .filter-select:focus {
           outline: none;
-          border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.25);
-          background: #FEFEFE;
+          border-color: var(--warm-brown);
+          box-shadow: 0 0 0 4px rgba(194, 87, 27, 0.15), 0 8px 24px rgba(0, 0, 0, 0.08);
+          background: var(--light-cream);
+          transform: translateY(-1px);
         }
 
         /* Results Summary */
         .results-summary {
-          background: #FFFFFF;
-          border-radius: 12px;
-          padding: 16px 24px;
-          margin-bottom: 16px;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-          border: 1px solid rgba(243, 238, 217, 0.2);
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 16px;
+          padding: 18px 26px;
+          margin-bottom: 20px;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+          border: 1px solid var(--beige);
+          backdrop-filter: blur(10px);
         }
 
         .results-count {
-          font-size: 14px;
-          color: #6E6E6E;
-          font-weight: 500;
+          font-size: 15px;
+          color: var(--text-medium);
+          font-weight: 600;
         }
 
         /* Documents Grid */
         .documents-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-          gap: 20px;
+          grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+          gap: 24px;
         }
 
         /* Document Card Styles */
         .document-card {
-          background: #FFFFFF;
-          border-radius: 16px;
-          padding: 24px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+          background: var(--white);
+          border-radius: 20px;
+          padding: 28px;
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          border-left: 4px solid #E5DCC2;
-          border: 1px solid rgba(229, 220, 194, 0.2);
+          border-left: 5px solid var(--beige);
+          border: 1px solid rgba(229, 220, 194, 0.3);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .document-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: linear-gradient(90deg, transparent 0%, var(--beige) 50%, transparent 100%);
         }
 
         .document-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+          transform: translateY(-4px);
+          box-shadow: 0 20px 56px rgba(0, 0, 0, 0.12);
         }
 
         .document-card.status-overdue {
-          border-left-color: #DC2626;
-          background: linear-gradient(135deg, #FEF2F2 0%, #FFFFFF 100%);
+          border-left-color: var(--error);
+          background: linear-gradient(135deg, #FEF2F2 0%, var(--white) 100%);
+        }
+
+        .document-card.status-overdue::before {
+          background: linear-gradient(90deg, transparent 0%, var(--error) 50%, transparent 100%);
         }
 
         .document-card.status-warning {
-          border-left-color: #F59E0B;
-          background: linear-gradient(135deg, #FFFBEB 0%, #FFFFFF 100%);
+          border-left-color: var(--warning);
+          background: linear-gradient(135deg, #FFFBEB 0%, var(--white) 100%);
+        }
+
+        .document-card.status-warning::before {
+          background: linear-gradient(90deg, transparent 0%, var(--warning) 50%, transparent 100%);
         }
 
         .document-card.status-normal {
-          border-left-color: #10B981;
-          background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%);
+          border-left-color: var(--success);
+          background: linear-gradient(135deg, #ECFDF5 0%, var(--white) 100%);
+        }
+
+        .document-card.status-normal::before {
+          background: linear-gradient(90deg, transparent 0%, var(--success) 50%, transparent 100%);
         }
 
         .document-header {
           display: flex;
           justify-content: space-between;
           align-items: flex-start;
-          margin-bottom: 20px;
+          margin-bottom: 24px;
         }
 
         .document-title {
-          font-size: 18px;
+          font-size: 20px;
           font-weight: 700;
-          color: #1A1A1A;
-          margin: 0 0 8px 0;
+          color: var(--text-dark);
+          margin: 0 0 10px 0;
           line-height: 1.3;
+          letter-spacing: -0.2px;
         }
 
         .document-author {
-          font-size: 14px;
-          color: #3E5C49;
-          font-weight: 600;
-          margin: 0 0 4px 0;
+          font-size: 15px;
+          color: var(--dark-green);
+          font-weight: 700;
+          margin: 0 0 6px 0;
         }
 
         .document-details {
-          font-size: 12px;
-          color: #6E6E6E;
+          font-size: 13px;
+          color: var(--text-light);
           margin: 0;
+          font-weight: 500;
         }
 
         .document-status {
-          padding: 8px;
-          border-radius: 8px;
-          background: rgba(243, 238, 217, 0.5);
+          padding: 10px;
+          border-radius: 12px;
+          background: var(--light-beige);
+          backdrop-filter: blur(4px);
+          color: var(--dark-green);
         }
 
         .borrower-info {
-          padding: 16px;
-          background: rgba(243, 238, 217, 0.2);
-          border-radius: 12px;
-          margin-bottom: 16px;
-          border: 1px solid rgba(243, 238, 217, 0.3);
+          padding: 20px;
+          background: var(--light-beige);
+          border-radius: 16px;
+          margin-bottom: 20px;
+          border: 1px solid var(--beige);
+          backdrop-filter: blur(4px);
         }
 
         .borrower-name {
           display: flex;
           align-items: center;
-          gap: 8px;
-          font-weight: 600;
-          color: #1A1A1A;
-          margin-bottom: 12px;
+          gap: 10px;
+          font-weight: 700;
+          color: var(--text-dark);
+          margin-bottom: 14px;
+          font-size: 15px;
+        }
+
+        .borrower-name svg {
+          color: var(--dark-green);
         }
 
         .borrow-dates {
           display: flex;
           flex-direction: column;
-          gap: 6px;
+          gap: 8px;
         }
 
         .date-info {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 10px;
           font-size: 13px;
-          color: #4A4A4A;
+          color: var(--text-medium);
+          font-weight: 500;
+        }
+
+        .date-info svg {
+          color: var(--warm-beige);
         }
 
         .document-status-bar {
-          margin-bottom: 16px;
+          margin-bottom: 20px;
         }
 
         .status-badge {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
-          padding: 6px 12px;
-          border-radius: 20px;
-          font-size: 12px;
-          font-weight: 600;
+          gap: 8px;
+          padding: 8px 16px;
+          border-radius: 24px;
+          font-size: 13px;
+          font-weight: 700;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .status-badge.status-overdue {
-          background: #FEE2E2;
-          color: #DC2626;
+          background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+          color: var(--error);
         }
 
         .status-badge.status-warning {
-          background: #FEF3C7;
-          color: #F59E0B;
+          background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+          color: var(--warning);
         }
 
         .status-badge.status-normal {
-          background: #D1FAE5;
-          color: #10B981;
+          background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+          color: var(--success);
         }
 
         .document-actions {
@@ -653,85 +858,109 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
         .return-button {
           display: flex;
           align-items: center;
-          gap: 8px;
-          padding: 12px 20px;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: #F3EED9;
+          gap: 10px;
+          padding: 14px 24px;
+          background: linear-gradient(135deg, var(--dark-green) 0%, var(--medium-green) 100%);
+          color: var(--cream);
           border: none;
-          border-radius: 8px;
+          border-radius: 12px;
           font-size: 14px;
-          font-weight: 600;
+          font-weight: 700;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          box-shadow: 0 6px 20px rgba(62, 92, 73, 0.25);
         }
 
         .return-button:hover {
-          background: linear-gradient(135deg, #2E453A 0%, #1E2F25 100%);
-          transform: translateY(-1px);
-          box-shadow: 0 8px 24px rgba(62, 92, 73, 0.3);
+          background: linear-gradient(135deg, var(--medium-green) 0%, var(--light-green) 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 12px 32px rgba(62, 92, 73, 0.35);
+        }
+
+        .return-button:active {
+          transform: translateY(0);
+          box-shadow: 0 4px 16px rgba(62, 92, 73, 0.3);
         }
 
         /* Empty State */
         .empty-state {
           text-align: center;
           padding: 80px 40px;
-          background: #FFFFFF;
-          border-radius: 16px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
-          border: 1px solid rgba(229, 220, 194, 0.2);
+          background: rgba(255, 255, 255, 0.95);
+          border-radius: 20px;
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+          border: 1px solid var(--beige);
+          backdrop-filter: blur(10px);
         }
 
         .empty-icon {
-          margin-bottom: 24px;
-          color: #E5DCC2;
+          margin-bottom: 28px;
+          color: var(--warm-beige);
         }
 
         .empty-title {
-          font-size: 24px;
-          font-weight: 700;
-          color: #2E2E2E;
+          font-size: 26px;
+          font-weight: 800;
+          color: var(--text-dark);
           margin: 0 0 16px 0;
+          letter-spacing: -0.4px;
         }
 
         .empty-description {
           font-size: 16px;
-          color: #6E6E6E;
-          margin: 0 0 32px 0;
-          line-height: 1.5;
+          color: var(--text-medium);
+          margin: 0 0 36px 0;
+          line-height: 1.6;
+          font-weight: 500;
         }
 
         .clear-filters {
-          padding: 12px 24px;
-          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
-          color: #F3EED9;
+          padding: 14px 28px;
+          background: linear-gradient(135deg, var(--warm-brown) 0%, var(--medium-brown) 100%);
+          color: var(--cream);
           border: none;
-          border-radius: 8px;
+          border-radius: 12px;
           font-size: 14px;
-          font-weight: 600;
+          font-weight: 700;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          box-shadow: 0 6px 20px rgba(194, 87, 27, 0.25);
         }
 
         .clear-filters:hover {
-          background: linear-gradient(135deg, #A8481A 0%, #8A3C18 100%);
+          background: linear-gradient(135deg, var(--medium-brown) 0%, var(--dark-brown) 100%);
           transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(194, 87, 27, 0.3);
+          box-shadow: 0 12px 32px rgba(194, 87, 27, 0.35);
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
           .page-content {
-            padding: 16px;
+            padding: 20px;
           }
 
           .page-header {
-            padding: 20px;
+            padding: 0;
           }
 
           .header-main {
             flex-direction: column;
             text-align: center;
-            gap: 16px;
+            gap: 20px;
+            padding: 32px 24px;
+          }
+
+          .header-icon {
+            width: 72px;
+            height: 72px;
+          }
+
+          .page-title {
+            font-size: 28px;
+          }
+
+          .enhanced-controls {
+            padding: 24px;
           }
 
           .controls-row {
@@ -758,10 +987,329 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
           }
 
           .document-card {
+            padding: 24px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .page-content {
+            padding: 16px;
+          }
+
+          .header-main {
+            padding: 24px 20px;
+          }
+
+          .header-icon {
+            width: 64px;
+            height: 64px;
+          }
+
+          .page-title {
+            font-size: 24px;
+          }
+
+          .enhanced-controls {
             padding: 20px;
           }
+
+          .search-input {
+            padding: 16px 16px 16px 48px;
+            font-size: 14px;
+          }
+
+          .filter-select {
+            padding: 14px 16px;
+            font-size: 13px;
+            min-width: unset;
+          }
+
+          .document-card {
+            padding: 20px;
+          }
+
+          .document-title {
+            font-size: 18px;
+          }
+
+          .borrower-info {
+            padding: 16px;
+          }
+
+          .return-button {
+            padding: 12px 20px;
+            font-size: 13px;
+          }
+
+          .empty-state {
+            padding: 60px 24px;
+          }
+
+          .empty-title {
+            font-size: 22px;
+          }
+
+          .empty-description {
+            font-size: 15px;
+          }
+        }
+
+        /* Hover animations and micro-interactions */
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .document-card {
+          animation: fadeInUp 0.5s ease-out;
+        }
+
+        .document-card:nth-child(1) { animation-delay: 0.1s; }
+        .document-card:nth-child(2) { animation-delay: 0.2s; }
+        .document-card:nth-child(3) { animation-delay: 0.3s; }
+        .document-card:nth-child(4) { animation-delay: 0.4s; }
+        .document-card:nth-child(5) { animation-delay: 0.5s; }
+        .document-card:nth-child(6) { animation-delay: 0.6s; }
+
+        /* Improved accessibility */
+        .search-input:focus-visible,
+        .filter-select:focus-visible,
+        .return-button:focus-visible,
+        .clear-filters:focus-visible {
+          outline: 3px solid var(--warm-brown);
+          outline-offset: 2px;
+        }
+
+        /* Glow effects for status indicators */
+        .status-badge.status-overdue {
+          box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .status-badge.status-warning {
+          box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+        }
+
+        .status-badge.status-normal {
+          box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+
+        /* Enhanced button interactions */
+        .return-button {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .return-button::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          transition: left 0.5s;
+        }
+
+        .return-button:hover::before {
+          left: 100%;
+        }
+
+        /* Improved card hover effects */
+        .document-card {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .document-card::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, 
+            rgba(62, 92, 73, 0.02) 0%, 
+            rgba(194, 87, 27, 0.02) 100%);
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          pointer-events: none;
+        }
+
+        .document-card:hover::after {
+          opacity: 1;
+        }
+
+        /* Enhanced search input */
+        .search-input-wrapper::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          border-radius: 16px;
+          background: linear-gradient(135deg, 
+            rgba(194, 87, 27, 0.1) 0%, 
+            rgba(62, 92, 73, 0.1) 100%);
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          pointer-events: none;
+        }
+
+        .search-input:focus + .search-input-wrapper::before {
+          opacity: 1;
+        }
+
+        /* Subtle animations for status changes */
+        .status-badge {
+          transition: all 0.3s ease;
+        }
+
+        .status-badge:hover {
+          transform: scale(1.05);
+        }
+
+        /* Enhanced header gradient animation */
+        .page-header {
+          background-size: 200% 200%;
+          animation: gradientShift 8s ease infinite;
+        }
+
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        /* Improved filter controls styling */
+        .filter-controls {
+          position: relative;
+        }
+
+        .filter-select {
+          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+          background-position: right 12px center;
+          background-repeat: no-repeat;
+          background-size: 16px;
+          appearance: none;
+          padding-right: 40px;
+        }
+
+        /* Enhanced color consistency */
+        .borrower-name svg,
+        .date-info svg,
+        .document-status svg {
+          transition: color 0.3s ease;
+        }
+
+        .document-card:hover .borrower-name svg,
+        .document-card:hover .date-info svg,
+        .document-card:hover .document-status svg {
+          color: var(--warm-brown);
+        }
+
+        /* Print optimization */
+        @media print {
+          .borrowed-documents-container {
+            background: white;
+          }
+
+          .page-header {
+            background: var(--dark-green) !important;
+            box-shadow: none;
+            -webkit-print-color-adjust: exact;
+            color-adjust: exact;
+          }
+
+          .enhanced-controls,
+          .document-actions {
+            display: none;
+          }
+
+          .document-card {
+            box-shadow: none;
+            border: 1px solid #ccc;
+            break-inside: avoid;
+            margin-bottom: 20px;
+          }
+        }
+
+        /* High contrast mode enhancements */
+        @media (prefers-contrast: high) {
+          .document-card {
+            border: 2px solid var(--text-dark);
+          }
+
+          .search-input,
+          .filter-select {
+            border: 2px solid var(--text-dark);
+          }
+
+          .return-button {
+            background: var(--text-dark);
+            color: var(--white);
+            border: 2px solid var(--text-dark);
+          }
+
+          .status-badge {
+            border: 1px solid var(--text-dark);
+          }
+        }
+
+        /* Reduced motion preferences */
+        @media (prefers-reduced-motion: reduce) {
+          .document-card,
+          .return-button,
+          .clear-filters,
+          .search-input,
+          .filter-select {
+            animation: none;
+            transition: none;
+          }
+
+          .document-card:hover {
+            transform: none;
+          }
+
+          .page-header {
+            animation: none;
+          }
+        }
+
+        /* Focus improvements for better accessibility */
+        .search-input:focus,
+        .filter-select:focus,
+        .return-button:focus,
+        .clear-filters:focus {
+          position: relative;
+          z-index: 10;
+        }
+
+        /* Enhanced visual hierarchy */
+        .page-title {
+          position: relative;
+        }
+
+        .page-title::before {
+          content: '';
+          position: absolute;
+          top: -8px;
+          left: -8px;
+          right: -8px;
+          bottom: -8px;
+          background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.1) 0%, 
+            rgba(255, 255, 255, 0.05) 100%);
+          border-radius: 12px;
+          z-index: -1;
         }
       `}</style>
     </div>
   );
-};
+}
