@@ -985,6 +985,40 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleAddBorrower = async (borrower: Omit<Borrower, 'id'>): Promise<number> => {
+    try {
+      if (appMode === 'offline') {
+        // Mode offline - utiliser l'API électron pour SQLite
+        const newId = await window.electronAPI.addBorrower(borrower);
+        await loadData(); // Refresh data
+        return newId;
+      } else if (isDemoMode) {
+        // Mode démo - simuler l'ajout
+        const newId = Math.max(...borrowers.map(b => b.id || 0), 0) + 1;
+        const newBorrower = { ...borrower, id: newId };
+        setBorrowers((prev: Borrower[]) => [...prev, newBorrower]);
+        
+        // Mettre à jour les statistiques
+        setStats((prev: Stats) => ({
+          ...prev,
+          totalBorrowers: prev.totalBorrowers + 1,
+          totalStudents: borrower.type === 'student' ? prev.totalStudents + 1 : prev.totalStudents,
+          totalStaff: borrower.type === 'staff' ? prev.totalStaff + 1 : prev.totalStaff
+        }));
+        
+        return newId;
+      } else {
+        // Mode online - utiliser Supabase
+        const newId = await supabaseService.addBorrower(borrower);
+        await loadData(); // Refresh data
+        return newId;
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout de l\'emprunteur:', error);
+      throw error;
+    }
+  };
+
   const refreshData = async () => {
     if (isDemoMode) {
       await loadDemoData();
@@ -1176,6 +1210,7 @@ export const App: React.FC = () => {
                 closeBorrowModal={closeBorrowModal}
                 handleBorrow={handleBorrow}
                 handleReturn={handleReturn}
+                handleAddBorrower={handleAddBorrower}
                 refreshData={refreshData}
                 supabaseService={supabaseService}
                 borrowers={borrowers}
@@ -1212,6 +1247,7 @@ interface AppContentProps {
   closeBorrowModal: () => void;
   handleBorrow: (documentId: number, borrowerId: number, returnDate: string) => Promise<void>;
   handleReturn: (documentId: number) => Promise<void>;
+  handleAddBorrower: (borrower: Omit<Borrower, 'id'>) => Promise<number>;
   refreshData: () => Promise<void>;
   supabaseService: SupabaseRendererService;
   borrowers: Borrower[];
@@ -1237,6 +1273,7 @@ const AppContent: React.FC<AppContentProps> = ({
   closeBorrowModal,
   handleBorrow,
   handleReturn,
+  handleAddBorrower,
   refreshData,
   supabaseService,
   borrowers,
@@ -1300,6 +1337,7 @@ const AppContent: React.FC<AppContentProps> = ({
           onBorrow={handleBorrow}
           onReturn={handleReturn}
           onCancel={closeBorrowModal}
+          onAddBorrower={handleAddBorrower}
         />
       )}
       
@@ -1575,536 +1613,3 @@ const AppContent: React.FC<AppContentProps> = ({
   );
 };
 
-// Enhanced Borrow Form Component avec Supabase
-interface EnhancedBorrowFormProps {
-  document: Document;
-  borrowers: Borrower[];
-  onSubmit: (documentId: number, borrowerId: number, expectedReturnDate: string) => Promise<void>;
-  onCancel: () => void;
-  onRefreshBorrowers: () => Promise<void>;
-  supabaseService: SupabaseRendererService;
-}
-
-const EnhancedBorrowForm: React.FC<EnhancedBorrowFormProps> = ({ 
-  document, 
-  borrowers, 
-  onSubmit, 
-  onCancel, 
-  onRefreshBorrowers,
-  supabaseService 
-}) => {
-  const [selectedBorrower, setSelectedBorrower] = useState<number | null>(null);
-  const [expectedReturnDate, setExpectedReturnDate] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'student' | 'staff'>('all');
-  const [borrowDuration, setBorrowDuration] = useState<'1week' | '2weeks' | '1month' | 'custom'>('2weeks');
-  const [showAddBorrower, setShowAddBorrower] = useState(false);
-
-  const [newBorrowerData, setNewBorrowerData] = useState<{
-    type: 'student' | 'staff';
-    firstName: string;
-    lastName: string;
-    matricule: string;
-    classe: string;
-    cniNumber: string;
-    position: string;
-    email: string;
-    phone: string;
-  }>({
-    type: 'student',
-    firstName: '',
-    lastName: '',
-    matricule: '',
-    classe: '',
-    cniNumber: '',
-    position: '',
-    email: '',
-    phone: ''
-  });
-
-  // Calculate default date (in 2 weeks)
-  React.useEffect(() => {
-    updateDateFromDuration(borrowDuration);
-  }, [borrowDuration]);
-
-  const updateDateFromDuration = (duration: string) => {
-    const today = new Date();
-    let targetDate = new Date(today);
-    
-    switch (duration) {
-      case '1week':
-        targetDate.setDate(today.getDate() + 7);
-        break;
-      case '2weeks':
-        targetDate.setDate(today.getDate() + 14);
-        break;
-      case '1month':
-        targetDate.setMonth(today.getMonth() + 1);
-        break;
-      default:
-        return; // For 'custom', don't change
-    }
-    
-    setExpectedReturnDate(targetDate.toISOString().split('T')[0]);
-  };
-
-  const handleAddBorrower = async () => {
-    try {
-      setIsLoading(true);
-      const newId = await supabaseService.addBorrower({
-        ...newBorrowerData,
-        syncStatus: 'pending',
-        lastModified: new Date().toISOString(),
-        version: 1,
-        createdAt: new Date().toISOString()
-      });
-      setSelectedBorrower(newId);
-      setShowAddBorrower(false);
-      await onRefreshBorrowers(); // Refresh the borrowers list
-      setNewBorrowerData({
-        type: 'student',
-        firstName: '',
-        lastName: '',
-        matricule: '',
-        classe: '',
-        cniNumber: '',
-        position: '',
-        email: '',
-        phone: ''
-      });
-    } catch (error: any) {
-      alert(error.message || 'Erreur lors de l\'ajout de l\'emprunteur');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const filteredBorrowers = borrowers.filter(borrower => {
-    // Filter by type
-    if (filterType !== 'all' && borrower.type !== filterType) return false;
-    
-    // Filter by search
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      return (
-        borrower.firstName.toLowerCase().includes(query) ||
-        borrower.lastName.toLowerCase().includes(query) ||
-        borrower.matricule.toLowerCase().includes(query) ||
-        (borrower.classe && borrower.classe.toLowerCase().includes(query)) ||
-        (borrower.position && borrower.position.toLowerCase().includes(query))
-      );
-    }
-    
-    return true;
-  });
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedBorrower || !expectedReturnDate) return;
-
-    setIsLoading(true);
-    try {
-      await onSubmit(document.id!, selectedBorrower, expectedReturnDate);
-    } catch (error) {
-      console.error('Erreur:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const selectedBorrowerData = borrowers.find(b => b.id === selectedBorrower);
-
-  return (
-    <div className="enhanced-borrow-form">
-      {/* Document Info Enhanced */}
-      <div className="document-info-section">
-        <div className="document-cover">
-          {document.couverture ? (
-            <img src={document.couverture} alt={document.titre} />
-          ) : (
-            <div className="document-placeholder">
-              <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
-                <path d="M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2ZM18 20H6V4H18V20Z"/>
-              </svg>
-            </div>
-          )}
-        </div>
-        <div className="document-details">
-          <h4 className="document-title">"{document.titre}"</h4>
-          <p className="document-author">par {document.auteur}</p>
-          <div className="document-meta">
-            <span className="document-category">{document.descripteurs}</span>
-            {document.annee && <span className="document-year">{document.annee}</span>}
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Duration Selection */}
-      <div className="form-section">
-        <label className="form-label">Durée d'emprunt</label>
-        <div className="duration-selector">
-          {[
-            { id: '1week', label: '1 semaine', recommended: false },
-            { id: '2weeks', label: '2 semaines', recommended: true },
-            { id: '1month', label: '1 mois', recommended: false },
-            { id: 'custom', label: 'Personnalisé', recommended: false }
-          ].map((duration) => (
-            <button
-              key={duration.id}
-              type="button"
-              className={`duration-button ${borrowDuration === duration.id ? 'selected' : ''} ${duration.recommended ? 'recommended' : ''}`}
-              onClick={() => setBorrowDuration(duration.id as any)}
-            >
-              {duration.label}
-              {duration.recommended && <span className="recommended-badge">Recommandé</span>}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Return Date */}
-      <div className="form-section">
-        <label className="form-label">Date de retour prévue *</label>
-        <input
-          type="date"
-          value={expectedReturnDate}
-          onChange={(e) => {
-            setExpectedReturnDate(e.target.value);
-            setBorrowDuration('custom');
-          }}
-          className="date-input"
-          min={new Date().toISOString().split('T')[0]}
-          required
-        />
-        <small className="form-hint">
-          {borrowDuration !== 'custom' && `Durée sélectionnée : ${
-            borrowDuration === '1week' ? '7 jours' : 
-            borrowDuration === '2weeks' ? '14 jours' : '1 mois'
-          }`}
-        </small>
-      </div>
-
-      {/* Enhanced Borrower Selection */}
-      <div className="form-section">
-        <div className="section-header">
-          <label className="form-label">Emprunteur *</label>
-          <button
-            type="button"
-            className="add-borrower-button"
-            onClick={() => setShowAddBorrower(true)}
-          >
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-            </svg>
-            Ajouter emprunteur
-          </button>
-        </div>
-        
-        {/* Filters */}
-        <div className="borrower-filters">
-          <div className="search-container">
-            <input
-              type="text"
-              placeholder="Rechercher un emprunteur..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="search-input"
-            />
-            <svg className="search-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-              <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3S3 5.91 3 9.5S5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14Z"/>
-            </svg>
-          </div>
-          
-          <div className="type-filter">
-            <select 
-              value={filterType} 
-              onChange={(e) => setFilterType(e.target.value as any)}
-              className="filter-select"
-            >
-              <option value="all">Tous</option>
-              <option value="student">Étudiants</option>
-              <option value="staff">Personnel</option>
-            </select>
-          </div>
-        </div>
-        
-        {/* Borrowers List */}
-        <div className="borrowers-list">
-          <div className="list-header">
-            <span>Nom</span>
-            <span>Type</span>
-            <span>Matricule</span>
-            <span>Classe/Poste</span>
-          </div>
-          
-          <div className="list-content">
-            {filteredBorrowers.length > 0 ? (
-              filteredBorrowers.map((borrower) => (
-                <div
-                  key={borrower.id}
-                  className={`borrower-row ${selectedBorrower === borrower.id ? 'selected' : ''}`}
-                  onClick={() => setSelectedBorrower(borrower.id!)}
-                >
-                  <div className="borrower-name">
-                    <div className="name-main">{borrower.firstName} {borrower.lastName}</div>
-                    <div className="name-sub">{borrower.email}</div>
-                  </div>
-                  <div className="borrower-type">
-                    <span className={`type-badge ${borrower.type}`}>
-                      {borrower.type === 'student' ? 'Étudiant' : 'Personnel'}
-                    </span>
-                  </div>
-                  <div className="borrower-matricule">{borrower.matricule}</div>
-                  <div className="borrower-extra">
-                    {borrower.type === 'student' ? borrower.classe : borrower.position}
-                  </div>
-                  <div className="selection-indicator">
-                    {selectedBorrower === borrower.id && (
-                      <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                      </svg>
-                    )}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="no-borrowers">
-                <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor">
-                  <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.1 3.89 23 5 23H19C20.1 23 21 22.1 21 21V9Z"/>
-                </svg>
-                <p>Aucun emprunteur trouvé</p>
-                <small>{searchQuery ? `pour "${searchQuery}"` : 'Essayez de modifier les filtres'}</small>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Selected Borrower Summary Enhanced */}
-      {selectedBorrowerData && (
-        <div className="selected-summary">
-          <h4>Récapitulatif de l'emprunt</h4>
-          <div className="summary-card">
-            <div className="summary-section">
-              <div className="summary-icon book-icon">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                  <path d="M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2Z"/>
-                </svg>
-              </div>
-              <div className="summary-content">
-                <div className="summary-label">Document</div>
-                <div className="summary-value">{document.titre}</div>
-                <div className="summary-sub">par {document.auteur}</div>
-              </div>
-            </div>
-            
-            <div className="summary-section">
-              <div className="summary-icon user-icon">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                  <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"/>
-                </svg>
-              </div>
-              <div className="summary-content">
-                <div className="summary-label">Emprunteur</div>
-                <div className="summary-value">
-                  {selectedBorrowerData.firstName} {selectedBorrowerData.lastName}
-                </div>
-                <div className="summary-sub">
-                  {selectedBorrowerData.matricule} • {selectedBorrowerData.type === 'student' ? 'Étudiant' : 'Personnel'}
-                </div>
-              </div>
-            </div>
-            
-            <div className="summary-section">
-              <div className="summary-icon date-icon">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                  <path d="M19 3H18V1H16V3H8V1H6V3H5C3.89 3 3.01 3.9 3.01 5L3 19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V8H19V19ZM7 10H12V15H7V10Z"/>
-                </svg>
-              </div>
-              <div className="summary-content">
-                <div className="summary-label">Retour prévu</div>
-                <div className="summary-value">
-                  {new Date(expectedReturnDate).toLocaleDateString('fr-FR', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </div>
-                <div className="summary-sub">
-                  Dans {Math.ceil((new Date(expectedReturnDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} jour(s)
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Form Actions Enhanced */}
-      <div className="form-actions">
-        <button
-          type="button"
-          className="btn-secondary"
-          onClick={onCancel}
-          disabled={isLoading}
-        >
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-            <path d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"/>
-          </svg>
-          Annuler
-        </button>
-        <button
-          type="submit"
-          className="btn-primary"
-          disabled={!selectedBorrower || !expectedReturnDate || isLoading}
-          onClick={handleSubmit}
-        >
-          {isLoading ? (
-            <>
-              <div className="loading-spinner"></div>
-              Traitement...
-            </>
-          ) : (
-            <>
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                <path d="M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.58L9 16.17Z"/>
-              </svg>
-              Confirmer l'emprunt
-            </>
-          )}
-        </button>
-      </div>
-
-      {/* Add Borrower Modal */}
-      {showAddBorrower && (
-        <div className="add-borrower-overlay" onClick={() => setShowAddBorrower(false)}>
-          <div className="add-borrower-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="add-borrower-header">
-              <h3>Ajouter un emprunteur</h3>
-              <button
-                className="modal-close-small"
-                onClick={() => setShowAddBorrower(false)}
-              >
-                ×
-              </button>
-            </div>
-            
-            <div className="add-borrower-content">
-              <div className="type-selector">
-                <button
-                  type="button"
-                  className={`type-button ${newBorrowerData.type === 'student' ? 'active' : ''}`}
-                  onClick={() => setNewBorrowerData(prev => ({ ...prev, type: 'student' }))}
-                >
-                  🎓 Étudiant
-                </button>
-                <button
-                  type="button"
-                  className={`type-button ${newBorrowerData.type === 'staff' ? 'active' : ''}`}
-                  onClick={() => setNewBorrowerData(prev => ({ ...prev, type: 'staff' }))}
-                >
-                  👔 Personnel
-                </button>
-              </div>
-
-              <div className="form-grid-compact">
-                <div className="form-group-compact">
-                  <label>Prénom *</label>
-                  <input
-                    type="text"
-                    value={newBorrowerData.firstName}
-                    onChange={(e) => setNewBorrowerData(prev => ({ ...prev, firstName: e.target.value }))}
-                    className="form-input-compact"
-                    required
-                  />
-                </div>
-                
-                <div className="form-group-compact">
-                  <label>Nom *</label>
-                  <input
-                    type="text"
-                    value={newBorrowerData.lastName}
-                    onChange={(e) => setNewBorrowerData(prev => ({ ...prev, lastName: e.target.value }))}
-                    className="form-input-compact"
-                    required
-                  />
-                </div>
-                
-                <div className="form-group-compact">
-                  <label>Matricule *</label>
-                  <input
-                    type="text"
-                    value={newBorrowerData.matricule}
-                    onChange={(e) => setNewBorrowerData(prev => ({ ...prev, matricule: e.target.value }))}
-                    className="form-input-compact"
-                    required
-                  />
-                </div>
-                
-                {newBorrowerData.type === 'student' ? (
-                  <div className="form-group-compact">
-                    <label>Classe</label>
-                    <input
-                      type="text"
-                      value={newBorrowerData.classe}
-                      onChange={(e) => setNewBorrowerData(prev => ({ ...prev, classe: e.target.value }))}
-                      className="form-input-compact"
-                      placeholder="ex: Terminale C"
-                    />
-                  </div>
-                ) : (
-                  <div className="form-group-compact">
-                    <label>Poste</label>
-                    <input
-                      type="text"
-                      value={newBorrowerData.position}
-                      onChange={(e) => setNewBorrowerData(prev => ({ ...prev, position: e.target.value }))}
-                      className="form-input-compact"
-                      placeholder="ex: Professeur"
-                    />
-                  </div>
-                )}
-                
-                <div className="form-group-compact span-full">
-                  <label>Email</label>
-                  <input
-                    type="email"
-                    value={newBorrowerData.email}
-                    onChange={(e) => setNewBorrowerData(prev => ({ ...prev, email: e.target.value }))}
-                    className="form-input-compact"
-                  />
-                </div>
-              </div>
-            </div>
-            
-            <div className="add-borrower-actions">
-              <button
-                type="button"
-                className="btn-secondary-small"
-                onClick={() => setShowAddBorrower(false)}
-              >
-                Annuler
-              </button>
-              <button
-                type="button"
-                className="btn-primary-small"
-                onClick={handleAddBorrower}
-                disabled={!newBorrowerData.firstName || !newBorrowerData.lastName || !newBorrowerData.matricule || isLoading}
-              >
-                {isLoading ? 'Ajout...' : 'Ajouter'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Styles pour le formulaire d'emprunt */}
-      <style>{`
-        /* Tous les styles CSS du formulaire d'emprunt ici */
-        /* Le CSS est identique à celui du fichier précédent */
-        /* ... (insérer ici tous les styles CSS de EnhancedBorrowForm) */
-      `}</style>
-    </div>
-  );
-};

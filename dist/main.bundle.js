@@ -924,6 +924,40 @@ const App = () => {
             throw error;
         }
     };
+    const handleAddBorrower = async (borrower) => {
+        try {
+            if (appMode === 'offline') {
+                // Mode offline - utiliser l'API électron pour SQLite
+                const newId = await window.electronAPI.addBorrower(borrower);
+                await loadData(); // Refresh data
+                return newId;
+            }
+            else if (isDemoMode) {
+                // Mode démo - simuler l'ajout
+                const newId = Math.max(...borrowers.map(b => b.id || 0), 0) + 1;
+                const newBorrower = { ...borrower, id: newId };
+                setBorrowers((prev) => [...prev, newBorrower]);
+                // Mettre à jour les statistiques
+                setStats((prev) => ({
+                    ...prev,
+                    totalBorrowers: prev.totalBorrowers + 1,
+                    totalStudents: borrower.type === 'student' ? prev.totalStudents + 1 : prev.totalStudents,
+                    totalStaff: borrower.type === 'staff' ? prev.totalStaff + 1 : prev.totalStaff
+                }));
+                return newId;
+            }
+            else {
+                // Mode online - utiliser Supabase
+                const newId = await supabaseService.addBorrower(borrower);
+                await loadData(); // Refresh data
+                return newId;
+            }
+        }
+        catch (error) {
+            console.error('Erreur lors de l\'ajout de l\'emprunteur:', error);
+            throw error;
+        }
+    };
     const refreshData = async () => {
         if (isDemoMode) {
             await loadDemoData();
@@ -998,9 +1032,9 @@ const App = () => {
     if (isAppLocked || needsPasswordSetup) {
         return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_AppPasswordScreen__WEBPACK_IMPORTED_MODULE_17__.AppPasswordScreen, { onUnlock: handleAppUnlock, onSkip: needsPasswordSetup ? handlePasswordSetup : undefined, onClose: () => window.electronAPI?.closeWindow?.(), isSetup: needsPasswordSetup }));
     }
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_24__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_25__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, { onRefresh: refreshData, isAuthenticated: isAuthenticated }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-container", children: isAuthenticated ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(AppContent, { isDemoMode: isDemoMode, currentView: currentView, setCurrentView: setCurrentView, isLoading: isLoading, error: error, setError: setError, renderCurrentView: renderCurrentView, showBorrowModal: showBorrowModal, selectedDocumentForBorrow: selectedDocumentForBorrow, closeBorrowModal: closeBorrowModal, handleBorrow: handleBorrow, handleReturn: handleReturn, refreshData: refreshData, supabaseService: supabaseService, borrowers: borrowers, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution, unifiedUser: unifiedUser, unifiedInstitution: unifiedInstitution, isAuthenticated: isAuthenticated, onLogout: handleLogout })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-container", children: renderAuthenticatedContent() })) })] }) }) }));
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_24__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_25__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, { onRefresh: refreshData, isAuthenticated: isAuthenticated }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-container", children: isAuthenticated ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(AppContent, { isDemoMode: isDemoMode, currentView: currentView, setCurrentView: setCurrentView, isLoading: isLoading, error: error, setError: setError, renderCurrentView: renderCurrentView, showBorrowModal: showBorrowModal, selectedDocumentForBorrow: selectedDocumentForBorrow, closeBorrowModal: closeBorrowModal, handleBorrow: handleBorrow, handleReturn: handleReturn, handleAddBorrower: handleAddBorrower, refreshData: refreshData, supabaseService: supabaseService, borrowers: borrowers, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution, unifiedUser: unifiedUser, unifiedInstitution: unifiedInstitution, isAuthenticated: isAuthenticated, onLogout: handleLogout })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-container", children: renderAuthenticatedContent() })) })] }) }) }));
 };
-const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error, setError, renderCurrentView, showBorrowModal, selectedDocumentForBorrow, closeBorrowModal, handleBorrow, handleReturn, refreshData, supabaseService, borrowers, stats, currentUser, currentInstitution, unifiedUser, unifiedInstitution, isAuthenticated, onLogout }) => {
+const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error, setError, renderCurrentView, showBorrowModal, selectedDocumentForBorrow, closeBorrowModal, handleBorrow, handleReturn, handleAddBorrower, refreshData, supabaseService, borrowers, stats, currentUser, currentInstitution, unifiedUser, unifiedInstitution, isAuthenticated, onLogout }) => {
     const { info } = (0,_components_ToastSystem__WEBPACK_IMPORTED_MODULE_24__.useQuickToast)();
     const [demoNotificationShown, setDemoNotificationShown] = react__WEBPACK_IMPORTED_MODULE_1___default().useState(false);
     react__WEBPACK_IMPORTED_MODULE_1___default().useEffect(() => {
@@ -1012,7 +1046,7 @@ const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error,
             }, 1000);
         }
     }, [isDemoMode, demoNotificationShown, info]);
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Sidebar__WEBPACK_IMPORTED_MODULE_3__.Sidebar, { currentView: currentView, onNavigate: setCurrentView, stats: stats, currentUser: unifiedUser, currentInstitution: unifiedInstitution, onLogout: onLogout }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("main", { className: "main-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-wrapper", children: [isLoading && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Chargement..." })] })), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "error-banner", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => setError(''), children: "\u00D7" })] })), renderCurrentView()] }) }), showBorrowModal && selectedDocumentForBorrow && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowDocument__WEBPACK_IMPORTED_MODULE_8__.BorrowDocument, { document: selectedDocumentForBorrow, borrowers: borrowers, onBorrow: handleBorrow, onReturn: handleReturn, onCancel: closeBorrowModal })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Sidebar__WEBPACK_IMPORTED_MODULE_3__.Sidebar, { currentView: currentView, onNavigate: setCurrentView, stats: stats, currentUser: unifiedUser, currentInstitution: unifiedInstitution, onLogout: onLogout }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("main", { className: "main-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-wrapper", children: [isLoading && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Chargement..." })] })), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "error-banner", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => setError(''), children: "\u00D7" })] })), renderCurrentView()] }) }), showBorrowModal && selectedDocumentForBorrow && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowDocument__WEBPACK_IMPORTED_MODULE_8__.BorrowDocument, { document: selectedDocumentForBorrow, borrowers: borrowers, onBorrow: handleBorrow, onReturn: handleReturn, onCancel: closeBorrowModal, onAddBorrower: handleAddBorrower })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .app {
           height: 100vh;
           display: flex;
@@ -1279,130 +1313,6 @@ const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error,
             font-size: 20px;
           }
         }
-      ` })] }));
-};
-const EnhancedBorrowForm = ({ document, borrowers, onSubmit, onCancel, onRefreshBorrowers, supabaseService }) => {
-    const [selectedBorrower, setSelectedBorrower] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
-    const [expectedReturnDate, setExpectedReturnDate] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
-    const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
-    const [searchQuery, setSearchQuery] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
-    const [filterType, setFilterType] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('all');
-    const [borrowDuration, setBorrowDuration] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('2weeks');
-    const [showAddBorrower, setShowAddBorrower] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
-    const [newBorrowerData, setNewBorrowerData] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({
-        type: 'student',
-        firstName: '',
-        lastName: '',
-        matricule: '',
-        classe: '',
-        cniNumber: '',
-        position: '',
-        email: '',
-        phone: ''
-    });
-    // Calculate default date (in 2 weeks)
-    react__WEBPACK_IMPORTED_MODULE_1___default().useEffect(() => {
-        updateDateFromDuration(borrowDuration);
-    }, [borrowDuration]);
-    const updateDateFromDuration = (duration) => {
-        const today = new Date();
-        let targetDate = new Date(today);
-        switch (duration) {
-            case '1week':
-                targetDate.setDate(today.getDate() + 7);
-                break;
-            case '2weeks':
-                targetDate.setDate(today.getDate() + 14);
-                break;
-            case '1month':
-                targetDate.setMonth(today.getMonth() + 1);
-                break;
-            default:
-                return; // For 'custom', don't change
-        }
-        setExpectedReturnDate(targetDate.toISOString().split('T')[0]);
-    };
-    const handleAddBorrower = async () => {
-        try {
-            setIsLoading(true);
-            const newId = await supabaseService.addBorrower({
-                ...newBorrowerData,
-                syncStatus: 'pending',
-                lastModified: new Date().toISOString(),
-                version: 1,
-                createdAt: new Date().toISOString()
-            });
-            setSelectedBorrower(newId);
-            setShowAddBorrower(false);
-            await onRefreshBorrowers(); // Refresh the borrowers list
-            setNewBorrowerData({
-                type: 'student',
-                firstName: '',
-                lastName: '',
-                matricule: '',
-                classe: '',
-                cniNumber: '',
-                position: '',
-                email: '',
-                phone: ''
-            });
-        }
-        catch (error) {
-            alert(error.message || 'Erreur lors de l\'ajout de l\'emprunteur');
-        }
-        finally {
-            setIsLoading(false);
-        }
-    };
-    const filteredBorrowers = borrowers.filter(borrower => {
-        // Filter by type
-        if (filterType !== 'all' && borrower.type !== filterType)
-            return false;
-        // Filter by search
-        if (searchQuery) {
-            const query = searchQuery.toLowerCase();
-            return (borrower.firstName.toLowerCase().includes(query) ||
-                borrower.lastName.toLowerCase().includes(query) ||
-                borrower.matricule.toLowerCase().includes(query) ||
-                (borrower.classe && borrower.classe.toLowerCase().includes(query)) ||
-                (borrower.position && borrower.position.toLowerCase().includes(query)));
-        }
-        return true;
-    });
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!selectedBorrower || !expectedReturnDate)
-            return;
-        setIsLoading(true);
-        try {
-            await onSubmit(document.id, selectedBorrower, expectedReturnDate);
-        }
-        catch (error) {
-            console.error('Erreur:', error);
-        }
-        finally {
-            setIsLoading(false);
-        }
-    };
-    const selectedBorrowerData = borrowers.find(b => b.id === selectedBorrower);
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "enhanced-borrow-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-info-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "document-cover", children: document.couverture ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("img", { src: document.couverture, alt: document.titre })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "document-placeholder", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "32", height: "32", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2ZM18 20H6V4H18V20Z" }) }) })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h4", { className: "document-title", children: ["\"", document.titre, "\""] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "document-author", children: ["par ", document.auteur] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-meta", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "document-category", children: document.descripteurs }), document.annee && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "document-year", children: document.annee })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Dur\u00E9e d'emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "duration-selector", children: [
-                            { id: '1week', label: '1 semaine', recommended: false },
-                            { id: '2weeks', label: '2 semaines', recommended: true },
-                            { id: '1month', label: '1 mois', recommended: false },
-                            { id: 'custom', label: 'Personnalisé', recommended: false }
-                        ].map((duration) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "button", className: `duration-button ${borrowDuration === duration.id ? 'selected' : ''} ${duration.recommended ? 'recommended' : ''}`, onClick: () => setBorrowDuration(duration.id), children: [duration.label, duration.recommended && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "recommended-badge", children: "Recommand\u00E9" })] }, duration.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Date de retour pr\u00E9vue *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "date", value: expectedReturnDate, onChange: (e) => {
-                            setExpectedReturnDate(e.target.value);
-                            setBorrowDuration('custom');
-                        }, className: "date-input", min: new Date().toISOString().split('T')[0], required: true }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { className: "form-hint", children: borrowDuration !== 'custom' && `Durée sélectionnée : ${borrowDuration === '1week' ? '7 jours' :
-                            borrowDuration === '2weeks' ? '14 jours' : '1 mois'}` })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Emprunteur *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "button", className: "add-borrower-button", onClick: () => setShowAddBorrower(true), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "16", height: "16", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" }) }), "Ajouter emprunteur"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-filters", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", placeholder: "Rechercher un emprunteur...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { className: "search-icon", viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3S3 5.91 3 9.5S5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14Z" }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "type-filter", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filterType, onChange: (e) => setFilterType(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "staff", children: "Personnel" })] }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrowers-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "list-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Nom" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Type" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Matricule" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Classe/Poste" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "list-content", children: filteredBorrowers.length > 0 ? (filteredBorrowers.map((borrower) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `borrower-row ${selectedBorrower === borrower.id ? 'selected' : ''}`, onClick: () => setSelectedBorrower(borrower.id), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-name", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "name-main", children: [borrower.firstName, " ", borrower.lastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "name-sub", children: borrower.email })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrower-type", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: `type-badge ${borrower.type}`, children: borrower.type === 'student' ? 'Étudiant' : 'Personnel' }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrower-matricule", children: borrower.matricule }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrower-extra", children: borrower.type === 'student' ? borrower.classe : borrower.position }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "selection-indicator", children: selectedBorrower === borrower.id && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" }) })) })] }, borrower.id)))) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "no-borrowers", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "48", height: "48", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.1 3.89 23 5 23H19C20.1 23 21 22.1 21 21V9Z" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Aucun emprunteur trouv\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: searchQuery ? `pour "${searchQuery}"` : 'Essayez de modifier les filtres' })] })) })] })] }), selectedBorrowerData && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "selected-summary", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "R\u00E9capitulatif de l'emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-icon book-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2Z" }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-label", children: "Document" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-value", children: document.titre }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-sub", children: ["par ", document.auteur] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-icon user-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-label", children: "Emprunteur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-value", children: [selectedBorrowerData.firstName, " ", selectedBorrowerData.lastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-sub", children: [selectedBorrowerData.matricule, " \u2022 ", selectedBorrowerData.type === 'student' ? 'Étudiant' : 'Personnel'] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-icon date-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M19 3H18V1H16V3H8V1H6V3H5C3.89 3 3.01 3.9 3.01 5L3 19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V8H19V19ZM7 10H12V15H7V10Z" }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-label", children: "Retour pr\u00E9vu" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "summary-value", children: new Date(expectedReturnDate).toLocaleDateString('fr-FR', {
-                                                    weekday: 'long',
-                                                    year: 'numeric',
-                                                    month: 'long',
-                                                    day: 'numeric'
-                                                }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-sub", children: ["Dans ", Math.ceil((new Date(expectedReturnDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)), " jour(s)"] })] })] })] })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "button", className: "btn-secondary", onClick: onCancel, disabled: isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "18", height: "18", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z" }) }), "Annuler"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "btn-primary", disabled: !selectedBorrower || !expectedReturnDate || isLoading, onClick: handleSubmit, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), "Traitement..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("svg", { viewBox: "0 0 24 24", width: "18", height: "18", fill: "currentColor", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { d: "M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.58L9 16.17Z" }) }), "Confirmer l'emprunt"] })) })] }), showAddBorrower && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "add-borrower-overlay", onClick: () => setShowAddBorrower(false), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "add-borrower-modal", onClick: (e) => e.stopPropagation(), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "add-borrower-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Ajouter un emprunteur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "modal-close-small", onClick: () => setShowAddBorrower(false), children: "\u00D7" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "add-borrower-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "type-selector", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: `type-button ${newBorrowerData.type === 'student' ? 'active' : ''}`, onClick: () => setNewBorrowerData(prev => ({ ...prev, type: 'student' })), children: "\uD83C\uDF93 \u00C9tudiant" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: `type-button ${newBorrowerData.type === 'staff' ? 'active' : ''}`, onClick: () => setNewBorrowerData(prev => ({ ...prev, type: 'staff' })), children: "\uD83D\uDC54 Personnel" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-grid-compact", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group-compact", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Pr\u00E9nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newBorrowerData.firstName, onChange: (e) => setNewBorrowerData(prev => ({ ...prev, firstName: e.target.value })), className: "form-input-compact", required: true })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group-compact", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newBorrowerData.lastName, onChange: (e) => setNewBorrowerData(prev => ({ ...prev, lastName: e.target.value })), className: "form-input-compact", required: true })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group-compact", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Matricule *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newBorrowerData.matricule, onChange: (e) => setNewBorrowerData(prev => ({ ...prev, matricule: e.target.value })), className: "form-input-compact", required: true })] }), newBorrowerData.type === 'student' ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group-compact", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Classe" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newBorrowerData.classe, onChange: (e) => setNewBorrowerData(prev => ({ ...prev, classe: e.target.value })), className: "form-input-compact", placeholder: "ex: Terminale C" })] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group-compact", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Poste" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newBorrowerData.position, onChange: (e) => setNewBorrowerData(prev => ({ ...prev, position: e.target.value })), className: "form-input-compact", placeholder: "ex: Professeur" })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group-compact span-full", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Email" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: newBorrowerData.email, onChange: (e) => setNewBorrowerData(prev => ({ ...prev, email: e.target.value })), className: "form-input-compact" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "add-borrower-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "btn-secondary-small", onClick: () => setShowAddBorrower(false), children: "Annuler" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "btn-primary-small", onClick: handleAddBorrower, disabled: !newBorrowerData.firstName || !newBorrowerData.lastName || !newBorrowerData.matricule || isLoading, children: isLoading ? 'Ajout...' : 'Ajouter' })] })] }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
-        /* Tous les styles CSS du formulaire d'emprunt ici */
-        /* Le CSS est identique à celui du fichier précédent */
-        /* ... (insérer ici tous les styles CSS de EnhancedBorrowForm) */
       ` })] }));
 };
 
@@ -2716,6 +2626,7 @@ const AddDocument = ({ onAdd, onCancel, editingDocument }) => {
           align-items: center;
           justify-content: center;
           transition: all 0.2s ease;
+          z-index: 10;
         }
 
         .close-btn:hover {
@@ -3181,7 +3092,7 @@ const AddDocument = ({ onAdd, onCancel, editingDocument }) => {
         .btn:focus-visible,
         .form-input:focus-visible,
         .form-textarea:focus-visible {
-          outline: 2px solid #3b82f6;
+          outline: 2px solid #3bf69fff;
           outline-offset: 2px;
         }
 
@@ -3237,7 +3148,7 @@ const AddDocument = ({ onAdd, onCancel, editingDocument }) => {
 
         /* Amélioration de la barre de progression */
         .progress-fill {
-          background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #10b981 100%);
+          background: linear-gradient(90deg, #3bf6c4ff 0%, #5cf6b3ff 50%, #10b981 100%);
           position: relative;
           overflow: hidden;
         }
@@ -3285,7 +3196,7 @@ const AddDocument = ({ onAdd, onCancel, editingDocument }) => {
 
         /* Amélioration des focus states pour la navigation au clavier */
         .progress-step:focus-within .step-indicator {
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+          box-shadow: 0 0 0 3px rgba(59, 246, 165, 0.2);
         }
 
         /* Style pour les listes déroulantes d'autocomplétion */
@@ -3300,7 +3211,7 @@ const AddDocument = ({ onAdd, onCancel, editingDocument }) => {
 
         /* Style pour les liens dans les messages d'aide */
         .form-help a {
-          color: #3b82f6;
+          color: #3bf6beff;
           text-decoration: none;
         }
 
@@ -5334,33 +5245,48 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/heart.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/sparkles.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/building.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/calendar.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/tag.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-triangle.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check-circle.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/search.mjs");
-/* harmony import */ var _MicroInteractions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MicroInteractions */ "./src/renderer/components/MicroInteractions.tsx");
-/* harmony import */ var _ToastSystem__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check-circle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/calendar.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/building.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/tag.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/search.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user-plus.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/heart.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/arrow-left.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-right.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/save.mjs");
+/* harmony import */ var _ToastSystem__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
 
 
 
 
-
-const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) => {
-    const { success, error, info } = (0,_ToastSystem__WEBPACK_IMPORTED_MODULE_3__.useQuickToast)();
+const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel, onAddBorrower }) => {
+    const { success, error, info } = (0,_ToastSystem__WEBPACK_IMPORTED_MODULE_2__.useQuickToast)();
+    const [currentStep, setCurrentStep] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(1);
     const [selectedBorrowerId, setSelectedBorrowerId] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
     const [returnDate, setReturnDate] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
     const [searchTerm, setSearchTerm] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
     const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [filteredBorrowers, setFilteredBorrowers] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
+    const [errors, setErrors] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({});
+    // States for new borrower creation
+    const [showCreateBorrower, setShowCreateBorrower] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [newBorrowerData, setNewBorrowerData] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({
+        type: 'student',
+        firstName: '',
+        lastName: '',
+        matricule: '',
+        classe: '',
+        cniNumber: '',
+        position: '',
+        email: '',
+        phone: ''
+    });
     (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
         // Set default return date to 2 weeks from today
         const defaultDate = new Date();
@@ -5419,186 +5345,468 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
         }
     };
     const getBorrowerTypeIcon = (type) => {
-        return type === 'student' ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 16 });
+        return type === 'student' ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 16 });
     };
     const getBorrowerTypeLabel = (type) => {
         return type === 'student' ? 'Étudiant' : 'Personnel';
     };
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrow-document-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrow-document-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-icon", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 28 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "icon-sparkle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 14 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "modal-title", children: document.estEmprunte ? 'Retourner le document' : 'Nouvel emprunt' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "modal-subtitle", children: document.estEmprunte
+    // Step management functions
+    const getStepTitle = (step) => {
+        if (document.estEmprunte) {
+            return 'Confirmer le retour';
+        }
+        switch (step) {
+            case 1: return 'Document à emprunter';
+            case 2: return 'Sélection emprunteur';
+            case 3: return 'Date de retour';
+            default: return 'Emprunt';
+        }
+    };
+    const getStepDescription = (step) => {
+        if (document.estEmprunte) {
+            return 'Finaliser le retour';
+        }
+        switch (step) {
+            case 1: return 'Vérifier les informations';
+            case 2: return 'Choisir la personne';
+            case 3: return 'Définir l\'échéance';
+            default: return '';
+        }
+    };
+    const getStepIcon = (step) => {
+        if (document.estEmprunte) {
+            return lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"];
+        }
+        switch (step) {
+            case 1: return lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"];
+            case 2: return lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"];
+            case 3: return lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"];
+            default: return lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"];
+        }
+    };
+    const validateStep = (step) => {
+        const newErrors = {};
+        if (step === 2 && !selectedBorrowerId) {
+            newErrors.borrower = 'Veuillez sélectionner un emprunteur';
+        }
+        if (step === 3 && !returnDate) {
+            newErrors.returnDate = 'Veuillez définir une date de retour';
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+    const handleNext = () => {
+        if (validateStep(currentStep)) {
+            setCurrentStep(prev => Math.min(prev + 1, document.estEmprunte ? 1 : 3));
+        }
+    };
+    const handlePrev = () => {
+        if (showCreateBorrower) {
+            setShowCreateBorrower(false);
+            setErrors({});
+        }
+        else {
+            setCurrentStep(prev => Math.max(prev - 1, 1));
+        }
+    };
+    // New borrower creation functions
+    const handleNewBorrowerChange = (field, value) => {
+        setNewBorrowerData(prev => ({
+            ...prev,
+            [field]: value
+        }));
+        // Clear error for this field
+        if (errors[field]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[field];
+                return newErrors;
+            });
+        }
+    };
+    const validateNewBorrower = () => {
+        const newErrors = {};
+        if (!newBorrowerData.firstName.trim()) {
+            newErrors.firstName = 'Le prénom est obligatoire';
+        }
+        if (!newBorrowerData.lastName.trim()) {
+            newErrors.lastName = 'Le nom est obligatoire';
+        }
+        if (!newBorrowerData.matricule.trim()) {
+            newErrors.matricule = 'Le matricule est obligatoire';
+        }
+        if (newBorrowerData.type === 'student' && !newBorrowerData.classe.trim()) {
+            newErrors.classe = 'La classe est obligatoire pour les étudiants';
+        }
+        if (newBorrowerData.type === 'staff' && !newBorrowerData.position.trim()) {
+            newErrors.position = 'Le poste est obligatoire pour le personnel';
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+    const handleCreateBorrower = async () => {
+        if (!validateNewBorrower() || !onAddBorrower)
+            return;
+        setIsLoading(true);
+        try {
+            const borrowerToCreate = {
+                ...newBorrowerData,
+                syncStatus: 'pending',
+                lastModified: new Date().toISOString(),
+                version: 1,
+                createdAt: new Date().toISOString()
+            };
+            const newBorrowerId = await onAddBorrower(borrowerToCreate);
+            // Reset form and select the new borrower
+            setNewBorrowerData({
+                type: 'student',
+                firstName: '',
+                lastName: '',
+                matricule: '',
+                classe: '',
+                cniNumber: '',
+                position: '',
+                email: '',
+                phone: ''
+            });
+            setSelectedBorrowerId(newBorrowerId);
+            setShowCreateBorrower(false);
+            success('Emprunteur créé', `${borrowerToCreate.firstName} ${borrowerToCreate.lastName} a été ajouté avec succès`);
+        }
+        catch (err) {
+            console.error('Erreur création emprunteur:', err);
+            error('Erreur de création', 'Impossible de créer l\'emprunteur');
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    // Function to render step content
+    const renderStepContent = () => {
+        if (document.estEmprunte) {
+            return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "return-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "return-message", children: "Ce document sera marqu\u00E9 comme disponible et pourra \u00EAtre emprunt\u00E9 \u00E0 nouveau." }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "return-date-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["Retour effectu\u00E9 le ", new Date().toLocaleDateString('fr-FR')] })] })] }) }));
+        }
+        switch (currentStep) {
+            case 1:
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-preview", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "document-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "document-title", children: document.titre }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "document-author", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 14 }), document.auteur] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-meta", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "meta-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 12 }), document.editeur] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "meta-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 12 }), document.annee] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "meta-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 12 }), document.cote] })] })] })] }) }));
+            case 2:
+                if (showCreateBorrower) {
+                    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "create-borrower-header", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "form-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 18 }), "Type d'emprunteur *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-type-selector", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "button", className: `type-btn ${newBorrowerData.type === 'student' ? 'active' : ''}`, onClick: () => handleNewBorrowerChange('type', 'student'), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16 }), "\u00C9tudiant"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "button", className: `type-btn ${newBorrowerData.type === 'staff' ? 'active' : ''}`, onClick: () => handleNewBorrowerChange('type', 'staff'), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 16 }), "Personnel"] })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Pr\u00E9nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newBorrowerData.firstName, onChange: (e) => handleNewBorrowerChange('firstName', e.target.value), className: `form-input ${errors.firstName ? 'error' : ''}`, placeholder: "Pr\u00E9nom", autoFocus: true }), errors.firstName && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "error-message", children: errors.firstName })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newBorrowerData.lastName, onChange: (e) => handleNewBorrowerChange('lastName', e.target.value), className: `form-input ${errors.lastName ? 'error' : ''}`, placeholder: "Nom de famille" }), errors.lastName && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "error-message", children: errors.lastName })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Matricule *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newBorrowerData.matricule, onChange: (e) => handleNewBorrowerChange('matricule', e.target.value), className: `form-input ${errors.matricule ? 'error' : ''}`, placeholder: "Num\u00E9ro de matricule" }), errors.matricule && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "error-message", children: errors.matricule })] }), newBorrowerData.type === 'student' ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Classe *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newBorrowerData.classe, onChange: (e) => handleNewBorrowerChange('classe', e.target.value), className: `form-input ${errors.classe ? 'error' : ''}`, placeholder: "ex: L3 Informatique, Master 2..." }), errors.classe && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "error-message", children: errors.classe })] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Poste *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newBorrowerData.position, onChange: (e) => handleNewBorrowerChange('position', e.target.value), className: `form-input ${errors.position ? 'error' : ''}`, placeholder: "Fonction ou poste" }), errors.position && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "error-message", children: errors.position })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "N\u00B0 CNI (optionnel)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newBorrowerData.cniNumber, onChange: (e) => handleNewBorrowerChange('cniNumber', e.target.value), className: "form-input", placeholder: "Num\u00E9ro de carte d'identit\u00E9" })] })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Email (optionnel)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: newBorrowerData.email, onChange: (e) => handleNewBorrowerChange('email', e.target.value), className: "form-input", placeholder: "adresse@email.com" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "T\u00E9l\u00E9phone (optionnel)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "tel", value: newBorrowerData.phone, onChange: (e) => handleNewBorrowerChange('phone', e.target.value), className: "form-input", placeholder: "+237 6XX XXX XXX" })] })] })] }));
+                }
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-selection-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "form-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }), "Rechercher un emprunteur"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: searchTerm, onChange: (e) => setSearchTerm(e.target.value), className: "form-input", placeholder: "Rechercher par nom, matricule, email...", autoFocus: true })] }), onAddBorrower && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "create-borrower-action", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "button", className: "create-borrower-btn", onClick: () => setShowCreateBorrower(true), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }), "Cr\u00E9er un nouvel emprunteur"] }) }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrowers-list", children: [filteredBorrowers.slice(0, 6).map((borrower) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `borrower-item ${selectedBorrowerId === borrower.id ? 'selected' : ''}`, onClick: () => setSelectedBorrowerId(borrower.id), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrower-avatar", children: getBorrowerTypeIcon(borrower.type) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-name", children: [borrower.firstName, " ", borrower.lastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "borrower-type", children: getBorrowerTypeLabel(borrower.type) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "borrower-matricule", children: borrower.matricule }), (borrower.classe || borrower.position) && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "borrower-class", children: borrower.classe || borrower.position }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "selection-indicator", children: selectedBorrowerId === borrower.id && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 })) })] }, borrower.id))), filteredBorrowers.length === 0 && searchTerm && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "no-borrowers", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 32 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Aucun emprunteur trouv\u00E9" }), onAddBorrower && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "button", className: "create-from-search-btn", onClick: () => {
+                                                setShowCreateBorrower(true);
+                                                // Pre-fill with search term if it looks like a name
+                                                const names = searchTerm.split(' ');
+                                                if (names.length >= 2) {
+                                                    setNewBorrowerData(prev => ({
+                                                        ...prev,
+                                                        firstName: names[0],
+                                                        lastName: names.slice(1).join(' ')
+                                                    }));
+                                                }
+                                            }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }), "Cr\u00E9er \"", searchTerm, "\""] }))] })), filteredBorrowers.length === 0 && !searchTerm && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "no-borrowers", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 32 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Aucun emprunteur enregistr\u00E9" }), onAddBorrower && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "button", className: "create-from-search-btn", onClick: () => setShowCreateBorrower(true), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }), "Cr\u00E9er le premier emprunteur"] }))] }))] }), errors.borrower && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "error-message", children: errors.borrower })] }));
+            case 3:
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "form-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 18 }), "Date de retour pr\u00E9vue *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "date", value: returnDate, onChange: (e) => setReturnDate(e.target.value), className: `form-input ${errors.returnDate ? 'error' : ''}`, min: new Date().toISOString().split('T')[0] }), errors.returnDate && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "error-message", children: errors.returnDate }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "form-help", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 14 }), "Dur\u00E9e d'emprunt recommand\u00E9e: 14 jours"] })] }), selectedBorrowerId && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "selected-borrower-preview", children: (() => {
+                                const borrower = borrowers.find(b => b.id === selectedBorrowerId);
+                                return borrower ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-preview-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrower-avatar", children: getBorrowerTypeIcon(borrower.type) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-name", children: [borrower.firstName, " ", borrower.lastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "borrower-type", children: getBorrowerTypeLabel(borrower.type) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "borrower-matricule", children: borrower.matricule })] })] })] })) : null;
+                            })() }))] }));
+            default:
+                return null;
+        }
+    };
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "modal-title", children: document.estEmprunte ? 'Retourner le document' : 'Nouvel emprunt' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "modal-subtitle", children: document.estEmprunte
                                                     ? 'Finalisez le retour de ce document'
-                                                    : 'Prêtez ce document à un membre de votre institution' })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: onCancel, className: "close-button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroCard, { className: "document-info-card", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-preview", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "document-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "document-title", children: document.titre }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "document-author", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 14 }), document.auteur] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "document-meta", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "meta-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 12 }), document.editeur] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "meta-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 12 }), document.annee] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "meta-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 12 }), document.cote] })] }), document.estEmprunte && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrowed-status", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 14 }), "Actuellement emprunt\u00E9"] }))] })] }) }), document.estEmprunte ? (
-                            // Return form
-                            (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroCard, { className: "return-form-card", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-icon return-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Confirmer le retour" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "return-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "return-message", children: "Ce document sera marqu\u00E9 comme disponible et pourra \u00EAtre emprunt\u00E9 \u00E0 nouveau." }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "return-date-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["Retour effectu\u00E9 le ", new Date().toLocaleDateString('fr-FR')] })] })] })] }) })) : (
-                            // Borrow form
-                            (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroCard, { className: "borrower-selection-card", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "S\u00E9lectionner l'emprunteur" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "search-field", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-input-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: searchTerm, onChange: (e) => setSearchTerm(e.target.value), className: "search-input", placeholder: "Rechercher par nom, matricule, email..." })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrowers-list", children: [filteredBorrowers.slice(0, 6).map((borrower) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `borrower-item ${selectedBorrowerId === borrower.id ? 'selected' : ''}`, onClick: () => setSelectedBorrowerId(borrower.id), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrower-avatar", children: getBorrowerTypeIcon(borrower.type) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-name", children: [borrower.firstName, " ", borrower.lastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "borrower-type", children: getBorrowerTypeLabel(borrower.type) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "borrower-matricule", children: borrower.matricule }), (borrower.classe || borrower.position) && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "borrower-class", children: borrower.classe || borrower.position }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "selection-indicator", children: selectedBorrowerId === borrower.id && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 20 })) })] }, borrower.id))), filteredBorrowers.length === 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "no-borrowers", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 32 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Aucun emprunteur trouv\u00E9" })] }))] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroCard, { className: "date-selection-card", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Date de retour pr\u00E9vue" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "date-field", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "date", value: returnDate, onChange: (e) => setReturnDate(e.target.value), className: "date-input", min: new Date().toISOString().split('T')[0] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "date-help", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Dur\u00E9e d'emprunt recommand\u00E9e: 14 jours" })] })] })] }) })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "secondary", onClick: onCancel, icon: lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], children: "Annuler" }), document.estEmprunte ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "success", onClick: handleReturn, disabled: isLoading, icon: lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroLoader, { size: 16, color: "white" }), "Traitement..."] })) : ('Confirmer le retour') })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "primary", onClick: handleBorrow, disabled: isLoading || !selectedBorrowerId || !returnDate, icon: lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroLoader, { size: 16, color: "white" }), "Enregistrement..."] })) : ('Confirmer l\'emprunt') }))] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
-        .borrow-document-overlay {
+                                                    : 'Prêtez ce document à un membre de votre institution' })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: onCancel, className: "close-btn", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 20 }) })] }), !document.estEmprunte && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-steps", children: [1, 2, 3].map((step) => {
+                                    const StepIcon = getStepIcon(step);
+                                    const isActive = step === currentStep;
+                                    const isCompleted = step < currentStep;
+                                    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-indicator", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(StepIcon, { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-title", children: getStepTitle(step) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-description", children: getStepDescription(step) })] })] }, step));
+                                }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-fill", style: { width: `${(currentStep / 3) * 100}%` } }) })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-content", children: [errors.submit && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "alert alert-error", children: errors.submit })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-container", children: renderStepContent() })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "actions-left", children: (currentStep > 1 || showCreateBorrower) && !document.estEmprunte && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: handlePrev, className: "btn btn-secondary", children: showCreateBorrower ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 }), "Retour \u00E0 la liste"] })) : ('Précédent') })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "actions-right", children: document.estEmprunte ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: handleReturn, disabled: isLoading, className: "btn btn-success", children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), "Traitement..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 16 }), "Confirmer le retour"] })) })) : showCreateBorrower ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: handleCreateBorrower, disabled: isLoading, className: "btn btn-success", children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), "Cr\u00E9ation..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }), "Cr\u00E9er et s\u00E9lectionner"] })) })) : currentStep < 3 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { onClick: handleNext, className: "btn btn-primary", children: ["Suivant", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 16 })] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: handleBorrow, disabled: isLoading || !selectedBorrowerId || !returnDate, className: "btn btn-success", children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), "Enregistrement..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 16 }), "Confirmer l'emprunt"] })) })) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+        .modal-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(0, 0, 0, 0.7);
+          background: rgba(0, 0, 0, 0.75);
+          backdrop-filter: blur(8px);
           display: flex;
           align-items: center;
           justify-content: center;
-          z-index: 60;
-          padding: 16px;
-          backdrop-filter: blur(12px);
+          z-index: 50;
+          padding: 20px;
         }
-        
-        .borrow-document-modal {
-          background: #FFFFFF;
-          border-radius: 24px;
-          box-shadow: 
-            0 32px 64px rgba(0, 0, 0, 0.2),
-            0 0 0 1px rgba(229, 220, 194, 0.3);
+
+        .modal-container {
+          background: white;
+          border-radius: 20px;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
           width: 100%;
-          max-width: 800px;
-          max-height: 95vh;
-          overflow: hidden;
+          max-width: 700px;
+          max-height: 90vh;
           display: flex;
           flex-direction: column;
-          position: relative;
-          animation: modalSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          overflow: hidden;
         }
-        
-        @keyframes modalSlideIn {
-          from {
-            opacity: 0;
-            transform: translateY(40px) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-        
+
         .modal-header {
-          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           color: #F3EED9;
-          padding: 40px;
+          padding: 24px 32px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          position: relative;
-          overflow: hidden;
         }
-        
-        .modal-header::before {
-          content: '';
-          position: absolute;
-          top: -50%;
-          right: -50%;
-          width: 200%;
-          height: 200%;
-          background: radial-gradient(circle, rgba(243, 238, 217, 0.15) 0%, transparent 70%);
-          animation: headerGlow 8s ease-in-out infinite;
-        }
-        
-        @keyframes headerGlow {
-          0%, 100% { transform: rotate(0deg) scale(1); }
-          50% { transform: rotate(180deg) scale(1.1); }
-        }
-        
+
         .header-content {
           display: flex;
           align-items: center;
-          gap: 24px;
-          position: relative;
-          z-index: 1;
+          gap: 16px;
         }
-        
+
         .header-icon {
-          width: 72px;
-          height: 72px;
-          background: linear-gradient(135deg, rgba(243, 238, 217, 0.2) 0%, rgba(243, 238, 217, 0.1) 100%);
-          border-radius: 20px;
+          width: 48px;
+          height: 48px;
+          background: rgba(243, 238, 217, 0.1);
+          border-radius: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #F3EED9;
-          position: relative;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+          backdrop-filter: blur(10px);
         }
-        
-        .icon-sparkle {
-          position: absolute;
-          top: -4px;
-          right: -4px;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          border-radius: 50%;
-          width: 24px;
-          height: 24px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #F3EED9;
-          animation: sparkle 2s ease-in-out infinite;
-        }
-        
-        @keyframes sparkle {
-          0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
-          50% { transform: scale(1.2) rotate(180deg); opacity: 0.8; }
-        }
-        
+
         .header-text {
           flex: 1;
         }
-        
+
         .modal-title {
-          font-size: 28px;
+          font-size: 24px;
           font-weight: 700;
-          margin: 0 0 8px 0;
+          margin: 0 0 4px 0;
           line-height: 1.2;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        
+
         .modal-subtitle {
-          font-size: 16px;
-          opacity: 0.9;
+          font-size: 14px;
+          opacity: 0.8;
           margin: 0;
-          line-height: 1.4;
         }
-        
-        .close-button {
-          width: 48px;
-          height: 48px;
+
+        .close-btn {
+          width: 40px;
+          height: 40px;
           border: none;
           background: rgba(243, 238, 217, 0.1);
           color: #F3EED9;
-          border-radius: 12px;
+          border-radius: 10px;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          position: relative;
-          z-index: 1;
+          transition: all 0.2s ease;
+          z-index: 10;
         }
-        
-        .close-button:hover {
+
+        .close-btn:hover {
           background: rgba(243, 238, 217, 0.2);
-          transform: scale(1.1);
+          transform: scale(1.05);
         }
-        
+
+        .progress-container {
+          padding: 24px 32px 0;
+          background: #FAF9F6;
+          border-bottom: 1px solid rgba(229, 220, 194, 0.4);
+        }
+
+        .progress-steps {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 16px;
+        }
+
+        .progress-step {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex: 1;
+          opacity: 0.5;
+          transition: all 0.3s ease;
+        }
+
+        .progress-step.active,
+        .progress-step.completed {
+          opacity: 1;
+        }
+
+        .step-indicator {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: rgba(229, 220, 194, 0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #6E6E6E;
+          transition: all 0.3s ease;
+          flex-shrink: 0;
+        }
+
+        .progress-step.active .step-indicator {
+          background: #3E5C49;
+          color: #F3EED9;
+        }
+
+        .progress-step.completed .step-indicator {
+          background: #C2571B;
+          color: #F3EED9;
+        }
+
+        .step-info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          min-width: 0;
+        }
+
+        .step-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: #2E2E2E;
+          line-height: 1.2;
+        }
+
+        .step-description {
+          font-size: 12px;
+          color: #4A4A4A;
+          line-height: 1.2;
+        }
+
+        .progress-bar {
+          height: 4px;
+          background: rgba(229, 220, 194, 0.3);
+          border-radius: 2px;
+          overflow: hidden;
+          margin-bottom: 24px;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #3E5C49 0%, #C2571B 100%);
+          transition: width 0.3s ease;
+          border-radius: 2px;
+        }
+
         .modal-content {
-          padding: 32px;
+          flex: 1;
           overflow-y: auto;
+          padding: 32px;
+        }
+
+        .alert {
+          padding: 16px;
+          border-radius: 12px;
+          margin-bottom: 24px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 14px;
+          font-weight: 500;
+        }
+
+        .alert-error {
+          background: #fef2f2;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+        }
+
+        .step-container {
+          min-height: 300px;
+        }
+
+        .step-content {
           display: flex;
           flex-direction: column;
           gap: 24px;
-          flex: 1;
+          animation: slideIn 0.3s ease-out;
         }
-        
-        .document-info-card {
-          border: 2px solid rgba(194, 87, 27, 0.1);
-          background: linear-gradient(135deg, rgba(194, 87, 27, 0.05) 0%, rgba(243, 238, 217, 0.1) 100%);
+
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateX(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
         }
-        
+
+        .form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .form-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          color: #2E2E2E;
+        }
+
+        .form-input {
+          width: 100%;
+          padding: 12px 16px;
+          border: 2px solid rgba(229, 220, 194, 0.4);
+          border-radius: 10px;
+          font-size: 14px;
+          background: white;
+          color: #2E2E2E;
+          transition: all 0.2s ease;
+          box-sizing: border-box;
+        }
+
+        .form-input:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+
+        .form-input.error {
+          border-color: #dc2626;
+          background: #fef2f2;
+        }
+
+        .form-help {
+          font-size: 12px;
+          color: #4A4A4A;
+          margin: 0;
+          line-height: 1.4;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .error-message {
+          color: #dc2626;
+          font-size: 12px;
+          font-weight: 500;
+          margin: 0;
+          padding: 4px 8px;
+          background: #fef2f2;
+          border-radius: 6px;
+          border-left: 3px solid #dc2626;
+        }
+
         .document-preview {
-          padding: 24px;
           display: flex;
           align-items: center;
           gap: 20px;
+          padding: 24px;
+          background: rgba(194, 87, 27, 0.05);
+          border-radius: 16px;
+          border: 1px solid rgba(194, 87, 27, 0.1);
         }
-        
+
         .document-icon {
           width: 64px;
           height: 64px;
@@ -5610,11 +5818,11 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           color: #F3EED9;
           box-shadow: 0 8px 32px rgba(194, 87, 27, 0.3);
         }
-        
+
         .document-details {
           flex: 1;
         }
-        
+
         .document-title {
           font-size: 20px;
           font-weight: 700;
@@ -5622,7 +5830,7 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           margin: 0 0 8px 0;
           line-height: 1.3;
         }
-        
+
         .document-author {
           font-size: 16px;
           color: #4A4A4A;
@@ -5631,102 +5839,24 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           align-items: center;
           gap: 8px;
         }
-        
+
         .document-meta {
           display: flex;
           flex-wrap: wrap;
-          gap: 16px;
+          gap: 12px;
         }
-        
+
         .meta-item {
           display: flex;
           align-items: center;
           gap: 6px;
-          font-size: 14px;
+          font-size: 12px;
           color: #4A4A4A;
           background: rgba(62, 92, 73, 0.1);
-          padding: 4px 12px;
-          border-radius: 20px;
+          padding: 4px 10px;
+          border-radius: 16px;
         }
-        
-        .borrowed-status {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          color: #C2571B;
-          background: rgba(194, 87, 27, 0.1);
-          padding: 8px 16px;
-          border-radius: 12px;
-          font-weight: 600;
-          margin-top: 12px;
-          width: fit-content;
-        }
-        
-        .form-section {
-          padding: 24px;
-        }
-        
-        .section-header {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          margin-bottom: 24px;
-        }
-        
-        .section-icon {
-          width: 48px;
-          height: 48px;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          border-radius: 14px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #F3EED9;
-          box-shadow: 0 6px 20px rgba(62, 92, 73, 0.3);
-        }
-        
-        .section-icon.return-icon {
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          box-shadow: 0 6px 20px rgba(62, 92, 73, 0.3);
-        }
-        
-        .section-title {
-          font-size: 20px;
-          font-weight: 600;
-          color: #2E2E2E;
-          margin: 0;
-        }
-        
-        .search-input-container {
-          position: relative;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          background: #FFFFFF;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          padding: 16px 20px;
-          transition: all 0.3s ease;
-        }
-        
-        .search-input-container:focus-within {
-          border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.15);
-        }
-        
-        .search-input {
-          flex: 1;
-          border: none;
-          outline: none;
-          font-size: 16px;
-          color: #2E2E2E;
-          background: transparent;
-        }
-        
-        .search-input::placeholder {
-          color: #4A4A4A;
-        }
-        
+
         .borrowers-list {
           max-height: 300px;
           overflow-y: auto;
@@ -5735,7 +5865,7 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           gap: 8px;
           margin-top: 16px;
         }
-        
+
         .borrower-item {
           display: flex;
           align-items: center;
@@ -5745,22 +5875,22 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           border: 2px solid transparent;
           border-radius: 12px;
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          transition: all 0.3s ease;
         }
-        
+
         .borrower-item:hover {
           border-color: rgba(62, 92, 73, 0.2);
           transform: translateY(-2px);
           box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
-        
+
         .borrower-item.selected {
           border-color: #3E5C49;
           background: linear-gradient(135deg, rgba(62, 92, 73, 0.05) 0%, rgba(62, 92, 73, 0.1) 100%);
           transform: translateY(-2px);
           box-shadow: 0 8px 25px rgba(62, 92, 73, 0.2);
         }
-        
+
         .borrower-avatar {
           width: 48px;
           height: 48px;
@@ -5770,32 +5900,33 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           align-items: center;
           justify-content: center;
           color: #4A4A4A;
+          flex-shrink: 0;
         }
-        
+
         .borrower-item.selected .borrower-avatar {
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           color: #F3EED9;
         }
-        
+
         .borrower-info {
           flex: 1;
           min-width: 0;
         }
-        
+
         .borrower-name {
           font-size: 16px;
           font-weight: 600;
           color: #2E2E2E;
           margin-bottom: 4px;
         }
-        
+
         .borrower-details {
           display: flex;
           flex-wrap: wrap;
-          gap: 12px;
-          font-size: 14px;
+          gap: 8px;
+          font-size: 12px;
         }
-        
+
         .borrower-type,
         .borrower-matricule,
         .borrower-class {
@@ -5805,79 +5936,55 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           border-radius: 6px;
           font-size: 12px;
         }
-        
+
         .selection-indicator {
           color: #3E5C49;
           opacity: 0;
           transition: opacity 0.3s ease;
         }
-        
+
         .borrower-item.selected .selection-indicator {
           opacity: 1;
         }
-        
+
         .no-borrowers {
           text-align: center;
           padding: 40px 20px;
           color: #4A4A4A;
         }
-        
+
         .no-borrowers svg {
           margin: 0 auto 16px;
           opacity: 0.5;
         }
-        
-        .date-field {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
+
+        .selected-borrower-preview {
+          margin-top: 16px;
         }
-        
-        .date-input {
-          padding: 16px 20px;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          font-size: 16px;
-          color: #2E2E2E;
-          background: #FFFFFF;
-          transition: all 0.3s ease;
-        }
-        
-        .date-input:focus {
-          outline: none;
-          border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.15);
-        }
-        
-        .date-help {
+
+        .borrower-preview-card {
           display: flex;
           align-items: center;
-          gap: 8px;
-          font-size: 14px;
-          color: #4A4A4A;
+          gap: 16px;
+          padding: 16px;
           background: rgba(62, 92, 73, 0.05);
-          padding: 8px 16px;
-          border-radius: 8px;
+          border-radius: 12px;
+          border: 1px solid rgba(62, 92, 73, 0.1);
         }
-        
-        .return-form-card {
-          border: 2px solid rgba(62, 92, 73, 0.2);
-          background: linear-gradient(135deg, rgba(62, 92, 73, 0.05) 0%, #FFFFFF 100%);
-        }
-        
+
         .return-info {
           background: rgba(62, 92, 73, 0.05);
           border-radius: 12px;
           padding: 20px;
         }
-        
+
         .return-message {
           font-size: 16px;
           color: #2E2E2E;
           margin: 0 0 16px 0;
           line-height: 1.5;
         }
-        
+
         .return-date-info {
           display: flex;
           align-items: center;
@@ -5886,110 +5993,298 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           color: #3E5C49;
           font-weight: 600;
         }
-        
+
         .modal-actions {
+          padding: 24px 32px;
+          background: #FAF9F6;
+          border-top: 1px solid rgba(229, 220, 194, 0.4);
           display: flex;
-          justify-content: flex-end;
-          gap: 16px;
-          padding-top: 24px;
-          border-top: 2px solid rgba(229, 220, 194, 0.3);
-          margin-top: auto;
+          align-items: center;
+          justify-content: space-between;
         }
-        
-        @media (max-width: 768px) {
-          .borrow-document-modal {
-            max-width: 100%;
-            margin: 8px;
-            border-radius: 20px;
+
+        .actions-left,
+        .actions-right {
+          display: flex;
+          gap: 12px;
+        }
+
+        .btn {
+          padding: 12px 20px;
+          border: none;
+          border-radius: 10px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          min-width: 120px;
+          justify-content: center;
+        }
+
+        .btn-secondary {
+          background: #F3EED9;
+          color: #2E2E2E;
+          border: 1px solid rgba(229, 220, 194, 0.4);
+        }
+
+        .btn-secondary:hover {
+          background: #E5DCC2;
+          transform: translateY(-1px);
+        }
+
+        .btn-primary {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+        }
+
+        .btn-primary:hover {
+          background: linear-gradient(135deg, #2E453A 0%, #1F2F25 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
+        }
+
+        .btn-success {
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
+          color: #F3EED9;
+        }
+
+        .btn-success:hover:not(:disabled) {
+          background: linear-gradient(135deg, #A8481A 0%, #8A3C18 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(194, 87, 27, 0.3);
+        }
+
+        .btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        .spinner {
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(243, 238, 217, 0.3);
+          border-top: 2px solid #F3EED9;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
           }
-          
+        }
+
+        /* Scrollbar personnalisé */
+        .borrowers-list::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .borrowers-list::-webkit-scrollbar-track {
+          background: rgba(229, 220, 194, 0.2);
+          border-radius: 4px;
+        }
+
+        .borrowers-list::-webkit-scrollbar-thumb {
+          background: rgba(62, 92, 73, 0.3);
+          border-radius: 4px;
+        }
+
+        .borrowers-list::-webkit-scrollbar-thumb:hover {
+          background: rgba(62, 92, 73, 0.5);
+        }
+
+        @media (max-width: 768px) {
+          .modal-overlay {
+            padding: 16px;
+          }
+
+          .modal-container {
+            max-height: 95vh;
+          }
+
           .modal-header {
+            padding: 20px 24px;
+          }
+
+          .header-content {
+            gap: 12px;
+          }
+
+          .header-icon {
+            width: 40px;
+            height: 40px;
+          }
+
+          .modal-title {
+            font-size: 20px;
+          }
+
+          .progress-container {
+            padding: 20px 24px 0;
+          }
+
+          .progress-steps {
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 20px;
+          }
+
+          .progress-step {
+            flex-direction: row;
+            gap: 12px;
+          }
+
+          .step-info {
+            flex: 1;
+          }
+
+          .modal-content {
             padding: 24px;
           }
-          
-          .header-content {
-            flex-direction: column;
-            text-align: center;
-            gap: 16px;
-          }
-          
-          .modal-title {
-            font-size: 24px;
-          }
-          
-          .modal-content {
-            padding: 20px;
-            gap: 20px;
-          }
-          
+
           .document-preview {
             flex-direction: column;
             text-align: center;
             gap: 16px;
           }
-          
+
           .document-meta {
             justify-content: center;
           }
-          
+
           .modal-actions {
             flex-direction: column;
             gap: 12px;
           }
-          
+
           .borrowers-list {
             max-height: 200px;
           }
-          
+
           .borrower-item {
             padding: 12px 16px;
           }
-          
+
           .borrower-details {
             flex-direction: column;
             gap: 4px;
           }
         }
-        
-        /* Amélioration de l'accessibilité */
-        .borrower-item:focus-visible {
-          outline: 2px solid #3E5C49;
-          outline-offset: 2px;
+
+        /* New Borrower Creation Styles */
+        .form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
         }
-        
-        .close-button:focus-visible {
-          outline: 2px solid #F3EED9;
-          outline-offset: 2px;
+
+        .borrower-type-selector {
+          display: flex;
+          gap: 12px;
+          margin-top: 8px;
         }
-        
-        /* Scrollbar personnalisé */
-        .borrowers-list::-webkit-scrollbar {
-          width: 6px;
+
+        .type-btn {
+          flex: 1;
+          padding: 12px 16px;
+          border: 2px solid rgba(229, 220, 194, 0.4);
+          border-radius: 10px;
+          background: white;
+          color: #2E2E2E;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
         }
-        
-        .borrowers-list::-webkit-scrollbar-track {
-          background: #F3EED9;
-          border-radius: 3px;
+
+        .type-btn:hover {
+          border-color: #3E5C49;
+          background: rgba(62, 92, 73, 0.05);
         }
-        
-        .borrowers-list::-webkit-scrollbar-thumb {
+
+        .type-btn.active {
+          border-color: #3E5C49;
+          background: linear-gradient(135deg, rgba(62, 92, 73, 0.1) 0%, rgba(62, 92, 73, 0.05) 100%);
+          color: #3E5C49;
+          font-weight: 600;
+        }
+
+        .borrower-selection-header {
+          margin-bottom: 20px;
+        }
+
+        .create-borrower-action {
+          margin-top: 16px;
+        }
+
+        .create-borrower-btn {
+          width: 100%;
+          padding: 12px 16px;
+          border: 2px dashed rgba(194, 87, 27, 0.3);
+          border-radius: 10px;
+          background: rgba(194, 87, 27, 0.05);
+          color: #C2571B;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+
+        .create-borrower-btn:hover {
+          border-color: #C2571B;
+          background: rgba(194, 87, 27, 0.1);
+          transform: translateY(-1px);
+        }
+
+        .create-from-search-btn {
+          margin-top: 16px;
+          padding: 10px 16px;
+          border: 2px solid #3E5C49;
+          border-radius: 8px;
           background: #3E5C49;
-          border-radius: 3px;
+          color: #F3EED9;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
         }
-        
-        .borrowers-list::-webkit-scrollbar-thumb:hover {
+
+        .create-from-search-btn:hover {
           background: #2E453A;
+          transform: translateY(-1px);
         }
-        
-        /* Préférences de mouvement réduit */
-        @media (prefers-reduced-motion: reduce) {
-          .borrow-document-modal,
-          .borrower-item,
-          .close-button,
-          .icon-sparkle,
-          .modal-header::before {
-            animation: none;
-            transition: none;
+
+        .create-borrower-header {
+          margin-bottom: 24px;
+          padding-bottom: 20px;
+          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
+        }
+
+        @media (max-width: 768px) {
+          .form-row {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+
+          .borrower-type-selector {
+            flex-direction: column;
+            gap: 8px;
           }
         }
       ` })] }));
@@ -8154,21 +8449,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/briefcase.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/search.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/filter.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/pen-square.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trash-2.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/hash.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/school.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/building.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/mail.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/save.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/briefcase.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/mail.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/hash.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/school.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/building.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/phone.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/search.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/filter.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/pen-square.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trash-2.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-right.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/save.mjs");
 
 
 
@@ -8181,6 +8478,7 @@ function Borrowers({ onClose, onRefreshData }) {
     const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [dataLoading, setDataLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(true);
     const [appMode, setAppMode] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('offline');
+    const [currentStep, setCurrentStep] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(1);
     // Charger les emprunteurs au montage du composant
     (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
         loadBorrowers();
@@ -8202,7 +8500,7 @@ function Borrowers({ onClose, onRefreshData }) {
             setDataLoading(false);
         }
     };
-    const [borrower, setBorrower] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({
+    const [borrowerData, setBorrowerData] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({
         type: 'student',
         firstName: '',
         lastName: '',
@@ -8218,31 +8516,85 @@ function Borrowers({ onClose, onRefreshData }) {
         createdAt: new Date().toISOString()
     });
     const [formErrors, setFormErrors] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({});
-    const validateForm = () => {
+    const validateStep = (step) => {
         const errors = {};
-        if (!borrower.firstName.trim()) {
-            errors.firstName = 'Le prénom est requis';
+        if (step === 1) {
+            if (!borrowerData.firstName.trim())
+                errors.firstName = 'Le prénom est requis';
+            if (!borrowerData.lastName.trim())
+                errors.lastName = 'Le nom est requis';
+            if (!borrowerData.matricule.trim())
+                errors.matricule = 'Le matricule est requis';
         }
-        if (!borrower.lastName.trim()) {
-            errors.lastName = 'Le nom est requis';
+        if (step === 2) {
+            if (borrowerData.type === 'student' && !borrowerData.classe?.trim()) {
+                errors.classe = 'La classe est requise pour les étudiants';
+            }
+            if (borrowerData.type === 'staff' && !borrowerData.position?.trim()) {
+                errors.position = 'Le poste est requis pour le personnel';
+            }
         }
-        if (!borrower.matricule.trim()) {
-            errors.matricule = 'Le matricule est requis';
-        }
-        if (borrower.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(borrower.email)) {
-            errors.email = 'Format email invalide';
-        }
-        if (borrower.phone && !/^[\d\s\+\-\(\)]{6,}$/.test(borrower.phone)) {
-            errors.phone = 'Format téléphone invalide';
+        if (step === 3) {
+            if (borrowerData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(borrowerData.email)) {
+                errors.email = 'Format email invalide';
+            }
+            if (borrowerData.phone && !/^[\d\s\+\-\(\)]{6,}$/.test(borrowerData.phone)) {
+                errors.phone = 'Format téléphone invalide';
+            }
         }
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
     };
-    const handleSearch = (query) => {
-        setSearchQuery(query);
+    const handleNext = () => {
+        if (validateStep(currentStep)) {
+            setCurrentStep(prev => Math.min(prev + 1, 3));
+        }
+    };
+    const handlePrev = () => {
+        setCurrentStep(prev => Math.max(prev - 1, 1));
+    };
+    const handleInputChange = (field, value) => {
+        setBorrowerData(prev => ({ ...prev, [field]: value }));
+        if (formErrors[field]) {
+            setFormErrors(prev => ({ ...prev, [field]: '' }));
+        }
+    };
+    const handleSubmit = async () => {
+        if (!validateStep(3))
+            return;
+        setIsLoading(true);
+        try {
+            const borrowerToSave = {
+                ...borrowerData,
+                syncStatus: 'pending',
+                lastModified: new Date().toISOString(),
+                version: editingBorrower ? editingBorrower.version + 1 : 1
+            };
+            if (editingBorrower && editingBorrower.id) {
+                await window.electronAPI.updateBorrower({ ...borrowerToSave, id: editingBorrower.id });
+                setBorrowers(prev => prev.map(b => b.id === editingBorrower.id ? { ...borrowerToSave, id: editingBorrower.id } : b));
+            }
+            else {
+                const newId = await window.electronAPI.addBorrower(borrowerToSave);
+                setBorrowers(prev => [...prev, { ...borrowerToSave, id: newId }]);
+            }
+            setShowAddModal(false);
+            setEditingBorrower(null);
+            resetForm();
+            if (onRefreshData) {
+                await onRefreshData();
+            }
+        }
+        catch (error) {
+            console.error('Erreur:', error);
+            setFormErrors({ submit: error.message || 'Erreur lors de l\'opération' });
+        }
+        finally {
+            setIsLoading(false);
+        }
     };
     const resetForm = () => {
-        setBorrower({
+        setBorrowerData({
             type: 'student',
             firstName: '',
             lastName: '',
@@ -8258,85 +8610,26 @@ function Borrowers({ onClose, onRefreshData }) {
             createdAt: new Date().toISOString()
         });
         setFormErrors({});
-        setEditingBorrower(null);
+        setCurrentStep(1);
     };
-    const handleAddBorrower = () => {
-        resetForm();
-        setShowAddModal(true);
-    };
-    const handleEditBorrower = (editBorrower) => {
-        setBorrower({
-            type: editBorrower.type,
-            firstName: editBorrower.firstName,
-            lastName: editBorrower.lastName,
-            matricule: editBorrower.matricule,
-            classe: editBorrower.classe || '',
-            cniNumber: editBorrower.cniNumber || '',
-            position: editBorrower.position || '',
-            email: editBorrower.email || '',
-            phone: editBorrower.phone || '',
-            syncStatus: editBorrower.syncStatus,
-            lastModified: new Date().toISOString(),
-            version: (editBorrower.version || 1) + 1,
-            createdAt: editBorrower.createdAt || new Date().toISOString()
+    const handleEdit = (borrower) => {
+        setBorrowerData({
+            type: borrower.type,
+            firstName: borrower.firstName,
+            lastName: borrower.lastName,
+            matricule: borrower.matricule,
+            classe: borrower.classe || '',
+            cniNumber: borrower.cniNumber || '',
+            position: borrower.position || '',
+            email: borrower.email || '',
+            phone: borrower.phone || '',
+            syncStatus: borrower.syncStatus,
+            lastModified: borrower.lastModified,
+            version: borrower.version,
+            createdAt: borrower.createdAt || new Date().toISOString()
         });
-        setFormErrors({});
-        setEditingBorrower(editBorrower);
+        setEditingBorrower(borrower);
         setShowAddModal(true);
-    };
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!validateForm()) {
-            return;
-        }
-        setIsLoading(true);
-        try {
-            if (editingBorrower) {
-                // Modification d'un emprunteur existant
-                const updatedBorrower = {
-                    ...borrower,
-                    id: editingBorrower.id,
-                    lastModified: new Date().toISOString(),
-                    version: (editingBorrower.version || 1) + 1
-                };
-                if (appMode === 'offline') {
-                    await window.electronAPI.updateBorrower(updatedBorrower);
-                }
-                setBorrowers(prev => prev.map(b => b.id === editingBorrower.id ? updatedBorrower : b));
-            }
-            else {
-                // Ajout d'un nouvel emprunteur
-                const newBorrowerData = {
-                    ...borrower,
-                    syncStatus: 'pending',
-                    lastModified: new Date().toISOString(),
-                    version: 1,
-                    createdAt: new Date().toISOString()
-                };
-                if (appMode === 'offline') {
-                    const savedBorrowerId = await window.electronAPI.addBorrower(newBorrowerData);
-                    const savedBorrower = { ...newBorrowerData, id: savedBorrowerId };
-                    setBorrowers(prev => [...prev, savedBorrower]);
-                }
-                else {
-                    const newBorrower = { ...newBorrowerData, id: Date.now() };
-                    setBorrowers(prev => [...prev, newBorrower]);
-                }
-            }
-            setShowAddModal(false);
-            resetForm();
-            // Rafraîchir les données dans le composant parent si nécessaire
-            if (onRefreshData) {
-                await onRefreshData();
-            }
-        }
-        catch (error) {
-            console.error('Erreur:', error);
-            alert(error.message || 'Erreur lors de l\'opération');
-        }
-        finally {
-            setIsLoading(false);
-        }
     };
     const handleDelete = async (borrowerToDelete) => {
         if (window.confirm(`Êtes-vous sûr de vouloir supprimer ${borrowerToDelete.firstName} ${borrowerToDelete.lastName} ?`)) {
@@ -8345,7 +8638,6 @@ function Borrowers({ onClose, onRefreshData }) {
                     await window.electronAPI.deleteBorrower(borrowerToDelete.id);
                 }
                 setBorrowers(prev => prev.filter(b => b.id !== borrowerToDelete.id));
-                // Rafraîchir les données dans le composant parent si nécessaire
                 if (onRefreshData) {
                     await onRefreshData();
                 }
@@ -8369,1112 +8661,871 @@ function Borrowers({ onClose, onRefreshData }) {
     });
     const studentCount = borrowers.filter(b => b.type === 'student').length;
     const staffCount = borrowers.filter(b => b.type === 'staff').length;
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrowers-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrowers-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 28 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "modal-title", children: "Gestion des Emprunteurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "modal-subtitle", children: [borrowers.length, " emprunteur(s) \u2022 ", studentCount, " \u00E9tudiant(s) \u2022 ", staffCount, " personnel(s)"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-button", onClick: onClose, type: "button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon student", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: studentCount }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "\u00C9tudiants" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon staff", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: staffCount }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Personnel" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon total", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: borrowers.length }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Total" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "controls-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "search-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-input-wrapper", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { className: "search-icon", size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", placeholder: "Rechercher par nom, pr\u00E9nom, matricule...", value: searchQuery, onChange: (e) => handleSearch(e.target.value), className: "search-input" }), searchQuery && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "clear-search", onClick: () => handleSearch(''), type: "button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16 }) }))] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "controls-right", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filterType, onChange: (e) => setFilterType(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "staff", children: "Personnel" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "btn-primary", onClick: handleAddBorrower, type: "button", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 18 }), "Ajouter"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrowers-content", children: dataLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Chargement des emprunteurs..." })] })) : filteredBorrowers.length > 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrowers-grid", children: filteredBorrowers.map((borrower) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `borrower-card ${borrower.type}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-type", children: [borrower.type === 'student' ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: borrower.type === 'student' ? 'Étudiant' : 'Personnel' })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "action-btn view", onClick: () => { }, title: "Voir d\u00E9tails", type: "button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "action-btn edit", onClick: () => handleEditBorrower(borrower), title: "Modifier", type: "button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "action-btn delete", onClick: () => handleDelete(borrower), title: "Supprimer", type: "button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { className: "borrower-name", children: [borrower.firstName, " ", borrower.lastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: borrower.matricule })] }), borrower.type === 'student' && borrower.classe && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: borrower.classe })] })), borrower.type === 'staff' && borrower.position && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: borrower.position })] })), borrower.email && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: borrower.email })] }))] })] })] }, borrower.id))) })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "empty-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 64 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Aucun emprunteur trouv\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: searchQuery || filterType !== 'all'
-                                        ? 'Aucun résultat pour les critères sélectionnés'
-                                        : 'Commencez par ajouter des emprunteurs' })] })) }), showAddModal && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "add-modal-overlay", onClick: () => setShowAddModal(false), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "add-modal", onClick: (e) => e.stopPropagation(), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "add-modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { children: [editingBorrower ? 'Modifier' : 'Ajouter', " un emprunteur"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "modal-close", onClick: () => setShowAddModal(false), type: "button", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "add-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Type d'emprunteur *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "type-selector", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "button", className: `type-button ${borrower.type === 'student' ? 'active' : ''}`, onClick: () => setBorrower(prev => ({ ...prev, type: 'student' })), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }), "\u00C9tudiant"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "button", className: `type-button ${borrower.type === 'staff' ? 'active' : ''}`, onClick: () => setBorrower(prev => ({ ...prev, type: 'staff' })), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }), "Personnel"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Pr\u00E9nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: borrower.firstName, onChange: (e) => {
-                                                                setBorrower(prev => ({ ...prev, firstName: e.target.value }));
-                                                                if (formErrors.firstName) {
-                                                                    setFormErrors(prev => ({ ...prev, firstName: '' }));
-                                                                }
-                                                            }, className: `form-input ${formErrors.firstName ? 'error' : ''}`, required: true }), formErrors.firstName && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "error-text", children: formErrors.firstName })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: borrower.lastName, onChange: (e) => {
-                                                                setBorrower(prev => ({ ...prev, lastName: e.target.value }));
-                                                                if (formErrors.lastName) {
-                                                                    setFormErrors(prev => ({ ...prev, lastName: '' }));
-                                                                }
-                                                            }, className: `form-input ${formErrors.lastName ? 'error' : ''}`, required: true }), formErrors.lastName && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "error-text", children: formErrors.lastName })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Matricule *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: borrower.matricule, onChange: (e) => {
-                                                                setBorrower(prev => ({ ...prev, matricule: e.target.value }));
-                                                                if (formErrors.matricule) {
-                                                                    setFormErrors(prev => ({ ...prev, matricule: '' }));
-                                                                }
-                                                            }, className: `form-input ${formErrors.matricule ? 'error' : ''}`, required: true }), formErrors.matricule && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "error-text", children: formErrors.matricule })] }), borrower.type === 'student' ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Classe" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: borrower.classe, onChange: (e) => setBorrower(prev => ({ ...prev, classe: e.target.value })), className: "form-input", placeholder: "ex: Terminale C" })] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "N\u00B0 CNI" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: borrower.cniNumber, onChange: (e) => setBorrower(prev => ({ ...prev, cniNumber: e.target.value })), className: "form-input" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group span-full", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Poste" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: borrower.position, onChange: (e) => setBorrower(prev => ({ ...prev, position: e.target.value })), className: "form-input", placeholder: "ex: Professeur de Math\u00E9matiques" })] })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "Email" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: borrower.email, onChange: (e) => {
-                                                                setBorrower(prev => ({ ...prev, email: e.target.value }));
-                                                                if (formErrors.email) {
-                                                                    setFormErrors(prev => ({ ...prev, email: '' }));
-                                                                }
-                                                            }, className: `form-input ${formErrors.email ? 'error' : ''}` }), formErrors.email && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "error-text", children: formErrors.email })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "form-label", children: "T\u00E9l\u00E9phone" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "tel", value: borrower.phone, onChange: (e) => {
-                                                                setBorrower(prev => ({ ...prev, phone: e.target.value }));
-                                                                if (formErrors.phone) {
-                                                                    setFormErrors(prev => ({ ...prev, phone: '' }));
-                                                                }
-                                                            }, className: `form-input ${formErrors.phone ? 'error' : ''}` }), formErrors.phone && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "error-text", children: formErrors.phone })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "btn-secondary", onClick: () => setShowAddModal(false), disabled: isLoading, children: "Annuler" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", className: "btn-primary", disabled: isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 16 }), isLoading ? 'Enregistrement...' : editingBorrower ? 'Modifier' : 'Ajouter'] })] })] })] }) }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
-        .borrowers-overlay {
+    const getStepTitle = (step) => {
+        switch (step) {
+            case 1: return 'Informations personnelles';
+            case 2: return 'Informations académiques/professionnelles';
+            case 3: return 'Contact';
+            default: return '';
+        }
+    };
+    const getStepDescription = (step) => {
+        switch (step) {
+            case 1: return 'Identité de l\'emprunteur';
+            case 2: return 'Classe, poste ou informations spécifiques';
+            case 3: return 'Coordonnées de contact';
+            default: return '';
+        }
+    };
+    const getStepIcon = (step) => {
+        switch (step) {
+            case 1: return lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"];
+            case 2: return borrowerData.type === 'student' ? lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"] : lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"];
+            case 3: return lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"];
+            default: return lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"];
+        }
+    };
+    const renderStepContent = () => {
+        switch (currentStep) {
+            case 1:
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "form-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 18 }), "Type d'emprunteur *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "radio-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: `radio-option ${borrowerData.type === 'student' ? 'selected' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "radio", name: "type", value: "student", checked: borrowerData.type === 'student', onChange: (e) => handleInputChange('type', e.target.value) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "\u00C9tudiant" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: `radio-option ${borrowerData.type === 'staff' ? 'selected' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "radio", name: "type", value: "staff", checked: borrowerData.type === 'staff', onChange: (e) => handleInputChange('type', e.target.value) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Personnel" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "form-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 18 }), "Pr\u00E9nom *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: borrowerData.firstName, onChange: (e) => handleInputChange('firstName', e.target.value), className: `form-input ${formErrors.firstName ? 'error' : ''}`, placeholder: "Pr\u00E9nom de l'emprunteur", autoFocus: true }), formErrors.firstName && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "error-message", children: formErrors.firstName })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "form-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 18 }), "Nom *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: borrowerData.lastName, onChange: (e) => handleInputChange('lastName', e.target.value), className: `form-input ${formErrors.lastName ? 'error' : ''}`, placeholder: "Nom de famille" }), formErrors.lastName && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "error-message", children: formErrors.lastName })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "form-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }), "Matricule *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: borrowerData.matricule, onChange: (e) => handleInputChange('matricule', e.target.value), className: `form-input ${formErrors.matricule ? 'error' : ''}`, placeholder: "Num\u00E9ro d'identification unique" }), formErrors.matricule && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "error-message", children: formErrors.matricule })] })] }));
+            case 2:
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [borrowerData.type === 'student' ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "form-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 18 }), "Classe *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: borrowerData.classe || '', onChange: (e) => handleInputChange('classe', e.target.value), className: `form-input ${formErrors.classe ? 'error' : ''}`, placeholder: "Niveau ou classe de l'\u00E9tudiant" }), formErrors.classe && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "error-message", children: formErrors.classe })] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "form-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 18 }), "Poste/Fonction *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: borrowerData.position || '', onChange: (e) => handleInputChange('position', e.target.value), className: `form-input ${formErrors.position ? 'error' : ''}`, placeholder: "Poste ou fonction occup\u00E9e" }), formErrors.position && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "error-message", children: formErrors.position })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "form-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }), "Num\u00E9ro CNI (optionnel)"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: borrowerData.cniNumber || '', onChange: (e) => handleInputChange('cniNumber', e.target.value), className: "form-input", placeholder: "Num\u00E9ro de carte d'identit\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "form-help", children: "Num\u00E9ro de carte d'identit\u00E9 nationale pour identification officielle" })] })] }));
+            case 3:
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "form-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 18 }), "Email (optionnel)"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: borrowerData.email || '', onChange: (e) => handleInputChange('email', e.target.value), className: `form-input ${formErrors.email ? 'error' : ''}`, placeholder: "adresse@email.com" }), formErrors.email && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "error-message", children: formErrors.email })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "form-label", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 18 }), "T\u00E9l\u00E9phone (optionnel)"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "tel", value: borrowerData.phone || '', onChange: (e) => handleInputChange('phone', e.target.value), className: `form-input ${formErrors.phone ? 'error' : ''}`, placeholder: "+237 6XX XXX XXX" }), formErrors.phone && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "error-message", children: formErrors.phone }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "form-help", children: "Num\u00E9ro de t\u00E9l\u00E9phone pour le contact en cas de retard" })] })] }));
+            default:
+                return null;
+        }
+    };
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-container borrowers-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "modal-title", children: "Gestion des Emprunteurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "modal-subtitle", children: [borrowers.length, " emprunteur(s) \u2022 ", studentCount, " \u00E9tudiant(s) \u2022 ", staffCount, " personnel(s)"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: onClose, className: "close-btn", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon student", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: studentCount }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "\u00C9tudiants" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon staff", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: staffCount }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Personnel" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon total", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-value", children: borrowers.length }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Total" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "controls-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-bar", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", placeholder: "Rechercher un emprunteur...", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), className: "search-input" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-controls", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: filterType, onChange: (e) => setFilterType(e.target.value), className: "filter-select", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "student", children: "\u00C9tudiants" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "staff", children: "Personnel" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { onClick: () => {
+                                            resetForm();
+                                            setShowAddModal(true);
+                                        }, className: "btn btn-primary", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), "Nouvel emprunteur"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "modal-content", children: dataLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Chargement des emprunteurs..." })] })) : filteredBorrowers.length === 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "empty-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 48 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Aucun emprunteur trouv\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: searchQuery || filterType !== 'all'
+                                        ? 'Aucun emprunteur ne correspond à vos critères de recherche.'
+                                        : 'Commencez par ajouter votre premier emprunteur.' }), !searchQuery && filterType === 'all' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { onClick: () => {
+                                        resetForm();
+                                        setShowAddModal(true);
+                                    }, className: "btn btn-primary", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), "Ajouter le premier emprunteur"] }))] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "borrowers-grid", children: filteredBorrowers.map((borrower) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `borrower-type ${borrower.type}`, children: [borrower.type === 'student' ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: borrower.type === 'student' ? 'Étudiant' : 'Personnel' })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => handleEdit(borrower), className: "action-btn edit", title: "Modifier", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => handleDelete(borrower), className: "action-btn delete", title: "Supprimer", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 14 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "borrower-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h4", { className: "borrower-name", children: [borrower.firstName, " ", borrower.lastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "borrower-matricule", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 14 }), borrower.matricule] }), borrower.type === 'student' && borrower.classe && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "borrower-detail", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 14 }), borrower.classe] })), borrower.type === 'staff' && borrower.position && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "borrower-detail", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 14 }), borrower.position] })), borrower.email && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "borrower-contact", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 14 }), borrower.email] })), borrower.phone && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "borrower-contact", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 14 }), borrower.phone] }))] })] }, borrower.id))) })) })] }), showAddModal && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "modal-overlay", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "modal-title", children: editingBorrower ? 'Modifier l\'emprunteur' : 'Nouvel emprunteur' }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "modal-subtitle", children: "Ajouter un nouvel utilisateur \u00E0 votre biblioth\u00E8que" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => {
+                                        setShowAddModal(false);
+                                        setEditingBorrower(null);
+                                        resetForm();
+                                    }, className: "close-btn", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-steps", children: [1, 2, 3].map((step) => {
+                                        const StepIcon = getStepIcon(step);
+                                        const isActive = step === currentStep;
+                                        const isCompleted = step < currentStep;
+                                        return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-indicator", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(StepIcon, { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-title", children: getStepTitle(step) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-description", children: getStepDescription(step) })] })] }, step));
+                                    }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-fill", style: { width: `${(currentStep / 3) * 100}%` } }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-content", children: [formErrors.submit && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "alert alert-error", children: formErrors.submit })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-container", children: renderStepContent() })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "actions-left", children: currentStep > 1 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: handlePrev, className: "btn btn-secondary", children: "Pr\u00E9c\u00E9dent" })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "actions-right", children: currentStep < 3 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { onClick: handleNext, className: "btn btn-primary", children: ["Suivant", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 16 })] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: handleSubmit, disabled: isLoading, className: "btn btn-success", children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), "Enregistrement..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 16 }), editingBorrower ? 'Modifier' : 'Ajouter'] })) })) })] })] }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+        .modal-overlay {
           position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.7);
-          backdrop-filter: blur(12px);
+          inset: 0;
+          background: rgba(0, 0, 0, 0.75);
+          backdrop-filter: blur(8px);
           display: flex;
           align-items: center;
           justify-content: center;
-          z-index: 1000;
+          z-index: 50;
           padding: 20px;
-          animation: fadeIn 0.3s ease;
         }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes slideUp {
-          from { 
-            opacity: 0;
-            transform: translateY(30px) scale(0.95);
-          }
-          to { 
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-        
-        .borrowers-modal {
-          background: #FFFFFF;
+
+        .modal-container {
+          background: white;
           border-radius: 20px;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
           width: 100%;
-          max-width: 1200px;
+          max-width: 1000px;
           max-height: 90vh;
-          overflow: hidden;
           display: flex;
           flex-direction: column;
-          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-          border: 1px solid rgba(229, 220, 194, 0.3);
-          animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+          overflow: hidden;
         }
-        
+
+        .borrowers-modal {
+          max-width: 1200px;
+        }
+
         .modal-header {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+          padding: 24px 32px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 32px;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: #F3EED9;
-          position: relative;
-          overflow: hidden;
         }
-        
-        .modal-header::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.1) 0%, transparent 50%);
-          backdrop-filter: blur(10px);
-        }
-        
+
         .header-content {
           display: flex;
           align-items: center;
-          gap: 20px;
-          position: relative;
-          z-index: 1;
-        }
-        
-        .header-icon {
-          width: 56px;
-          height: 56px;
-          background: rgba(243, 238, 217, 0.2);
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .modal-title {
-          font-size: 28px;
-          font-weight: 800;
-          margin: 0 0 8px 0;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-        
-        .modal-subtitle {
-          font-size: 16px;
-          opacity: 0.9;
-          margin: 0;
-          font-weight: 500;
-        }
-        
-        .close-button {
-          width: 44px;
-          height: 44px;
-          border: none;
-          background: rgba(243, 238, 217, 0.1);
-          color: #F3EED9;
-          border-radius: 12px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s ease;
-          position: relative;
-          z-index: 1;
-        }
-        
-        .close-button:hover {
-          background: rgba(243, 238, 217, 0.2);
-        }
-        
-        .stats-section {
-          display: flex;
-          gap: 24px;
-          padding: 32px;
-          background: rgba(248, 246, 240, 0.5);
-          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
-        }
-        
-        .stat-card {
-          display: flex;
-          align-items: center;
           gap: 16px;
-          background: #FFFFFF;
-          padding: 24px;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.1);
-          border: 1px solid rgba(229, 220, 194, 0.3);
-          flex: 1;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
-        .stat-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(62, 92, 73, 0.15);
-          border-color: rgba(62, 92, 73, 0.2);
-        }
-        
-        .stat-icon {
+
+        .header-icon {
           width: 48px;
           height: 48px;
+          background: rgba(255, 255, 255, 0.1);
           border-radius: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #F3EED9;
+          backdrop-filter: blur(10px);
         }
-        
-        .stat-icon.student {
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-        }
-        
-        .stat-icon.staff {
-          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
-        }
-        
-        .stat-icon.total {
-          background: linear-gradient(135deg, #6E6E6E 0%, #5A5A5A 100%);
-        }
-        
-        .stat-content {
-          display: flex;
-          flex-direction: column;
-        }
-        
-        .stat-value {
-          font-size: 28px;
-          font-weight: 800;
-          color: #2E2E2E;
-          display: block;
-          line-height: 1;
-        }
-        
-        .stat-label {
-          font-size: 14px;
-          color: #4A4A4A;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          font-weight: 600;
-          margin-top: 4px;
-        }
-        
-        .controls-section {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 24px 32px;
-          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
-          background: #FFFFFF;
-        }
-        
-        .search-container {
+
+        .header-text {
           flex: 1;
-          max-width: 400px;
         }
-        
-        .search-input-wrapper {
-          position: relative;
-          display: flex;
-          align-items: center;
-        }
-        
-        .search-icon {
-          position: absolute;
-          left: 16px;
-          color: #4A4A4A;
-          z-index: 2;
-        }
-        
-        .search-input {
-          width: 100%;
-          height: 52px;
-          padding: 0 48px 0 48px;
-          border: 2px solid #E5DCC2;
-          border-radius: 16px;
-          font-size: 16px;
-          background: #FFFFFF;
-          color: #2E2E2E;
-          transition: all 0.3s ease;
-          font-weight: 500;
-        }
-        
-        .search-input:focus {
-          outline: none;
-          border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
-          transform: translateY(-1px);
-        }
-        
-        .clear-search {
-          position: absolute;
-          right: 16px;
-          background: #F3EED9;
-          border: none;
-          cursor: pointer;
-          color: #4A4A4A;
-          padding: 8px;
-          border-radius: 8px;
-          transition: all 0.2s ease;
-        }
-        
-        .clear-search:hover {
-          color: #2E2E2E;
-          background: #E5DCC2;
-          transform: scale(1.1);
-        }
-        
-        .controls-right {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-        }
-        
-        .filter-group {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          color: #4A4A4A;
-          font-weight: 500;
-        }
-        
-        .filter-select {
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          padding: 12px 16px;
-          background: #FFFFFF;
-          color: #2E2E2E;
-          font-size: 14px;
-          cursor: pointer;
-          font-weight: 500;
-          transition: all 0.3s ease;
-        }
-        
-        .filter-select:focus {
-          outline: none;
-          border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
-        }
-        
-        .btn-primary {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 14px 24px;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: #F3EED9;
-          border: none;
-          border-radius: 16px;
-          font-size: 14px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
-        }
-        
-        .btn-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(62, 92, 73, 0.4);
-          background: linear-gradient(135deg, #2E453A 0%, #3E5C49 100%);
-        }
-        
-        .borrowers-content {
-          flex: 1;
-          overflow-y: auto;
-          padding: 32px;
-          background: rgba(248, 246, 240, 0.3);
-        }
-        
-        .borrowers-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-          gap: 24px;
-        }
-        
-        .borrower-card {
-          background: #FFFFFF;
-          border-radius: 20px;
-          border: 1px solid rgba(229, 220, 194, 0.3);
-          overflow: hidden;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          position: relative;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        }
-        
-        .borrower-card::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 0;
-          bottom: 0;
-          width: 5px;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          transition: all 0.3s ease;
-        }
-        
-        .borrower-card.staff::before {
-          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
-        }
-        
-        .borrower-card:hover {
-          transform: translateY(-8px) scale(1.02);
-          box-shadow: 
-            0 20px 40px rgba(0, 0, 0, 0.15),
-            0 8px 16px rgba(0, 0, 0, 0.1);
-        }
-        
-        .borrower-card:hover::before {
-          width: 8px;
-        }
-        
-        .card-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 20px 24px;
-          background: linear-gradient(135deg, rgba(248, 246, 240, 0.8) 0%, rgba(229, 220, 194, 0.3) 100%);
-          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
-        }
-        
-        .borrower-type {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          font-size: 13px;
+
+        .modal-title {
+          font-size: 24px;
           font-weight: 700;
-          color: #4A4A4A;
-          text-transform: uppercase;
-          letter-spacing: 1px;
+          margin: 0 0 4px 0;
+          line-height: 1.2;
         }
-        
-        .card-actions {
-          display: flex;
-          gap: 8px;
+
+        .modal-subtitle {
+          font-size: 14px;
+          opacity: 0.8;
+          margin: 0;
         }
-        
-        .action-btn {
-          width: 36px;
-          height: 36px;
+
+        .close-btn {
+          width: 40px;
+          height: 40px;
           border: none;
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
           border-radius: 10px;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          position: relative;
-          overflow: hidden;
+          transition: all 0.2s ease;
+          z-index: 10;
         }
-        
-        .action-btn::before {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 0;
-          height: 0;
-          border-radius: 50%;
-          transition: all 0.3s ease;
-          transform: translate(-50%, -50%);
+
+        .close-btn:hover {
+          background: rgba(255, 255, 255, 0.2);
+          transform: scale(1.05);
         }
-        
-        .action-btn:hover::before {
-          width: 100%;
-          height: 100%;
+
+        .stats-section {
+          background: #FAF9F6;
+          padding: 20px 32px;
+          border-bottom: 1px solid rgba(229, 220, 194, 0.4);
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 16px;
         }
-        
-        .action-btn.view {
-          background: rgba(110, 110, 110, 0.1);
-          color: #4A4A4A;
-        }
-        
-        .action-btn.view:hover {
-          color: #F3EED9;
-          transform: scale(1.1);
-        }
-        
-        .action-btn.view:hover::before {
-          background: #6E6E6E;
-        }
-        
-        .action-btn.edit {
-          background: rgba(62, 92, 73, 0.1);
-          color: #3E5C49;
-        }
-        
-        .action-btn.edit:hover {
-          color: #F3EED9;
-          transform: scale(1.1);
-        }
-        
-        .action-btn.edit:hover::before {
-          background: #3E5C49;
-        }
-        
-        .action-btn.delete {
-          background: rgba(220, 38, 38, 0.1);
-          color: #DC2626;
-        }
-        
-        .action-btn.delete:hover {
-          color: #F3EED9;
-          transform: scale(1.1);
-        }
-        
-        .action-btn.delete:hover::before {
-          background: #DC2626;
-        }
-        
-        .card-content {
-          padding: 24px;
-        }
-        
-        .borrower-name {
-          font-size: 20px;
-          font-weight: 800;
-          color: #2E2E2E;
-          margin: 0 0 20px 0;
-          letter-spacing: -0.5px;
-        }
-        
-        .borrower-details {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-        
-        .detail-item {
+
+        .stat-card {
+          background: white;
+          border-radius: 12px;
+          padding: 16px;
           display: flex;
           align-items: center;
           gap: 12px;
-          font-size: 14px;
-          color: #4A4A4A;
-          font-weight: 500;
-          padding: 8px 0;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          transition: all 0.2s ease;
         }
-        
-        .detail-item svg {
-          color: #C2571B;
+
+        .stat-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         }
-        
-        .empty-state {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 80px 32px;
-          text-align: center;
-          color: #4A4A4A;
-        }
-        
-        .empty-state svg {
-          opacity: 0.3;
-          margin-bottom: 24px;
-        }
-        
-        .empty-state h3 {
-          font-size: 24px;
-          font-weight: 700;
-          margin: 0 0 12px 0;
-          color: #2E2E2E;
-        }
-        
-        .empty-state p {
-          margin: 0;
-          font-size: 16px;
-          max-width: 400px;
-          line-height: 1.5;
-        }
-        
-        .loading-state {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 80px 32px;
-          text-align: center;
-          color: #4A4A4A;
-        }
-        
-        .loading-spinner {
+
+        .stat-icon {
           width: 40px;
           height: 40px;
-          border: 3px solid #E5DCC2;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .stat-icon.student {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+        }
+
+        .stat-icon.staff {
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
+          color: #F3EED9;
+        }
+
+        .stat-icon.total {
+          background: linear-gradient(135deg, #6E6E6E 0%, #5A5A5A 100%);
+          color: #F3EED9;
+        }
+
+        .stat-content {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .stat-value {
+          font-size: 24px;
+          font-weight: 700;
+          color: #2E2E2E !important;
+          line-height: 1;
+        }
+
+        .stat-label {
+          font-size: 12px;
+          color: #6E6E6E !important;
+          font-weight: 500;
+        }
+
+        .controls-section {
+          background: #FAF9F6;
+          padding: 0 32px 20px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          flex-wrap: wrap;
+        }
+
+        .search-bar {
+          position: relative;
+          flex: 1;
+          min-width: 300px;
+        }
+
+        .search-bar svg {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #6E6E6E;
+        }
+
+        .search-input {
+          width: 100%;
+          padding: 12px 16px 12px 40px;
+          border: 2px solid rgba(229, 220, 194, 0.4);
+          border-radius: 10px;
+          font-size: 14px;
+          background: white;
+          color: #2E2E2E;
+          transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+
+        .filter-controls {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .filter-group {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: white;
+          padding: 8px 12px;
+          border-radius: 10px;
+          border: 2px solid rgba(229, 220, 194, 0.4);
+        }
+
+        .filter-select {
+          border: none;
+          background: none;
+          font-size: 14px;
+          color: #2E2E2E;
+          cursor: pointer;
+          min-width: 100px;
+        }
+
+        .filter-select:focus {
+          outline: none;
+        }
+
+        .modal-content {
+          flex: 1;
+          overflow-y: auto;
+          padding: 32px;
+        }
+
+        .loading-state, .empty-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 60px 20px;
+          text-align: center;
+        }
+
+        .loading-state .spinner {
+          width: 32px;
+          height: 32px;
+          border: 3px solid rgba(62, 92, 73, 0.2);
           border-top: 3px solid #3E5C49;
           border-radius: 50%;
           animation: spin 1s linear infinite;
           margin-bottom: 16px;
         }
-        
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+
+        .empty-state svg {
+          color: #6E6E6E;
+          margin-bottom: 16px;
         }
-        
-        /* Add Modal */
-        .add-modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.8);
-          backdrop-filter: blur(8px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 1100;
+
+        .empty-state h3 {
+          font-size: 20px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0 0 8px 0;
+        }
+
+        .empty-state p {
+          font-size: 14px;
+          color: #6E6E6E;
+          margin: 0 0 24px 0;
+          max-width: 400px;
+          line-height: 1.5;
+        }
+
+        .borrowers-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+          gap: 20px;
+        }
+
+        .borrower-card {
+          background: white;
+          border-radius: 16px;
+          border: 2px solid rgba(229, 220, 194, 0.3);
           padding: 20px;
-          animation: fadeIn 0.3s ease;
+          transition: all 0.2s ease;
         }
-        
-        .add-modal {
-          background: #FFFFFF;
-          border-radius: 24px;
-          width: 100%;
-          max-width: 700px;
-          max-height: 90vh;
-          overflow-y: auto;
-          box-shadow: 
-            0 32px 64px rgba(0, 0, 0, 0.3),
-            0 16px 32px rgba(0, 0, 0, 0.2);
-          animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+        .borrower-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+          border-color: rgba(62, 92, 73, 0.2);
         }
-        
-        .add-modal-header {
+
+        .borrower-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 28px 32px;
-          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
-          background: linear-gradient(135deg, rgba(248, 246, 240, 0.8) 0%, rgba(229, 220, 194, 0.3) 100%);
+          margin-bottom: 16px;
         }
-        
-        .add-modal-header h3 {
-          font-size: 24px;
-          font-weight: 800;
+
+        .borrower-type {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .borrower-type.student {
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+        }
+
+        .borrower-type.staff {
+          background: rgba(194, 87, 27, 0.1);
+          color: #C2571B;
+        }
+
+        .borrower-actions {
+          display: flex;
+          gap: 6px;
+        }
+
+        .action-btn {
+          width: 32px;
+          height: 32px;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+        }
+
+        .action-btn.edit {
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+        }
+
+        .action-btn.edit:hover {
+          background: rgba(62, 92, 73, 0.2);
+          transform: scale(1.05);
+        }
+
+        .action-btn.delete {
+          background: rgba(220, 38, 38, 0.1);
+          color: #dc2626;
+        }
+
+        .action-btn.delete:hover {
+          background: rgba(220, 38, 38, 0.2);
+          transform: scale(1.05);
+        }
+
+        .borrower-info {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .borrower-name {
+          font-size: 18px;
+          font-weight: 600;
           color: #2E2E2E;
           margin: 0;
         }
-        
-        .modal-close {
-          background: rgba(110, 110, 110, 0.1);
-          border: none;
-          cursor: pointer;
-          padding: 12px;
-          border-radius: 12px;
-          color: #4A4A4A;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .modal-close:hover {
-          background: rgba(110, 110, 110, 0.2);
-          color: #2E2E2E;
-          transform: scale(1.1);
-        }
-        
-        .add-form {
-          padding: 32px;
-        }
-        
-        .form-section {
-          margin-bottom: 32px;
-        }
-        
-        .form-label {
-          display: block;
-          font-size: 15px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin-bottom: 12px;
-          letter-spacing: 0.3px;
-        }
-        
-        .type-selector {
+
+        .borrower-matricule {
           display: flex;
-          gap: 16px;
+          align-items: center;
+          gap: 6px;
+          font-size: 14px;
+          color: #6E6E6E;
+          font-weight: 500;
+          margin: 0;
         }
-        
-        .type-button {
+
+        .borrower-detail,
+        .borrower-contact {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 13px;
+          color: #6E6E6E;
+          margin: 0;
+        }
+
+        .borrower-contact {
+          color: #4A4A4A;
+        }
+
+        .progress-container {
+          padding: 24px 32px 0;
+          background: #FAF9F6;
+          border-bottom: 1px solid rgba(229, 220, 194, 0.4);
+        }
+
+        .progress-steps {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 16px;
+        }
+
+        .progress-step {
           display: flex;
           align-items: center;
           gap: 12px;
-          padding: 20px 24px;
-          border: 2px solid #E5DCC2;
-          border-radius: 16px;
-          background: #FFFFFF;
-          color: #4A4A4A;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          font-size: 15px;
-          font-weight: 600;
           flex: 1;
+          opacity: 0.5;
+          transition: all 0.3s ease;
+        }
+
+        .progress-step.active,
+        .progress-step.completed {
+          opacity: 1;
+        }
+
+        .step-indicator {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: rgba(229, 220, 194, 0.3);
+          display: flex;
+          align-items: center;
           justify-content: center;
+          color: #6E6E6E;
+          transition: all 0.3s ease;
+          flex-shrink: 0;
         }
-        
-        .type-button:hover {
-          border-color: #3E5C49;
-          color: #3E5C49;
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(62, 92, 73, 0.15);
-        }
-        
-        .type-button.active {
-          border-color: #3E5C49;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+
+        .progress-step.active .step-indicator {
+          background: #3E5C49;
           color: #F3EED9;
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(62, 92, 73, 0.3);
         }
-        
-        .form-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
+
+        .progress-step.completed .step-indicator {
+          background: #C2571B;
+          color: #F3EED9;
+        }
+
+        .step-info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          min-width: 0;
+        }
+
+        .step-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: #2E2E2E;
+          line-height: 1.2;
+        }
+
+        .step-description {
+          font-size: 12px;
+          color: #4A4A4A;
+          line-height: 1.2;
+        }
+
+        .progress-bar {
+          height: 4px;
+          background: rgba(229, 220, 194, 0.3);
+          border-radius: 2px;
+          overflow: hidden;
+          margin-bottom: 24px;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #3E5C49 0%, #C2571B 100%);
+          transition: width 0.3s ease;
+          border-radius: 2px;
+        }
+
+        .step-container {
+          min-height: 300px;
+        }
+
+        .step-content {
+          display: flex;
+          flex-direction: column;
           gap: 24px;
-          margin-bottom: 32px;
+          animation: slideIn 0.3s ease-out;
         }
-        
+
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateX(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
         .form-group {
           display: flex;
           flex-direction: column;
           gap: 8px;
         }
-        
-        .form-group.span-full {
-          grid-column: 1 / -1;
+
+        .form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
         }
-        
+
+        .form-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          color: #2E2E2E;
+        }
+
         .form-input {
           width: 100%;
-          padding: 16px 20px;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          font-size: 15px;
-          background: #FFFFFF;
+          padding: 12px 16px;
+          border: 2px solid rgba(229, 220, 194, 0.4);
+          border-radius: 10px;
+          font-size: 14px;
+          background: white;
           color: #2E2E2E;
-          transition: all 0.3s ease;
-          font-weight: 500;
+          transition: all 0.2s ease;
+          box-sizing: border-box;
         }
-        
+
         .form-input:focus {
           outline: none;
           border-color: #3E5C49;
           box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
-          transform: translateY(-1px);
         }
-        
+
         .form-input.error {
-          border-color: #DC2626;
-          background: rgba(220, 38, 38, 0.05);
+          border-color: #dc2626;
+          background: #fef2f2;
         }
-        
-        .error-text {
-          font-size: 13px;
-          color: #DC2626;
-          font-weight: 600;
-          margin-top: 4px;
-        }
-        
-        .form-actions {
+
+        .radio-group {
           display: flex;
           gap: 16px;
-          justify-content: flex-end;
-          padding-top: 32px;
-          border-top: 1px solid rgba(229, 220, 194, 0.3);
         }
-        
-        .btn-secondary {
+
+        .radio-option {
           display: flex;
           align-items: center;
-          gap: 10px;
-          padding: 14px 28px;
-          background: rgba(248, 246, 240, 0.8);
+          gap: 8px;
+          padding: 12px 16px;
+          border: 2px solid rgba(229, 220, 194, 0.4);
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          background: white;
+        }
+
+        .radio-option:hover {
+          border-color: #3E5C49;
+        }
+
+        .radio-option.selected {
+          border-color: #3E5C49;
+          background: rgba(62, 92, 73, 0.05);
+        }
+
+        .radio-option input[type="radio"] {
+          display: none;
+        }
+
+        .form-help {
+          font-size: 12px;
           color: #4A4A4A;
-          border: 2px solid #E5DCC2;
+          margin: 0;
+          line-height: 1.4;
+        }
+
+        .error-message {
+          color: #dc2626;
+          font-size: 12px;
+          font-weight: 500;
+          margin: 0;
+          padding: 4px 8px;
+          background: #fef2f2;
+          border-radius: 6px;
+          border-left: 3px solid #dc2626;
+        }
+
+        .alert {
+          padding: 16px;
           border-radius: 12px;
+          margin-bottom: 24px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 14px;
+          font-weight: 500;
+        }
+
+        .alert-error {
+          background: #fef2f2;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+        }
+
+        .modal-actions {
+          padding: 24px 32px;
+          background: #FAF9F6;
+          border-top: 1px solid rgba(229, 220, 194, 0.4);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .actions-left,
+        .actions-right {
+          display: flex;
+          gap: 12px;
+        }
+
+        .btn {
+          padding: 12px 20px;
+          border: none;
+          border-radius: 10px;
           font-size: 14px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          min-width: 120px;
+          justify-content: center;
         }
-        
-        .btn-secondary:hover:not(:disabled) {
-          background: #E5DCC2;
+
+        .btn-secondary {
+          background: #F3EED9;
           color: #2E2E2E;
+          border: 1px solid rgba(229, 220, 194, 0.4);
+        }
+
+        .btn-secondary:hover {
+          background: #E5DCC2;
           transform: translateY(-1px);
         }
-        
-        .btn-primary:disabled,
-        .btn-secondary:disabled {
+
+        .btn-primary {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+        }
+
+        .btn-primary:hover {
+          background: linear-gradient(135deg, #2E453A 0%, #1F2F25 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
+        }
+
+        .btn-success {
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
+          color: #F3EED9;
+        }
+
+        .btn-success:hover:not(:disabled) {
+          background: linear-gradient(135deg, #A8481A 0%, #8A3C18 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(194, 87, 27, 0.3);
+        }
+
+        .btn:disabled {
           opacity: 0.6;
           cursor: not-allowed;
           transform: none;
         }
-        
-        /* Responsive */
+
+        .spinner {
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-top: 2px solid white;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+
         @media (max-width: 768px) {
-          .borrowers-modal {
-            margin: 12px;
-            border-radius: 20px;
+          .modal-overlay {
+            padding: 16px;
+          }
+
+          .modal-container {
             max-height: 95vh;
           }
-          
+
           .modal-header {
-            padding: 24px 20px;
-            flex-direction: column;
-            gap: 16px;
-            text-align: center;
+            padding: 20px 24px;
           }
-          
-          .modal-title {
-            font-size: 24px;
-          }
-          
+
           .stats-section {
-            padding: 20px;
-            flex-direction: column;
-            gap: 16px;
+            padding: 16px 24px;
+            grid-template-columns: 1fr;
+            gap: 12px;
           }
-          
+
           .controls-section {
-            padding: 20px;
+            padding: 0 24px 16px;
             flex-direction: column;
-            gap: 16px;
             align-items: stretch;
+            gap: 12px;
           }
-          
-          .controls-right {
+
+          .search-bar {
+            min-width: auto;
+          }
+
+          .filter-controls {
             justify-content: space-between;
           }
-          
-          .borrowers-content {
-            padding: 20px;
+
+          .modal-content {
+            padding: 24px;
           }
-          
+
           .borrowers-grid {
             grid-template-columns: 1fr;
-            gap: 20px;
+            gap: 16px;
           }
-          
-          .form-grid {
+
+          .form-row {
             grid-template-columns: 1fr;
-            gap: 20px;
+            gap: 16px;
           }
-          
-          .type-selector {
+
+          .radio-group {
             flex-direction: column;
           }
-          
-          .form-actions {
-            flex-direction: column-reverse;
+
+          .modal-actions {
+            padding: 20px 24px;
+            flex-direction: column;
+            gap: 12px;
           }
-          
-          .btn-primary,
-          .btn-secondary {
+
+          .actions-left,
+          .actions-right {
             width: 100%;
-            justify-content: center;
+          }
+
+          .btn {
+            width: 100%;
+            min-width: auto;
+          }
+
+          .progress-steps {
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 20px;
           }
         }
-        
+
         @media (max-width: 480px) {
-          .add-modal {
-            margin: 12px;
-            border-radius: 20px;
+          .modal-overlay {
+            padding: 12px;
           }
-          
-          .add-modal-header,
-          .add-form {
-            padding: 24px 20px;
-          }
-          
-          .borrower-card {
-            border-radius: 16px;
-          }
-          
-          .card-header,
-          .card-content {
-            padding: 20px;
-          }
-          
+
           .modal-header {
-            padding: 20px;
+            padding: 16px 20px;
           }
-          
-          .stats-section,
-          .controls-section,
-          .borrowers-content {
-            padding: 16px;
-          }
-        }
-        
-        /* Scrollbar personnalisé */
-        .borrowers-content::-webkit-scrollbar,
-        .add-modal::-webkit-scrollbar {
-          width: 8px;
-        }
-        
-        .borrowers-content::-webkit-scrollbar-track,
-        .add-modal::-webkit-scrollbar-track {
-          background: #F3EED9;
-          border-radius: 4px;
-        }
-        
-        .borrowers-content::-webkit-scrollbar-thumb,
-        .add-modal::-webkit-scrollbar-thumb {
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          border-radius: 4px;
-        }
-        
-        .borrowers-content::-webkit-scrollbar-thumb:hover,
-        .add-modal::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(135deg, #2E453A 0%, #3E5C49 100%);
-        }
-        
-        /* États de synchronisation */
-        .sync-status {
-          position: absolute;
-          top: 16px;
-          right: 16px;
-          padding: 4px 8px;
-          border-radius: 12px;
-          font-size: 11px;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        
-        .sync-status.synced {
-          background: rgba(62, 92, 73, 0.1);
-          color: #3E5C49;
-          border: 1px solid rgba(62, 92, 73, 0.2);
-        }
-        
-        .sync-status.pending {
-          background: rgba(194, 87, 27, 0.1);
-          color: #C2571B;
-          border: 1px solid rgba(194, 87, 27, 0.2);
-        }
-        
-        .sync-status.error {
-          background: rgba(220, 38, 38, 0.1);
-          color: #DC2626;
-          border: 1px solid rgba(220, 38, 38, 0.2);
-        }
-        
-        /* Amélioration des tooltips */
-        .action-btn[title]:hover::after {
-          content: attr(title);
-          position: absolute;
-          bottom: -35px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: rgba(0, 0, 0, 0.8);
-          color: white;
-          padding: 6px 10px;
-          border-radius: 6px;
-          font-size: 12px;
-          white-space: nowrap;
-          z-index: 1000;
-          animation: fadeIn 0.2s ease;
-        }
-        
-        .action-btn[title]:hover::before {
-          content: '';
-          position: absolute;
-          bottom: -8px;
-          left: 50%;
-          transform: translateX(-50%);
-          border-left: 5px solid transparent;
-          border-right: 5px solid transparent;
-          border-bottom: 5px solid rgba(0, 0, 0, 0.8);
-          z-index: 1000;
-        }
-        
-        /* Indicateur de validation */
-        .form-input.valid {
-          border-color: #3E5C49;
-          background: rgba(62, 92, 73, 0.05);
-        }
-        
-        .form-input.valid:focus {
-          border-color: #3E5C49;
-          box-shadow: 
-            0 0 0 3px rgba(62, 92, 73, 0.1),
-            0 4px 12px rgba(62, 92, 73, 0.15);
-        }
-        
-        /* Indicateurs de statut dans les cartes */
-        .borrower-card {
-          position: relative;
-        }
-        
-        .borrower-card .sync-indicator {
-          position: absolute;
-          top: 20px;
-          right: 20px;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          border: 2px solid white;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .borrower-card .sync-indicator.synced {
-          background: #3E5C49;
-        }
-        
-        .borrower-card .sync-indicator.pending {
-          background: #C2571B;
-          animation: pulse 2s infinite;
-        }
-        
-        .borrower-card .sync-indicator.error {
-          background: #DC2626;
-        }
-        
-        @keyframes pulse {
-          0% {
-            transform: scale(1);
-            opacity: 1;
-          }
-          50% {
-            transform: scale(1.1);
-            opacity: 0.7;
-          }
-          100% {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
-        
-        /* Effet de survol sur les cartes de statistiques */
-        .stat-card:hover .stat-icon {
-          transform: scale(1.1) rotate(5deg);
-        }
-        
-        .stat-card:hover .stat-value {
-          transform: scale(1.05);
-        }
-        
-        /* Amélioration du modal overlay */
-        .add-modal-overlay {
-          animation: fadeInBackdrop 0.3s ease;
-        }
-        
-        @keyframes fadeInBackdrop {
-          from {
-            opacity: 0;
-            backdrop-filter: blur(0px);
-          }
-          to {
-            opacity: 1;
-            backdrop-filter: blur(8px);
-          }
-        }
-        
-        /* Effet de typing pour les placeholders */
-        .search-input::placeholder,
-        .form-input::placeholder {
-          color: #4A4A4A;
-          font-style: italic;
-          transition: all 0.3s ease;
-        }
-        
-        .search-input:focus::placeholder,
-        .form-input:focus::placeholder {
-          opacity: 0.7;
-          transform: translateX(10px);
-        }
-        
-        /* État de chargement pour les boutons */
-        .btn-primary:disabled {
-          background: linear-gradient(135deg, #6E6E6E 0%, #5A5A5A 100%);
-          cursor: not-allowed;
-          transform: none;
-        }
-        
-        .btn-primary:disabled .loading-spinner {
-          margin-right: 8px;
-        }
-        
-        /* Responsive amélioré pour très petits écrans */
-        @media (max-width: 360px) {
-          .borrowers-overlay {
-            padding: 8px;
-          }
-          
-          .borrowers-modal {
-            border-radius: 16px;
-          }
-          
-          .modal-header {
-            padding: 16px;
-          }
-          
+
           .modal-title {
             font-size: 20px;
           }
-          
-          .header-icon {
-            width: 48px;
-            height: 48px;
+
+          .modal-subtitle {
+            font-size: 13px;
           }
-          
-          .stat-card {
+
+          .stats-section {
+            padding: 12px 20px;
+          }
+
+          .controls-section {
+            padding: 0 20px 12px;
+          }
+
+          .modal-content {
+            padding: 20px;
+          }
+
+          .borrower-card {
             padding: 16px;
-            gap: 12px;
           }
-          
-          .stat-icon {
-            width: 40px;
-            height: 40px;
-          }
-          
-          .stat-value {
-            font-size: 24px;
-          }
-          
-          .add-modal {
-            border-radius: 16px;
-          }
-          
-          .type-button {
-            padding: 16px;
-            font-size: 14px;
+
+          .modal-actions {
+            padding: 16px 20px;
           }
         }
       ` })] }));
 }
-;
 
 
 /***/ }),

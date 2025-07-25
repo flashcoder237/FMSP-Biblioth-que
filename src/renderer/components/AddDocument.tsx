@@ -594,6 +594,7 @@ export const AddDocument: React.FC<AddDocumentProps> = ({ onAdd, onCancel, editi
           align-items: center;
           justify-content: center;
           transition: all 0.2s ease;
+          z-index: 10;
         }
 
         .close-btn:hover {

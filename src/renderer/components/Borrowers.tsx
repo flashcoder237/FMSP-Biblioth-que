@@ -16,7 +16,8 @@ import {
   Mail,
   Phone,
   Eye,
-  Filter
+  Filter,
+  ChevronRight
 } from 'lucide-react';
 
 import { Borrower } from '../../types';
@@ -35,6 +36,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   const [appMode, setAppMode] = useState<'offline' | 'online'>('offline');
+  const [currentStep, setCurrentStep] = useState(1);
 
   // Charger les emprunteurs au montage du composant
   useEffect(() => {
@@ -57,7 +59,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
     }
   };
 
-  const [borrower, setBorrower] = useState<Omit<Borrower, 'id'>>({
+  const [borrowerData, setBorrowerData] = useState<Omit<Borrower, 'id'>>({
     type: 'student',
     firstName: '',
     lastName: '',
@@ -75,35 +77,94 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
 
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
-  const validateForm = () => {
+  const validateStep = (step: number) => {
     const errors: { [key: string]: string } = {};
 
-    if (!borrower.firstName.trim()) {
-      errors.firstName = 'Le prénom est requis';
+    if (step === 1) {
+      if (!borrowerData.firstName.trim()) errors.firstName = 'Le prénom est requis';
+      if (!borrowerData.lastName.trim()) errors.lastName = 'Le nom est requis';
+      if (!borrowerData.matricule.trim()) errors.matricule = 'Le matricule est requis';
     }
-    if (!borrower.lastName.trim()) {
-      errors.lastName = 'Le nom est requis';
+
+    if (step === 2) {
+      if (borrowerData.type === 'student' && !borrowerData.classe?.trim()) {
+        errors.classe = 'La classe est requise pour les étudiants';
+      }
+      if (borrowerData.type === 'staff' && !borrowerData.position?.trim()) {
+        errors.position = 'Le poste est requis pour le personnel';
+      }
     }
-    if (!borrower.matricule.trim()) {
-      errors.matricule = 'Le matricule est requis';
-    }
-    if (borrower.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(borrower.email)) {
-      errors.email = 'Format email invalide';
-    }
-    if (borrower.phone && !/^[\d\s\+\-\(\)]{6,}$/.test(borrower.phone)) {
-      errors.phone = 'Format téléphone invalide';
+
+    if (step === 3) {
+      if (borrowerData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(borrowerData.email)) {
+        errors.email = 'Format email invalide';
+      }
+      if (borrowerData.phone && !/^[\d\s\+\-\(\)]{6,}$/.test(borrowerData.phone)) {
+        errors.phone = 'Format téléphone invalide';
+      }
     }
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
+  const handleNext = () => {
+    if (validateStep(currentStep)) {
+      setCurrentStep(prev => Math.min(prev + 1, 3));
+    }
+  };
+
+  const handlePrev = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setBorrowerData(prev => ({ ...prev, [field]: value }));
+    
+    if (formErrors[field]) {
+      setFormErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!validateStep(3)) return;
+    
+    setIsLoading(true);
+    try {
+      const borrowerToSave = {
+        ...borrowerData,
+        syncStatus: 'pending' as const,
+        lastModified: new Date().toISOString(),
+        version: editingBorrower ? editingBorrower.version + 1 : 1
+      };
+
+      if (editingBorrower && editingBorrower.id) {
+        await window.electronAPI.updateBorrower({ ...borrowerToSave, id: editingBorrower.id });
+        setBorrowers(prev => prev.map(b => 
+          b.id === editingBorrower.id ? { ...borrowerToSave, id: editingBorrower.id } : b
+        ));
+      } else {
+        const newId = await window.electronAPI.addBorrower(borrowerToSave);
+        setBorrowers(prev => [...prev, { ...borrowerToSave, id: newId }]);
+      }
+
+      setShowAddModal(false);
+      setEditingBorrower(null);
+      resetForm();
+      
+      if (onRefreshData) {
+        await onRefreshData();
+      }
+    } catch (error: any) {
+      console.error('Erreur:', error);
+      setFormErrors({ submit: error.message || 'Erreur lors de l\'opération' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const resetForm = () => {
-    setBorrower({
+    setBorrowerData({
       type: 'student',
       firstName: '',
       lastName: '',
@@ -119,94 +180,27 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
       createdAt: new Date().toISOString()
     });
     setFormErrors({});
-    setEditingBorrower(null);
+    setCurrentStep(1);
   };
 
-  const handleAddBorrower = () => {
-    resetForm();
-    setShowAddModal(true);
-  };
-
-  const handleEditBorrower = (editBorrower: Borrower) => {
-    setBorrower({
-      type: editBorrower.type,
-      firstName: editBorrower.firstName,
-      lastName: editBorrower.lastName,
-      matricule: editBorrower.matricule,
-      classe: editBorrower.classe || '',
-      cniNumber: editBorrower.cniNumber || '',
-      position: editBorrower.position || '',
-      email: editBorrower.email || '',
-      phone: editBorrower.phone || '',
-      syncStatus: editBorrower.syncStatus,
-      lastModified: new Date().toISOString(),
-      version: (editBorrower.version || 1) + 1,
-      createdAt: editBorrower.createdAt || new Date().toISOString()
+  const handleEdit = (borrower: Borrower) => {
+    setBorrowerData({
+      type: borrower.type,
+      firstName: borrower.firstName,
+      lastName: borrower.lastName,
+      matricule: borrower.matricule,
+      classe: borrower.classe || '',
+      cniNumber: borrower.cniNumber || '',
+      position: borrower.position || '',
+      email: borrower.email || '',
+      phone: borrower.phone || '',
+      syncStatus: borrower.syncStatus,
+      lastModified: borrower.lastModified,
+      version: borrower.version,
+      createdAt: borrower.createdAt || new Date().toISOString()
     });
-    setFormErrors({});
-    setEditingBorrower(editBorrower);
+    setEditingBorrower(borrower);
     setShowAddModal(true);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      if (editingBorrower) {
-        // Modification d'un emprunteur existant
-        const updatedBorrower = {
-          ...borrower,
-          id: editingBorrower.id,
-          lastModified: new Date().toISOString(),
-          version: (editingBorrower.version || 1) + 1
-        };
-        
-        if (appMode === 'offline') {
-          await window.electronAPI.updateBorrower(updatedBorrower);
-        }
-        
-        setBorrowers(prev => prev.map(b => 
-          b.id === editingBorrower.id ? updatedBorrower : b
-        ));
-      } else {
-        // Ajout d'un nouvel emprunteur
-        const newBorrowerData = {
-          ...borrower,
-          syncStatus: 'pending' as const,
-          lastModified: new Date().toISOString(),
-          version: 1,
-          createdAt: new Date().toISOString()
-        };
-        
-        if (appMode === 'offline') {
-          const savedBorrowerId = await window.electronAPI.addBorrower(newBorrowerData);
-          const savedBorrower = { ...newBorrowerData, id: savedBorrowerId };
-          setBorrowers(prev => [...prev, savedBorrower]);
-        } else {
-          const newBorrower = { ...newBorrowerData, id: Date.now() };
-          setBorrowers(prev => [...prev, newBorrower]);
-        }
-      }
-      
-      setShowAddModal(false);
-      resetForm();
-      
-      // Rafraîchir les données dans le composant parent si nécessaire
-      if (onRefreshData) {
-        await onRefreshData();
-      }
-    } catch (error: any) {
-      console.error('Erreur:', error);
-      alert(error.message || 'Erreur lors de l\'opération');
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleDelete = async (borrowerToDelete: Borrower) => {
@@ -218,7 +212,6 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         
         setBorrowers(prev => prev.filter(b => b.id !== borrowerToDelete.id));
         
-        // Rafraîchir les données dans le composant parent si nécessaire
         if (onRefreshData) {
           await onRefreshData();
         }
@@ -245,27 +238,229 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
   const studentCount = borrowers.filter(b => b.type === 'student').length;
   const staffCount = borrowers.filter(b => b.type === 'staff').length;
 
+  const getStepTitle = (step: number) => {
+    switch(step) {
+      case 1: return 'Informations personnelles';
+      case 2: return 'Informations académiques/professionnelles';
+      case 3: return 'Contact';
+      default: return '';
+    }
+  };
+
+  const getStepDescription = (step: number) => {
+    switch(step) {
+      case 1: return 'Identité de l\'emprunteur';
+      case 2: return 'Classe, poste ou informations spécifiques';
+      case 3: return 'Coordonnées de contact';
+      default: return '';
+    }
+  };
+
+  const getStepIcon = (step: number) => {
+    switch(step) {
+      case 1: return User;
+      case 2: return borrowerData.type === 'student' ? GraduationCap : Briefcase;
+      case 3: return Mail;
+      default: return User;
+    }
+  };
+
+  const renderStepContent = () => {
+    switch(currentStep) {
+      case 1:
+        return (
+          <div className="step-content">
+            <div className="form-group">
+              <label className="form-label">
+                <User size={18} />
+                Type d'emprunteur *
+              </label>
+              <div className="radio-group">
+                <label className={`radio-option ${borrowerData.type === 'student' ? 'selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name="type"
+                    value="student"
+                    checked={borrowerData.type === 'student'}
+                    onChange={(e) => handleInputChange('type', e.target.value)}
+                  />
+                  <GraduationCap size={20} />
+                  <span>Étudiant</span>
+                </label>
+                <label className={`radio-option ${borrowerData.type === 'staff' ? 'selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name="type"
+                    value="staff"
+                    checked={borrowerData.type === 'staff'}
+                    onChange={(e) => handleInputChange('type', e.target.value)}
+                  />
+                  <Briefcase size={20} />
+                  <span>Personnel</span>
+                </label>
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">
+                  <User size={18} />
+                  Prénom *
+                </label>
+                <input
+                  type="text"
+                  value={borrowerData.firstName}
+                  onChange={(e) => handleInputChange('firstName', e.target.value)}
+                  className={`form-input ${formErrors.firstName ? 'error' : ''}`}
+                  placeholder="Prénom de l'emprunteur"
+                  autoFocus
+                />
+                {formErrors.firstName && <p className="error-message">{formErrors.firstName}</p>}
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">
+                  <User size={18} />
+                  Nom *
+                </label>
+                <input
+                  type="text"
+                  value={borrowerData.lastName}
+                  onChange={(e) => handleInputChange('lastName', e.target.value)}
+                  className={`form-input ${formErrors.lastName ? 'error' : ''}`}
+                  placeholder="Nom de famille"
+                />
+                {formErrors.lastName && <p className="error-message">{formErrors.lastName}</p>}
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">
+                <Hash size={18} />
+                Matricule *
+              </label>
+              <input
+                type="text"
+                value={borrowerData.matricule}
+                onChange={(e) => handleInputChange('matricule', e.target.value)}
+                className={`form-input ${formErrors.matricule ? 'error' : ''}`}
+                placeholder="Numéro d'identification unique"
+              />
+              {formErrors.matricule && <p className="error-message">{formErrors.matricule}</p>}
+            </div>
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="step-content">
+            {borrowerData.type === 'student' ? (
+              <div className="form-group">
+                <label className="form-label">
+                  <School size={18} />
+                  Classe *
+                </label>
+                <input
+                  type="text"
+                  value={borrowerData.classe || ''}
+                  onChange={(e) => handleInputChange('classe', e.target.value)}
+                  className={`form-input ${formErrors.classe ? 'error' : ''}`}
+                  placeholder="Niveau ou classe de l'étudiant"
+                />
+                {formErrors.classe && <p className="error-message">{formErrors.classe}</p>}
+              </div>
+            ) : (
+              <div className="form-group">
+                <label className="form-label">
+                  <Building size={18} />
+                  Poste/Fonction *
+                </label>
+                <input
+                  type="text"
+                  value={borrowerData.position || ''}
+                  onChange={(e) => handleInputChange('position', e.target.value)}
+                  className={`form-input ${formErrors.position ? 'error' : ''}`}
+                  placeholder="Poste ou fonction occupée"
+                />
+                {formErrors.position && <p className="error-message">{formErrors.position}</p>}
+              </div>
+            )}
+
+            <div className="form-group">
+              <label className="form-label">
+                <Hash size={18} />
+                Numéro CNI (optionnel)
+              </label>
+              <input
+                type="text"
+                value={borrowerData.cniNumber || ''}
+                onChange={(e) => handleInputChange('cniNumber', e.target.value)}
+                className="form-input"
+                placeholder="Numéro de carte d'identité"
+              />
+              <p className="form-help">Numéro de carte d'identité nationale pour identification officielle</p>
+            </div>
+          </div>
+        );
+
+      case 3:
+        return (
+          <div className="step-content">
+            <div className="form-group">
+              <label className="form-label">
+                <Mail size={18} />
+                Email (optionnel)
+              </label>
+              <input
+                type="email"
+                value={borrowerData.email || ''}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                className={`form-input ${formErrors.email ? 'error' : ''}`}
+                placeholder="adresse@email.com"
+              />
+              {formErrors.email && <p className="error-message">{formErrors.email}</p>}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">
+                <Phone size={18} />
+                Téléphone (optionnel)
+              </label>
+              <input
+                type="tel"
+                value={borrowerData.phone || ''}
+                onChange={(e) => handleInputChange('phone', e.target.value)}
+                className={`form-input ${formErrors.phone ? 'error' : ''}`}
+                placeholder="+237 6XX XXX XXX"
+              />
+              {formErrors.phone && <p className="error-message">{formErrors.phone}</p>}
+              <p className="form-help">Numéro de téléphone pour le contact en cas de retard</p>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="borrowers-overlay">
-      <div className="borrowers-modal">
+    <div className="modal-overlay">
+      <div className="modal-container borrowers-modal">
         {/* Header */}
         <div className="modal-header">
           <div className="header-content">
             <div className="header-icon">
-              <Users size={28} />
+              <Users size={24} />
             </div>
             <div className="header-text">
-              <h2 className="modal-title">Gestion des Emprunteurs</h2>
+              <h1 className="modal-title">Gestion des Emprunteurs</h1>
               <p className="modal-subtitle">
                 {borrowers.length} emprunteur(s) • {studentCount} étudiant(s) • {staffCount} personnel(s)
               </p>
             </div>
           </div>
-          <button 
-            className="close-button" 
-            onClick={onClose}
-            type="button"
-          >
+          <button onClick={onClose} className="close-btn">
             <X size={20} />
           </button>
         </div>
@@ -305,34 +500,23 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
 
         {/* Controls */}
         <div className="controls-section">
-          <div className="search-container">
-            <div className="search-input-wrapper">
-              <Search className="search-icon" size={20} />
-              <input
-                type="text"
-                placeholder="Rechercher par nom, prénom, matricule..."
-                value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="search-input"
-              />
-              {searchQuery && (
-                <button 
-                  className="clear-search"
-                  onClick={() => handleSearch('')}
-                  type="button"
-                >
-                  <X size={16} />
-                </button>
-              )}
-            </div>
+          <div className="search-bar">
+            <Search size={18} />
+            <input
+              type="text"
+              placeholder="Rechercher un emprunteur..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
           </div>
           
-          <div className="controls-right">
+          <div className="filter-controls">
             <div className="filter-group">
-              <Filter size={16} />
+              <Filter size={18} />
               <select 
                 value={filterType} 
-                onChange={(e) => setFilterType(e.target.value as any)}
+                onChange={(e) => setFilterType(e.target.value as 'all' | 'student' | 'staff')}
                 className="filter-select"
               >
                 <option value="all">Tous</option>
@@ -341,1371 +525,1048 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
               </select>
             </div>
             
-            <button className="btn-primary" onClick={handleAddBorrower} type="button">
-              <Plus size={18} />
-              Ajouter
+            <button 
+              onClick={() => {
+                resetForm();
+                setShowAddModal(true);
+              }}
+              className="btn btn-primary"
+            >
+              <Plus size={16} />
+              Nouvel emprunteur
             </button>
           </div>
         </div>
 
-        {/* Borrowers List */}
-        <div className="borrowers-content">
+        {/* Content */}
+        <div className="modal-content">
           {dataLoading ? (
             <div className="loading-state">
-              <div className="loading-spinner"></div>
+              <div className="spinner" />
               <p>Chargement des emprunteurs...</p>
             </div>
-          ) : filteredBorrowers.length > 0 ? (
+          ) : filteredBorrowers.length === 0 ? (
+            <div className="empty-state">
+              <Users size={48} />
+              <h3>Aucun emprunteur trouvé</h3>
+              <p>
+                {searchQuery || filterType !== 'all' 
+                  ? 'Aucun emprunteur ne correspond à vos critères de recherche.'
+                  : 'Commencez par ajouter votre premier emprunteur.'
+                }
+              </p>
+              {!searchQuery && filterType === 'all' && (
+                <button 
+                  onClick={() => {
+                    resetForm();
+                    setShowAddModal(true);
+                  }}
+                  className="btn btn-primary"
+                >
+                  <Plus size={16} />
+                  Ajouter le premier emprunteur
+                </button>
+              )}
+            </div>
+          ) : (
             <div className="borrowers-grid">
               {filteredBorrowers.map((borrower) => (
-                <div key={borrower.id} className={`borrower-card ${borrower.type}`}>
-                  <div className="card-header">
-                    <div className="borrower-type">
-                      {borrower.type === 'student' ? (
-                        <GraduationCap size={20} />
-                      ) : (
-                        <Briefcase size={20} />
-                      )}
+                <div key={borrower.id} className="borrower-card">
+                  <div className="borrower-header">
+                    <div className={`borrower-type ${borrower.type}`}>
+                      {borrower.type === 'student' ? <GraduationCap size={16} /> : <Briefcase size={16} />}
                       <span>{borrower.type === 'student' ? 'Étudiant' : 'Personnel'}</span>
                     </div>
-                    
-                    <div className="card-actions">
-                      <button 
-                        className="action-btn view"
-                        onClick={() => {}}
-                        title="Voir détails"
-                        type="button"
-                      >
-                        <Eye size={16} />
-                      </button>
-                      <button 
+                    <div className="borrower-actions">
+                      <button
+                        onClick={() => handleEdit(borrower)}
                         className="action-btn edit"
-                        onClick={() => handleEditBorrower(borrower)}
                         title="Modifier"
-                        type="button"
                       >
-                        <Edit size={16} />
+                        <Edit size={14} />
                       </button>
-                      <button 
-                        className="action-btn delete"
+                      <button
                         onClick={() => handleDelete(borrower)}
+                        className="action-btn delete"
                         title="Supprimer"
-                        type="button"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
                   
-                  <div className="card-content">
-                    <h3 className="borrower-name">
+                  <div className="borrower-info">
+                    <h4 className="borrower-name">
                       {borrower.firstName} {borrower.lastName}
-                    </h3>
+                    </h4>
+                    <p className="borrower-matricule">
+                      <Hash size={14} />
+                      {borrower.matricule}
+                    </p>
                     
-                    <div className="borrower-details">
-                      <div className="detail-item">
-                        <Hash size={14} />
-                        <span>{borrower.matricule}</span>
-                      </div>
-                      
-                      {borrower.type === 'student' && borrower.classe && (
-                        <div className="detail-item">
-                          <School size={14} />
-                          <span>{borrower.classe}</span>
-                        </div>
-                      )}
-                      
-                      {borrower.type === 'staff' && borrower.position && (
-                        <div className="detail-item">
-                          <Building size={14} />
-                          <span>{borrower.position}</span>
-                        </div>
-                      )}
-                      
-                      {borrower.email && (
-                        <div className="detail-item">
-                          <Mail size={14} />
-                          <span>{borrower.email}</span>
-                        </div>
-                      )}
-                    </div>
+                    {borrower.type === 'student' && borrower.classe && (
+                      <p className="borrower-detail">
+                        <School size={14} />
+                        {borrower.classe}
+                      </p>
+                    )}
+                    
+                    {borrower.type === 'staff' && borrower.position && (
+                      <p className="borrower-detail">
+                        <Building size={14} />
+                        {borrower.position}
+                      </p>
+                    )}
+                    
+                    {borrower.email && (
+                      <p className="borrower-contact">
+                        <Mail size={14} />
+                        {borrower.email}
+                      </p>
+                    )}
+                    
+                    {borrower.phone && (
+                      <p className="borrower-contact">
+                        <Phone size={14} />
+                        {borrower.phone}
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
-          ) : (
-            <div className="empty-state">
-              <Users size={64} />
-              <h3>Aucun emprunteur trouvé</h3>
-              <p>
-                {searchQuery || filterType !== 'all'
-                  ? 'Aucun résultat pour les critères sélectionnés'
-                  : 'Commencez par ajouter des emprunteurs'
-                }
-              </p>
-            </div>
           )}
         </div>
-
-        {/* Add/Edit Modal */}
-        {showAddModal && (
-          <div className="add-modal-overlay" onClick={() => setShowAddModal(false)}>
-            <div className="add-modal" onClick={(e) => e.stopPropagation()}>
-              <div className="add-modal-header">
-                <h3>{editingBorrower ? 'Modifier' : 'Ajouter'} un emprunteur</h3>
-                <button
-                  className="modal-close"
-                  onClick={() => setShowAddModal(false)}
-                  type="button"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              
-              <form onSubmit={handleSubmit} className="add-form">
-                <div className="form-section">
-                  <label className="form-label">Type d'emprunteur *</label>
-                  <div className="type-selector">
-                    <button
-                      type="button"
-                      className={`type-button ${borrower.type === 'student' ? 'active' : ''}`}
-                      onClick={() => setBorrower(prev => ({ ...prev, type: 'student' }))}
-                    >
-                      <GraduationCap size={20} />
-                      Étudiant
-                    </button>
-                    <button
-                      type="button"
-                      className={`type-button ${borrower.type === 'staff' ? 'active' : ''}`}
-                      onClick={() => setBorrower(prev => ({ ...prev, type: 'staff' }))}
-                    >
-                      <Briefcase size={20} />
-                      Personnel
-                    </button>
-                  </div>
-                </div>
-
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label className="form-label">Prénom *</label>
-                    <input
-                      type="text"
-                      value={borrower.firstName}
-                      onChange={(e) => {
-                        setBorrower(prev => ({ ...prev, firstName: e.target.value }));
-                        if (formErrors.firstName) {
-                          setFormErrors(prev => ({ ...prev, firstName: '' }));
-                        }
-                      }}
-                      className={`form-input ${formErrors.firstName ? 'error' : ''}`}
-                      required
-                    />
-                    {formErrors.firstName && <span className="error-text">{formErrors.firstName}</span>}
-                  </div>
-                  
-                  <div className="form-group">
-                    <label className="form-label">Nom *</label>
-                    <input
-                      type="text"
-                      value={borrower.lastName}
-                      onChange={(e) => {
-                        setBorrower(prev => ({ ...prev, lastName: e.target.value }));
-                        if (formErrors.lastName) {
-                          setFormErrors(prev => ({ ...prev, lastName: '' }));
-                        }
-                      }}
-                      className={`form-input ${formErrors.lastName ? 'error' : ''}`}
-                      required
-                    />
-                    {formErrors.lastName && <span className="error-text">{formErrors.lastName}</span>}
-                  </div>
-                  
-                  <div className="form-group">
-                    <label className="form-label">Matricule *</label>
-                    <input
-                      type="text"
-                      value={borrower.matricule}
-                      onChange={(e) => {
-                        setBorrower(prev => ({ ...prev, matricule: e.target.value }));
-                        if (formErrors.matricule) {
-                          setFormErrors(prev => ({ ...prev, matricule: '' }));
-                        }
-                      }}
-                      className={`form-input ${formErrors.matricule ? 'error' : ''}`}
-                      required
-                    />
-                    {formErrors.matricule && <span className="error-text">{formErrors.matricule}</span>}
-                  </div>
-                  
-                  {borrower.type === 'student' ? (
-                    <div className="form-group">
-                      <label className="form-label">Classe</label>
-                      <input
-                        type="text"
-                        value={borrower.classe}
-                        onChange={(e) => setBorrower(prev => ({ ...prev, classe: e.target.value }))}
-                        className="form-input"
-                        placeholder="ex: Terminale C"
-                      />
-                    </div>
-                  ) : (
-                    <>
-                      <div className="form-group">
-                        <label className="form-label">N° CNI</label>
-                        <input
-                          type="text"
-                          value={borrower.cniNumber}
-                          onChange={(e) => setBorrower(prev => ({ ...prev, cniNumber: e.target.value }))}
-                          className="form-input"
-                        />
-                      </div>
-                      <div className="form-group span-full">
-                        <label className="form-label">Poste</label>
-                        <input
-                          type="text"
-                          value={borrower.position}
-                          onChange={(e) => setBorrower(prev => ({ ...prev, position: e.target.value }))}
-                          className="form-input"
-                          placeholder="ex: Professeur de Mathématiques"
-                        />
-                      </div>
-                    </>
-                  )}
-                  
-                  <div className="form-group">
-                    <label className="form-label">Email</label>
-                    <input
-                      type="email"
-                      value={borrower.email}
-                      onChange={(e) => {
-                        setBorrower(prev => ({ ...prev, email: e.target.value }));
-                        if (formErrors.email) {
-                          setFormErrors(prev => ({ ...prev, email: '' }));
-                        }
-                      }}
-                      className={`form-input ${formErrors.email ? 'error' : ''}`}
-                    />
-                    {formErrors.email && <span className="error-text">{formErrors.email}</span>}
-                  </div>
-                  
-                  <div className="form-group">
-                    <label className="form-label">Téléphone</label>
-                    <input
-                      type="tel"
-                      value={borrower.phone}
-                      onChange={(e) => {
-                        setBorrower(prev => ({ ...prev, phone: e.target.value }));
-                        if (formErrors.phone) {
-                          setFormErrors(prev => ({ ...prev, phone: '' }));
-                        }
-                      }}
-                      className={`form-input ${formErrors.phone ? 'error' : ''}`}
-                    />
-                    {formErrors.phone && <span className="error-text">{formErrors.phone}</span>}
-                  </div>
-                </div>
-                
-                <div className="form-actions">
-                  <button
-                    type="button"
-                    className="btn-secondary"
-                    onClick={() => setShowAddModal(false)}
-                    disabled={isLoading}
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn-primary"
-                    disabled={isLoading}
-                  >
-                    <Save size={16} />
-                    {isLoading ? 'Enregistrement...' : editingBorrower ? 'Modifier' : 'Ajouter'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
       </div>
 
+      {/* Add/Edit Modal */}
+      {showAddModal && (
+        <div className="modal-overlay">
+          <div className="modal-container">
+            {/* Header */}
+            <div className="modal-header">
+              <div className="header-content">
+                <div className="header-icon">
+                  <Plus size={24} />
+                </div>
+                <div className="header-text">
+                  <h1 className="modal-title">
+                    {editingBorrower ? 'Modifier l\'emprunteur' : 'Nouvel emprunteur'}
+                  </h1>
+                  <p className="modal-subtitle">
+                    Ajouter un nouvel utilisateur à votre bibliothèque
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => {
+                  setShowAddModal(false);
+                  setEditingBorrower(null);
+                  resetForm();
+                }} 
+                className="close-btn"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Progress Steps */}
+            <div className="progress-container">
+              <div className="progress-steps">
+                {[1, 2, 3].map((step) => {
+                  const StepIcon = getStepIcon(step);
+                  const isActive = step === currentStep;
+                  const isCompleted = step < currentStep;
+                  
+                  return (
+                    <div
+                      key={step}
+                      className={`progress-step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}
+                    >
+                      <div className="step-indicator">
+                        <StepIcon size={16} />
+                      </div>
+                      <div className="step-info">
+                        <span className="step-title">{getStepTitle(step)}</span>
+                        <span className="step-description">{getStepDescription(step)}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="progress-bar">
+                <div 
+                  className="progress-fill" 
+                  style={{ width: `${(currentStep / 3) * 100}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="modal-content">
+              {formErrors.submit && (
+                <div className="alert alert-error">
+                  {formErrors.submit}
+                </div>
+              )}
+
+              <div className="step-container">
+                {renderStepContent()}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="modal-actions">
+              <div className="actions-left">
+                {currentStep > 1 && (
+                  <button onClick={handlePrev} className="btn btn-secondary">
+                    Précédent
+                  </button>
+                )}
+              </div>
+              
+              <div className="actions-right">
+                {currentStep < 3 ? (
+                  <button onClick={handleNext} className="btn btn-primary">
+                    Suivant
+                    <ChevronRight size={16} />
+                  </button>
+                ) : (
+                  <button 
+                    onClick={handleSubmit} 
+                    disabled={isLoading}
+                    className="btn btn-success"
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="spinner" />
+                        Enregistrement...
+                      </>
+                    ) : (
+                      <>
+                        <Save size={16} />
+                        {editingBorrower ? 'Modifier' : 'Ajouter'}
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style>{`
-        .borrowers-overlay {
+        .modal-overlay {
           position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.7);
-          backdrop-filter: blur(12px);
+          inset: 0;
+          background: rgba(0, 0, 0, 0.75);
+          backdrop-filter: blur(8px);
           display: flex;
           align-items: center;
           justify-content: center;
-          z-index: 1000;
+          z-index: 50;
           padding: 20px;
-          animation: fadeIn 0.3s ease;
         }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes slideUp {
-          from { 
-            opacity: 0;
-            transform: translateY(30px) scale(0.95);
-          }
-          to { 
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-        
-        .borrowers-modal {
-          background: #FFFFFF;
+
+        .modal-container {
+          background: white;
           border-radius: 20px;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
           width: 100%;
-          max-width: 1200px;
+          max-width: 1000px;
           max-height: 90vh;
-          overflow: hidden;
           display: flex;
           flex-direction: column;
-          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-          border: 1px solid rgba(229, 220, 194, 0.3);
-          animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+          overflow: hidden;
         }
-        
+
+        .borrowers-modal {
+          max-width: 1200px;
+        }
+
         .modal-header {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+          padding: 24px 32px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 32px;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: #F3EED9;
-          position: relative;
-          overflow: hidden;
         }
-        
-        .modal-header::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.1) 0%, transparent 50%);
-          backdrop-filter: blur(10px);
-        }
-        
+
         .header-content {
           display: flex;
           align-items: center;
-          gap: 20px;
-          position: relative;
-          z-index: 1;
-        }
-        
-        .header-icon {
-          width: 56px;
-          height: 56px;
-          background: rgba(243, 238, 217, 0.2);
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .modal-title {
-          font-size: 28px;
-          font-weight: 800;
-          margin: 0 0 8px 0;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-        
-        .modal-subtitle {
-          font-size: 16px;
-          opacity: 0.9;
-          margin: 0;
-          font-weight: 500;
-        }
-        
-        .close-button {
-          width: 44px;
-          height: 44px;
-          border: none;
-          background: rgba(243, 238, 217, 0.1);
-          color: #F3EED9;
-          border-radius: 12px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s ease;
-          position: relative;
-          z-index: 1;
-        }
-        
-        .close-button:hover {
-          background: rgba(243, 238, 217, 0.2);
-        }
-        
-        .stats-section {
-          display: flex;
-          gap: 24px;
-          padding: 32px;
-          background: rgba(248, 246, 240, 0.5);
-          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
-        }
-        
-        .stat-card {
-          display: flex;
-          align-items: center;
           gap: 16px;
-          background: #FFFFFF;
-          padding: 24px;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.1);
-          border: 1px solid rgba(229, 220, 194, 0.3);
-          flex: 1;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
-        .stat-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(62, 92, 73, 0.15);
-          border-color: rgba(62, 92, 73, 0.2);
-        }
-        
-        .stat-icon {
+
+        .header-icon {
           width: 48px;
           height: 48px;
+          background: rgba(255, 255, 255, 0.1);
           border-radius: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #F3EED9;
+          backdrop-filter: blur(10px);
         }
-        
-        .stat-icon.student {
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-        }
-        
-        .stat-icon.staff {
-          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
-        }
-        
-        .stat-icon.total {
-          background: linear-gradient(135deg, #6E6E6E 0%, #5A5A5A 100%);
-        }
-        
-        .stat-content {
-          display: flex;
-          flex-direction: column;
-        }
-        
-        .stat-value {
-          font-size: 28px;
-          font-weight: 800;
-          color: #2E2E2E;
-          display: block;
-          line-height: 1;
-        }
-        
-        .stat-label {
-          font-size: 14px;
-          color: #4A4A4A;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          font-weight: 600;
-          margin-top: 4px;
-        }
-        
-        .controls-section {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 24px 32px;
-          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
-          background: #FFFFFF;
-        }
-        
-        .search-container {
+
+        .header-text {
           flex: 1;
-          max-width: 400px;
         }
-        
-        .search-input-wrapper {
-          position: relative;
-          display: flex;
-          align-items: center;
-        }
-        
-        .search-icon {
-          position: absolute;
-          left: 16px;
-          color: #4A4A4A;
-          z-index: 2;
-        }
-        
-        .search-input {
-          width: 100%;
-          height: 52px;
-          padding: 0 48px 0 48px;
-          border: 2px solid #E5DCC2;
-          border-radius: 16px;
-          font-size: 16px;
-          background: #FFFFFF;
-          color: #2E2E2E;
-          transition: all 0.3s ease;
-          font-weight: 500;
-        }
-        
-        .search-input:focus {
-          outline: none;
-          border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
-          transform: translateY(-1px);
-        }
-        
-        .clear-search {
-          position: absolute;
-          right: 16px;
-          background: #F3EED9;
-          border: none;
-          cursor: pointer;
-          color: #4A4A4A;
-          padding: 8px;
-          border-radius: 8px;
-          transition: all 0.2s ease;
-        }
-        
-        .clear-search:hover {
-          color: #2E2E2E;
-          background: #E5DCC2;
-          transform: scale(1.1);
-        }
-        
-        .controls-right {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-        }
-        
-        .filter-group {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          color: #4A4A4A;
-          font-weight: 500;
-        }
-        
-        .filter-select {
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          padding: 12px 16px;
-          background: #FFFFFF;
-          color: #2E2E2E;
-          font-size: 14px;
-          cursor: pointer;
-          font-weight: 500;
-          transition: all 0.3s ease;
-        }
-        
-        .filter-select:focus {
-          outline: none;
-          border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
-        }
-        
-        .btn-primary {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 14px 24px;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: #F3EED9;
-          border: none;
-          border-radius: 16px;
-          font-size: 14px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
-        }
-        
-        .btn-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(62, 92, 73, 0.4);
-          background: linear-gradient(135deg, #2E453A 0%, #3E5C49 100%);
-        }
-        
-        .borrowers-content {
-          flex: 1;
-          overflow-y: auto;
-          padding: 32px;
-          background: rgba(248, 246, 240, 0.3);
-        }
-        
-        .borrowers-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-          gap: 24px;
-        }
-        
-        .borrower-card {
-          background: #FFFFFF;
-          border-radius: 20px;
-          border: 1px solid rgba(229, 220, 194, 0.3);
-          overflow: hidden;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          position: relative;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        }
-        
-        .borrower-card::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 0;
-          bottom: 0;
-          width: 5px;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          transition: all 0.3s ease;
-        }
-        
-        .borrower-card.staff::before {
-          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
-        }
-        
-        .borrower-card:hover {
-          transform: translateY(-8px) scale(1.02);
-          box-shadow: 
-            0 20px 40px rgba(0, 0, 0, 0.15),
-            0 8px 16px rgba(0, 0, 0, 0.1);
-        }
-        
-        .borrower-card:hover::before {
-          width: 8px;
-        }
-        
-        .card-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 20px 24px;
-          background: linear-gradient(135deg, rgba(248, 246, 240, 0.8) 0%, rgba(229, 220, 194, 0.3) 100%);
-          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
-        }
-        
-        .borrower-type {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          font-size: 13px;
+
+        .modal-title {
+          font-size: 24px;
           font-weight: 700;
-          color: #4A4A4A;
-          text-transform: uppercase;
-          letter-spacing: 1px;
+          margin: 0 0 4px 0;
+          line-height: 1.2;
         }
-        
-        .card-actions {
-          display: flex;
-          gap: 8px;
+
+        .modal-subtitle {
+          font-size: 14px;
+          opacity: 0.8;
+          margin: 0;
         }
-        
-        .action-btn {
-          width: 36px;
-          height: 36px;
+
+        .close-btn {
+          width: 40px;
+          height: 40px;
           border: none;
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
           border-radius: 10px;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          position: relative;
-          overflow: hidden;
+          transition: all 0.2s ease;
+          z-index: 10;
         }
-        
-        .action-btn::before {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 0;
-          height: 0;
-          border-radius: 50%;
-          transition: all 0.3s ease;
-          transform: translate(-50%, -50%);
+
+        .close-btn:hover {
+          background: rgba(255, 255, 255, 0.2);
+          transform: scale(1.05);
         }
-        
-        .action-btn:hover::before {
-          width: 100%;
-          height: 100%;
+
+        .stats-section {
+          background: #FAF9F6;
+          padding: 20px 32px;
+          border-bottom: 1px solid rgba(229, 220, 194, 0.4);
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 16px;
         }
-        
-        .action-btn.view {
-          background: rgba(110, 110, 110, 0.1);
-          color: #4A4A4A;
-        }
-        
-        .action-btn.view:hover {
-          color: #F3EED9;
-          transform: scale(1.1);
-        }
-        
-        .action-btn.view:hover::before {
-          background: #6E6E6E;
-        }
-        
-        .action-btn.edit {
-          background: rgba(62, 92, 73, 0.1);
-          color: #3E5C49;
-        }
-        
-        .action-btn.edit:hover {
-          color: #F3EED9;
-          transform: scale(1.1);
-        }
-        
-        .action-btn.edit:hover::before {
-          background: #3E5C49;
-        }
-        
-        .action-btn.delete {
-          background: rgba(220, 38, 38, 0.1);
-          color: #DC2626;
-        }
-        
-        .action-btn.delete:hover {
-          color: #F3EED9;
-          transform: scale(1.1);
-        }
-        
-        .action-btn.delete:hover::before {
-          background: #DC2626;
-        }
-        
-        .card-content {
-          padding: 24px;
-        }
-        
-        .borrower-name {
-          font-size: 20px;
-          font-weight: 800;
-          color: #2E2E2E;
-          margin: 0 0 20px 0;
-          letter-spacing: -0.5px;
-        }
-        
-        .borrower-details {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-        
-        .detail-item {
+
+        .stat-card {
+          background: white;
+          border-radius: 12px;
+          padding: 16px;
           display: flex;
           align-items: center;
           gap: 12px;
-          font-size: 14px;
-          color: #4A4A4A;
-          font-weight: 500;
-          padding: 8px 0;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          transition: all 0.2s ease;
         }
-        
-        .detail-item svg {
-          color: #C2571B;
+
+        .stat-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         }
-        
-        .empty-state {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 80px 32px;
-          text-align: center;
-          color: #4A4A4A;
-        }
-        
-        .empty-state svg {
-          opacity: 0.3;
-          margin-bottom: 24px;
-        }
-        
-        .empty-state h3 {
-          font-size: 24px;
-          font-weight: 700;
-          margin: 0 0 12px 0;
-          color: #2E2E2E;
-        }
-        
-        .empty-state p {
-          margin: 0;
-          font-size: 16px;
-          max-width: 400px;
-          line-height: 1.5;
-        }
-        
-        .loading-state {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 80px 32px;
-          text-align: center;
-          color: #4A4A4A;
-        }
-        
-        .loading-spinner {
+
+        .stat-icon {
           width: 40px;
           height: 40px;
-          border: 3px solid #E5DCC2;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .stat-icon.student {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+        }
+
+        .stat-icon.staff {
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
+          color: #F3EED9;
+        }
+
+        .stat-icon.total {
+          background: linear-gradient(135deg, #6E6E6E 0%, #5A5A5A 100%);
+          color: #F3EED9;
+        }
+
+        .stat-content {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .stat-value {
+          font-size: 24px;
+          font-weight: 700;
+          color: #2E2E2E !important;
+          line-height: 1;
+        }
+
+        .stat-label {
+          font-size: 12px;
+          color: #6E6E6E !important;
+          font-weight: 500;
+        }
+
+        .controls-section {
+          background: #FAF9F6;
+          padding: 0 32px 20px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          flex-wrap: wrap;
+        }
+
+        .search-bar {
+          position: relative;
+          flex: 1;
+          min-width: 300px;
+        }
+
+        .search-bar svg {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #6E6E6E;
+        }
+
+        .search-input {
+          width: 100%;
+          padding: 12px 16px 12px 40px;
+          border: 2px solid rgba(229, 220, 194, 0.4);
+          border-radius: 10px;
+          font-size: 14px;
+          background: white;
+          color: #2E2E2E;
+          transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+
+        .filter-controls {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .filter-group {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: white;
+          padding: 8px 12px;
+          border-radius: 10px;
+          border: 2px solid rgba(229, 220, 194, 0.4);
+        }
+
+        .filter-select {
+          border: none;
+          background: none;
+          font-size: 14px;
+          color: #2E2E2E;
+          cursor: pointer;
+          min-width: 100px;
+        }
+
+        .filter-select:focus {
+          outline: none;
+        }
+
+        .modal-content {
+          flex: 1;
+          overflow-y: auto;
+          padding: 32px;
+        }
+
+        .loading-state, .empty-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 60px 20px;
+          text-align: center;
+        }
+
+        .loading-state .spinner {
+          width: 32px;
+          height: 32px;
+          border: 3px solid rgba(62, 92, 73, 0.2);
           border-top: 3px solid #3E5C49;
           border-radius: 50%;
           animation: spin 1s linear infinite;
           margin-bottom: 16px;
         }
-        
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+
+        .empty-state svg {
+          color: #6E6E6E;
+          margin-bottom: 16px;
         }
-        
-        /* Add Modal */
-        .add-modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.8);
-          backdrop-filter: blur(8px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 1100;
+
+        .empty-state h3 {
+          font-size: 20px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0 0 8px 0;
+        }
+
+        .empty-state p {
+          font-size: 14px;
+          color: #6E6E6E;
+          margin: 0 0 24px 0;
+          max-width: 400px;
+          line-height: 1.5;
+        }
+
+        .borrowers-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+          gap: 20px;
+        }
+
+        .borrower-card {
+          background: white;
+          border-radius: 16px;
+          border: 2px solid rgba(229, 220, 194, 0.3);
           padding: 20px;
-          animation: fadeIn 0.3s ease;
+          transition: all 0.2s ease;
         }
-        
-        .add-modal {
-          background: #FFFFFF;
-          border-radius: 24px;
-          width: 100%;
-          max-width: 700px;
-          max-height: 90vh;
-          overflow-y: auto;
-          box-shadow: 
-            0 32px 64px rgba(0, 0, 0, 0.3),
-            0 16px 32px rgba(0, 0, 0, 0.2);
-          animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+        .borrower-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+          border-color: rgba(62, 92, 73, 0.2);
         }
-        
-        .add-modal-header {
+
+        .borrower-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 28px 32px;
-          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
-          background: linear-gradient(135deg, rgba(248, 246, 240, 0.8) 0%, rgba(229, 220, 194, 0.3) 100%);
+          margin-bottom: 16px;
         }
-        
-        .add-modal-header h3 {
-          font-size: 24px;
-          font-weight: 800;
+
+        .borrower-type {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .borrower-type.student {
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+        }
+
+        .borrower-type.staff {
+          background: rgba(194, 87, 27, 0.1);
+          color: #C2571B;
+        }
+
+        .borrower-actions {
+          display: flex;
+          gap: 6px;
+        }
+
+        .action-btn {
+          width: 32px;
+          height: 32px;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+        }
+
+        .action-btn.edit {
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+        }
+
+        .action-btn.edit:hover {
+          background: rgba(62, 92, 73, 0.2);
+          transform: scale(1.05);
+        }
+
+        .action-btn.delete {
+          background: rgba(220, 38, 38, 0.1);
+          color: #dc2626;
+        }
+
+        .action-btn.delete:hover {
+          background: rgba(220, 38, 38, 0.2);
+          transform: scale(1.05);
+        }
+
+        .borrower-info {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .borrower-name {
+          font-size: 18px;
+          font-weight: 600;
           color: #2E2E2E;
           margin: 0;
         }
-        
-        .modal-close {
-          background: rgba(110, 110, 110, 0.1);
-          border: none;
-          cursor: pointer;
-          padding: 12px;
-          border-radius: 12px;
-          color: #4A4A4A;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .modal-close:hover {
-          background: rgba(110, 110, 110, 0.2);
-          color: #2E2E2E;
-          transform: scale(1.1);
-        }
-        
-        .add-form {
-          padding: 32px;
-        }
-        
-        .form-section {
-          margin-bottom: 32px;
-        }
-        
-        .form-label {
-          display: block;
-          font-size: 15px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin-bottom: 12px;
-          letter-spacing: 0.3px;
-        }
-        
-        .type-selector {
+
+        .borrower-matricule {
           display: flex;
-          gap: 16px;
+          align-items: center;
+          gap: 6px;
+          font-size: 14px;
+          color: #6E6E6E;
+          font-weight: 500;
+          margin: 0;
         }
-        
-        .type-button {
+
+        .borrower-detail,
+        .borrower-contact {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 13px;
+          color: #6E6E6E;
+          margin: 0;
+        }
+
+        .borrower-contact {
+          color: #4A4A4A;
+        }
+
+        .progress-container {
+          padding: 24px 32px 0;
+          background: #FAF9F6;
+          border-bottom: 1px solid rgba(229, 220, 194, 0.4);
+        }
+
+        .progress-steps {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 16px;
+        }
+
+        .progress-step {
           display: flex;
           align-items: center;
           gap: 12px;
-          padding: 20px 24px;
-          border: 2px solid #E5DCC2;
-          border-radius: 16px;
-          background: #FFFFFF;
-          color: #4A4A4A;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          font-size: 15px;
-          font-weight: 600;
           flex: 1;
+          opacity: 0.5;
+          transition: all 0.3s ease;
+        }
+
+        .progress-step.active,
+        .progress-step.completed {
+          opacity: 1;
+        }
+
+        .step-indicator {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: rgba(229, 220, 194, 0.3);
+          display: flex;
+          align-items: center;
           justify-content: center;
+          color: #6E6E6E;
+          transition: all 0.3s ease;
+          flex-shrink: 0;
         }
-        
-        .type-button:hover {
-          border-color: #3E5C49;
-          color: #3E5C49;
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(62, 92, 73, 0.15);
-        }
-        
-        .type-button.active {
-          border-color: #3E5C49;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+
+        .progress-step.active .step-indicator {
+          background: #3E5C49;
           color: #F3EED9;
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(62, 92, 73, 0.3);
         }
-        
-        .form-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
+
+        .progress-step.completed .step-indicator {
+          background: #C2571B;
+          color: #F3EED9;
+        }
+
+        .step-info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          min-width: 0;
+        }
+
+        .step-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: #2E2E2E;
+          line-height: 1.2;
+        }
+
+        .step-description {
+          font-size: 12px;
+          color: #4A4A4A;
+          line-height: 1.2;
+        }
+
+        .progress-bar {
+          height: 4px;
+          background: rgba(229, 220, 194, 0.3);
+          border-radius: 2px;
+          overflow: hidden;
+          margin-bottom: 24px;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #3E5C49 0%, #C2571B 100%);
+          transition: width 0.3s ease;
+          border-radius: 2px;
+        }
+
+        .step-container {
+          min-height: 300px;
+        }
+
+        .step-content {
+          display: flex;
+          flex-direction: column;
           gap: 24px;
-          margin-bottom: 32px;
+          animation: slideIn 0.3s ease-out;
         }
-        
+
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateX(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
         .form-group {
           display: flex;
           flex-direction: column;
           gap: 8px;
         }
-        
-        .form-group.span-full {
-          grid-column: 1 / -1;
+
+        .form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
         }
-        
+
+        .form-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          color: #2E2E2E;
+        }
+
         .form-input {
           width: 100%;
-          padding: 16px 20px;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          font-size: 15px;
-          background: #FFFFFF;
+          padding: 12px 16px;
+          border: 2px solid rgba(229, 220, 194, 0.4);
+          border-radius: 10px;
+          font-size: 14px;
+          background: white;
           color: #2E2E2E;
-          transition: all 0.3s ease;
-          font-weight: 500;
+          transition: all 0.2s ease;
+          box-sizing: border-box;
         }
-        
+
         .form-input:focus {
           outline: none;
           border-color: #3E5C49;
           box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
-          transform: translateY(-1px);
         }
-        
+
         .form-input.error {
-          border-color: #DC2626;
-          background: rgba(220, 38, 38, 0.05);
+          border-color: #dc2626;
+          background: #fef2f2;
         }
-        
-        .error-text {
-          font-size: 13px;
-          color: #DC2626;
-          font-weight: 600;
-          margin-top: 4px;
-        }
-        
-        .form-actions {
+
+        .radio-group {
           display: flex;
           gap: 16px;
-          justify-content: flex-end;
-          padding-top: 32px;
-          border-top: 1px solid rgba(229, 220, 194, 0.3);
         }
-        
-        .btn-secondary {
+
+        .radio-option {
           display: flex;
           align-items: center;
-          gap: 10px;
-          padding: 14px 28px;
-          background: rgba(248, 246, 240, 0.8);
+          gap: 8px;
+          padding: 12px 16px;
+          border: 2px solid rgba(229, 220, 194, 0.4);
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          background: white;
+        }
+
+        .radio-option:hover {
+          border-color: #3E5C49;
+        }
+
+        .radio-option.selected {
+          border-color: #3E5C49;
+          background: rgba(62, 92, 73, 0.05);
+        }
+
+        .radio-option input[type="radio"] {
+          display: none;
+        }
+
+        .form-help {
+          font-size: 12px;
           color: #4A4A4A;
-          border: 2px solid #E5DCC2;
+          margin: 0;
+          line-height: 1.4;
+        }
+
+        .error-message {
+          color: #dc2626;
+          font-size: 12px;
+          font-weight: 500;
+          margin: 0;
+          padding: 4px 8px;
+          background: #fef2f2;
+          border-radius: 6px;
+          border-left: 3px solid #dc2626;
+        }
+
+        .alert {
+          padding: 16px;
           border-radius: 12px;
+          margin-bottom: 24px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 14px;
+          font-weight: 500;
+        }
+
+        .alert-error {
+          background: #fef2f2;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+        }
+
+        .modal-actions {
+          padding: 24px 32px;
+          background: #FAF9F6;
+          border-top: 1px solid rgba(229, 220, 194, 0.4);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .actions-left,
+        .actions-right {
+          display: flex;
+          gap: 12px;
+        }
+
+        .btn {
+          padding: 12px 20px;
+          border: none;
+          border-radius: 10px;
           font-size: 14px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          min-width: 120px;
+          justify-content: center;
         }
-        
-        .btn-secondary:hover:not(:disabled) {
-          background: #E5DCC2;
+
+        .btn-secondary {
+          background: #F3EED9;
           color: #2E2E2E;
+          border: 1px solid rgba(229, 220, 194, 0.4);
+        }
+
+        .btn-secondary:hover {
+          background: #E5DCC2;
           transform: translateY(-1px);
         }
-        
-        .btn-primary:disabled,
-        .btn-secondary:disabled {
+
+        .btn-primary {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+        }
+
+        .btn-primary:hover {
+          background: linear-gradient(135deg, #2E453A 0%, #1F2F25 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
+        }
+
+        .btn-success {
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
+          color: #F3EED9;
+        }
+
+        .btn-success:hover:not(:disabled) {
+          background: linear-gradient(135deg, #A8481A 0%, #8A3C18 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(194, 87, 27, 0.3);
+        }
+
+        .btn:disabled {
           opacity: 0.6;
           cursor: not-allowed;
           transform: none;
         }
-        
-        /* Responsive */
+
+        .spinner {
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-top: 2px solid white;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+
         @media (max-width: 768px) {
-          .borrowers-modal {
-            margin: 12px;
-            border-radius: 20px;
+          .modal-overlay {
+            padding: 16px;
+          }
+
+          .modal-container {
             max-height: 95vh;
           }
-          
+
           .modal-header {
-            padding: 24px 20px;
-            flex-direction: column;
-            gap: 16px;
-            text-align: center;
+            padding: 20px 24px;
           }
-          
-          .modal-title {
-            font-size: 24px;
-          }
-          
+
           .stats-section {
-            padding: 20px;
-            flex-direction: column;
-            gap: 16px;
+            padding: 16px 24px;
+            grid-template-columns: 1fr;
+            gap: 12px;
           }
-          
+
           .controls-section {
-            padding: 20px;
+            padding: 0 24px 16px;
             flex-direction: column;
-            gap: 16px;
             align-items: stretch;
+            gap: 12px;
           }
-          
-          .controls-right {
+
+          .search-bar {
+            min-width: auto;
+          }
+
+          .filter-controls {
             justify-content: space-between;
           }
-          
-          .borrowers-content {
-            padding: 20px;
+
+          .modal-content {
+            padding: 24px;
           }
-          
+
           .borrowers-grid {
             grid-template-columns: 1fr;
-            gap: 20px;
+            gap: 16px;
           }
-          
-          .form-grid {
+
+          .form-row {
             grid-template-columns: 1fr;
-            gap: 20px;
+            gap: 16px;
           }
-          
-          .type-selector {
+
+          .radio-group {
             flex-direction: column;
           }
-          
-          .form-actions {
-            flex-direction: column-reverse;
+
+          .modal-actions {
+            padding: 20px 24px;
+            flex-direction: column;
+            gap: 12px;
           }
-          
-          .btn-primary,
-          .btn-secondary {
+
+          .actions-left,
+          .actions-right {
             width: 100%;
-            justify-content: center;
+          }
+
+          .btn {
+            width: 100%;
+            min-width: auto;
+          }
+
+          .progress-steps {
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 20px;
           }
         }
-        
+
         @media (max-width: 480px) {
-          .add-modal {
-            margin: 12px;
-            border-radius: 20px;
+          .modal-overlay {
+            padding: 12px;
           }
-          
-          .add-modal-header,
-          .add-form {
-            padding: 24px 20px;
-          }
-          
-          .borrower-card {
-            border-radius: 16px;
-          }
-          
-          .card-header,
-          .card-content {
-            padding: 20px;
-          }
-          
+
           .modal-header {
-            padding: 20px;
+            padding: 16px 20px;
           }
-          
-          .stats-section,
-          .controls-section,
-          .borrowers-content {
-            padding: 16px;
-          }
-        }
-        
-        /* Scrollbar personnalisé */
-        .borrowers-content::-webkit-scrollbar,
-        .add-modal::-webkit-scrollbar {
-          width: 8px;
-        }
-        
-        .borrowers-content::-webkit-scrollbar-track,
-        .add-modal::-webkit-scrollbar-track {
-          background: #F3EED9;
-          border-radius: 4px;
-        }
-        
-        .borrowers-content::-webkit-scrollbar-thumb,
-        .add-modal::-webkit-scrollbar-thumb {
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          border-radius: 4px;
-        }
-        
-        .borrowers-content::-webkit-scrollbar-thumb:hover,
-        .add-modal::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(135deg, #2E453A 0%, #3E5C49 100%);
-        }
-        
-        /* États de synchronisation */
-        .sync-status {
-          position: absolute;
-          top: 16px;
-          right: 16px;
-          padding: 4px 8px;
-          border-radius: 12px;
-          font-size: 11px;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        
-        .sync-status.synced {
-          background: rgba(62, 92, 73, 0.1);
-          color: #3E5C49;
-          border: 1px solid rgba(62, 92, 73, 0.2);
-        }
-        
-        .sync-status.pending {
-          background: rgba(194, 87, 27, 0.1);
-          color: #C2571B;
-          border: 1px solid rgba(194, 87, 27, 0.2);
-        }
-        
-        .sync-status.error {
-          background: rgba(220, 38, 38, 0.1);
-          color: #DC2626;
-          border: 1px solid rgba(220, 38, 38, 0.2);
-        }
-        
-        /* Amélioration des tooltips */
-        .action-btn[title]:hover::after {
-          content: attr(title);
-          position: absolute;
-          bottom: -35px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: rgba(0, 0, 0, 0.8);
-          color: white;
-          padding: 6px 10px;
-          border-radius: 6px;
-          font-size: 12px;
-          white-space: nowrap;
-          z-index: 1000;
-          animation: fadeIn 0.2s ease;
-        }
-        
-        .action-btn[title]:hover::before {
-          content: '';
-          position: absolute;
-          bottom: -8px;
-          left: 50%;
-          transform: translateX(-50%);
-          border-left: 5px solid transparent;
-          border-right: 5px solid transparent;
-          border-bottom: 5px solid rgba(0, 0, 0, 0.8);
-          z-index: 1000;
-        }
-        
-        /* Indicateur de validation */
-        .form-input.valid {
-          border-color: #3E5C49;
-          background: rgba(62, 92, 73, 0.05);
-        }
-        
-        .form-input.valid:focus {
-          border-color: #3E5C49;
-          box-shadow: 
-            0 0 0 3px rgba(62, 92, 73, 0.1),
-            0 4px 12px rgba(62, 92, 73, 0.15);
-        }
-        
-        /* Indicateurs de statut dans les cartes */
-        .borrower-card {
-          position: relative;
-        }
-        
-        .borrower-card .sync-indicator {
-          position: absolute;
-          top: 20px;
-          right: 20px;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          border: 2px solid white;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .borrower-card .sync-indicator.synced {
-          background: #3E5C49;
-        }
-        
-        .borrower-card .sync-indicator.pending {
-          background: #C2571B;
-          animation: pulse 2s infinite;
-        }
-        
-        .borrower-card .sync-indicator.error {
-          background: #DC2626;
-        }
-        
-        @keyframes pulse {
-          0% {
-            transform: scale(1);
-            opacity: 1;
-          }
-          50% {
-            transform: scale(1.1);
-            opacity: 0.7;
-          }
-          100% {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
-        
-        /* Effet de survol sur les cartes de statistiques */
-        .stat-card:hover .stat-icon {
-          transform: scale(1.1) rotate(5deg);
-        }
-        
-        .stat-card:hover .stat-value {
-          transform: scale(1.05);
-        }
-        
-        /* Amélioration du modal overlay */
-        .add-modal-overlay {
-          animation: fadeInBackdrop 0.3s ease;
-        }
-        
-        @keyframes fadeInBackdrop {
-          from {
-            opacity: 0;
-            backdrop-filter: blur(0px);
-          }
-          to {
-            opacity: 1;
-            backdrop-filter: blur(8px);
-          }
-        }
-        
-        /* Effet de typing pour les placeholders */
-        .search-input::placeholder,
-        .form-input::placeholder {
-          color: #4A4A4A;
-          font-style: italic;
-          transition: all 0.3s ease;
-        }
-        
-        .search-input:focus::placeholder,
-        .form-input:focus::placeholder {
-          opacity: 0.7;
-          transform: translateX(10px);
-        }
-        
-        /* État de chargement pour les boutons */
-        .btn-primary:disabled {
-          background: linear-gradient(135deg, #6E6E6E 0%, #5A5A5A 100%);
-          cursor: not-allowed;
-          transform: none;
-        }
-        
-        .btn-primary:disabled .loading-spinner {
-          margin-right: 8px;
-        }
-        
-        /* Responsive amélioré pour très petits écrans */
-        @media (max-width: 360px) {
-          .borrowers-overlay {
-            padding: 8px;
-          }
-          
-          .borrowers-modal {
-            border-radius: 16px;
-          }
-          
-          .modal-header {
-            padding: 16px;
-          }
-          
+
           .modal-title {
             font-size: 20px;
           }
-          
-          .header-icon {
-            width: 48px;
-            height: 48px;
+
+          .modal-subtitle {
+            font-size: 13px;
           }
-          
-          .stat-card {
+
+          .stats-section {
+            padding: 12px 20px;
+          }
+
+          .controls-section {
+            padding: 0 20px 12px;
+          }
+
+          .modal-content {
+            padding: 20px;
+          }
+
+          .borrower-card {
             padding: 16px;
-            gap: 12px;
           }
-          
-          .stat-icon {
-            width: 40px;
-            height: 40px;
-          }
-          
-          .stat-value {
-            font-size: 24px;
-          }
-          
-          .add-modal {
-            border-radius: 16px;
-          }
-          
-          .type-button {
-            padding: 16px;
-            font-size: 14px;
+
+          .modal-actions {
+            padding: 16px 20px;
           }
         }
       `}</style>
     </div>
   );
-};
+}
