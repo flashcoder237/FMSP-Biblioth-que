@@ -854,7 +854,7 @@ export const AppSettings: React.FC<AppSettingsProps> = ({ onClose }) => {
           padding: 16px 24px;
           border: none;
           background: transparent;
-          color: #6E6E6E;
+          color: #4A4A4A;
           text-align: left;
           cursor: pointer;
           display: flex;
@@ -932,7 +932,7 @@ export const AppSettings: React.FC<AppSettingsProps> = ({ onClose }) => {
 
         .setting-description {
           font-size: 12px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0;
           line-height: 1.4;
         }
@@ -1141,7 +1141,7 @@ export const AppSettings: React.FC<AppSettingsProps> = ({ onClose }) => {
 
         .version {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0 0 16px 0;
         }
 
@@ -1168,7 +1168,7 @@ export const AppSettings: React.FC<AppSettingsProps> = ({ onClose }) => {
         .info-item strong {
           display: block;
           font-size: 12px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin-bottom: 4px;
           text-transform: uppercase;
           letter-spacing: 0.5px;

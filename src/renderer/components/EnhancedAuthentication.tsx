@@ -567,6 +567,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           position: relative;
           overflow-x: hidden;
+          overflow-y: auto;
         }
 
         .auth-background {
@@ -649,6 +650,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           padding: 20px;
           max-width: 1400px;
           margin: 0 auto;
+          box-sizing: border-box;
         }
 
         .auth-header {
@@ -707,6 +709,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           gap: 40px;
           flex: 1;
           align-items: flex-start;
+          min-height: 0;
         }
 
         .auth-card {
@@ -714,14 +717,19 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           background: #FFFFFF;
           border-radius: 20px;
           overflow: hidden;
+          overflow-y: auto;
           box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
           max-width: 600px;
+          max-height: calc(100vh - 160px);
+          display: flex;
+          flex-direction: column;
         }
 
         .auth-tabs {
           display: flex;
           background: rgba(248, 246, 240, 0.8);
           border-bottom: 1px solid rgba(229, 220, 194, 0.3);
+          flex-shrink: 0;
         }
 
         .tab {
@@ -736,7 +744,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           cursor: pointer;
           font-size: 16px;
           font-weight: 600;
-          color: #6E6E6E;
+          color: #4A4A4A;
           transition: all 0.2s ease;
         }
 
@@ -780,12 +788,14 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
         .section-header p {
           margin: 0;
-          color: #6E6E6E;
+          color: #4A4A4A;
           font-size: 16px;
         }
 
         .auth-form {
           padding: 32px 24px;
+          flex: 1;
+          overflow-y: auto;
         }
 
         .form-group {
@@ -815,7 +825,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         .input-group svg {
           position: absolute;
           left: 16px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           z-index: 2;
         }
 
@@ -845,7 +855,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           background: none;
           border: none;
           cursor: pointer;
-          color: #6E6E6E;
+          color: #4A4A4A;
           padding: 4px;
           border-radius: 4px;
           transition: all 0.2s ease;
@@ -859,7 +869,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         .form-group small {
           display: block;
           margin-top: 4px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           font-size: 12px;
         }
 
@@ -939,7 +949,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
         .back-btn {
           background: rgba(248, 246, 240, 0.8);
-          color: #6E6E6E;
+          color: #4A4A4A;
           border: 2px solid #E5DCC2;
           padding: 12px 24px;
           border-radius: 12px;
@@ -1005,7 +1015,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           width: 32px;
           height: 32px;
           background: #E5DCC2;
-          color: #6E6E6E;
+          color: #4A4A4A;
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -1022,7 +1032,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         .step label {
           font-size: 12px;
           font-weight: 600;
-          color: #6E6E6E;
+          color: #4A4A4A;
           text-align: center;
         }
 
@@ -1048,7 +1058,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         .divider span {
           background: #FFFFFF;
           padding: 0 16px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           font-size: 14px;
           font-weight: 600;
         }
@@ -1120,7 +1130,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
         .credential-info .email {
           font-size: 12px;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
 
         .login-hint {

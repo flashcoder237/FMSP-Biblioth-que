@@ -598,7 +598,7 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
         
         .section-description {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0;
         }
         
@@ -611,7 +611,7 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
           align-items: center;
           gap: 8px;
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin-top: 4px;
         }
         
@@ -623,7 +623,7 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
           background: #F3EED9;
           border: 1px solid #E5DCC2;
           border-radius: 8px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           font-size: 14px;
           font-weight: 500;
           cursor: pointer;
@@ -703,7 +703,7 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
         
         .option-badge {
           background: #F3EED9;
-          color: #6E6E6E;
+          color: #4A4A4A;
           padding: 4px 12px;
           border-radius: 20px;
           font-size: 12px;
@@ -719,7 +719,7 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
         
         .option-description {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0 0 16px 0;
           line-height: 1.5;
         }
@@ -732,7 +732,7 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
         
         .feature-tag {
           background: #F3EED9;
-          color: #6E6E6E;
+          color: #4A4A4A;
           padding: 4px 8px;
           border-radius: 8px;
           font-size: 11px;
@@ -814,13 +814,13 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
 
         .institution-address {
           font-size: 13px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0 0 2px 0;
         }
 
         .institution-contact {
           font-size: 12px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0;
         }
 
@@ -850,7 +850,7 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
         
         .preview-subtitle {
           font-size: 12px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0;
         }
         
@@ -929,7 +929,7 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
         .more-text {
           text-align: center;
           font-style: italic;
-          color: #6E6E6E;
+          color: #4A4A4A;
           justify-content: center;
         }
         
@@ -978,7 +978,7 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
           align-items: center;
           gap: 8px;
           font-size: 12px;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
         
         .footer-actions {
@@ -1003,7 +1003,7 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
         
         .btn-secondary {
           background: #F3EED9;
-          color: #6E6E6E;
+          color: #4A4A4A;
           border: 2px solid #E5DCC2;
         }
         

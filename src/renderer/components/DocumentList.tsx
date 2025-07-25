@@ -23,7 +23,15 @@ import {
   Filter,
   LayoutGrid,
   Layers,
-  Heart
+  Heart,
+  List,
+  Grid,
+  Table,
+  Image,
+  Eye,
+  MoreHorizontal,
+  SortAsc,
+  SortDesc
 } from 'lucide-react';
 import { Document3DView } from './Document3DView';
 import { useQuickToast } from './ToastSystem';
@@ -53,15 +61,17 @@ export const DocumentList: React.FC<DocumentListProps> = ({
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedSyncStatus, setSelectedSyncStatus] = useState('all');
   const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
-  const [viewMode, setViewMode] = useState<'grid' | 'list' | '3d'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'table' | 'mosaic' | 'cards'>('grid');
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [sortBy, setSortBy] = useState<'titre' | 'auteur' | 'annee' | 'lastModified'>('titre');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const toast = useQuickToast();
 
   useEffect(() => {
-    filterDocuments();
-  }, [documents, searchTerm, selectedCategory, selectedSyncStatus]);
+    filterAndSortDocuments();
+  }, [documents, searchTerm, selectedCategory, selectedSyncStatus, sortBy, sortOrder]);
 
-  const filterDocuments = () => {
+  const filterAndSortDocuments = () => {
     let filtered = documents;
 
     // Filtrage par terme de recherche
@@ -89,6 +99,35 @@ export const DocumentList: React.FC<DocumentListProps> = ({
       filtered = filtered.filter(doc => doc.syncStatus === selectedSyncStatus);
     }
 
+    // Tri des documents
+    filtered.sort((a, b) => {
+      let valueA: string | number = '';
+      let valueB: string | number = '';
+
+      switch (sortBy) {
+        case 'titre':
+          valueA = a.titre.toLowerCase();
+          valueB = b.titre.toLowerCase();
+          break;
+        case 'auteur':
+          valueA = a.auteur.toLowerCase();
+          valueB = b.auteur.toLowerCase();
+          break;
+        case 'annee':
+          valueA = parseInt(a.annee) || 0;
+          valueB = parseInt(b.annee) || 0;
+          break;
+        case 'lastModified':
+          valueA = new Date(a.lastModified).getTime();
+          valueB = new Date(b.lastModified).getTime();
+          break;
+      }
+
+      if (valueA < valueB) return sortOrder === 'asc' ? -1 : 1;
+      if (valueA > valueB) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+
     setFilteredDocuments(filtered);
   };
 
@@ -100,6 +139,15 @@ export const DocumentList: React.FC<DocumentListProps> = ({
       });
     });
     return Array.from(categories).sort();
+  };
+
+  const toggleSort = (field: typeof sortBy) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
   };
 
   const getSyncStatusIcon = (status: Document['syncStatus']) => {
@@ -173,6 +221,408 @@ export const DocumentList: React.FC<DocumentListProps> = ({
         )}
       </div>
     );
+  };
+
+  // Composant de carte document réutilisable
+  const DocumentCard = ({ document }: { document: Document }) => (
+    <div className="document-card">
+      {/* Image de couverture */}
+      {document.couverture && (
+        <div className="document-cover">
+          <img
+            src={document.couverture}
+            alt={`Couverture de ${document.titre}`}
+            className="cover-image"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        </div>
+      )}
+      
+      <div className="document-content">
+        {/* En-tête avec statut */}
+        <div className="document-header">
+          <div className="document-title-section">
+            <h3 className="document-title" title={document.titre}>
+              {document.titre}
+            </h3>
+            <p className="document-author" title={document.auteur}>
+              <User size={14} />
+              {document.auteur}
+            </p>
+          </div>
+          <div className="document-status">
+            {getSyncStatusIcon(document.syncStatus)}
+            {document.estEmprunte && (
+              <div className="borrowed-indicator" title="Emprunté" />
+            )}
+          </div>
+        </div>
+
+        {/* Informations détaillées */}
+        <div className="document-details">
+          <div className="detail-item">
+            <Building size={14} />
+            <span className="detail-text">{document.editeur}</span>
+          </div>
+          
+          <div className="detail-item">
+            <MapPin size={14} />
+            <span className="detail-text">{document.lieuEdition}</span>
+          </div>
+          
+          <div className="detail-item">
+            <Calendar size={14} />
+            <span className="detail-text">{document.annee}</span>
+          </div>
+          
+          <div className="detail-item">
+            <Hash size={14} />
+            <span className="detail-text document-cote">{document.cote}</span>
+          </div>
+          
+          <div className="detail-item tags-item">
+            <Tag size={14} />
+            <div className="tags-container">
+              {document.descripteurs.split(',').slice(0, 3).map((desc, index) => (
+                <span
+                  key={index}
+                  className="tag-badge"
+                  title={desc.trim()}
+                >
+                  {desc.trim()}
+                </span>
+              ))}
+              {document.descripteurs.split(',').length > 3 && (
+                <span className="tags-more">
+                  +{document.descripteurs.split(',').length - 3}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Description */}
+        {document.description && (
+          <p className="document-description" title={document.description}>
+            {document.description}
+          </p>
+        )}
+
+        {/* Actions */}
+        <div className="document-footer">
+          <div className="document-meta">
+            <span className="version-info">v{document.version}</span>
+            <span className="date-info">
+              {new Date(document.lastModified).toLocaleDateString('fr-FR')}
+            </span>
+          </div>
+          
+          <div className="document-actions">
+            {onBorrow && (
+              <button
+                onClick={() => handleBorrow(document)}
+                className="action-button borrow-button"
+                title={document.estEmprunte ? "Retourner" : "Emprunter"}
+                disabled={!document.estEmprunte && document.syncStatus === 'error'}
+              >
+                <Heart size={16} />
+              </button>
+            )}
+            <button
+              onClick={() => handleEdit(document)}
+              className="action-button edit-button"
+              title="Modifier"
+            >
+              <Edit size={16} />
+            </button>
+            <button
+              onClick={() => document.id && handleDelete(document.id)}
+              className="action-button delete-button"
+              title="Supprimer"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Rendu en mode grille
+  const renderGridView = () => (
+    <div className="documents-grid">
+      {filteredDocuments.map((document) => (
+        <DocumentCard key={document.id} document={document} />
+      ))}
+    </div>
+  );
+
+  // Rendu en mode liste
+  const renderListView = () => (
+    <div className="documents-list">
+      {filteredDocuments.map((document) => (
+        <div key={document.id} className="document-list-item">
+          <div className="list-item-content">
+            <div className="list-item-main">
+              <div className="list-item-header">
+                <h4 className="list-item-title">{document.titre}</h4>
+                <div className="list-item-status">
+                  {getSyncStatusIcon(document.syncStatus)}
+                  {document.estEmprunte && <div className="borrowed-indicator" />}
+                </div>
+              </div>
+              <div className="list-item-details">
+                <span className="list-detail">
+                  <User size={12} />
+                  {document.auteur}
+                </span>
+                <span className="list-detail">
+                  <Building size={12} />
+                  {document.editeur}
+                </span>
+                <span className="list-detail">
+                  <Calendar size={12} />
+                  {document.annee}
+                </span>
+                <span className="list-detail">
+                  <Hash size={12} />
+                  {document.cote}
+                </span>
+              </div>
+            </div>
+            <div className="list-item-actions">
+              {onBorrow && (
+                <button
+                  onClick={() => handleBorrow(document)}
+                  className="action-button borrow-button"
+                  title={document.estEmprunte ? "Retourner" : "Emprunter"}
+                >
+                  <Heart size={14} />
+                </button>
+              )}
+              <button
+                onClick={() => handleEdit(document)}
+                className="action-button edit-button"
+                title="Modifier"
+              >
+                <Edit size={14} />
+              </button>
+              <button
+                onClick={() => document.id && handleDelete(document.id)}
+                className="action-button delete-button"
+                title="Supprimer"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  // Rendu en mode tableau
+  const renderTableView = () => (
+    <div className="documents-table-container">
+      <table className="documents-table">
+        <thead>
+          <tr>
+            <th>
+              <button 
+                className={`sort-button ${sortBy === 'titre' ? 'active' : ''}`}
+                onClick={() => toggleSort('titre')}
+              >
+                Titre
+                {sortBy === 'titre' && (sortOrder === 'asc' ? <SortAsc size={14} /> : <SortDesc size={14} />)}
+              </button>
+            </th>
+            <th>
+              <button 
+                className={`sort-button ${sortBy === 'auteur' ? 'active' : ''}`}
+                onClick={() => toggleSort('auteur')}
+              >
+                Auteur
+                {sortBy === 'auteur' && (sortOrder === 'asc' ? <SortAsc size={14} /> : <SortDesc size={14} />)}
+              </button>
+            </th>
+            <th>Éditeur</th>
+            <th>
+              <button 
+                className={`sort-button ${sortBy === 'annee' ? 'active' : ''}`}
+                onClick={() => toggleSort('annee')}
+              >
+                Année
+                {sortBy === 'annee' && (sortOrder === 'asc' ? <SortAsc size={14} /> : <SortDesc size={14} />)}
+              </button>
+            </th>
+            <th>Cote</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredDocuments.map((document) => (
+            <tr key={document.id} className={document.estEmprunte ? 'borrowed-row' : ''}>
+              <td className="title-cell">
+                <div className="table-title">
+                  {document.titre}
+                  {document.estEmprunte && <span className="borrowed-badge">Emprunté</span>}
+                </div>
+              </td>
+              <td>{document.auteur}</td>
+              <td>{document.editeur}</td>
+              <td>{document.annee}</td>
+              <td className="cote-cell">{document.cote}</td>
+              <td className="status-cell">
+                {getSyncStatusIcon(document.syncStatus)}
+              </td>
+              <td className="actions-cell">
+                <div className="table-actions">
+                  {onBorrow && (
+                    <button
+                      onClick={() => handleBorrow(document)}
+                      className="action-button borrow-button"
+                      title={document.estEmprunte ? "Retourner" : "Emprunter"}
+                    >
+                      <Heart size={14} />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleEdit(document)}
+                    className="action-button edit-button"
+                    title="Modifier"
+                  >
+                    <Edit size={14} />
+                  </button>
+                  <button
+                    onClick={() => document.id && handleDelete(document.id)}
+                    className="action-button delete-button"
+                    title="Supprimer"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  // Rendu en mode mosaïque (images)
+  const renderMosaicView = () => (
+    <div className="documents-mosaic">
+      {filteredDocuments.map((document) => (
+        <div key={document.id} className="mosaic-item">
+          <div className="mosaic-image">
+            {document.couverture ? (
+              <img
+                src={document.couverture}
+                alt={`Couverture de ${document.titre}`}
+                className="mosaic-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            ) : (
+              <div className="mosaic-placeholder">
+                <BookOpen size={32} />
+              </div>
+            )}
+            <div className="mosaic-overlay">
+              <div className="mosaic-info">
+                <h4 className="mosaic-title">{document.titre}</h4>
+                <p className="mosaic-author">{document.auteur}</p>
+              </div>
+              <div className="mosaic-actions">
+                {onBorrow && (
+                  <button
+                    onClick={() => handleBorrow(document)}
+                    className="action-button borrow-button"
+                    title={document.estEmprunte ? "Retourner" : "Emprunter"}
+                  >
+                    <Heart size={16} />
+                  </button>
+                )}
+                <button
+                  onClick={() => handleEdit(document)}
+                  className="action-button edit-button"
+                  title="Modifier"
+                >
+                  <Edit size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+          {document.estEmprunte && <div className="mosaic-borrowed-badge">Emprunté</div>}
+        </div>
+      ))}
+    </div>
+  );
+
+  // Rendu en mode cartes compactes
+  const renderCardsView = () => (
+    <div className="documents-cards">
+      {filteredDocuments.map((document) => (
+        <div key={document.id} className="compact-card">
+          <div className="card-header">
+            <div className="card-icon">
+              <BookOpen size={20} />
+            </div>
+            <div className="card-info">
+              <h4 className="card-title">{document.titre}</h4>
+              <p className="card-author">{document.auteur}</p>
+            </div>
+            <div className="card-status">
+              {getSyncStatusIcon(document.syncStatus)}
+              {document.estEmprunte && <div className="borrowed-indicator" />}
+            </div>
+          </div>
+          <div className="card-details">
+            <div className="card-meta">
+              <span className="meta-item">{document.editeur}</span>
+              <span className="meta-item">{document.annee}</span>
+              <span className="meta-item">{document.cote}</span>
+            </div>
+            <div className="card-actions">
+              <button
+                onClick={() => handleEdit(document)}
+                className="action-button edit-button"
+                title="Modifier"
+              >
+                <Edit size={14} />
+              </button>
+              <button
+                onClick={() => document.id && handleDelete(document.id)}
+                className="action-button delete-button"
+                title="Supprimer"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  // Fonction principale de rendu selon le mode
+  const renderDocuments = () => {
+    switch (viewMode) {
+      case 'list':
+        return renderListView();
+      case 'table':
+        return renderTableView();
+      case 'mosaic':
+        return renderMosaicView();
+      case 'cards':
+        return renderCardsView();
+      default:
+        return renderGridView();
+    }
   };
 
   return (
@@ -271,138 +721,101 @@ export const DocumentList: React.FC<DocumentListProps> = ({
               <option value="conflict">Conflit</option>
             </select>
           </div>
+
+          <div className="filter-field">
+            <label className="filter-label">
+              <SortAsc size={16} />
+              Trier par
+            </label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+              className="filter-select"
+            >
+              <option value="titre">Titre</option>
+              <option value="auteur">Auteur</option>
+              <option value="annee">Année</option>
+              <option value="lastModified">Date de modification</option>
+            </select>
+          </div>
+        </div>
+        
+        {/* Section de vues et tri */}
+        <div className="view-controls-section">
+          <div className="section-header">
+            <div className="section-icon">
+              <Eye size={20} />
+            </div>
+            <h3 className="section-title">Affichage et tri</h3>
+          </div>
+          
+          <div className="view-controls">
+            <div className="view-mode-buttons">
+              <button
+                className={`view-mode-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                onClick={() => setViewMode('grid')}
+                title="Vue en grille"
+              >
+                <LayoutGrid size={18} />
+                <span>Grille</span>
+              </button>
+              <button
+                className={`view-mode-btn ${viewMode === 'list' ? 'active' : ''}`}
+                onClick={() => setViewMode('list')}
+                title="Vue en liste"
+              >
+                <List size={18} />
+                <span>Liste</span>
+              </button>
+              <button
+                className={`view-mode-btn ${viewMode === 'table' ? 'active' : ''}`}
+                onClick={() => setViewMode('table')}
+                title="Vue en tableau"
+              >
+                <Table size={18} />
+                <span>Tableau</span>
+              </button>
+              <button
+                className={`view-mode-btn ${viewMode === 'mosaic' ? 'active' : ''}`}
+                onClick={() => setViewMode('mosaic')}
+                title="Vue mosaïque"
+              >
+                <Image size={18} />
+                <span>Mosaïque</span>
+              </button>
+              <button
+                className={`view-mode-btn ${viewMode === 'cards' ? 'active' : ''}`}
+                onClick={() => setViewMode('cards')}
+                title="Vue cartes compactes"
+              >
+                <Grid size={18} />
+                <span>Cartes</span>
+              </button>
+            </div>
+            
+            <div className="sort-controls">
+              <button
+                className={`sort-order-btn ${sortOrder === 'asc' ? 'active' : ''}`}
+                onClick={() => setSortOrder('asc')}
+                title="Tri croissant"
+              >
+                <SortAsc size={18} />
+              </button>
+              <button
+                className={`sort-order-btn ${sortOrder === 'desc' ? 'active' : ''}`}
+                onClick={() => setSortOrder('desc')}
+                title="Tri décroissant"
+              >
+                <SortDesc size={18} />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Grille des documents */}
+      {/* Affichage des documents selon le mode sélectionné */}
       {filteredDocuments.length > 0 ? (
-        <div className="documents-grid">
-          {filteredDocuments.map((document) => (
-            <div key={document.id} className="document-card">
-              {/* Image de couverture */}
-              {document.couverture && (
-                <div className="document-cover">
-                  <img
-                    src={document.couverture}
-                    alt={`Couverture de ${document.titre}`}
-                    className="cover-image"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                </div>
-              )}
-              
-              <div className="document-content">
-                {/* En-tête avec statut */}
-                <div className="document-header">
-                  <div className="document-title-section">
-                    <h3 className="document-title" title={document.titre}>
-                      {document.titre}
-                    </h3>
-                    <p className="document-author" title={document.auteur}>
-                      <User size={14} />
-                      {document.auteur}
-                    </p>
-                  </div>
-                  <div className="document-status">
-                    {getSyncStatusIcon(document.syncStatus)}
-                    {document.estEmprunte && (
-                      <div className="borrowed-indicator" title="Emprunté" />
-                    )}
-                  </div>
-                </div>
-
-                {/* Informations détaillées */}
-                <div className="document-details">
-                  <div className="detail-item">
-                    <Building size={14} />
-                    <span className="detail-text">{document.editeur}</span>
-                  </div>
-                  
-                  <div className="detail-item">
-                    <MapPin size={14} />
-                    <span className="detail-text">{document.lieuEdition}</span>
-                  </div>
-                  
-                  <div className="detail-item">
-                    <Calendar size={14} />
-                    <span className="detail-text">{document.annee}</span>
-                  </div>
-                  
-                  <div className="detail-item">
-                    <Hash size={14} />
-                    <span className="detail-text document-cote">{document.cote}</span>
-                  </div>
-                  
-                  <div className="detail-item tags-item">
-                    <Tag size={14} />
-                    <div className="tags-container">
-                      {document.descripteurs.split(',').slice(0, 3).map((desc, index) => (
-                        <span
-                          key={index}
-                          className="tag-badge"
-                          title={desc.trim()}
-                        >
-                          {desc.trim()}
-                        </span>
-                      ))}
-                      {document.descripteurs.split(',').length > 3 && (
-                        <span className="tags-more">
-                          +{document.descripteurs.split(',').length - 3}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Description */}
-                {document.description && (
-                  <p className="document-description" title={document.description}>
-                    {document.description}
-                  </p>
-                )}
-
-                {/* Pied de carte avec actions */}
-                <div className="document-footer">
-                  <div className="document-meta">
-                    <span className="version-info">v{document.version}</span>
-                    <span className="date-info">
-                      {new Date(document.lastModified).toLocaleDateString('fr-FR')}
-                    </span>
-                  </div>
-                  
-                  <div className="document-actions">
-                    {onBorrow && (
-                      <button
-                        onClick={() => handleBorrow(document)}
-                        className="action-button borrow-button"
-                        title={document.estEmprunte ? "Retourner" : "Emprunter"}
-                        disabled={!document.estEmprunte && document.syncStatus === 'error'}
-                      >
-                        <Heart size={16} />
-                      </button>
-                    )}
-                    <button
-                      onClick={() => onEdit(document)}
-                      className="action-button edit-button"
-                      title="Modifier"
-                    >
-                      <Edit size={16} />
-                    </button>
-                    <button
-                      onClick={() => document.id && onDelete(document.id)}
-                      className="action-button delete-button"
-                      title="Supprimer"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        renderDocuments()
       ) : (
         /* Message vide */
         <div className="empty-state">
@@ -447,6 +860,8 @@ export const DocumentList: React.FC<DocumentListProps> = ({
           flex-direction: column;
           gap: 24px;
           padding-right: 8px;
+          padding-bottom: 80px; /* Augmenter le padding pour une meilleure visibilité des derniers documents */
+          min-height: 0; /* Permettre au flex child de shrink */
         }
 
         .scrollable-content::-webkit-scrollbar {
@@ -848,7 +1263,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
 
         .tags-more {
           font-size: 11px;
-          color: #9CA3AF;
+          color: #6B7280;
           font-weight: 500;
         }
 
@@ -878,7 +1293,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
           align-items: center;
           gap: 8px;
           font-size: 11px;
-          color: #9CA3AF;
+          color: #6B7280;
         }
 
         .version-info {
@@ -970,7 +1385,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
 
         .empty-description {
           font-size: 16px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0 0 32px 0;
           max-width: 480px;
           line-height: 1.5;
@@ -1249,6 +1664,547 @@ export const DocumentList: React.FC<DocumentListProps> = ({
 
           .animate-spin {
             animation: none;
+          }
+        }
+
+        /* ====================================
+           STYLES POUR LES MODES D'AFFICHAGE
+           ==================================== */
+
+        /* Section contrôles de vue */
+        .view-controls-section {
+          background: rgba(255, 255, 255, 0.8);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(229, 220, 194, 0.3);
+          border-radius: 16px;
+          padding: 24px;
+          margin-bottom: 24px;
+        }
+
+        .view-controls {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 24px;
+          flex-wrap: wrap;
+        }
+
+        .view-mode-buttons {
+          display: flex;
+          gap: 8px;
+          background: rgba(229, 220, 194, 0.2);
+          border-radius: 12px;
+          padding: 4px;
+        }
+
+        .view-mode-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          border: none;
+          background: transparent;
+          color: #4A4A4A;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-size: 14px;
+          font-weight: 500;
+        }
+
+        .view-mode-btn:hover {
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+        }
+
+        .view-mode-btn.active {
+          background: #3E5C49;
+          color: #FFFFFF;
+          box-shadow: 0 2px 8px rgba(62, 92, 73, 0.3);
+        }
+
+        .sort-controls {
+          display: flex;
+          gap: 4px;
+          background: rgba(229, 220, 194, 0.2);
+          border-radius: 8px;
+          padding: 4px;
+        }
+
+        .sort-order-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 8px;
+          border: none;
+          background: transparent;
+          color: #4A4A4A;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .sort-order-btn:hover {
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+        }
+
+        .sort-order-btn.active {
+          background: #3E5C49;
+          color: #FFFFFF;
+        }
+
+        /* ====================================
+           MODE LISTE
+           ==================================== */
+
+        .documents-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .document-list-item {
+          background: #FFFFFF;
+          border: 1px solid rgba(229, 220, 194, 0.4);
+          border-radius: 12px;
+          padding: 20px;
+          transition: all 0.3s ease;
+          animation: cardSlideIn 0.4s ease-out forwards;
+        }
+
+        .document-list-item:hover {
+          border-color: #3E5C49;
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.1);
+          transform: translateY(-2px);
+        }
+
+        .list-item-content {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 20px;
+        }
+
+        .list-item-main {
+          flex: 1;
+        }
+
+        .list-item-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 12px;
+        }
+
+        .list-item-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0;
+        }
+
+        .list-item-status {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .list-item-details {
+          display: flex;
+          gap: 24px;
+          flex-wrap: wrap;
+        }
+
+        .list-detail {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 14px;
+          color: #4A4A4A;
+        }
+
+        .list-item-actions {
+          display: flex;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+
+        /* ====================================
+           MODE TABLEAU
+           ==================================== */
+
+        .documents-table-container {
+          background: #FFFFFF;
+          border: 1px solid rgba(229, 220, 194, 0.4);
+          border-radius: 16px;
+          overflow: auto; /* Permettre le scroll complet */
+          animation: cardSlideIn 0.4s ease-out forwards;
+          max-height: 65vh; /* Limiter la hauteur pour permettre le scroll */
+        }
+
+        .documents-table {
+          width: 100%;
+          border-collapse: collapse;
+          min-width: 800px; /* Largeur minimum pour le scroll horizontal sur mobiles */
+        }
+
+        .documents-table thead {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+        }
+
+        .documents-table th {
+          padding: 16px 20px;
+          text-align: left;
+          font-weight: 600;
+          font-size: 14px;
+          border: none;
+        }
+
+        .sort-button {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: none;
+          border: none;
+          color: #F3EED9;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: 600;
+          padding: 0;
+          transition: all 0.3s ease;
+        }
+
+        .sort-button:hover {
+          color: #E5DCC2;
+        }
+
+        .sort-button.active {
+          color: #FFFFFF;
+        }
+
+        .documents-table tbody tr {
+          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
+          transition: all 0.3s ease;
+        }
+
+        .documents-table tbody tr:hover {
+          background: rgba(62, 92, 73, 0.05);
+        }
+
+        .documents-table tbody tr.borrowed-row {
+          background: rgba(194, 87, 27, 0.05);
+        }
+
+        .documents-table td {
+          padding: 16px 20px;
+          vertical-align: middle;
+          color: #2E2E2E;
+          font-size: 14px;
+        }
+
+        .title-cell {
+          font-weight: 600;
+        }
+
+        .table-title {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .borrowed-badge {
+          background: #C2571B;
+          color: #FFFFFF;
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+        }
+
+        .cote-cell {
+          font-family: 'Courier New', monospace;
+          font-weight: 600;
+          color: #3E5C49;
+        }
+
+        .status-cell {
+          text-align: center;
+        }
+
+        .actions-cell {
+          text-align: center;
+        }
+
+        .table-actions {
+          display: flex;
+          gap: 8px;
+          justify-content: center;
+        }
+
+        /* ====================================
+           MODE MOSAÏQUE
+           ==================================== */
+
+        .documents-mosaic {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 20px;
+        }
+
+        .mosaic-item {
+          position: relative;
+          border-radius: 12px;
+          overflow: hidden;
+          animation: cardSlideIn 0.4s ease-out forwards;
+        }
+
+        .mosaic-image {
+          position: relative;
+          aspect-ratio: 3/4;
+          overflow: hidden;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #F3EED9 0%, #E5DCC2 100%);
+        }
+
+        .mosaic-cover {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.3s ease;
+        }
+
+        .mosaic-placeholder {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #4A4A4A;
+        }
+
+        .mosaic-overlay {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+          color: white;
+          padding: 20px;
+          transform: translateY(100%);
+          transition: transform 0.3s ease;
+        }
+
+        .mosaic-item:hover .mosaic-overlay {
+          transform: translateY(0);
+        }
+
+        .mosaic-item:hover .mosaic-cover {
+          transform: scale(1.05);
+        }
+
+        .mosaic-info {
+          margin-bottom: 12px;
+        }
+
+        .mosaic-title {
+          font-size: 16px;
+          font-weight: 600;
+          margin: 0 0 4px 0;
+          line-height: 1.3;
+        }
+
+        .mosaic-author {
+          font-size: 14px;
+          opacity: 0.9;
+          margin: 0;
+        }
+
+        .mosaic-actions {
+          display: flex;
+          gap: 8px;
+        }
+
+        .mosaic-borrowed-badge {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          background: #C2571B;
+          color: white;
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+        }
+
+        /* ====================================
+           MODE CARTES COMPACTES
+           ==================================== */
+
+        .documents-cards {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+          gap: 16px;
+        }
+
+        .compact-card {
+          background: #FFFFFF;
+          border: 1px solid rgba(229, 220, 194, 0.4);
+          border-radius: 12px;
+          padding: 16px;
+          transition: all 0.3s ease;
+          animation: cardSlideIn 0.4s ease-out forwards;
+        }
+
+        .compact-card:hover {
+          border-color: #3E5C49;
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.1);
+          transform: translateY(-2px);
+        }
+
+        .card-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 12px;
+        }
+
+        .card-icon {
+          width: 40px;
+          height: 40px;
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .card-info {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .card-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0 0 4px 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .card-author {
+          font-size: 14px;
+          color: #4A4A4A;
+          margin: 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .card-status {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+
+        .card-details {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+        }
+
+        .card-meta {
+          display: flex;
+          gap: 12px;
+          flex-wrap: wrap;
+          flex: 1;
+        }
+
+        .meta-item {
+          font-size: 12px;
+          color: #4A4A4A;
+          background: rgba(243, 238, 217, 0.5);
+          padding: 4px 8px;
+          border-radius: 6px;
+        }
+
+        .card-actions {
+          display: flex;
+          gap: 4px;
+          flex-shrink: 0;
+        }
+
+        /* ====================================
+           RESPONSIVE DESIGN
+           ==================================== */
+
+        @media (max-width: 1024px) {
+          .view-controls {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 16px;
+          }
+
+          .view-mode-buttons {
+            justify-content: center;
+          }
+
+          .documents-mosaic {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+          }
+
+          .documents-cards {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          }
+        }
+
+        @media (max-width: 768px) {
+          .view-mode-buttons {
+            flex-wrap: wrap;
+          }
+
+          .view-mode-btn span {
+            display: none;
+          }
+
+          .list-item-content {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+          }
+
+          .list-item-actions {
+            align-self: flex-end;
+          }
+
+          .documents-table-container {
+            overflow-x: auto;
+          }
+
+          .documents-table {
+            min-width: 600px;
+          }
+
+          .documents-mosaic {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+          }
+
+          .documents-cards {
+            grid-template-columns: 1fr;
+          }
+
+          .card-meta {
+            flex-direction: column;
+            gap: 4px;
           }
         }
 

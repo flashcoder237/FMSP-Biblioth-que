@@ -615,6 +615,16 @@ ipcMain.handle('db:getStats', async () => {
   }
 });
 
+// Recent Activity handler
+ipcMain.handle('db:getRecentActivity', async (_, limit: number = 10) => {
+  try {
+    return await dbService.getRecentActivity(limit);
+  } catch (error) {
+    console.error('Erreur getRecentActivity:', error);
+    return [];
+  }
+});
+
 // Nouvelles opérations de base de données
 ipcMain.handle('db:clearAll', async () => {
   try {
@@ -943,6 +953,16 @@ ipcMain.handle('print:borrowed-books', async (_, data) => {
     return await createPrintWindow(data, 'borrowed');
   } catch (error) {
     console.error('Erreur print:borrowed-books:', error);
+    return false;
+  }
+});
+
+// Print borrow history handler
+ipcMain.handle('print:borrow-history', async (_, data) => {
+  try {
+    return await createPrintWindow(data, 'history');
+  } catch (error) {
+    console.error('Erreur print:borrow-history:', error);
     return false;
   }
 });

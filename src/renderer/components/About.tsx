@@ -644,7 +644,7 @@ export const About: React.FC<AboutProps> = ({ onClose }) => {
           padding: 16px 20px;
           border: none;
           background: transparent;
-          color: #6E6E6E;
+          color: #4A4A4A;
           border-radius: 12px;
           cursor: pointer;
           transition: all 0.3s ease;
@@ -721,7 +721,7 @@ export const About: React.FC<AboutProps> = ({ onClose }) => {
           display: flex;
           align-items: center;
           gap: 8px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           font-size: 14px;
         }
         
@@ -779,7 +779,7 @@ export const About: React.FC<AboutProps> = ({ onClose }) => {
         
         .position-description {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           line-height: 1.6;
           margin: 0;
         }
@@ -875,7 +875,7 @@ export const About: React.FC<AboutProps> = ({ onClose }) => {
         
         .timeline-description {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           line-height: 1.6;
           margin: 0;
         }
@@ -934,7 +934,7 @@ export const About: React.FC<AboutProps> = ({ onClose }) => {
         
         .experience-description {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           line-height: 1.6;
           margin: 0;
         }
@@ -981,7 +981,7 @@ export const About: React.FC<AboutProps> = ({ onClose }) => {
         
         .achievement-description {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0;
         }
         
@@ -1005,7 +1005,7 @@ export const About: React.FC<AboutProps> = ({ onClose }) => {
         
         .intro-description {
           font-size: 16px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           line-height: 1.6;
           margin: 0;
           max-width: 800px;
@@ -1055,7 +1055,7 @@ export const About: React.FC<AboutProps> = ({ onClose }) => {
         
         .feature-description {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           line-height: 1.6;
           margin: 0;
         }
@@ -1092,7 +1092,7 @@ export const About: React.FC<AboutProps> = ({ onClose }) => {
           padding: 8px 0;
           border-bottom: 1px solid #F3EED9;
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           line-height: 1.6;
           position: relative;
           padding-left: 20px;
@@ -1140,7 +1140,7 @@ export const About: React.FC<AboutProps> = ({ onClose }) => {
         
         .mission-description {
           font-size: 16px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           line-height: 1.6;
           margin: 0;
         }
@@ -1216,7 +1216,7 @@ export const About: React.FC<AboutProps> = ({ onClose }) => {
         
         .architecture-description p {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           line-height: 1.6;
           margin: 0 0 16px 0;
         }

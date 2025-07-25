@@ -631,7 +631,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 
         .form-input:disabled {
           background: #F5F5F5;
-          color: #6E6E6E;
+          color: #4A4A4A;
           cursor: not-allowed;
         }
 
@@ -661,7 +661,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           left: 14px;
           top: 50%;
           transform: translateY(-50%);
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
 
         .input-with-validation {
@@ -685,7 +685,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 
         .form-help {
           font-size: 12px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 4px 0 0 0;
           font-style: italic;
         }

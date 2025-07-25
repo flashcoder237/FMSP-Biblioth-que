@@ -336,7 +336,7 @@ export const EnhancedStats: React.FC<EnhancedStatsProps> = ({ stats, className =
         .stat-value {
           font-size: 2.5rem;
           font-weight: 800;
-          color: #1A1A1A;
+          color: #005332ff !important;
           line-height: 1;
           margin-bottom: 8px;
           transition: color 0.3s ease;
@@ -459,16 +459,17 @@ export const EnhancedStats: React.FC<EnhancedStatsProps> = ({ stats, className =
         }
 
         .efficiency-fill.utilization {
-          background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+          background: linear-gradient(135deg, #C2571B 0%, rgba(255, 166, 0, 1) 100%);
         }
 
         .efficiency-fill.availability {
-          background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+          background: linear-gradient(135deg, #003a1cff 0%, rgba(1, 241, 153, 1) 100%);
         }
 
         .efficiency-fill.activity {
-          background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+          background: linear-gradient(135deg, #383838ff 0%, #888888ff 100%);
         }
+
 
         .efficiency-value {
           font-size: 16px;

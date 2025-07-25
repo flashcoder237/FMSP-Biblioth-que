@@ -1,16 +1,18 @@
 // src/renderer/components/AppPasswordScreen.tsx
 import React, { useState } from 'react';
-import { Lock, Eye, EyeOff, Shield, KeyRound, AlertCircle } from 'lucide-react';
+import { Lock, Eye, EyeOff, Shield, KeyRound, AlertCircle, X } from 'lucide-react';
 
 interface AppPasswordScreenProps {
   onUnlock: () => void;
   onSkip?: () => void;
+  onClose?: () => void;
   isSetup?: boolean;
 }
 
 export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({ 
   onUnlock, 
   onSkip, 
+  onClose,
   isSetup = false 
 }) => {
   const [password, setPassword] = useState('');
@@ -66,6 +68,11 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
       </div>
 
       <div className="password-container">
+        {onClose && (
+          <button className="close-app-btn" onClick={onClose} title="Fermer l'application">
+            <X size={20} />
+          </button>
+        )}
         <div className="password-header">
           <div className="lock-icon">
             <Shield size={48} />
@@ -252,6 +259,30 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
           z-index: 1;
         }
 
+        .close-app-btn {
+          position: absolute;
+          top: 16px;
+          right: 16px;
+          width: 40px;
+          height: 40px;
+          border: none;
+          background: rgba(0, 0, 0, 0.1);
+          color: #374151;
+          border-radius: 10px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+          z-index: 10;
+        }
+
+        .close-app-btn:hover {
+          background: rgba(220, 38, 38, 0.1);
+          color: #DC2626;
+          transform: scale(1.05);
+        }
+
         .password-header {
           text-align: center;
           margin-bottom: 32px;
@@ -277,7 +308,7 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
         }
 
         .password-header p {
-          color: #6b7280;
+          color: #374151;
           margin: 0;
           line-height: 1.5;
         }
@@ -394,7 +425,7 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
         .skip-btn {
           background: none;
           border: 2px solid #e5e7eb;
-          color: #6b7280;
+          color: #374151;
           padding: 12px 24px;
           border-radius: 12px;
           font-size: 0.9rem;

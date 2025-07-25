@@ -206,6 +206,8 @@ const electronAPI = {
         overdueBooks: 0
     }),
     getAdvancedStats: () => electron_1.ipcRenderer?.invoke('stats:advanced') || Promise.resolve({}),
+    // Recent Activity
+    getRecentActivity: (limit) => electron_1.ipcRenderer?.invoke('db:getRecentActivity', limit) || Promise.resolve([]),
     // Settings management
     getSettings: () => electron_1.ipcRenderer?.invoke('settings:get') || Promise.resolve(null),
     saveSettings: (settings) => electron_1.ipcRenderer?.invoke('settings:save', settings) || Promise.resolve(false),

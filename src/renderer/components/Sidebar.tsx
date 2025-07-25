@@ -19,7 +19,8 @@ import {
   History,
   Settings,
   HardDrive,
-  User
+  User,
+  LogOut
 } from 'lucide-react';
 import { Stats } from '../../types';
 import { MicroButton } from './MicroInteractions';
@@ -28,6 +29,7 @@ import { UnifiedUser, UnifiedInstitution } from '../types/UnifiedTypes';
 interface SidebarProps {
   currentView: string;
   onNavigate: (view: 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'app-settings' | 'user-profile' | 'donation' | 'about') => void;
+  onLogout?: () => void;
   stats: Stats;
   currentUser: UnifiedUser | null;
   currentInstitution: UnifiedInstitution | null;
@@ -51,7 +53,7 @@ interface MenuItem extends BaseMenuItem {
   support?: boolean;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats, currentUser, currentInstitution }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, stats, currentUser, currentInstitution }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const menuItems: MenuItem[] = [
@@ -243,13 +245,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
                     <div className="user-institution">{currentInstitution.name}</div>
                   )}
                 </div>
-                <button 
-                  className="user-settings-btn"
-                  onClick={() => onNavigate('user-profile')}
-                  title="Modifier le profil"
-                >
-                  <User size={16} />
-                </button>
+                <div className="user-actions">
+                  <button 
+                    className="user-settings-btn"
+                    onClick={() => onNavigate('user-profile')}
+                    title="Modifier le profil"
+                  >
+                    <User size={16} />
+                  </button>
+                  {onLogout && (
+                    <button 
+                      className="user-logout-btn"
+                      onClick={onLogout}
+                      title="Se déconnecter"
+                    >
+                      <LogOut size={16} />
+                    </button>
+                  )}
+                </div>
               </>
             )}
           </div>
@@ -1491,7 +1504,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           text-overflow: ellipsis;
         }
 
-        .user-settings-btn {
+        .user-actions {
+          display: flex;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+
+        .user-settings-btn,
+        .user-logout-btn {
           width: 30px;
           height: 30px;
           border: 1px solid rgba(243, 238, 217, 0.2);
@@ -1512,6 +1532,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, stats
           color: #F3EED9;
           transform: scale(1.05);
           box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .user-logout-btn:hover {
+          background: rgba(220, 38, 38, 0.2);
+          border-color: rgba(220, 38, 38, 0.4);
+          color: #FFB3B3;
+          transform: scale(1.05);
+          box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
         }
       `}</style>
     </div>

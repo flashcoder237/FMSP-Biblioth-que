@@ -13,9 +13,10 @@ import {
   Sparkles,
   Users,
   Tag,
-  Building
+  Building,
+  ChevronRight,
+  Save
 } from 'lucide-react';
-import { MicroButton, MicroCard, MicroLoader } from './MicroInteractions';
 import { useQuickToast } from './ToastSystem';
 
 interface BorrowDocumentProps {
@@ -34,11 +35,13 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
   onCancel
 }) => {
   const { success, error, info } = useQuickToast();
+  const [currentStep, setCurrentStep] = useState(1);
   const [selectedBorrowerId, setSelectedBorrowerId] = useState<number | null>(null);
   const [returnDate, setReturnDate] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [filteredBorrowers, setFilteredBorrowers] = useState<Borrower[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     // Set default return date to 2 weeks from today
@@ -112,6 +115,67 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
 
   const getBorrowerTypeLabel = (type: string) => {
     return type === 'student' ? 'Étudiant' : 'Personnel';
+  };
+
+  // Step management functions
+  const getStepTitle = (step: number) => {
+    if (document.estEmprunte) {
+      return 'Confirmer le retour';
+    }
+    switch(step) {
+      case 1: return 'Document à emprunter';
+      case 2: return 'Sélection emprunteur';
+      case 3: return 'Date de retour';
+      default: return 'Emprunt';
+    }
+  };
+
+  const getStepDescription = (step: number) => {
+    if (document.estEmprunte) {
+      return 'Finaliser le retour';
+    }
+    switch(step) {
+      case 1: return 'Vérifier les informations';
+      case 2: return 'Choisir la personne';
+      case 3: return 'Définir l\'échéance';
+      default: return '';
+    }
+  };
+
+  const getStepIcon = (step: number) => {
+    if (document.estEmprunte) {
+      return CheckCircle;
+    }
+    switch(step) {
+      case 1: return BookOpen;
+      case 2: return Users;
+      case 3: return Calendar;
+      default: return BookOpen;
+    }
+  };
+
+  const validateStep = (step: number) => {
+    const newErrors: Record<string, string> = {};
+
+    if (step === 2 && !selectedBorrowerId) {
+      newErrors.borrower = 'Veuillez sélectionner un emprunteur';
+    }
+    if (step === 3 && !returnDate) {
+      newErrors.returnDate = 'Veuillez définir une date de retour';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNext = () => {
+    if (validateStep(currentStep)) {
+      setCurrentStep(prev => Math.min(prev + 1, document.estEmprunte ? 1 : 3));
+    }
+  };
+
+  const handlePrev = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
   };
 
   return (
@@ -543,7 +607,7 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
         
         .document-author {
           font-size: 16px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0 0 12px 0;
           display: flex;
           align-items: center;
@@ -561,7 +625,7 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
           align-items: center;
           gap: 6px;
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           background: rgba(62, 92, 73, 0.1);
           padding: 4px 12px;
           border-radius: 20px;
@@ -642,7 +706,7 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
         }
         
         .search-input::placeholder {
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
         
         .borrowers-list {
@@ -687,7 +751,7 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
         
         .borrower-item.selected .borrower-avatar {
@@ -717,7 +781,7 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
         .borrower-type,
         .borrower-matricule,
         .borrower-class {
-          color: #6E6E6E;
+          color: #4A4A4A;
           background: rgba(110, 110, 110, 0.1);
           padding: 2px 8px;
           border-radius: 6px;
@@ -737,7 +801,7 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
         .no-borrowers {
           text-align: center;
           padding: 40px 20px;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
         
         .no-borrowers svg {
@@ -772,7 +836,7 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
           align-items: center;
           gap: 8px;
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           background: rgba(62, 92, 73, 0.05);
           padding: 8px 16px;
           border-radius: 8px;

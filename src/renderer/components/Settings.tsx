@@ -1005,7 +1005,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
           padding: 16px 20px;
           border: none;
           background: transparent;
-          color: #6E6E6E;
+          color: #4A4A4A;
           border-radius: 12px;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -1080,7 +1080,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
         
         .section-header p {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0;
         }
         
@@ -1124,7 +1124,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
           flex-direction: column;
           align-items: center;
           gap: 8px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           text-align: center;
         }
         
@@ -1203,7 +1203,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
         .input-wrapper svg {
           position: absolute;
           left: 16px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           z-index: 2;
         }
         
@@ -1280,7 +1280,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
         
         .status-content p {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0;
         }
         
@@ -1307,7 +1307,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
         
         .setting-group p {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0;
           line-height: 1.4;
         }
@@ -1414,7 +1414,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
         .sub-setting label {
           font-size: 13px;
           font-weight: 500;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
         
         .backup-actions {
@@ -1449,7 +1449,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
         
         .action-button.secondary {
           background: #F3EED9;
-          color: #6E6E6E;
+          color: #4A4A4A;
           border: 1px solid #E5DCC2;
         }
         
@@ -1649,7 +1649,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
         
         .app-info p {
           font-size: 16px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0;
         }
         
@@ -1675,7 +1675,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
         
         .info-card p {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0;
         }
         
@@ -1728,7 +1728,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
         
         .detail-item span:first-child {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
         
         .detail-item span:last-child {
@@ -1761,7 +1761,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
         
         .btn-secondary {
           background: #F3EED9;
-          color: #6E6E6E;
+          color: #4A4A4A;
           border: 2px solid #E5DCC2;
         }
         
@@ -1836,7 +1836,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
         
         .logout-modal p {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0 0 24px 0;
           line-height: 1.5;
         }

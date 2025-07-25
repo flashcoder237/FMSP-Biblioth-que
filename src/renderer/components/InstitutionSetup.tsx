@@ -737,7 +737,7 @@ L'équipe de ${institution?.name}
 
         .step-description {
           font-size: 16px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           line-height: 1.5;
           margin-bottom: 24px;
         }
@@ -795,7 +795,7 @@ L'équipe de ${institution?.name}
 
         .info-label {
           font-weight: 600;
-          color: #6E6E6E;
+          color: #4A4A4A;
           font-size: 14px;
         }
 
@@ -988,7 +988,7 @@ L'équipe de ${institution?.name}
 
         .option-description {
           font-size: 12px;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
 
         .instructions-card {
@@ -1118,7 +1118,7 @@ L'équipe de ${institution?.name}
 
         .action-description {
           font-size: 12px;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
 
         .offline-advantages h4 {

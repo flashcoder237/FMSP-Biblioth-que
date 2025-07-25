@@ -329,7 +329,7 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
 
         .setup-subtitle {
           font-size: 1.1rem;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0;
         }
 
@@ -465,7 +465,7 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         }
 
         .mode-description p {
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0;
           line-height: 1.4;
           font-size: 0.95rem;
@@ -490,7 +490,7 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         }
 
         .feature.disabled {
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
 
         .mode-ideal {
@@ -501,13 +501,13 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
           background: rgba(248, 246, 240, 0.8);
           border-radius: 6px;
           font-size: 0.8rem;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin-top: auto;
         }
 
         .mode-ideal.disabled {
           background: rgba(229, 220, 194, 0.3);
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
 
         .info-panel {
@@ -542,7 +542,7 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
 
         .info-content li {
           margin-bottom: 3px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           font-size: 0.9rem;
         }
 
@@ -577,7 +577,7 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         }
 
         .setup-note {
-          color: #6E6E6E;
+          color: #4A4A4A;
           font-size: 0.85rem;
           margin: 0;
         }

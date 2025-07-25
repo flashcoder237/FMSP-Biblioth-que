@@ -25239,6 +25239,16 @@ electron_1.ipcMain.handle('db:getStats', async () => {
         };
     }
 });
+// Recent Activity handler
+electron_1.ipcMain.handle('db:getRecentActivity', async (_, limit = 10) => {
+    try {
+        return await dbService.getRecentActivity(limit);
+    }
+    catch (error) {
+        console.error('Erreur getRecentActivity:', error);
+        return [];
+    }
+});
 // Nouvelles opérations de base de données
 electron_1.ipcMain.handle('db:clearAll', async () => {
     try {
@@ -25549,6 +25559,16 @@ electron_1.ipcMain.handle('print:borrowed-books', async (_, data) => {
     }
     catch (error) {
         console.error('Erreur print:borrowed-books:', error);
+        return false;
+    }
+});
+// Print borrow history handler
+electron_1.ipcMain.handle('print:borrow-history', async (_, data) => {
+    try {
+        return await createPrintWindow(data, 'history');
+    }
+    catch (error) {
+        console.error('Erreur print:borrow-history:', error);
         return false;
     }
 });
@@ -26962,6 +26982,8 @@ const electronAPI = {
         overdueBooks: 0
     }),
     getAdvancedStats: () => electron_1.ipcRenderer?.invoke('stats:advanced') || Promise.resolve({}),
+    // Recent Activity
+    getRecentActivity: (limit) => electron_1.ipcRenderer?.invoke('db:getRecentActivity', limit) || Promise.resolve([]),
     // Settings management
     getSettings: () => electron_1.ipcRenderer?.invoke('settings:get') || Promise.resolve(null),
     saveSettings: (settings) => electron_1.ipcRenderer?.invoke('settings:save', settings) || Promise.resolve(false),
@@ -29926,6 +29948,143 @@ class DatabaseService {
                 tables.forEach(clearTable);
             });
         });
+    }
+    // ===============================
+    // MÉTHODE POUR ACTIVITÉ RÉCENTE
+    // ===============================
+    async getRecentActivity(limit = 10) {
+        return new Promise((resolve, reject) => {
+            // Combiner trois requêtes pour l'activité récente :
+            // 1. Documents récemment ajoutés
+            // 2. Emprunts récents 
+            // 3. Retours récents
+            const activities = [];
+            let queriesCompleted = 0;
+            const totalQueries = 3;
+            const checkComplete = () => {
+                queriesCompleted++;
+                if (queriesCompleted === totalQueries) {
+                    // Trier par date et limiter les résultats
+                    activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+                    resolve(activities.slice(0, limit));
+                }
+            };
+            // 1. Documents récemment ajoutés (dernières 7 jours)
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            this.db.all(`
+        SELECT 
+          d.titre, d.auteur, d.createdAt,
+          'add' as type
+        FROM documents d
+        WHERE d.deletedAt IS NULL 
+        AND d.createdAt >= ?
+        ORDER BY d.createdAt DESC
+        LIMIT 5
+      `, [sevenDaysAgo.toISOString()], (err, rows) => {
+                if (err) {
+                    console.error('Erreur lors de la récupération des documents récents:', err);
+                }
+                else {
+                    rows.forEach(row => {
+                        activities.push({
+                            type: 'add',
+                            title: 'Nouveau document ajouté',
+                            description: `${row.titre} par ${row.auteur}`,
+                            timestamp: row.createdAt,
+                            time: this.formatRelativeTime(row.createdAt)
+                        });
+                    });
+                }
+                checkComplete();
+            });
+            // 2. Emprunts récents (dernières 48 heures)
+            const twoDaysAgo = new Date();
+            twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+            this.db.all(`
+        SELECT 
+          bh.borrowDate,
+          d.titre, d.auteur,
+          br.firstName, br.lastName
+        FROM borrow_history bh
+        JOIN documents d ON bh.documentId = d.id
+        JOIN borrowers br ON bh.borrowerId = br.id
+        WHERE bh.borrowDate >= ?
+        AND bh.deletedAt IS NULL
+        ORDER BY bh.borrowDate DESC
+        LIMIT 5
+      `, [twoDaysAgo.toISOString()], (err, rows) => {
+                if (err) {
+                    console.error('Erreur lors de la récupération des emprunts récents:', err);
+                }
+                else {
+                    rows.forEach(row => {
+                        activities.push({
+                            type: 'borrow',
+                            title: 'Document emprunté',
+                            description: `${row.titre} par ${row.firstName} ${row.lastName}`,
+                            timestamp: row.borrowDate,
+                            time: this.formatRelativeTime(row.borrowDate)
+                        });
+                    });
+                }
+                checkComplete();
+            });
+            // 3. Retours récents (dernières 48 heures)
+            this.db.all(`
+        SELECT 
+          bh.actualReturnDate,
+          d.titre, d.auteur,
+          br.firstName, br.lastName
+        FROM borrow_history bh
+        JOIN documents d ON bh.documentId = d.id
+        JOIN borrowers br ON bh.borrowerId = br.id
+        WHERE bh.actualReturnDate >= ?
+        AND bh.actualReturnDate IS NOT NULL
+        AND bh.deletedAt IS NULL
+        ORDER BY bh.actualReturnDate DESC
+        LIMIT 5
+      `, [twoDaysAgo.toISOString()], (err, rows) => {
+                if (err) {
+                    console.error('Erreur lors de la récupération des retours récents:', err);
+                }
+                else {
+                    rows.forEach(row => {
+                        activities.push({
+                            type: 'return',
+                            title: 'Document rendu',
+                            description: `${row.titre} par ${row.firstName} ${row.lastName}`,
+                            timestamp: row.actualReturnDate,
+                            time: this.formatRelativeTime(row.actualReturnDate)
+                        });
+                    });
+                }
+                checkComplete();
+            });
+        });
+    }
+    formatRelativeTime(dateString) {
+        const now = new Date();
+        const date = new Date(dateString);
+        const diffMs = now.getTime() - date.getTime();
+        const diffMins = Math.floor(diffMs / (1000 * 60));
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        if (diffMins < 1) {
+            return 'À l\'instant';
+        }
+        else if (diffMins < 60) {
+            return `Il y a ${diffMins} minute${diffMins > 1 ? 's' : ''}`;
+        }
+        else if (diffHours < 24) {
+            return `Il y a ${diffHours} heure${diffHours > 1 ? 's' : ''}`;
+        }
+        else if (diffDays < 7) {
+            return `Il y a ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
+        }
+        else {
+            return date.toLocaleDateString('fr-FR');
+        }
     }
 }
 exports.DatabaseService = DatabaseService;

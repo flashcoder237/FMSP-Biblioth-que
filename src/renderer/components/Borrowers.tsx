@@ -814,7 +814,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         
         .stat-label {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           text-transform: uppercase;
           letter-spacing: 1px;
           font-weight: 600;
@@ -844,7 +844,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         .search-icon {
           position: absolute;
           left: 16px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           z-index: 2;
         }
         
@@ -874,7 +874,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           background: #F3EED9;
           border: none;
           cursor: pointer;
-          color: #6E6E6E;
+          color: #4A4A4A;
           padding: 8px;
           border-radius: 8px;
           transition: all 0.2s ease;
@@ -896,7 +896,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           display: flex;
           align-items: center;
           gap: 12px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           font-weight: 500;
         }
         
@@ -1004,7 +1004,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           gap: 10px;
           font-size: 13px;
           font-weight: 700;
-          color: #6E6E6E;
+          color: #4A4A4A;
           text-transform: uppercase;
           letter-spacing: 1px;
         }
@@ -1047,7 +1047,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         
         .action-btn.view {
           background: rgba(110, 110, 110, 0.1);
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
         
         .action-btn.view:hover {
@@ -1110,7 +1110,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           align-items: center;
           gap: 12px;
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           font-weight: 500;
           padding: 8px 0;
         }
@@ -1126,7 +1126,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           justify-content: center;
           padding: 80px 32px;
           text-align: center;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
         
         .empty-state svg {
@@ -1155,7 +1155,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           justify-content: center;
           padding: 80px 32px;
           text-align: center;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
         
         .loading-spinner {
@@ -1225,7 +1225,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           cursor: pointer;
           padding: 12px;
           border-radius: 12px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
@@ -1265,7 +1265,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           border: 2px solid #E5DCC2;
           border-radius: 16px;
           background: #FFFFFF;
-          color: #6E6E6E;
+          color: #4A4A4A;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           font-size: 15px;
@@ -1351,7 +1351,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           gap: 10px;
           padding: 14px 28px;
           background: rgba(248, 246, 240, 0.8);
-          color: #6E6E6E;
+          color: #4A4A4A;
           border: 2px solid #E5DCC2;
           border-radius: 12px;
           font-size: 14px;
@@ -1637,7 +1637,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         /* Effet de typing pour les placeholders */
         .search-input::placeholder,
         .form-input::placeholder {
-          color: #6E6E6E;
+          color: #4A4A4A;
           font-style: italic;
           transition: all 0.3s ease;
         }

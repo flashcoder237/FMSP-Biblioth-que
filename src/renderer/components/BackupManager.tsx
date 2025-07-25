@@ -617,7 +617,7 @@ export const BackupManager: React.FC<BackupManagerProps> = ({ onClose }) => {
           }
         }
 
-        .modal-header {
+        .modal-header-alt {
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           color: #F3EED9;
           padding: 32px;
@@ -625,7 +625,9 @@ export const BackupManager: React.FC<BackupManagerProps> = ({ onClose }) => {
           align-items: center;
           justify-content: space-between;
           position: relative;
-          overflow: hidden;
+          overflow: visible; /* Changer de hidden à visible */
+          z-index: 10;
+          margin-bottom: 20px; /* Ajouter une marge pour éviter le chevauchement */
         }
 
         .modal-header::before {
@@ -692,7 +694,9 @@ export const BackupManager: React.FC<BackupManagerProps> = ({ onClose }) => {
         .modal-content {
           flex: 1;
           overflow-y: auto;
-          padding: 32px;
+          padding: 10px;
+          position: relative;
+          z-index: 1; /* Z-index plus bas que le header */
         }
 
         .stats-section {
@@ -735,13 +739,13 @@ export const BackupManager: React.FC<BackupManagerProps> = ({ onClose }) => {
         .stat-value {
           font-size: 24px;
           font-weight: 700;
-          color: #2E2E2E;
+          color: #2e2e2eff !important;
           margin-bottom: 4px;
         }
 
         .stat-label {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A !important ;
         }
 
         .actions-section {
@@ -764,7 +768,7 @@ export const BackupManager: React.FC<BackupManagerProps> = ({ onClose }) => {
         .loading-state, .empty-state {
           text-align: center;
           padding: 60px 20px;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
 
         .loading-spinner {
@@ -832,7 +836,7 @@ export const BackupManager: React.FC<BackupManagerProps> = ({ onClose }) => {
 
         .backup-date, .backup-size {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 2px 0;
         }
 
@@ -862,7 +866,7 @@ export const BackupManager: React.FC<BackupManagerProps> = ({ onClose }) => {
 
         .metadata-label {
           font-size: 12px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           font-weight: 500;
         }
 

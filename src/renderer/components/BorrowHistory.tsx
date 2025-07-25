@@ -13,7 +13,9 @@ import {
   User,
   Book,
   GraduationCap,
-  Briefcase
+  Briefcase,
+  TrendingUp,
+  BarChart3
 } from 'lucide-react';
 import { BorrowHistory as BorrowHistoryType, HistoryFilter } from '../../types';
 import { ExportDialog, ExportConfig } from './ExportDialog';
@@ -136,7 +138,6 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
         const fileName = result.path.split(/[/\\]/).pop();
         alert(`Fichier exporté avec succès : ${fileName}`);
       } else if (result.cancelled) {
-        // User cancelled the export
         return;
       } else {
         alert(`Erreur lors de l'export : ${result.error || 'Erreur inconnue'}`);
@@ -189,163 +190,160 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
   return (
     <div className="history-overlay">
       <div className="history-modal">
-        {/* Header */}
+        {/* Header avec navigation améliorée */}
         <div className="modal-header">
-          <div className="header-content">
+          <div className="header-left">
             <div className="header-icon">
               <History size={28} />
             </div>
             <div className="header-text">
               <h2 className="modal-title">Historique des Emprunts</h2>
-              <p className="modal-subtitle">
-                {stats.total} emprunt(s) • {stats.active} actif(s) • {stats.returned} rendu(s)
-              </p>
+              <div className="header-stats">
+                <span className="stat-pill">
+                  <BarChart3 size={14} />
+                  {stats.total} emprunts
+                </span>
+                <span className="stat-pill active">
+                  <Clock size={14} />
+                  {stats.active} actifs
+                </span>
+                <span className="stat-pill returned">
+                  <CheckCircle size={14} />
+                  {stats.returned} rendus
+                </span>
+                {stats.overdue > 0 && (
+                  <span className="stat-pill overdue">
+                    <AlertTriangle size={14} />
+                    {stats.overdue} en retard
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-          <button className="close-button" onClick={onClose}>
+          <button className="close-button" onClick={onClose} title="Fermer">
             <X size={20} />
           </button>
         </div>
 
-        {/* Stats Overview */}
-        <div className="stats-section">
-          <div className="stat-card">
-            <div className="stat-icon total">
-              <History size={20} />
-            </div>
-            <div className="stat-content">
-              <span className="stat-value">{stats.total}</span>
-              <span className="stat-label">Total</span>
-            </div>
-          </div>
-          
-          <div className="stat-card">
-            <div className="stat-icon active">
-              <Clock size={20} />
-            </div>
-            <div className="stat-content">
-              <span className="stat-value">{stats.active}</span>
-              <span className="stat-label">En cours</span>
-            </div>
-          </div>
-          
-          <div className="stat-card">
-            <div className="stat-icon returned">
-              <CheckCircle size={20} />
-            </div>
-            <div className="stat-content">
-              <span className="stat-value">{stats.returned}</span>
-              <span className="stat-label">Rendus</span>
+        {/* Barre de contrôles principale */}
+        <div className="controls-bar">
+          {/* Recherche globale */}
+          <div className="search-section">
+            <div className="search-input-wrapper">
+              <Search className="search-icon" size={20} />
+              <input
+                type="text"
+                placeholder="Rechercher par document, auteur, emprunteur ou matricule..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+              />
+              {searchQuery && (
+                <button 
+                  className="clear-search"
+                  onClick={() => setSearchQuery('')}
+                  title="Effacer la recherche"
+                >
+                  <X size={16} />
+                </button>
+              )}
             </div>
           </div>
-          
-          <div className="stat-card">
-            <div className="stat-icon overdue">
-              <AlertTriangle size={20} />
-            </div>
-            <div className="stat-content">
-              <span className="stat-value">{stats.overdue}</span>
-              <span className="stat-label">En retard</span>
-            </div>
+
+          {/* Actions rapides */}
+          <div className="quick-actions">
+            <button 
+              className="action-btn secondary" 
+              onClick={() => setShowExportDialog(true)}
+              title="Exporter les données"
+            >
+              <Download size={18} />
+              <span className="action-text">Exporter</span>
+            </button>
+            <button 
+              className="action-btn primary" 
+              onClick={handlePrint}
+              title="Imprimer l'historique"
+            >
+              <Printer size={18} />
+              <span className="action-text">Imprimer</span>
+            </button>
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="filters-section">
-          <div className="filters-row">
-            <div className="search-container">
-              <div className="search-input-wrapper">
-                <Search className="search-icon" size={20} />
-                <input
-                  type="text"
-                  placeholder="Rechercher par document, auteur, emprunteur..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="search-input"
-                />
-                {searchQuery && (
-                  <button 
-                    className="clear-search"
-                    onClick={() => setSearchQuery('')}
-                  >
-                    <X size={16} />
-                  </button>
-                )}
-              </div>
+        {/* Filtres compacts */}
+        <div className="filters-bar">
+          <div className="filters-group">
+            <div className="filter-item">
+              <Calendar size={16} className="filter-icon" />
+              <input
+                type="date"
+                value={filters.startDate}
+                onChange={(e) => handleFilterChange('startDate', e.target.value)}
+                className="filter-input date"
+                title="Date de début"
+              />
+              <span className="filter-separator">→</span>
+              <input
+                type="date"
+                value={filters.endDate}
+                onChange={(e) => handleFilterChange('endDate', e.target.value)}
+                className="filter-input date"
+                title="Date de fin"
+              />
             </div>
             
-            <div className="filter-controls">
-              <div className="filter-group">
-                <Calendar size={16} />
-                <input
-                  type="date"
-                  value={filters.startDate}
-                  onChange={(e) => handleFilterChange('startDate', e.target.value)}
-                  className="date-input"
-                  placeholder="Date début"
-                />
-                <span className="filter-separator">à</span>
-                <input
-                  type="date"
-                  value={filters.endDate}
-                  onChange={(e) => handleFilterChange('endDate', e.target.value)}
-                  className="date-input"
-                  placeholder="Date fin"
-                />
-              </div>
-              
-              <div className="filter-group">
-                <Filter size={16} />
-                <select 
-                  value={filters.borrowerType} 
-                  onChange={(e) => handleFilterChange('borrowerType', e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">Tous les emprunteurs</option>
-                  <option value="student">Étudiants</option>
-                  <option value="staff">Personnel</option>
-                </select>
-              </div>
-              
-              <div className="filter-group">
-                <select 
-                  value={filters.status} 
-                  onChange={(e) => handleFilterChange('status', e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">Tous les statuts</option>
-                  <option value="active">En cours</option>
-                  <option value="returned">Rendus</option>
-                  <option value="overdue">En retard</option>
-                </select>
-              </div>
-              
-              <button className="reset-filters-btn" onClick={resetFilters}>
+            <div className="filter-item">
+              <User size={16} className="filter-icon" />
+              <select 
+                value={filters.borrowerType} 
+                onChange={(e) => handleFilterChange('borrowerType', e.target.value)}
+                className="filter-input select"
+              >
+                <option value="all">Tous</option>
+                <option value="student">Étudiants</option>
+                <option value="staff">Personnel</option>
+              </select>
+            </div>
+            
+            <div className="filter-item">
+              <Filter size={16} className="filter-icon" />
+              <select 
+                value={filters.status} 
+                onChange={(e) => handleFilterChange('status', e.target.value)}
+                className="filter-input select"
+              >
+                <option value="all">Tous statuts</option>
+                <option value="active">En cours</option>
+                <option value="returned">Rendus</option>
+                <option value="overdue">En retard</option>
+              </select>
+            </div>
+
+            {/* Indicateur de filtres actifs */}
+            {(Object.values(filters).some(f => f && f !== 'all') || searchQuery) && (
+              <button 
+                className="reset-filters-btn"
+                onClick={resetFilters}
+                title="Réinitialiser tous les filtres"
+              >
                 <X size={16} />
                 Réinitialiser
               </button>
-            </div>
+            )}
           </div>
-          
-          <div className="actions-row">
-            <div className="results-info">
-              {filteredHistory.length} résultat(s) affiché(s)
-            </div>
-            
-            <div className="export-actions">
-              <button className="btn-secondary" onClick={() => setShowExportDialog(true)}>
-                <Download size={16} />
-                Exporter Données
-              </button>
-              <button className="btn-primary" onClick={handlePrint}>
-                <Printer size={16} />
-                Imprimer
-              </button>
-            </div>
+
+          <div className="results-counter">
+            <span className="results-text">
+              {filteredHistory.length} résultat{filteredHistory.length > 1 ? 's' : ''}
+              {history.length !== filteredHistory.length && (
+                <span className="total-count"> sur {history.length}</span>
+              )}
+            </span>
           </div>
         </div>
 
-        {/* History List */}
+        {/* Contenu principal */}
         <div className="history-content">
           {isLoading ? (
             <div className="loading-state">
@@ -356,27 +354,36 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
             <div className="history-list">
               {filteredHistory.map((item) => (
                 <div key={item.id} className={`history-item ${item.status}`}>
+                  {/* En-tête de la carte */}
                   <div className="item-header">
-                    <div className="status-section">
+                    <div className="status-badge">
                       {getStatusIcon(item.status)}
-                      <span className="status-label">{getStatusLabel(item.status)}</span>
+                      <span className="status-text">{getStatusLabel(item.status)}</span>
                     </div>
                     
-                    <div className="dates-section">
-                      <span className="borrow-date">
-                        Emprunté le {new Date(item.borrowDate).toLocaleDateString('fr-FR')}
-                      </span>
-                      {item.actualReturnDate && (
-                        <span className="return-date">
-                          Rendu le {new Date(item.actualReturnDate).toLocaleDateString('fr-FR')}
+                    <div className="item-dates">
+                      <div className="date-info">
+                        <span className="date-label">Emprunté</span>
+                        <span className="date-value">
+                          {new Date(item.borrowDate).toLocaleDateString('fr-FR')}
                         </span>
+                      </div>
+                      {item.actualReturnDate && (
+                        <div className="date-info returned">
+                          <span className="date-label">Rendu</span>
+                          <span className="date-value">
+                            {new Date(item.actualReturnDate).toLocaleDateString('fr-FR')}
+                          </span>
+                        </div>
                       )}
                     </div>
                   </div>
                   
-                  <div className="item-content">
-                    <div className="book-section">
-                      <div className="book-cover">
+                  {/* Contenu principal de la carte */}
+                  <div className="item-body">
+                    {/* Section document */}
+                    <div className="document-section">
+                      <div className="document-cover">
                         {item.document?.couverture ? (
                           <img src={item.document?.couverture} alt={item.document?.titre} />
                         ) : (
@@ -384,83 +391,102 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
                         )}
                       </div>
                       
-                      <div className="book-details">
-                        <h4 className="book-title">{item.document?.titre}</h4>
-                        <p className="book-author">par {item.document?.auteur}</p>
-                        <span className="book-category">{item.document?.descripteurs}</span>
+                      <div className="document-info">
+                        <h4 className="document-title">{item.document?.titre}</h4>
+                        <p className="document-author">par {item.document?.auteur}</p>
+                        {item.document?.descripteurs && (
+                          <span className="document-category">{item.document?.descripteurs}</span>
+                        )}
                       </div>
                     </div>
                     
+                    {/* Section emprunteur */}
                     <div className="borrower-section">
-                      <div className="borrower-type">
-                        {item.borrower?.type === 'student' ? (
-                          <GraduationCap size={16} />
-                        ) : (
-                          <Briefcase size={16} />
-                        )}
-                        <span>{item.borrower?.type === 'student' ? 'Étudiant' : 'Personnel'}</span>
+                      <div className="borrower-header">
+                        <div className="borrower-type-badge">
+                          {item.borrower?.type === 'student' ? (
+                            <GraduationCap size={16} />
+                          ) : (
+                            <Briefcase size={16} />
+                          )}
+                          <span>{item.borrower?.type === 'student' ? 'Étudiant' : 'Personnel'}</span>
+                        </div>
                       </div>
                       
-                      <div className="borrower-info">
+                      <div className="borrower-details">
                         <h4 className="borrower-name">
                           {item.borrower?.firstName} {item.borrower?.lastName}
                         </h4>
-                        <p className="borrower-details">
-                          {item.borrower?.matricule}
-                          {item.borrower?.type === 'student' && item.borrower.classe && 
-                            ` • ${item.borrower.classe}`
-                          }
-                          {item.borrower?.type === 'staff' && item.borrower.position && 
-                            ` • ${item.borrower.position}`
-                          }
-                        </p>
+                        <div className="borrower-meta">
+                          <span className="borrower-id">{item.borrower?.matricule}</span>
+                          {item.borrower?.type === 'student' && item.borrower.classe && (
+                            <span className="borrower-extra">{item.borrower.classe}</span>
+                          )}
+                          {item.borrower?.type === 'staff' && item.borrower.position && (
+                            <span className="borrower-extra">{item.borrower.position}</span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     
+                    {/* Timeline simplifiée */}
                     <div className="timeline-section">
-                      <div className="timeline-item">
-                        <div className="timeline-dot borrow"></div>
-                        <div className="timeline-content">
-                          <div className="timeline-label">Emprunt</div>
-                          <div className="timeline-date">
-                            {new Date(item.borrowDate).toLocaleDateString('fr-FR')} à{' '}
-                            {new Date(item.borrowDate).toLocaleTimeString('fr-FR', { 
-                              hour: '2-digit', minute: '2-digit' 
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="timeline-item">
-                        <div className="timeline-dot expected"></div>
-                        <div className="timeline-content">
-                          <div className="timeline-label">Retour prévu</div>
-                          <div className="timeline-date">
-                            {new Date(item.expectedReturnDate).toLocaleDateString('fr-FR')}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {item.actualReturnDate && (
-                        <div className="timeline-item">
-                          <div className="timeline-dot return"></div>
-                          <div className="timeline-content">
-                            <div className="timeline-label">Retour effectué</div>
-                            <div className="timeline-date">
-                              {new Date(item.actualReturnDate).toLocaleDateString('fr-FR')} à{' '}
-                              {new Date(item.actualReturnDate).toLocaleTimeString('fr-FR', { 
-                                hour: '2-digit', minute: '2-digit' 
+                      <div className="timeline-compact">
+                        <div className="timeline-point start">
+                          <div className="point-dot"></div>
+                          <div className="point-info">
+                            <span className="point-date">
+                              {new Date(item.borrowDate).toLocaleDateString('fr-FR', { 
+                                day: 'numeric', 
+                                month: 'short' 
                               })}
-                            </div>
+                            </span>
+                            <span className="point-label">Début</span>
                           </div>
                         </div>
-                      )}
+                        
+                        <div className="timeline-line"></div>
+                        
+                        <div className="timeline-point expected">
+                          <div className="point-dot"></div>
+                          <div className="point-info">
+                            <span className="point-date">
+                              {new Date(item.expectedReturnDate).toLocaleDateString('fr-FR', { 
+                                day: 'numeric', 
+                                month: 'short' 
+                              })}
+                            </span>
+                            <span className="point-label">Prévu</span>
+                          </div>
+                        </div>
+                        
+                        {item.actualReturnDate && (
+                          <>
+                            <div className="timeline-line"></div>
+                            <div className="timeline-point end">
+                              <div className="point-dot"></div>
+                              <div className="point-info">
+                                <span className="point-date">
+                                  {new Date(item.actualReturnDate).toLocaleDateString('fr-FR', { 
+                                    day: 'numeric', 
+                                    month: 'short' 
+                                  })}
+                                </span>
+                                <span className="point-label">Rendu</span>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
+                  {/* Notes (si présentes) */}
                   {item.notes && (
                     <div className="item-notes">
-                      <strong>Notes :</strong> {item.notes}
+                      <div className="notes-content">
+                        <strong>Notes :</strong> {item.notes}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -468,16 +494,24 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
             </div>
           ) : (
             <div className="empty-state">
-              <History size={64} />
-              <h3>Aucun historique trouvé</h3>
-              <p>
+              <div className="empty-icon">
+                <History size={64} />
+              </div>
+              <h3 className="empty-title">
                 {Object.values(filters).some(f => f && f !== 'all') || searchQuery
-                  ? 'Aucun résultat pour les critères sélectionnés'
-                  : 'L\'historique des emprunts apparaîtra ici'
+                  ? 'Aucun résultat trouvé'
+                  : 'Aucun historique'
+                }
+              </h3>
+              <p className="empty-description">
+                {Object.values(filters).some(f => f && f !== 'all') || searchQuery
+                  ? 'Essayez de modifier vos critères de recherche ou filtres'
+                  : 'L\'historique des emprunts apparaîtra ici au fur et à mesure'
                 }
               </p>
               {(Object.values(filters).some(f => f && f !== 'all') || searchQuery) && (
-                <button className="btn-secondary" onClick={resetFilters}>
+                <button className="action-btn primary" onClick={resetFilters}>
+                  <X size={16} />
                   Effacer les filtres
                 </button>
               )}
@@ -493,298 +527,361 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(46, 46, 46, 0.7);
-          backdrop-filter: blur(8px);
+          background: rgba(15, 23, 42, 0.6);
+          backdrop-filter: blur(12px);
           display: flex;
           align-items: center;
           justify-content: center;
           z-index: 1000;
-          padding: 20px;
+          padding: 40px 20px;
+          animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
         
         .history-modal {
           background: #FFFFFF;
-          border-radius: 20px;
+          border-radius: 24px;
           width: 100%;
-          max-width: 1200px;
+          max-width: 1400px;
           max-height: 90vh;
           overflow: hidden;
           display: flex;
           flex-direction: column;
-          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-          border: 1px solid rgba(229, 220, 194, 0.3);
+          box-shadow: 
+            0 25px 50px rgba(0, 0, 0, 0.25),
+            0 0 0 1px rgba(255, 255, 255, 0.1);
+          animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+          from { 
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
         }
         
+        /* HEADER AMÉLIORÉ */
         .modal-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 32px;
-          background: linear-gradient(135deg, #6E6E6E 0%, #5A5A5A 100%);
-          color: #F3EED9;
+          padding: 28px 40px;
+          background: linear-gradient(135deg, #2E453A 0%, #1f2e26 100%);
+          color: #f8fafc;
+          border-bottom: 1px solid rgba(46, 69, 58, 0.3);
+          flex-shrink: 0;
+          min-height: auto;
         }
         
-        .header-content {
+        .header-left {
           display: flex;
           align-items: center;
-          gap: 20px;
+          gap: 24px;
+          flex: 1;
         }
         
         .header-icon {
           width: 56px;
           height: 56px;
-          background: rgba(243, 238, 217, 0.2);
+          background: rgba(248, 250, 252, 0.15);
           border-radius: 16px;
           display: flex;
           align-items: center;
           justify-content: center;
+          backdrop-filter: blur(10px);
+          flex-shrink: 0;
+        }
+        
+        .header-text {
+          flex: 1;
         }
         
         .modal-title {
           font-size: 24px;
           font-weight: 800;
-          margin: 0 0 4px 0;
+          margin: 0 0 10px 0;
+          letter-spacing: -0.025em;
+          line-height: 1.2;
         }
         
-        .modal-subtitle {
-          font-size: 14px;
-          opacity: 0.9;
-          margin: 0;
-        }
-        
-        .close-button {
-          background: rgba(243, 238, 217, 0.15);
-          border: 1px solid rgba(243, 238, 217, 0.3);
-          color: #F3EED9;
-          padding: 12px;
-          border-radius: 12px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          z-index: 1001;
-        }
-        
-        .close-button:hover {
-          background: rgba(243, 238, 217, 0.25);
-        }
-        
-        .stats-section {
-          display: flex;
-          gap: 20px;
-          padding: 24px 32px;
-          background: rgba(248, 246, 240, 0.5);
-          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
-        }
-        
-        .stat-card {
+        .header-stats {
           display: flex;
           align-items: center;
           gap: 12px;
-          background: #FFFFFF;
-          padding: 16px 20px;
-          border-radius: 12px;
-          box-shadow: 0 2px 8px rgba(62, 92, 73, 0.08);
-          flex: 1;
+          flex-wrap: wrap;
         }
         
-        .stat-icon {
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
+        .stat-pill {
           display: flex;
           align-items: center;
-          justify-content: center;
-          color: #F3EED9;
+          gap: 6px;
+          padding: 6px 12px;
+          background: rgba(248, 250, 252, 0.1);
+          border: 1px solid rgba(248, 250, 252, 0.15);
+          border-radius: 20px;
+          font-size: 13px;
+          font-weight: 500;
+          backdrop-filter: blur(10px);
         }
         
-        .stat-icon.total { background: #6E6E6E; }
-        .stat-icon.active { background: #3B82F6; }
-        .stat-icon.returned { background: #3E5C49; }
-        .stat-icon.overdue { background: #DC2626; }
-        
-        .stat-value {
-          font-size: 20px;
-          font-weight: 700;
-          color: #2E2E2E;
-          display: block;
+        .stat-pill.active { 
+          background: rgba(194, 87, 27, 0.2);
+          border-color: rgba(194, 87, 27, 0.3);
+          color: #f97316;
+        }
+        .stat-pill.returned { 
+          background: rgba(46, 69, 58, 0.2);
+          border-color: rgba(46, 69, 58, 0.3);
+          color: #4ade80;
+        }
+        .stat-pill.overdue { 
+          background: rgba(220, 38, 38, 0.2);
+          border-color: rgba(220, 38, 38, 0.3);
+          color: #fca5a5;
         }
         
-        .stat-label {
-          font-size: 12px;
-          color: #6E6E6E;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
+        .close-button {
+          background: rgba(248, 250, 252, 0.1);
+          border: 1px solid rgba(248, 250, 252, 0.15);
+          color: #f8fafc;
+          padding: 12px;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          backdrop-filter: blur(10px);
         }
         
-        .filters-section {
-          padding: 24px 32px;
-          background: #FFFFFF;
-          border-bottom: 1px solid #E5DCC2;
+        .close-button:hover {
+          background: rgba(248, 250, 252, 0.2);
+          transform: scale(1.05);
         }
-        
-        .filters-row {
+
+        /* BARRE DE CONTRÔLES */
+        .controls-bar {
           display: flex;
           align-items: center;
           gap: 24px;
-          margin-bottom: 16px;
+          padding: 20px 40px;
+          background: #fafafa;
+          border-bottom: 1px solid #e5e7eb;
+          flex-shrink: 0;
         }
-        
-        .search-container {
+
+        .search-section {
           flex: 1;
-          max-width: 400px;
+          max-width: 500px;
         }
-        
+
         .search-input-wrapper {
           position: relative;
           display: flex;
           align-items: center;
         }
-        
+
         .search-icon {
           position: absolute;
           left: 16px;
-          color: #6E6E6E;
+          color: #6b7280;
           z-index: 2;
         }
-        
+
         .search-input {
           width: 100%;
           height: 48px;
           padding: 0 48px 0 48px;
-          border: 2px solid #E5DCC2;
+          border: 2px solid #e5e7eb;
           border-radius: 12px;
           font-size: 16px;
-          background: #FFFFFF;
-          color: #2E2E2E;
+          background: #ffffff;
+          color: #1f2937;
           transition: all 0.2s ease;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
-        
+
         .search-input:focus {
           outline: none;
-          border-color: #6E6E6E;
-          box-shadow: 0 0 0 3px rgba(110, 110, 110, 0.1);
+          border-color: #2E453A;
+          box-shadow: 0 0 0 3px rgba(46, 69, 58, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1);
         }
-        
+
         .clear-search {
           position: absolute;
           right: 16px;
           background: none;
           border: none;
           cursor: pointer;
-          color: #6E6E6E;
+          color: #6b7280;
           padding: 4px;
           border-radius: 4px;
           transition: all 0.2s ease;
         }
-        
+
         .clear-search:hover {
-          color: #2E2E2E;
-          background: #F3EED9;
+          color: #1f2937;
+          background: #f3f4f6;
         }
-        
-        .filter-controls {
+
+        .quick-actions {
+          display: flex;
+          gap: 12px;
+        }
+
+        .action-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 20px;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border: none;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-btn.secondary {
+          background: #ffffff;
+          color: #374151;
+          border: 2px solid #e5e7eb;
+        }
+
+        .action-btn.secondary:hover {
+          background: #f9fafb;
+          border-color: #d1d5db;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-btn.primary {
+          background: linear-gradient(135deg, #2E453A 0%, #1f2e26 100%);
+          color: #ffffff;
+          border: 2px solid transparent;
+        }
+
+        .action-btn.primary:hover {
+          background: linear-gradient(135deg, #1f2e26 0%, #0f1712 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(46, 69, 58, 0.4);
+        }
+
+        .action-text {
+          display: inline;
+        }
+
+        /* BARRE DE FILTRES */
+        .filters-bar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 14px 40px;
+          background: #ffffff;
+          border-bottom: 1px solid #e5e7eb;
+          gap: 24px;
+          flex-shrink: 0;
+        }
+
+        .filters-group {
           display: flex;
           align-items: center;
           gap: 16px;
           flex-wrap: wrap;
         }
-        
-        .filter-group {
+
+        .filter-item {
           display: flex;
           align-items: center;
           gap: 8px;
-          color: #6E6E6E;
-        }
-        
-        .date-input, .filter-select {
-          border: 2px solid #E5DCC2;
-          border-radius: 8px;
+          background: #f8fafc;
           padding: 8px 12px;
-          background: #FFFFFF;
-          color: #2E2E2E;
+          border-radius: 8px;
+          border: 1px solid #e2e8f0;
+        }
+
+        .filter-icon {
+          color: #64748b;
+          flex-shrink: 0;
+        }
+
+        .filter-input {
+          border: none;
+          background: transparent;
+          color: #1e293b;
           font-size: 14px;
+          min-width: 0;
+        }
+
+        .filter-input:focus {
+          outline: none;
+        }
+
+        .filter-input.date {
+          width: 130px;
+        }
+
+        .filter-input.select {
           cursor: pointer;
+          min-width: 120px;
         }
-        
+
         .filter-separator {
-          margin: 0 8px;
-          color: #6E6E6E;
+          margin: 0 4px;
+          color: #64748b;
           font-size: 14px;
         }
-        
+
         .reset-filters-btn {
           display: flex;
           align-items: center;
           gap: 6px;
           padding: 8px 12px;
-          background: #F3EED9;
-          border: 1px solid #E5DCC2;
+          background: #fef3f2;
+          border: 1px solid #fecaca;
           border-radius: 8px;
-          color: #6E6E6E;
+          color: #dc2626;
           font-size: 12px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-        
-        .reset-filters-btn:hover {
-          background: #EAEADC;
-          color: #2E2E2E;
-        }
-        
-        .actions-row {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-        
-        .results-info {
-          font-size: 14px;
-          color: #6E6E6E;
-        }
-        
-        .export-actions {
-          display: flex;
-          gap: 12px;
-        }
-        
-        .btn-secondary, .btn-primary {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 8px 16px;
-          border-radius: 8px;
-          font-size: 14px;
           font-weight: 500;
           cursor: pointer;
           transition: all 0.2s ease;
-          border: none;
         }
-        
-        .btn-secondary {
-          background: #F3EED9;
-          color: #6E6E6E;
-          border: 1px solid #E5DCC2;
+
+        .reset-filters-btn:hover {
+          background: #fee2e2;
+          color: #b91c1c;
         }
-        
-        .btn-secondary:hover {
-          background: #EAEADC;
-          color: #2E2E2E;
+
+        .results-counter {
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
-        
-        .btn-primary {
-          background: #6E6E6E;
-          color: #F3EED9;
+
+        .results-text {
+          font-size: 14px;
+          color: #64748b;
+          font-weight: 500;
         }
-        
-        .btn-primary:hover {
-          background: #5A5A5A;
+
+        .total-count {
+          color: #94a3b8;
         }
-        
+
+        /* CONTENU PRINCIPAL */
         .history-content {
           flex: 1;
           overflow-y: auto;
-          padding: 24px 32px;
+          padding: 24px 40px;
+          background: #fafafa;
         }
-        
+
         .loading-state {
           display: flex;
           flex-direction: column;
@@ -792,39 +889,41 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
           justify-content: center;
           padding: 80px 32px;
           text-align: center;
-          color: #6E6E6E;
+          color: #64748b;
         }
-        
+
         .loading-spinner {
           width: 40px;
           height: 40px;
-          border: 3px solid #E5DCC2;
-          border-top: 3px solid #6E6E6E;
+          border: 3px solid #e2e8f0;
+          border-top: 3px solid #2E453A;
           border-radius: 50%;
           animation: spin 1s linear infinite;
           margin-bottom: 16px;
         }
-        
+
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
-        
+
         .history-list {
           display: flex;
           flex-direction: column;
           gap: 16px;
         }
-        
+
+        /* CARTES D'HISTORIQUE AMÉLIORÉES */
         .history-item {
-          background: #FFFFFF;
-          border: 1px solid #E5DCC2;
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
           border-radius: 16px;
           overflow: hidden;
-          transition: all 0.3s ease;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
-        
+
         .history-item::before {
           content: '';
           position: absolute;
@@ -832,187 +931,286 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
           top: 0;
           bottom: 0;
           width: 4px;
-          background: #6E6E6E;
+          background: #64748b;
+          transition: all 0.3s ease;
         }
-        
-        .history-item.active::before { background: #3B82F6; }
-        .history-item.returned::before { background: #3E5C49; }
-        .history-item.overdue::before { background: #DC2626; }
-        
+
+        .history-item.active::before { background: #C2571B; }
+        .history-item.returned::before { background: #2E453A; }
+        .history-item.overdue::before { background: #dc2626; }
+
         .history-item:hover {
           transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(62, 92, 73, 0.12);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+          border-color: #d1d5db;
         }
-        
+
         .item-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 16px 20px;
-          background: #F9FAFB;
-          border-bottom: 1px solid #E5DCC2;
+          padding: 20px 24px 16px 24px;
+          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+          border-bottom: 1px solid #e2e8f0;
         }
-        
-        .status-section {
+
+        .status-badge {
           display: flex;
           align-items: center;
           gap: 8px;
+          padding: 6px 12px;
+          background: rgba(255, 255, 255, 0.8);
+          border: 1px solid #e2e8f0;
+          border-radius: 20px;
+          backdrop-filter: blur(10px);
         }
-        
-        .status-label {
+
+        .status-text {
           font-size: 12px;
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
-        
-        .dates-section {
+
+        .item-dates {
           display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 4px;
+          gap: 16px;
+          align-items: center;
         }
-        
-        .borrow-date, .return-date {
-          font-size: 12px;
-          color: #6E6E6E;
+
+        .date-info {
+          text-align: right;
         }
-        
-        .return-date {
+
+        .date-label {
+          display: block;
+          font-size: 11px;
+          color: #64748b;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 2px;
+        }
+
+        .date-value {
+          display: block;
+          font-size: 13px;
           font-weight: 600;
-          color: #3E5C49;
+          color: #1e293b;
         }
-        
-        .item-content {
+
+        .date-info.returned .date-value {
+          color: #2E453A;
+        }
+
+        .item-body {
+          padding: 24px;
           display: grid;
           grid-template-columns: 2fr 1.5fr 1fr;
-          gap: 24px;
-          padding: 20px;
+          gap: 32px;
+          align-items: start;
         }
-        
-        .book-section {
+
+        /* SECTION DOCUMENT */
+        .document-section {
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           gap: 16px;
         }
-        
-        .book-cover {
-          width: 48px;
-          height: 64px;
-          background: linear-gradient(135deg, #F3EED9 0%, #E5DCC2 100%);
+
+        .document-cover {
+          width: 56px;
+          height: 72px;
+          background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
           border-radius: 8px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #6E6E6E;
+          color: #64748b;
           flex-shrink: 0;
           overflow: hidden;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-        
-        .book-cover img {
+
+        .document-cover img {
           width: 100%;
           height: 100%;
           object-fit: cover;
         }
-        
-        .book-title {
-          font-size: 16px;
+
+        .document-info {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .document-title {
+          font-size: 18px;
           font-weight: 700;
-          color: #2E2E2E;
-          margin: 0 0 4px 0;
-          line-height: 1.3;
+          color: #1e293b;
+          margin: 0 0 6px 0;
+          line-height: 1.4;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
-        
-        .book-author {
+
+        .document-author {
           font-size: 14px;
-          color: #6E6E6E;
-          margin: 0 0 8px 0;
+          color: #64748b;
+          margin: 0 0 12px 0;
+          font-style: italic;
         }
-        
-        .book-category {
-          background: #6E6E6E;
-          color: #F3EED9;
-          padding: 2px 8px;
+
+        .document-category {
+          display: inline-block;
+          background: linear-gradient(135deg, #2E453A 0%, #1f2e26 100%);
+          color: #f8fafc;
+          padding: 4px 10px;
           border-radius: 12px;
           font-size: 11px;
           font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
-        
+
+        /* SECTION EMPRUNTEUR */
         .borrower-section {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 16px;
         }
-        
-        .borrower-type {
+
+        .borrower-header {
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+        }
+
+        .borrower-type-badge {
           display: flex;
           align-items: center;
           gap: 6px;
+          padding: 6px 12px;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 16px;
           font-size: 11px;
           font-weight: 600;
-          color: #6E6E6E;
+          color: #475569;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
-        
+
+        .borrower-details {
+          flex: 1;
+        }
+
         .borrower-name {
           font-size: 16px;
           font-weight: 700;
-          color: #2E2E2E;
-          margin: 0 0 4px 0;
+          color: #1e293b;
+          margin: 0 0 8px 0;
+          line-height: 1.3;
         }
-        
-        .borrower-details {
-          font-size: 13px;
-          color: #6E6E6E;
-          margin: 0;
-        }
-        
-        .timeline-section {
+
+        .borrower-meta {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 4px;
         }
-        
-        .timeline-item {
+
+        .borrower-id {
+          font-size: 13px;
+          color: #C2571B;
+          font-weight: 600;
+          font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .borrower-extra {
+          font-size: 13px;
+          color: #64748b;
+        }
+
+        /* TIMELINE COMPACTE */
+        .timeline-section {
+          display: flex;
+          justify-content: center;
+        }
+
+        .timeline-compact {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 16px;
+          padding: 16px;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          max-width: fit-content;
         }
-        
-        .timeline-dot {
+
+        .timeline-point {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          position: relative;
+        }
+
+        .point-dot {
           width: 12px;
           height: 12px;
           border-radius: 50%;
-          flex-shrink: 0;
+          background: #64748b;
+          position: relative;
+          z-index: 2;
         }
-        
-        .timeline-dot.borrow { background: #3B82F6; }
-        .timeline-dot.expected { background: #F59E0B; }
-        .timeline-dot.return { background: #3E5C49; }
-        
-        .timeline-label {
-          font-size: 11px;
+
+        .timeline-point.start .point-dot { background: #C2571B; }
+        .timeline-point.expected .point-dot { background: #f59e0b; }
+        .timeline-point.end .point-dot { background: #2E453A; }
+
+        .point-info {
+          text-align: center;
+        }
+
+        .point-date {
+          display: block;
+          font-size: 12px;
           font-weight: 600;
-          color: #6E6E6E;
+          color: #1e293b;
+          margin-bottom: 2px;
+        }
+
+        .point-label {
+          display: block;
+          font-size: 10px;
+          color: #64748b;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
-        
-        .timeline-date {
-          font-size: 12px;
-          color: #2E2E2E;
-          margin-top: 2px;
+
+        .timeline-line {
+          height: 2px;
+          width: 24px;
+          background: #e2e8f0;
+          position: relative;
+          top: -14px;
         }
-        
+
+        /* NOTES */
         .item-notes {
-          padding: 16px 20px;
-          background: #FEF7F0;
-          border-top: 1px solid #E5DCC2;
-          font-size: 13px;
-          color: #6E6E6E;
+          padding: 16px 24px;
+          background: #fffbeb;
+          border-top: 1px solid #fed7aa;
         }
-        
+
+        .notes-content {
+          font-size: 13px;
+          color: #92400e;
+          line-height: 1.5;
+        }
+
+        /* ÉTAT VIDE */
         .empty-state {
           display: flex;
           flex-direction: column;
@@ -1020,82 +1218,168 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
           justify-content: center;
           padding: 80px 32px;
           text-align: center;
-          color: #6E6E6E;
         }
-        
-        .empty-state h3 {
-          font-size: 20px;
+
+        .empty-icon {
+          color: #cbd5e1;
+          margin-bottom: 24px;
+        }
+
+        .empty-title {
+          font-size: 24px;
           font-weight: 700;
-          margin: 16px 0 8px 0;
-          color: #2E2E2E;
+          margin: 0 0 12px 0;
+          color: #1e293b;
         }
-        
-        .empty-state p {
-          margin: 0 0 24px 0;
-          font-size: 14px;
+
+        .empty-description {
+          margin: 0 0 32px 0;
+          font-size: 16px;
+          color: #64748b;
+          max-width: 400px;
+          line-height: 1.6;
         }
-        
-        .text-blue-500 { color: #3B82F6; }
-        .text-green-500 { color: #3E5C49; }
-        .text-red-500 { color: #DC2626; }
-        
-        /* Responsive */
-        @media (max-width: 1024px) {
-          .item-content {
-            grid-template-columns: 1fr;
-            gap: 20px;
+
+        /* CLASSES UTILITAIRES */
+        .text-blue-500 { color: #C2571B; }
+        .text-green-500 { color: #2E453A; }
+        .text-red-500 { color: #dc2626; }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 1200px) {
+          .item-body {
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
           }
           
-          .filters-row {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 16px;
-          }
-          
-          .filter-controls {
-            justify-content: space-between;
+          .timeline-section {
+            grid-column: 1 / -1;
+            justify-content: flex-start;
           }
         }
-        
+
         @media (max-width: 768px) {
           .history-modal {
-            margin: 12px;
+            margin: 16px;
+            max-height: calc(100vh - 32px);
             border-radius: 20px;
           }
-          
+
+          .history-overlay {
+            padding: 16px;
+          }
+
           .modal-header {
             padding: 20px;
             flex-direction: column;
             gap: 16px;
             text-align: center;
           }
-          
-          .stats-section {
+
+          .header-left {
+            flex-direction: column;
+            gap: 16px;
+          }
+
+          .header-stats {
+            justify-content: center;
+          }
+
+          .controls-bar {
             padding: 16px 20px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 16px;
+            align-items: stretch;
+          }
+
+          .search-section {
+            max-width: none;
+          }
+
+          .quick-actions {
+            justify-content: center;
+          }
+
+          .action-text {
+            display: none;
+          }
+
+          .filters-bar {
+            padding: 14px 20px;
+            flex-direction: column;
+            gap: 16px;
+            align-items: stretch;
+          }
+
+          .filters-group {
+            flex-direction: column;
             gap: 12px;
           }
-          
-          .stat-card {
-            flex: 1;
-            min-width: calc(50% - 6px);
+
+          .filter-item {
+            justify-content: space-between;
           }
-          
-          .filters-section {
-            padding: 16px 20px;
-          }
-          
+
           .history-content {
             padding: 16px 20px;
           }
-          
-          .book-section {
+
+          .item-body {
+            grid-template-columns: 1fr;
+            gap: 20px;
+          }
+
+          .document-section {
             flex-direction: column;
+            align-items: center;
             text-align: center;
           }
-          
-          .timeline-section {
-            align-items: center;
+
+          .timeline-compact {
+            flex-direction: column;
+            gap: 12px;
+          }
+
+          .timeline-line {
+            width: 2px;
+            height: 16px;
+            top: 0;
+          }
+
+          .item-header {
+            flex-direction: column;
+            gap: 12px;
+            text-align: center;
+          }
+
+          .item-dates {
+            flex-direction: column;
+            gap: 8px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .modal-header {
+            padding: 20px 16px;
+          }
+
+          .modal-title {
+            font-size: 24px;
+          }
+
+          .controls-bar, .filters-bar, .history-content {
+            padding-left: 16px;
+            padding-right: 16px;
+          }
+
+          .item-header, .item-body, .item-notes {
+            padding-left: 16px;
+            padding-right: 16px;
+          }
+
+          .stat-pill {
+            font-size: 12px;
+            padding: 4px 8px;
           }
         }
       `}</style>

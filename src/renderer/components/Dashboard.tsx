@@ -26,13 +26,15 @@ interface DashboardProps {
   onNavigate: (view: 'dashboard' | 'documents' | 'borrowed' | 'add-document') => void;
   documents?: any[];
   categories?: any[];
+  recentActivity?: any[];
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ 
   stats, 
   onNavigate, 
   documents = [], 
-  categories = [] 
+  categories = [],
+  recentActivity = []
 }) => {
   const [showPrintManager, setShowPrintManager] = useState(false);
 
@@ -109,29 +111,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }
   ];
 
-  const recentActivity = [
-    {
-      type: 'add',
-      title: 'Nouveau document ajouté',
-      description: 'Les Misérables par Victor Hugo',
-      time: 'Il y a 2 heures',
-      icon: Plus
-    },
-    {
-      type: 'borrow',
-      title: 'Document emprunté',
-      description: 'Fondation par Isaac Asimov',
-      time: 'Il y a 1 jour',
-      icon: BookOpen
-    },
-    {
-      type: 'return',
-      title: 'Document rendu',
-      description: 'L\'Étranger par Albert Camus',
-      time: 'Il y a 2 jours',
-      icon: Activity
+  // Fonction pour obtenir l'icône selon le type d'activité
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'add': return Plus;
+      case 'borrow': return BookOpen;
+      case 'return': return Activity;
+      default: return Activity;
     }
-  ];
+  };
 
   const borrowRate = stats.totalDocuments > 0 ? (stats.borrowedDocuments / stats.totalDocuments * 100).toFixed(1) : 0;
 
@@ -280,18 +268,29 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
           
           <MicroCard className="activity-list">
-            {recentActivity.map((activity, index) => (
-              <div key={index} className="activity-item">
-                <div className="activity-icon">
-                  <activity.icon size={16} />
-                </div>
-                <div className="activity-content">
-                  <div className="activity-title">{activity.title}</div>
-                  <div className="activity-description">{activity.description}</div>
-                </div>
-                <div className="activity-time">{activity.time}</div>
+            {recentActivity.length > 0 ? (
+              recentActivity.map((activity, index) => {
+                const IconComponent = getActivityIcon(activity.type);
+                return (
+                  <div key={index} className="activity-item">
+                    <div className="activity-icon">
+                      <IconComponent size={16} />
+                    </div>
+                    <div className="activity-content">
+                      <div className="activity-title">{activity.title}</div>
+                      <div className="activity-description">{activity.description}</div>
+                    </div>
+                    <div className="activity-time">{activity.time}</div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="empty-activity">
+                <Activity size={48} />
+                <p>Aucune activité récente</p>
+                <small>Les nouvelles activités apparaîtront ici</small>
               </div>
-            ))}
+            )}
           </MicroCard>
         </div>
       </div>
@@ -495,7 +494,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         
         .section-subtitle {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin-top: 4px;
         }
         
@@ -539,7 +538,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         }
         
         .stat-percentage {
-          color: #6E6E6E;
+          color: #4A4A4A;
           font-weight: 600;
         }
         
@@ -553,7 +552,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         
         .stat-title {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           font-weight: 500;
         }
         
@@ -695,7 +694,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           align-items: center;
           gap: 8px;
           font-size: 12px;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
         
         .activity-list {
@@ -741,13 +740,35 @@ export const Dashboard: React.FC<DashboardProps> = ({
         
         .activity-description {
           font-size: 13px;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
         
         .activity-time {
           font-size: 12px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           text-align: right;
+        }
+
+        .empty-activity {
+          text-align: center;
+          padding: 40px 20px;
+          color: #4A4A4A;
+        }
+
+        .empty-activity svg {
+          color: #C2C2C2;
+          margin-bottom: 16px;
+        }
+
+        .empty-activity p {
+          font-size: 16px;
+          font-weight: 600;
+          margin: 0 0 8px 0;
+        }
+
+        .empty-activity small {
+          font-size: 14px;
+          opacity: 0.7;
         }
         
         .view-all-button {

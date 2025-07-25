@@ -51,6 +51,7 @@ export const App: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [borrowers, setBorrowers] = useState<Borrower[]>([]);
   const [borrowedDocuments, setBorrowedDocuments] = useState<BorrowHistoryType[]>([]);
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
   const [stats, setStats] = useState<Stats>({
     totalDocuments: 0,
     borrowedDocuments: 0,
@@ -212,13 +213,15 @@ export const App: React.FC = () => {
           authorsData, 
           categoriesData, 
           borrowersData,
-          borrowedDocumentsData
+          borrowedDocumentsData,
+          recentActivityData
         ] = await Promise.all([
           window.electronAPI.getDocuments(),
           window.electronAPI.getAuthors(),
           window.electronAPI.getCategories(),
           window.electronAPI.getBorrowers(),
-          window.electronAPI.getBorrowHistory()
+          window.electronAPI.getBorrowHistory(),
+          window.electronAPI.getRecentActivity(5)
         ]);
 
         setDocuments(documentsData || []);
@@ -226,6 +229,7 @@ export const App: React.FC = () => {
         setCategories(categoriesData || []);
         setBorrowers(borrowersData || []);
         setBorrowedDocuments(borrowedDocumentsData || []);
+        setRecentActivity(recentActivityData || []);
         
         // Calculer les statistiques manuellement pour le mode offline
         const totalDocuments = documentsData?.length || 0;
@@ -1025,6 +1029,7 @@ export const App: React.FC = () => {
             onNavigate={setCurrentView}
             documents={documents}
             categories={categories}
+            recentActivity={recentActivity}
           />
         );
       case 'documents':
@@ -1129,6 +1134,7 @@ export const App: React.FC = () => {
             onNavigate={setCurrentView}
             documents={documents}
             categories={categories}
+            recentActivity={recentActivity}
           />
         );
     }
@@ -1140,6 +1146,7 @@ export const App: React.FC = () => {
       <AppPasswordScreen
         onUnlock={handleAppUnlock}
         onSkip={needsPasswordSetup ? handlePasswordSetup : undefined}
+        onClose={() => window.electronAPI?.closeWindow?.()}
         isSetup={needsPasswordSetup}
       />
     );
@@ -1178,6 +1185,7 @@ export const App: React.FC = () => {
                 unifiedUser={unifiedUser}
                 unifiedInstitution={unifiedInstitution}
                 isAuthenticated={isAuthenticated}
+                onLogout={handleLogout}
               />
             ) : (
               <div className="auth-container">
@@ -1213,6 +1221,7 @@ interface AppContentProps {
   unifiedUser: UnifiedUser | null;
   unifiedInstitution: UnifiedInstitution | null;
   isAuthenticated: boolean;
+  onLogout: () => Promise<void>;
 }
 
 const AppContent: React.FC<AppContentProps> = ({
@@ -1236,7 +1245,8 @@ const AppContent: React.FC<AppContentProps> = ({
   currentInstitution,
   unifiedUser,
   unifiedInstitution,
-  isAuthenticated
+  isAuthenticated,
+  onLogout
 }) => {
   const { info } = useQuickToast();
   const [demoNotificationShown, setDemoNotificationShown] = React.useState(false);
@@ -1262,6 +1272,7 @@ const AppContent: React.FC<AppContentProps> = ({
         stats={stats}
         currentUser={unifiedUser}
         currentInstitution={unifiedInstitution}
+        onLogout={onLogout}
       />
       <main className="main-content">
         <div className="content-wrapper">

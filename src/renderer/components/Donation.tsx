@@ -475,7 +475,7 @@ export const Donation: React.FC<DonationProps> = ({ onClose }) => {
         
         .section-description {
           font-size: 16px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0 0 32px 0;
           line-height: 1.6;
         }
@@ -554,7 +554,7 @@ export const Donation: React.FC<DonationProps> = ({ onClose }) => {
         
         .amount-description {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
         
         .custom-amount {
@@ -596,7 +596,7 @@ export const Donation: React.FC<DonationProps> = ({ onClose }) => {
         .currency {
           font-size: 18px;
           font-weight: 600;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
         
         .payment-methods {
@@ -652,7 +652,7 @@ export const Donation: React.FC<DonationProps> = ({ onClose }) => {
         
         .payment-description {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
         }
         
         .coming-soon-badge {
@@ -716,7 +716,7 @@ export const Donation: React.FC<DonationProps> = ({ onClose }) => {
         .detail-label {
           font-size: 14px;
           font-weight: 600;
-          color: #6E6E6E;
+          color: #4A4A4A;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
@@ -746,7 +746,7 @@ export const Donation: React.FC<DonationProps> = ({ onClose }) => {
         .copy-button {
           background: #F3EED9;
           border: 1px solid #E5DCC2;
-          color: #6E6E6E;
+          color: #4A4A4A;
           padding: 6px;
           border-radius: 6px;
           cursor: pointer;
@@ -790,7 +790,7 @@ export const Donation: React.FC<DonationProps> = ({ onClose }) => {
         
         .note-content p {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0;
           line-height: 1.6;
         }
@@ -837,7 +837,7 @@ export const Donation: React.FC<DonationProps> = ({ onClose }) => {
         
         .why-card p {
           font-size: 14px;
-          color: #6E6E6E;
+          color: #4A4A4A;
           margin: 0;
           line-height: 1.6;
         }
