@@ -583,7 +583,7 @@ export const BackupManager: React.FC<BackupManagerProps> = ({ onClose }) => {
         .backup-manager-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(0, 0, 0, 0.6);
+          background: rgba(0, 0, 0, 0.7);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -603,6 +603,18 @@ export const BackupManager: React.FC<BackupManagerProps> = ({ onClose }) => {
           flex-direction: column;
           box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
           border: 1px solid rgba(229, 220, 194, 0.3);
+          animation: slideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
         }
 
         .modal-header {
@@ -612,12 +624,27 @@ export const BackupManager: React.FC<BackupManagerProps> = ({ onClose }) => {
           display: flex;
           align-items: center;
           justify-content: space-between;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .modal-header::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.1) 0%, transparent 50%);
+          pointer-events: none;
         }
 
         .header-content {
           display: flex;
           align-items: center;
           gap: 20px;
+          position: relative;
+          z-index: 1;
         }
 
         .header-icon {
@@ -654,7 +681,8 @@ export const BackupManager: React.FC<BackupManagerProps> = ({ onClose }) => {
           align-items: center;
           justify-content: center;
           transition: all 0.2s ease;
-          z-index: 1001;
+          z-index: 1;
+          position: relative;
         }
 
         .close-button:hover {
@@ -685,6 +713,12 @@ export const BackupManager: React.FC<BackupManagerProps> = ({ onClose }) => {
           display: flex;
           align-items: center;
           gap: 16px;
+          transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(62, 92, 73, 0.15);
         }
 
         .stat-icon {
@@ -936,6 +970,25 @@ export const BackupManager: React.FC<BackupManagerProps> = ({ onClose }) => {
           .metadata-grid {
             grid-template-columns: repeat(2, 1fr);
           }
+        }
+
+        /* Scrollbar personnalisé */
+        .modal-content::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+          background: #F3EED9;
+          border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+          background: #3E5C49;
+          border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+          background: #2E453A;
         }
       `}</style>
     </div>

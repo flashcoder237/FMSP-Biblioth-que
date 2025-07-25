@@ -362,11 +362,11 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
         }
         
         .borrow-document-modal {
-          background: linear-gradient(135deg, #FFFFFF 0%, #F8F6F0 100%);
+          background: #FFFFFF;
           border-radius: 24px;
           box-shadow: 
             0 32px 64px rgba(0, 0, 0, 0.2),
-            0 0 0 1px rgba(255, 255, 255, 0.1);
+            0 0 0 1px rgba(229, 220, 194, 0.3);
           width: 100%;
           max-width: 800px;
           max-height: 95vh;
@@ -374,6 +374,18 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
           display: flex;
           flex-direction: column;
           position: relative;
+          animation: modalSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        @keyframes modalSlideIn {
+          from {
+            opacity: 0;
+            transform: translateY(40px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
         }
         
         .modal-header {
@@ -428,14 +440,14 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
           position: absolute;
           top: -4px;
           right: -4px;
-          background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           border-radius: 50%;
           width: 24px;
           height: 24px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #F3EED9;
           animation: sparkle 2s ease-in-out infinite;
         }
         
@@ -495,7 +507,7 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
         
         .document-info-card {
           border: 2px solid rgba(194, 87, 27, 0.1);
-          background: linear-gradient(135deg, #FFF9F0 0%, #FFFFFF 100%);
+          background: linear-gradient(135deg, rgba(194, 87, 27, 0.05) 0%, rgba(243, 238, 217, 0.1) 100%);
         }
         
         .document-preview {
@@ -513,7 +525,7 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #F3EED9;
           box-shadow: 0 8px 32px rgba(194, 87, 27, 0.3);
         }
         
@@ -524,14 +536,14 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
         .document-title {
           font-size: 20px;
           font-weight: 700;
-          color: #1A1A1A;
+          color: #2E2E2E;
           margin: 0 0 8px 0;
           line-height: 1.3;
         }
         
         .document-author {
           font-size: 16px;
-          color: #4A4A4A;
+          color: #6E6E6E;
           margin: 0 0 12px 0;
           display: flex;
           align-items: center;
@@ -549,7 +561,7 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
           align-items: center;
           gap: 6px;
           font-size: 14px;
-          color: #6B7280;
+          color: #6E6E6E;
           background: rgba(62, 92, 73, 0.1);
           padding: 4px 12px;
           border-radius: 20px;
@@ -559,8 +571,8 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
           display: flex;
           align-items: center;
           gap: 8px;
-          color: #F97316;
-          background: rgba(249, 115, 22, 0.1);
+          color: #C2571B;
+          background: rgba(194, 87, 27, 0.1);
           padding: 8px 16px;
           border-radius: 12px;
           font-weight: 600;
@@ -587,19 +599,19 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #F3EED9;
           box-shadow: 0 6px 20px rgba(62, 92, 73, 0.3);
         }
         
         .section-icon.return-icon {
-          background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-          box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          box-shadow: 0 6px 20px rgba(62, 92, 73, 0.3);
         }
         
         .section-title {
           font-size: 20px;
           font-weight: 600;
-          color: #1A1A1A;
+          color: #2E2E2E;
           margin: 0;
         }
         
@@ -608,7 +620,7 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
           display: flex;
           align-items: center;
           gap: 12px;
-          background: white;
+          background: #FFFFFF;
           border: 2px solid #E5DCC2;
           border-radius: 12px;
           padding: 16px 20px;
@@ -625,12 +637,12 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
           border: none;
           outline: none;
           font-size: 16px;
-          color: #1A1A1A;
+          color: #2E2E2E;
           background: transparent;
         }
         
         .search-input::placeholder {
-          color: #9CA3AF;
+          color: #6E6E6E;
         }
         
         .borrowers-list {
@@ -647,7 +659,7 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
           align-items: center;
           gap: 16px;
           padding: 16px 20px;
-          background: white;
+          background: #FFFFFF;
           border: 2px solid transparent;
           border-radius: 12px;
           cursor: pointer;
@@ -670,17 +682,17 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
         .borrower-avatar {
           width: 48px;
           height: 48px;
-          background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
+          background: linear-gradient(135deg, #E5DCC2 0%, #F3EED9 100%);
           border-radius: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #6B7280;
+          color: #6E6E6E;
         }
         
         .borrower-item.selected .borrower-avatar {
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: white;
+          color: #F3EED9;
         }
         
         .borrower-info {
@@ -691,7 +703,7 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
         .borrower-name {
           font-size: 16px;
           font-weight: 600;
-          color: #1A1A1A;
+          color: #2E2E2E;
           margin-bottom: 4px;
         }
         
@@ -705,8 +717,8 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
         .borrower-type,
         .borrower-matricule,
         .borrower-class {
-          color: #6B7280;
-          background: rgba(107, 114, 128, 0.1);
+          color: #6E6E6E;
+          background: rgba(110, 110, 110, 0.1);
           padding: 2px 8px;
           border-radius: 6px;
           font-size: 12px;
@@ -725,7 +737,7 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
         .no-borrowers {
           text-align: center;
           padding: 40px 20px;
-          color: #9CA3AF;
+          color: #6E6E6E;
         }
         
         .no-borrowers svg {
@@ -744,8 +756,8 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
           border: 2px solid #E5DCC2;
           border-radius: 12px;
           font-size: 16px;
-          color: #1A1A1A;
-          background: white;
+          color: #2E2E2E;
+          background: #FFFFFF;
           transition: all 0.3s ease;
         }
         
@@ -760,26 +772,26 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
           align-items: center;
           gap: 8px;
           font-size: 14px;
-          color: #6B7280;
+          color: #6E6E6E;
           background: rgba(62, 92, 73, 0.05);
           padding: 8px 16px;
           border-radius: 8px;
         }
         
         .return-form-card {
-          border: 2px solid rgba(16, 185, 129, 0.2);
-          background: linear-gradient(135deg, #F0FDF9 0%, #FFFFFF 100%);
+          border: 2px solid rgba(62, 92, 73, 0.2);
+          background: linear-gradient(135deg, rgba(62, 92, 73, 0.05) 0%, #FFFFFF 100%);
         }
         
         .return-info {
-          background: rgba(16, 185, 129, 0.05);
+          background: rgba(62, 92, 73, 0.05);
           border-radius: 12px;
           padding: 20px;
         }
         
         .return-message {
           font-size: 16px;
-          color: #1A1A1A;
+          color: #2E2E2E;
           margin: 0 0 16px 0;
           line-height: 1.5;
         }
@@ -789,7 +801,7 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
           align-items: center;
           gap: 8px;
           font-size: 14px;
-          color: #10B981;
+          color: #3E5C49;
           font-weight: 600;
         }
         
@@ -857,22 +869,6 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
           }
         }
         
-        /* Animation d'entrée */
-        .borrow-document-modal {
-          animation: modalSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        
-        @keyframes modalSlideIn {
-          from {
-            opacity: 0;
-            transform: translateY(40px) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-        
         /* Amélioration de l'accessibilité */
         .borrower-item:focus-visible {
           outline: 2px solid #3E5C49;
@@ -882,6 +878,25 @@ export const BorrowDocument: React.FC<BorrowDocumentProps> = ({
         .close-button:focus-visible {
           outline: 2px solid #F3EED9;
           outline-offset: 2px;
+        }
+        
+        /* Scrollbar personnalisé */
+        .borrowers-list::-webkit-scrollbar {
+          width: 6px;
+        }
+        
+        .borrowers-list::-webkit-scrollbar-track {
+          background: #F3EED9;
+          border-radius: 3px;
+        }
+        
+        .borrowers-list::-webkit-scrollbar-thumb {
+          background: #3E5C49;
+          border-radius: 3px;
+        }
+        
+        .borrowers-list::-webkit-scrollbar-thumb:hover {
+          background: #2E453A;
         }
         
         /* Préférences de mouvement réduit */

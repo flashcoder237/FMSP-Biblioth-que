@@ -1,4 +1,4 @@
-// src/renderer/components/InitialSetup.tsx
+// src/renderer/components/InitialSetup.tsx - Version redesignée
 import React, { useState } from 'react';
 import { 
   Monitor, 
@@ -216,7 +216,7 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
           left: 0;
           right: 0;
           bottom: 0;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -237,8 +237,8 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
           width: 100%;
           height: 100%;
           background-image: 
-            radial-gradient(circle at 25% 25%, white 2px, transparent 2px),
-            radial-gradient(circle at 75% 75%, white 2px, transparent 2px);
+            radial-gradient(circle at 25% 25%, rgba(243, 238, 217, 0.5) 2px, transparent 2px),
+            radial-gradient(circle at 75% 75%, rgba(243, 238, 217, 0.5) 2px, transparent 2px);
           background-size: 50px 50px;
           animation: patternMove 20s linear infinite;
         }
@@ -253,7 +253,7 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
 
         .floating-icon {
           position: absolute;
-          color: rgba(255, 255, 255, 0.2);
+          color: rgba(243, 238, 217, 0.2);
           animation: float 6s ease-in-out infinite;
         }
 
@@ -276,7 +276,7 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         }
 
         .setup-container {
-          background: white;
+          background: #FFFFFF;
           border-radius: 20px;
           padding: 32px;
           max-width: 1000px;
@@ -287,6 +287,18 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
           position: relative;
           z-index: 1;
           margin: 20px auto;
+          animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
         }
 
         .setup-header {
@@ -300,22 +312,24 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
           justify-content: center;
           width: 80px;
           height: 80px;
-          background: linear-gradient(135deg, #667eea, #764ba2);
+          background: linear-gradient(135deg, #3E5C49, #2E453A);
           border-radius: 20px;
-          color: white;
+          color: #F3EED9;
           margin-bottom: 20px;
+          box-shadow: 0 8px 32px rgba(62, 92, 73, 0.3);
         }
 
         .setup-title {
           font-size: 2.5rem;
           font-weight: 800;
-          color: #2d3748;
+          color: #2E2E2E;
           margin: 0 0 10px 0;
+          letter-spacing: -0.5px;
         }
 
         .setup-subtitle {
           font-size: 1.1rem;
-          color: #718096;
+          color: #6E6E6E;
           margin: 0;
         }
 
@@ -329,7 +343,7 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
           gap: 10px;
           font-size: 1.4rem;
           font-weight: 700;
-          color: #2d3748;
+          color: #2E2E2E;
           margin-bottom: 16px;
         }
 
@@ -340,33 +354,55 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         }
 
         .mode-card {
-          border: 2px solid #e2e8f0;
+          border: 2px solid #E5DCC2;
           border-radius: 16px;
           padding: 20px;
           cursor: pointer;
           transition: all 0.3s ease;
-          background: white;
+          background: #FFFFFF;
           min-height: 380px;
           display: flex;
           flex-direction: column;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .mode-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, #3E5C49, #C2571B);
+          transform: scaleX(0);
+          transition: transform 0.3s ease;
         }
 
         .mode-card:not(.disabled):hover {
-          border-color: #667eea;
+          border-color: #3E5C49;
           transform: translateY(-2px);
-          box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+          box-shadow: 0 10px 30px rgba(62, 92, 73, 0.2);
+        }
+
+        .mode-card:not(.disabled):hover::before {
+          transform: scaleX(1);
         }
 
         .mode-card.selected {
-          border-color: #667eea;
-          background: linear-gradient(135deg, #667eea05, #764ba205);
-          box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+          border-color: #3E5C49;
+          background: linear-gradient(135deg, rgba(62, 92, 73, 0.05), rgba(243, 238, 217, 0.1));
+          box-shadow: 0 10px 30px rgba(62, 92, 73, 0.2);
+        }
+
+        .mode-card.selected::before {
+          transform: scaleX(1);
         }
 
         .mode-card.disabled {
           opacity: 0.6;
           cursor: not-allowed;
-          background: #f7fafc;
+          background: rgba(248, 246, 240, 0.5);
         }
 
         .mode-header {
@@ -383,26 +419,26 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #F3EED9;
           flex-shrink: 0;
         }
 
         .mode-icon.offline {
-          background: linear-gradient(135deg, #48bb78, #38a169);
+          background: linear-gradient(135deg, #3E5C49, #2E453A);
         }
 
         .mode-icon.online {
-          background: linear-gradient(135deg, #4299e1, #3182ce);
+          background: linear-gradient(135deg, #C2571B, #A8481A);
         }
 
         .mode-icon.disabled {
-          background: #cbd5e0;
+          background: #6E6E6E;
         }
 
         .mode-info h3 {
           font-size: 1.2rem;
           font-weight: 700;
-          color: #2d3748;
+          color: #2E2E2E;
           margin: 0 0 4px 0;
         }
 
@@ -414,13 +450,13 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         }
 
         .mode-status.recommended {
-          background: #c6f6d5;
-          color: #22543d;
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
         }
 
         .mode-status.coming-soon {
-          background: #fed7d7;
-          color: #742a2a;
+          background: rgba(194, 87, 27, 0.1);
+          color: #C2571B;
         }
 
         .mode-description {
@@ -429,7 +465,7 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         }
 
         .mode-description p {
-          color: #4a5568;
+          color: #6E6E6E;
           margin: 0;
           line-height: 1.4;
           font-size: 0.95rem;
@@ -450,11 +486,11 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         }
 
         .feature:not(.disabled) {
-          color: #48bb78;
+          color: #3E5C49;
         }
 
         .feature.disabled {
-          color: #a0aec0;
+          color: #6E6E6E;
         }
 
         .mode-ideal {
@@ -462,16 +498,16 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
           align-items: center;
           gap: 6px;
           padding: 10px;
-          background: #f7fafc;
+          background: rgba(248, 246, 240, 0.8);
           border-radius: 6px;
           font-size: 0.8rem;
-          color: #4a5568;
+          color: #6E6E6E;
           margin-top: auto;
         }
 
         .mode-ideal.disabled {
-          background: #edf2f7;
-          color: #a0aec0;
+          background: rgba(229, 220, 194, 0.3);
+          color: #6E6E6E;
         }
 
         .info-panel {
@@ -479,8 +515,8 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         }
 
         .info-card {
-          background: #f8f9fa;
-          border: 1px solid #e9ecef;
+          background: rgba(248, 246, 240, 0.8);
+          border: 1px solid #E5DCC2;
           border-radius: 10px;
           padding: 16px;
         }
@@ -495,7 +531,7 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         .info-header h3 {
           font-size: 1.05rem;
           font-weight: 600;
-          color: #495057;
+          color: #2E2E2E;
           margin: 0;
         }
 
@@ -506,7 +542,7 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
 
         .info-content li {
           margin-bottom: 3px;
-          color: #6c757d;
+          color: #6E6E6E;
           font-size: 0.9rem;
         }
 
@@ -518,8 +554,8 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: linear-gradient(135deg, #667eea, #764ba2);
-          color: white;
+          background: linear-gradient(135deg, #3E5C49, #2E453A);
+          color: #F3EED9;
           border: none;
           padding: 14px 28px;
           border-radius: 10px;
@@ -532,7 +568,7 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
 
         .continue-btn:not(:disabled):hover {
           transform: translateY(-2px);
-          box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+          box-shadow: 0 10px 30px rgba(62, 92, 73, 0.3);
         }
 
         .continue-btn:disabled {
@@ -541,7 +577,7 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
         }
 
         .setup-note {
-          color: #718096;
+          color: #6E6E6E;
           font-size: 0.85rem;
           margin: 0;
         }
@@ -605,6 +641,25 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
             padding: 12px 20px;
             font-size: 1rem;
           }
+        }
+
+        /* Scrollbar personnalisé */
+        .setup-container::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .setup-container::-webkit-scrollbar-track {
+          background: #F3EED9;
+          border-radius: 4px;
+        }
+
+        .setup-container::-webkit-scrollbar-thumb {
+          background: #3E5C49;
+          border-radius: 4px;
+        }
+
+        .setup-container::-webkit-scrollbar-thumb:hover {
+          background: #2E453A;
         }
       `}</style>
     </div>

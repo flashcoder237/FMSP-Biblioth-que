@@ -1,4 +1,4 @@
-// src/renderer/components/InstitutionSetup.tsx - Version simplifiée pour mode offline
+// src/renderer/components/InstitutionSetup.tsx - Version redesignée
 import React, { useState } from 'react';
 import { 
   Building,
@@ -39,7 +39,6 @@ export const InstitutionSetup: React.FC<InstitutionSetupProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      // Fallback pour les navigateurs plus anciens
       const textArea = document.createElement('textarea');
       textArea.value = institutionCode;
       document.body.appendChild(textArea);
@@ -155,7 +154,7 @@ L'équipe de ${institution?.name}
   ];
 
   return (
-    <div className="offline-institution-setup">
+    <div className="institution-setup">
       <div className="setup-background">
         <div className="pattern-overlay"></div>
         <div className="floating-shapes">
@@ -450,9 +449,9 @@ L'équipe de ${institution?.name}
       </div>
 
       <style>{`
-        .offline-institution-setup {
+        .institution-setup {
           min-height: 100vh;
-          background: linear-gradient(135deg, #1e3a2e 0%, #2d5a45 50%, #1e3a2e 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           position: relative;
           overflow-x: hidden;
         }
@@ -473,8 +472,8 @@ L'équipe de ${institution?.name}
           right: 0;
           bottom: 0;
           background-image: 
-            radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(243, 238, 217, 0.05) 0%, transparent 50%);
           animation: drift 20s ease-in-out infinite;
         }
 
@@ -494,7 +493,7 @@ L'équipe de ${institution?.name}
 
         .shape {
           position: absolute;
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(243, 238, 217, 0.05);
           border-radius: 50%;
           animation: float 6s ease-in-out infinite;
         }
@@ -542,33 +541,33 @@ L'équipe de ${institution?.name}
         .setup-header {
           text-align: center;
           margin-bottom: 32px;
-          color: white;
+          color: #F3EED9;
         }
 
         .offline-badge {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: rgba(255, 152, 0, 0.2);
-          color: #ffa726;
+          background: rgba(194, 87, 27, 0.2);
+          color: #C2571B;
           padding: 8px 16px;
           border-radius: 20px;
           font-size: 14px;
           font-weight: 600;
-          border: 1px solid rgba(255, 152, 0, 0.3);
+          border: 1px solid rgba(194, 87, 27, 0.3);
           margin-bottom: 24px;
         }
 
         .header-logo {
           width: 60px;
           height: 60px;
-          background: rgba(255, 255, 255, 0.15);
+          background: rgba(243, 238, 217, 0.15);
           border-radius: 16px;
           display: flex;
           align-items: center;
           justify-content: center;
           margin: 0 auto 20px;
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          border: 1px solid rgba(243, 238, 217, 0.2);
         }
 
         .setup-title {
@@ -611,8 +610,8 @@ L'équipe de ${institution?.name}
           width: 40px;
           height: 40px;
           border-radius: 50%;
-          background: rgba(255, 255, 255, 0.15);
-          border: 2px solid rgba(255, 255, 255, 0.3);
+          background: rgba(243, 238, 217, 0.15);
+          border: 2px solid rgba(243, 238, 217, 0.3);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -620,15 +619,15 @@ L'équipe de ${institution?.name}
         }
 
         .progress-step.active .step-circle {
-          background: rgba(255, 255, 255, 0.25);
-          border-color: rgba(255, 255, 255, 0.5);
+          background: rgba(243, 238, 217, 0.25);
+          border-color: rgba(243, 238, 217, 0.5);
         }
 
         .progress-step.current .step-circle {
-          background: #ffa726;
-          border-color: #ffa726;
-          color: #1e3a2e;
-          box-shadow: 0 4px 16px rgba(255, 167, 38, 0.3);
+          background: #C2571B;
+          border-color: #C2571B;
+          color: #F3EED9;
+          box-shadow: 0 4px 16px rgba(194, 87, 27, 0.3);
         }
 
         .step-info {
@@ -652,13 +651,13 @@ L'équipe de ${institution?.name}
           left: calc(100% + 8px);
           width: 24px;
           height: 2px;
-          background: rgba(255, 255, 255, 0.2);
+          background: rgba(243, 238, 217, 0.2);
           z-index: -1;
         }
 
         .setup-content {
           flex: 1;
-          background: white;
+          background: #FFFFFF;
           border-radius: 20px;
           padding: 32px;
           margin-bottom: 24px;
@@ -682,7 +681,7 @@ L'équipe de ${institution?.name}
         }
 
         .success-circle {
-          color: #2d5a45;
+          color: #3E5C49;
           animation: bounce 0.6s ease-out;
         }
 
@@ -694,7 +693,7 @@ L'équipe de ${institution?.name}
 
         .sparkle {
           position: absolute;
-          color: #ffa726;
+          color: #C2571B;
           animation: sparkle 2s ease-in-out infinite;
         }
 
@@ -731,21 +730,21 @@ L'équipe de ${institution?.name}
         .step-title {
           font-size: 24px;
           font-weight: 700;
-          color: #2d5a45;
+          color: #3E5C49;
           margin: 0 0 12px 0;
           letter-spacing: -0.3px;
         }
 
         .step-description {
           font-size: 16px;
-          color: #6c757d;
+          color: #6E6E6E;
           line-height: 1.5;
           margin-bottom: 24px;
         }
 
         .institution-card {
-          background: #f8f9fa;
-          border: 1px solid #e9ecef;
+          background: rgba(243, 238, 217, 0.1);
+          border: 1px solid rgba(243, 238, 217, 0.3);
           border-radius: 12px;
           margin-bottom: 24px;
           overflow: hidden;
@@ -756,14 +755,14 @@ L'équipe de ${institution?.name}
           align-items: center;
           gap: 8px;
           padding: 16px 20px;
-          background: rgba(45, 90, 69, 0.1);
-          border-bottom: 1px solid #e9ecef;
+          background: rgba(62, 92, 73, 0.1);
+          border-bottom: 1px solid rgba(243, 238, 217, 0.3);
         }
 
         .card-header h3 {
           font-size: 16px;
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           margin: 0;
         }
 
@@ -777,7 +776,7 @@ L'équipe de ${institution?.name}
           align-items: center;
           margin-bottom: 12px;
           padding-bottom: 12px;
-          border-bottom: 1px solid #f1f3f4;
+          border-bottom: 1px solid rgba(243, 238, 217, 0.3);
         }
 
         .info-row:last-child {
@@ -787,29 +786,29 @@ L'équipe de ${institution?.name}
         }
 
         .info-row.highlight {
-          background: rgba(45, 90, 69, 0.05);
+          background: rgba(62, 92, 73, 0.05);
           padding: 12px;
           border-radius: 8px;
-          border: 1px solid rgba(45, 90, 69, 0.2);
-          border-bottom: 1px solid rgba(45, 90, 69, 0.2);
+          border: 1px solid rgba(62, 92, 73, 0.2);
+          border-bottom: 1px solid rgba(62, 92, 73, 0.2);
         }
 
         .info-label {
           font-weight: 600;
-          color: #6c757d;
+          color: #6E6E6E;
           font-size: 14px;
         }
 
         .info-value {
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           font-size: 14px;
         }
 
         .code-value {
           font-family: 'Monaco', 'Consolas', monospace;
-          background: #2d5a45;
-          color: white;
+          background: #3E5C49;
+          color: #F3EED9;
           padding: 6px 10px;
           border-radius: 6px;
           font-size: 14px;
@@ -819,7 +818,7 @@ L'équipe de ${institution?.name}
         .features-preview h3 {
           font-size: 16px;
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           margin: 0 0 12px 0;
           text-align: left;
         }
@@ -835,10 +834,10 @@ L'équipe de ${institution?.name}
           align-items: center;
           gap: 8px;
           padding: 12px;
-          background: rgba(45, 90, 69, 0.05);
-          border: 1px solid rgba(45, 90, 69, 0.1);
+          background: rgba(62, 92, 73, 0.05);
+          border: 1px solid rgba(62, 92, 73, 0.1);
           border-radius: 8px;
-          color: #2d5a45;
+          color: #3E5C49;
           font-weight: 500;
           font-size: 14px;
         }
@@ -853,7 +852,7 @@ L'équipe de ${institution?.name}
         }
 
         .share-icon {
-          color: #ffa726;
+          color: #C2571B;
           margin-bottom: 16px;
         }
 
@@ -862,10 +861,10 @@ L'équipe de ${institution?.name}
         }
 
         .code-container {
-          background: linear-gradient(135deg, #2d5a45 0%, #1e3a2e 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           border-radius: 16px;
           padding: 24px;
-          color: white;
+          color: #F3EED9;
           position: relative;
           overflow: hidden;
         }
@@ -877,7 +876,7 @@ L'équipe de ${institution?.name}
           right: 0;
           width: 80px;
           height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1));
+          background: linear-gradient(90deg, transparent, rgba(243, 238, 217, 0.1));
           transform: skewX(-15deg);
         }
 
@@ -903,9 +902,9 @@ L'équipe de ${institution?.name}
           display: flex;
           align-items: center;
           gap: 6px;
-          background: rgba(255, 255, 255, 0.2);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          color: white;
+          background: rgba(243, 238, 217, 0.2);
+          border: 1px solid rgba(243, 238, 217, 0.3);
+          color: #F3EED9;
           padding: 8px 16px;
           border-radius: 8px;
           cursor: pointer;
@@ -918,14 +917,14 @@ L'équipe de ${institution?.name}
         }
 
         .copy-button:hover {
-          background: rgba(255, 255, 255, 0.3);
+          background: rgba(243, 238, 217, 0.3);
           transform: translateY(-1px);
         }
 
         .copy-button.copied {
-          background: rgba(255, 167, 38, 0.8);
-          border-color: rgba(255, 167, 38, 0.8);
-          color: white;
+          background: rgba(194, 87, 27, 0.8);
+          border-color: rgba(194, 87, 27, 0.8);
+          color: #F3EED9;
         }
 
         .sharing-options {
@@ -935,7 +934,7 @@ L'équipe de ${institution?.name}
         .sharing-options h3 {
           font-size: 16px;
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           margin: 0 0 16px 0;
         }
 
@@ -950,29 +949,29 @@ L'équipe de ${institution?.name}
           align-items: center;
           gap: 12px;
           padding: 16px;
-          background: rgba(45, 90, 69, 0.05);
-          border: 1px solid rgba(45, 90, 69, 0.1);
+          background: rgba(62, 92, 73, 0.05);
+          border: 1px solid rgba(62, 92, 73, 0.1);
           border-radius: 12px;
           cursor: pointer;
           transition: all 0.2s ease;
-          color: #2d5a45;
+          color: #3E5C49;
           font-weight: 600;
         }
 
         .sharing-option:hover {
-          background: rgba(45, 90, 69, 0.1);
-          border-color: rgba(45, 90, 69, 0.2);
+          background: rgba(62, 92, 73, 0.1);
+          border-color: rgba(62, 92, 73, 0.2);
         }
 
         .option-icon {
           width: 36px;
           height: 36px;
-          background: #ffa726;
+          background: #C2571B;
           border-radius: 8px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #F3EED9;
           flex-shrink: 0;
         }
 
@@ -989,15 +988,15 @@ L'équipe de ${institution?.name}
 
         .option-description {
           font-size: 12px;
-          color: #6c757d;
+          color: #6E6E6E;
         }
 
         .instructions-card {
-          background: #f8f9fa;
-          border: 1px solid #e9ecef;
+          background: rgba(243, 238, 217, 0.1);
+          border: 1px solid rgba(243, 238, 217, 0.3);
           border-radius: 12px;
           padding: 20px;
-          color: #2d5a45;
+          color: #3E5C49;
           text-align: left;
           max-width: 500px;
           margin: 0 auto;
@@ -1022,8 +1021,8 @@ L'équipe de ${institution?.name}
         }
 
         .instructions-list code {
-          background: #2d5a45;
-          color: white;
+          background: #3E5C49;
+          color: #F3EED9;
           padding: 2px 6px;
           border-radius: 4px;
           font-family: 'Monaco', 'Consolas', monospace;
@@ -1034,9 +1033,9 @@ L'équipe de ${institution?.name}
           display: flex;
           align-items: center;
           gap: 8px;
-          background: rgba(255, 167, 38, 0.1);
-          border: 1px solid rgba(255, 167, 38, 0.2);
-          color: #e65100;
+          background: rgba(194, 87, 27, 0.1);
+          border: 1px solid rgba(194, 87, 27, 0.2);
+          color: #C2571B;
           padding: 8px 12px;
           border-radius: 8px;
           font-size: 12px;
@@ -1053,7 +1052,7 @@ L'équipe de ${institution?.name}
         }
 
         .ready-icon {
-          color: #ffa726;
+          color: #C2571B;
           animation: pulse 2s ease-in-out infinite;
         }
 
@@ -1069,7 +1068,7 @@ L'équipe de ${institution?.name}
         .quick-actions h3 {
           font-size: 16px;
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           margin: 0 0 16px 0;
           text-align: left;
         }
@@ -1085,16 +1084,16 @@ L'équipe de ${institution?.name}
           align-items: center;
           gap: 16px;
           padding: 16px;
-          background: rgba(45, 90, 69, 0.05);
-          border: 1px solid rgba(45, 90, 69, 0.1);
+          background: rgba(62, 92, 73, 0.05);
+          border: 1px solid rgba(62, 92, 73, 0.1);
           border-radius: 12px;
         }
 
         .action-number {
           width: 32px;
           height: 32px;
-          background: #ffa726;
-          color: white;
+          background: #C2571B;
+          color: #F3EED9;
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -1113,19 +1112,19 @@ L'équipe de ${institution?.name}
 
         .action-title {
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           font-size: 14px;
         }
 
         .action-description {
           font-size: 12px;
-          color: #6c757d;
+          color: #6E6E6E;
         }
 
         .offline-advantages h4 {
           font-size: 14px;
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           margin: 0 0 12px 0;
           text-align: left;
         }
@@ -1141,10 +1140,10 @@ L'équipe de ${institution?.name}
           align-items: center;
           gap: 8px;
           padding: 10px 12px;
-          background: rgba(255, 167, 38, 0.1);
-          border: 1px solid rgba(255, 167, 38, 0.2);
+          background: rgba(194, 87, 27, 0.1);
+          border: 1px solid rgba(194, 87, 27, 0.2);
           border-radius: 8px;
-          color: #e65100;
+          color: #C2571B;
           font-weight: 500;
           font-size: 13px;
         }
@@ -1171,25 +1170,25 @@ L'équipe de ${institution?.name}
         }
 
         .nav-button.primary {
-          background: #ffa726;
-          color: white;
+          background: #C2571B;
+          color: #F3EED9;
         }
 
         .nav-button.primary:hover:not(:disabled) {
-          background: #ff9800;
+          background: #A8481A;
           transform: translateY(-1px);
-          box-shadow: 0 4px 16px rgba(255, 167, 38, 0.3);
+          box-shadow: 0 4px 16px rgba(194, 87, 27, 0.3);
         }
 
         .nav-button.secondary {
-          background: #f8f9fa;
-          color: #6c757d;
-          border: 1px solid #e9ecef;
+          background: rgba(243, 238, 217, 0.1);
+          color: #F3EED9;
+          border: 1px solid rgba(243, 238, 217, 0.3);
         }
 
         .nav-button.secondary:hover:not(:disabled) {
-          background: #e9ecef;
-          color: #495057;
+          background: rgba(243, 238, 217, 0.2);
+          border-color: rgba(243, 238, 217, 0.5);
         }
 
         .nav-button:disabled {
@@ -1202,8 +1201,8 @@ L'équipe de ${institution?.name}
         .loading-spinner {
           width: 16px;
           height: 16px;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          border-top: 2px solid white;
+          border: 2px solid rgba(243, 238, 217, 0.3);
+          border-top: 2px solid #F3EED9;
           border-radius: 50%;
           animation: spin 1s linear infinite;
         }

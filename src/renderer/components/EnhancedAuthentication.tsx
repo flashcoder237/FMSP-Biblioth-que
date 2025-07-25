@@ -1,4 +1,4 @@
-// src/renderer/components/EnhancedAuthentication.tsx - Version simplifiée pour mode offline
+// src/renderer/components/EnhancedAuthentication.tsx - Version redesignée
 import React, { useState } from 'react';
 import { 
   Book, 
@@ -151,7 +151,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
   };
 
   return (
-    <div className="offline-auth">
+    <div className="auth-container">
       <div className="auth-background">
         <div className="pattern-overlay"></div>
         <div className="floating-shapes">
@@ -161,7 +161,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         </div>
       </div>
 
-      <div className="auth-container">
+      <div className="auth-content">
         {/* Header avec logo et status offline */}
         <div className="auth-header">
           <div className="app-logo">
@@ -181,7 +181,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         </div>
 
         {/* Contenu principal */}
-        <div className="auth-content">
+        <div className="main-content">
           <div className="auth-card">
             {/* Navigation des onglets */}
             <div className="auth-tabs">
@@ -562,9 +562,9 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
       </div>
 
       <style>{`
-        .offline-auth {
+        .auth-container {
           min-height: 100vh;
-          background: linear-gradient(135deg, #1e3a2e 0%, #2d5a45 50%, #1e3a2e 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           position: relative;
           overflow-x: hidden;
         }
@@ -585,8 +585,8 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           right: 0;
           bottom: 0;
           background-image: 
-            radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(243, 238, 217, 0.05) 0%, transparent 50%);
           animation: drift 20s ease-in-out infinite;
         }
 
@@ -606,7 +606,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
         .shape {
           position: absolute;
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(243, 238, 217, 0.05);
           border-radius: 50%;
           animation: float 6s ease-in-out infinite;
         }
@@ -640,7 +640,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           50% { transform: translateY(-20px); }
         }
 
-        .auth-container {
+        .auth-content {
           position: relative;
           z-index: 10;
           min-height: 100vh;
@@ -668,24 +668,24 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         .logo-icon {
           width: 50px;
           height: 50px;
-          background: rgba(255, 255, 255, 0.15);
+          background: rgba(243, 238, 217, 0.15);
           border-radius: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: #F3EED9;
+          border: 1px solid rgba(243, 238, 217, 0.2);
         }
 
         .logo-text h1 {
           margin: 0;
-          color: white;
+          color: #F3EED9;
           font-size: 24px;
           font-weight: 700;
         }
 
         .logo-text span {
-          color: rgba(255, 255, 255, 0.8);
+          color: rgba(243, 238, 217, 0.8);
           font-size: 14px;
         }
 
@@ -693,16 +693,16 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           display: flex;
           align-items: center;
           gap: 8px;
-          background: rgba(255, 152, 0, 0.2);
-          color: #ffa726;
+          background: rgba(194, 87, 27, 0.2);
+          color: #C2571B;
           padding: 8px 16px;
           border-radius: 20px;
           font-size: 14px;
           font-weight: 600;
-          border: 1px solid rgba(255, 152, 0, 0.3);
+          border: 1px solid rgba(194, 87, 27, 0.3);
         }
 
-        .auth-content {
+        .main-content {
           display: flex;
           gap: 40px;
           flex: 1;
@@ -711,7 +711,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
         .auth-card {
           flex: 1;
-          background: white;
+          background: #FFFFFF;
           border-radius: 20px;
           overflow: hidden;
           box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -720,8 +720,8 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
         .auth-tabs {
           display: flex;
-          background: #f8f9fa;
-          border-bottom: 1px solid #e9ecef;
+          background: rgba(248, 246, 240, 0.8);
+          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
         }
 
         .tab {
@@ -736,13 +736,13 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           cursor: pointer;
           font-size: 16px;
           font-weight: 600;
-          color: #6c757d;
+          color: #6E6E6E;
           transition: all 0.2s ease;
         }
 
         .tab.active {
-          background: white;
-          color: #2d5a45;
+          background: #FFFFFF;
+          color: #3E5C49;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
@@ -752,35 +752,35 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           gap: 12px;
           padding: 16px 24px;
           font-weight: 500;
-          border-bottom: 1px solid #e9ecef;
+          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
         }
 
         .message.error {
-          background: #ffeaea;
-          color: #d32f2f;
+          background: rgba(220, 38, 38, 0.1);
+          color: #DC2626;
         }
 
         .message.success {
-          background: #e8f5e8;
-          color: #2e7d32;
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
         }
 
         .section-header {
           text-align: center;
           padding: 32px 24px 24px;
-          border-bottom: 1px solid #f1f3f4;
+          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
         }
 
         .section-header h2 {
           margin: 16px 0 8px;
-          color: #2d5a45;
+          color: #3E5C49;
           font-size: 24px;
           font-weight: 700;
         }
 
         .section-header p {
           margin: 0;
-          color: #6c757d;
+          color: #6E6E6E;
           font-size: 16px;
         }
 
@@ -802,7 +802,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           display: block;
           margin-bottom: 8px;
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           font-size: 14px;
         }
 
@@ -815,14 +815,14 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         .input-group svg {
           position: absolute;
           left: 16px;
-          color: #6c757d;
+          color: #6E6E6E;
           z-index: 2;
         }
 
         .input-group input {
           width: 100%;
           padding: 16px 16px 16px 48px;
-          border: 2px solid #e9ecef;
+          border: 2px solid #E5DCC2;
           border-radius: 12px;
           font-size: 16px;
           transition: all 0.2s ease;
@@ -830,12 +830,12 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
         .input-group input:focus {
           outline: none;
-          border-color: #2d5a45;
-          box-shadow: 0 0 0 3px rgba(45, 90, 69, 0.1);
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
         }
 
         .input-group input:disabled {
-          background: #f8f9fa;
+          background: rgba(248, 246, 240, 0.5);
           opacity: 0.7;
         }
 
@@ -845,21 +845,21 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           background: none;
           border: none;
           cursor: pointer;
-          color: #6c757d;
+          color: #6E6E6E;
           padding: 4px;
           border-radius: 4px;
           transition: all 0.2s ease;
         }
 
         .toggle-password:hover {
-          color: #2d5a45;
-          background: rgba(45, 90, 69, 0.1);
+          color: #3E5C49;
+          background: rgba(62, 92, 73, 0.1);
         }
 
         .form-group small {
           display: block;
           margin-top: 4px;
-          color: #6c757d;
+          color: #6E6E6E;
           font-size: 12px;
         }
 
@@ -884,19 +884,19 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           align-items: center;
           gap: 8px;
           padding: 20px 16px;
-          border: 2px solid #e9ecef;
+          border: 2px solid #E5DCC2;
           border-radius: 12px;
           transition: all 0.2s ease;
           text-align: center;
         }
 
         .type-card input:checked + .type-content {
-          border-color: #2d5a45;
-          background: rgba(45, 90, 69, 0.05);
+          border-color: #3E5C49;
+          background: rgba(62, 92, 73, 0.05);
         }
 
         .type-content:hover {
-          border-color: #2d5a45;
+          border-color: #3E5C49;
         }
 
         .type-icon {
@@ -905,7 +905,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
         .type-label {
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           font-size: 14px;
         }
 
@@ -915,8 +915,8 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           align-items: center;
           justify-content: center;
           gap: 8px;
-          background: linear-gradient(135deg, #2d5a45 0%, #1e3a2e 100%);
-          color: white;
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
           border: none;
           padding: 16px 24px;
           border-radius: 12px;
@@ -928,7 +928,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
         .submit-btn:hover:not(:disabled) {
           transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(45, 90, 69, 0.3);
+          box-shadow: 0 8px 25px rgba(62, 92, 73, 0.3);
         }
 
         .submit-btn:disabled {
@@ -938,9 +938,9 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         }
 
         .back-btn {
-          background: #f8f9fa;
-          color: #6c757d;
-          border: 2px solid #e9ecef;
+          background: rgba(248, 246, 240, 0.8);
+          color: #6E6E6E;
+          border: 2px solid #E5DCC2;
           padding: 12px 24px;
           border-radius: 12px;
           font-size: 16px;
@@ -950,8 +950,8 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         }
 
         .back-btn:hover:not(:disabled) {
-          background: #e9ecef;
-          color: #495057;
+          background: #E5DCC2;
+          color: #2E2E2E;
         }
 
         .form-actions {
@@ -967,8 +967,8 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         .spinner {
           width: 18px;
           height: 18px;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          border-top: 2px solid white;
+          border: 2px solid rgba(243, 238, 217, 0.3);
+          border-top: 2px solid #F3EED9;
           border-radius: 50%;
           animation: spin 1s linear infinite;
         }
@@ -984,8 +984,8 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           justify-content: center;
           gap: 16px;
           padding: 24px;
-          background: #f8f9fa;
-          border-top: 1px solid #e9ecef;
+          background: rgba(248, 246, 240, 0.8);
+          border-top: 1px solid rgba(229, 220, 194, 0.3);
         }
 
         .step {
@@ -1004,8 +1004,8 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         .step span {
           width: 32px;
           height: 32px;
-          background: #e9ecef;
-          color: #6c757d;
+          background: #E5DCC2;
+          color: #6E6E6E;
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -1015,28 +1015,28 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         }
 
         .step.active span {
-          background: #2d5a45;
-          color: white;
+          background: #3E5C49;
+          color: #F3EED9;
         }
 
         .step label {
           font-size: 12px;
           font-weight: 600;
-          color: #6c757d;
+          color: #6E6E6E;
           text-align: center;
         }
 
         .step-line {
           width: 40px;
           height: 2px;
-          background: #e9ecef;
+          background: #E5DCC2;
         }
 
         /* Connexions rapides */
         .quick-login-section {
           margin-top: 32px;
           padding-top: 24px;
-          border-top: 1px solid #f1f3f4;
+          border-top: 1px solid rgba(229, 220, 194, 0.3);
         }
 
         .divider {
@@ -1046,9 +1046,9 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         }
 
         .divider span {
-          background: white;
+          background: #FFFFFF;
           padding: 0 16px;
-          color: #6c757d;
+          color: #6E6E6E;
           font-size: 14px;
           font-weight: 600;
         }
@@ -1060,7 +1060,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           left: 0;
           right: 0;
           height: 1px;
-          background: #e9ecef;
+          background: #E5DCC2;
           z-index: -1;
         }
 
@@ -1076,8 +1076,8 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           align-items: center;
           gap: 12px;
           padding: 16px;
-          background: #f8f9fa;
-          border: 2px solid #e9ecef;
+          background: rgba(248, 246, 240, 0.8);
+          border: 2px solid #E5DCC2;
           border-radius: 12px;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -1085,8 +1085,8 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         }
 
         .quick-login-btn:hover:not(:disabled) {
-          border-color: #2d5a45;
-          background: rgba(45, 90, 69, 0.05);
+          border-color: #3E5C49;
+          background: rgba(62, 92, 73, 0.05);
         }
 
         .quick-login-btn:disabled {
@@ -1097,8 +1097,8 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         .credential-icon {
           width: 36px;
           height: 36px;
-          background: #2d5a45;
-          color: white;
+          background: #3E5C49;
+          color: #F3EED9;
           border-radius: 8px;
           display: flex;
           align-items: center;
@@ -1114,18 +1114,18 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
         .credential-info .role {
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           font-size: 14px;
         }
 
         .credential-info .email {
           font-size: 12px;
-          color: #6c757d;
+          color: #6E6E6E;
         }
 
         .login-hint {
-          background: rgba(45, 90, 69, 0.05);
-          border: 1px solid rgba(45, 90, 69, 0.1);
+          background: rgba(62, 92, 73, 0.05);
+          border: 1px solid rgba(62, 92, 73, 0.1);
           border-radius: 12px;
           padding: 16px;
           margin-top: 16px;
@@ -1134,7 +1134,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         .login-hint p {
           margin: 0 0 8px 0;
           font-size: 14px;
-          color: #2d5a45;
+          color: #3E5C49;
         }
 
         .login-hint p:last-child {
@@ -1150,12 +1150,12 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         }
 
         .feature-card {
-          background: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          background: rgba(243, 238, 217, 0.1);
+          border: 1px solid rgba(243, 238, 217, 0.2);
           border-radius: 16px;
           padding: 24px;
           text-align: center;
-          color: white;
+          color: #F3EED9;
           backdrop-filter: blur(10px);
         }
 
@@ -1179,7 +1179,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
         /* Responsive */
         @media (max-width: 1024px) {
-          .auth-content {
+          .main-content {
             flex-direction: column;
             align-items: center;
           }
@@ -1198,7 +1198,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         }
 
         @media (max-width: 768px) {
-          .auth-container {
+          .auth-content {
             padding: 16px;
           }
 
@@ -1209,7 +1209,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
             padding: 0;
           }
 
-          .auth-content {
+          .main-content {
             gap: 24px;
           }
 
@@ -1256,7 +1256,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         }
 
         @media (max-width: 480px) {
-          .auth-container {
+          .auth-content {
             padding: 12px;
           }
 

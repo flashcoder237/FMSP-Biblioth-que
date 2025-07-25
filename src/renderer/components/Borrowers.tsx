@@ -28,7 +28,6 @@ interface BorrowersProps {
 
 export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
   const [borrowers, setBorrowers] = useState<Borrower[]>([]);
-
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'student' | 'staff'>('all');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -101,7 +100,6 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    // Logique de recherche mockée
   };
 
   const resetForm = () => {
@@ -638,7 +636,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0, 0, 0, 0.75);
+          background: rgba(0, 0, 0, 0.7);
           backdrop-filter: blur(12px);
           display: flex;
           align-items: center;
@@ -696,7 +694,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           left: 0;
           right: 0;
           bottom: 0;
-          background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+          background: radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.1) 0%, transparent 50%);
           backdrop-filter: blur(10px);
         }
         
@@ -744,6 +742,8 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           align-items: center;
           justify-content: center;
           transition: all 0.2s ease;
+          position: relative;
+          z-index: 1;
         }
         
         .close-button:hover {
@@ -796,7 +796,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         }
         
         .stat-icon.total {
-          background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
+          background: linear-gradient(135deg, #6E6E6E 0%, #5A5A5A 100%);
         }
         
         .stat-content {
@@ -826,7 +826,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           align-items: center;
           justify-content: space-between;
           padding: 24px 32px;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
           background: #FFFFFF;
         }
         
@@ -844,7 +844,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         .search-icon {
           position: absolute;
           left: 16px;
-          color: #7f8c8d;
+          color: #6E6E6E;
           z-index: 2;
         }
         
@@ -852,11 +852,11 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           width: 100%;
           height: 52px;
           padding: 0 48px 0 48px;
-          border: 2px solid #e9ecef;
+          border: 2px solid #E5DCC2;
           border-radius: 16px;
           font-size: 16px;
           background: #FFFFFF;
-          color: #2c3e50;
+          color: #2E2E2E;
           transition: all 0.3s ease;
           font-weight: 500;
         }
@@ -864,25 +864,25 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         .search-input:focus {
           outline: none;
           border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
           transform: translateY(-1px);
         }
         
         .clear-search {
           position: absolute;
           right: 16px;
-          background: #f8f9fa;
+          background: #F3EED9;
           border: none;
           cursor: pointer;
-          color: #7f8c8d;
+          color: #6E6E6E;
           padding: 8px;
           border-radius: 8px;
           transition: all 0.2s ease;
         }
         
         .clear-search:hover {
-          color: #2c3e50;
-          background: #e9ecef;
+          color: #2E2E2E;
+          background: #E5DCC2;
           transform: scale(1.1);
         }
         
@@ -896,16 +896,16 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           display: flex;
           align-items: center;
           gap: 12px;
-          color: #7f8c8d;
+          color: #6E6E6E;
           font-weight: 500;
         }
         
         .filter-select {
-          border: 2px solid #e9ecef;
+          border: 2px solid #E5DCC2;
           border-radius: 12px;
           padding: 12px 16px;
           background: #FFFFFF;
-          color: #2c3e50;
+          color: #2E2E2E;
           font-size: 14px;
           cursor: pointer;
           font-weight: 500;
@@ -915,7 +915,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         .filter-select:focus {
           outline: none;
           border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
         }
         
         .btn-primary {
@@ -924,19 +924,19 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           gap: 10px;
           padding: 14px 24px;
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: #FFFFFF;
+          color: #F3EED9;
           border: none;
           border-radius: 16px;
           font-size: 14px;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
         }
         
         .btn-primary:hover {
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+          box-shadow: 0 8px 20px rgba(62, 92, 73, 0.4);
           background: linear-gradient(135deg, #2E453A 0%, #3E5C49 100%);
         }
         
@@ -944,7 +944,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           flex: 1;
           overflow-y: auto;
           padding: 32px;
-          background: #f8f9fa;
+          background: rgba(248, 246, 240, 0.3);
         }
         
         .borrowers-grid {
@@ -956,7 +956,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         .borrower-card {
           background: #FFFFFF;
           border-radius: 20px;
-          border: 1px solid rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(229, 220, 194, 0.3);
           overflow: hidden;
           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
@@ -975,7 +975,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         }
         
         .borrower-card.staff::before {
-          background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
         }
         
         .borrower-card:hover {
@@ -994,8 +994,8 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           align-items: center;
           justify-content: space-between;
           padding: 20px 24px;
-          background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+          background: linear-gradient(135deg, rgba(248, 246, 240, 0.8) 0%, rgba(229, 220, 194, 0.3) 100%);
+          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
         }
         
         .borrower-type {
@@ -1004,7 +1004,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           gap: 10px;
           font-size: 13px;
           font-weight: 700;
-          color: #6c757d;
+          color: #6E6E6E;
           text-transform: uppercase;
           letter-spacing: 1px;
         }
@@ -1046,26 +1046,26 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         }
         
         .action-btn.view {
-          background: rgba(108, 117, 125, 0.1);
-          color: #6c757d;
+          background: rgba(110, 110, 110, 0.1);
+          color: #6E6E6E;
         }
         
         .action-btn.view:hover {
-          color: #FFFFFF;
+          color: #F3EED9;
           transform: scale(1.1);
         }
         
         .action-btn.view:hover::before {
-          background: #6c757d;
+          background: #6E6E6E;
         }
         
         .action-btn.edit {
-          background: rgba(102, 126, 234, 0.1);
+          background: rgba(62, 92, 73, 0.1);
           color: #3E5C49;
         }
         
         .action-btn.edit:hover {
-          color: #FFFFFF;
+          color: #F3EED9;
           transform: scale(1.1);
         }
         
@@ -1074,17 +1074,17 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         }
         
         .action-btn.delete {
-          background: rgba(245, 87, 108, 0.1);
-          color: #f5576c;
+          background: rgba(220, 38, 38, 0.1);
+          color: #DC2626;
         }
         
         .action-btn.delete:hover {
-          color: #FFFFFF;
+          color: #F3EED9;
           transform: scale(1.1);
         }
         
         .action-btn.delete:hover::before {
-          background: #f5576c;
+          background: #DC2626;
         }
         
         .card-content {
@@ -1094,7 +1094,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         .borrower-name {
           font-size: 20px;
           font-weight: 800;
-          color: #2c3e50;
+          color: #2E2E2E;
           margin: 0 0 20px 0;
           letter-spacing: -0.5px;
         }
@@ -1110,13 +1110,13 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           align-items: center;
           gap: 12px;
           font-size: 14px;
-          color: #6c757d;
+          color: #6E6E6E;
           font-weight: 500;
           padding: 8px 0;
         }
         
         .detail-item svg {
-          color: #adb5bd;
+          color: #C2571B;
         }
         
         .empty-state {
@@ -1126,7 +1126,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           justify-content: center;
           padding: 80px 32px;
           text-align: center;
-          color: #6c757d;
+          color: #6E6E6E;
         }
         
         .empty-state svg {
@@ -1138,7 +1138,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           font-size: 24px;
           font-weight: 700;
           margin: 0 0 12px 0;
-          color: #495057;
+          color: #2E2E2E;
         }
         
         .empty-state p {
@@ -1146,6 +1146,31 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           font-size: 16px;
           max-width: 400px;
           line-height: 1.5;
+        }
+        
+        .loading-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 80px 32px;
+          text-align: center;
+          color: #6E6E6E;
+        }
+        
+        .loading-spinner {
+          width: 40px;
+          height: 40px;
+          border: 3px solid #E5DCC2;
+          border-top: 3px solid #3E5C49;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin-bottom: 16px;
+        }
+        
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
         
         /* Add Modal */
@@ -1183,30 +1208,30 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           align-items: center;
           justify-content: space-between;
           padding: 28px 32px;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-          background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
+          background: linear-gradient(135deg, rgba(248, 246, 240, 0.8) 0%, rgba(229, 220, 194, 0.3) 100%);
         }
         
         .add-modal-header h3 {
           font-size: 24px;
           font-weight: 800;
-          color: #2c3e50;
+          color: #2E2E2E;
           margin: 0;
         }
         
         .modal-close {
-          background: rgba(108, 117, 125, 0.1);
+          background: rgba(110, 110, 110, 0.1);
           border: none;
           cursor: pointer;
           padding: 12px;
           border-radius: 12px;
-          color: #6c757d;
+          color: #6E6E6E;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .modal-close:hover {
-          background: rgba(108, 117, 125, 0.2);
-          color: #495057;
+          background: rgba(110, 110, 110, 0.2);
+          color: #2E2E2E;
           transform: scale(1.1);
         }
         
@@ -1222,7 +1247,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           display: block;
           font-size: 15px;
           font-weight: 700;
-          color: #2c3e50;
+          color: #2E2E2E;
           margin-bottom: 12px;
           letter-spacing: 0.3px;
         }
@@ -1237,10 +1262,10 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           align-items: center;
           gap: 12px;
           padding: 20px 24px;
-          border: 2px solid #e9ecef;
+          border: 2px solid #E5DCC2;
           border-radius: 16px;
           background: #FFFFFF;
-          color: #6c757d;
+          color: #6E6E6E;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           font-size: 15px;
@@ -1253,15 +1278,15 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           border-color: #3E5C49;
           color: #3E5C49;
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+          box-shadow: 0 8px 20px rgba(62, 92, 73, 0.15);
         }
         
         .type-button.active {
           border-color: #3E5C49;
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: #FFFFFF;
+          color: #F3EED9;
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+          box-shadow: 0 8px 20px rgba(62, 92, 73, 0.3);
         }
         
         .form-grid {
@@ -1284,11 +1309,11 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         .form-input {
           width: 100%;
           padding: 16px 20px;
-          border: 2px solid #e9ecef;
+          border: 2px solid #E5DCC2;
           border-radius: 12px;
           font-size: 15px;
           background: #FFFFFF;
-          color: #2c3e50;
+          color: #2E2E2E;
           transition: all 0.3s ease;
           font-weight: 500;
         }
@@ -1296,18 +1321,18 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         .form-input:focus {
           outline: none;
           border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
           transform: translateY(-1px);
         }
         
         .form-input.error {
-          border-color: #f5576c;
-          background: rgba(245, 87, 108, 0.05);
+          border-color: #DC2626;
+          background: rgba(220, 38, 38, 0.05);
         }
         
         .error-text {
           font-size: 13px;
-          color: #f5576c;
+          color: #DC2626;
           font-weight: 600;
           margin-top: 4px;
         }
@@ -1317,7 +1342,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           gap: 16px;
           justify-content: flex-end;
           padding-top: 32px;
-          border-top: 1px solid rgba(0, 0, 0, 0.1);
+          border-top: 1px solid rgba(229, 220, 194, 0.3);
         }
         
         .btn-secondary {
@@ -1325,9 +1350,9 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           align-items: center;
           gap: 10px;
           padding: 14px 28px;
-          background: #f8f9fa;
-          color: #6c757d;
-          border: 2px solid #e9ecef;
+          background: rgba(248, 246, 240, 0.8);
+          color: #6E6E6E;
+          border: 2px solid #E5DCC2;
           border-radius: 12px;
           font-size: 14px;
           font-weight: 600;
@@ -1336,8 +1361,8 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         }
         
         .btn-secondary:hover:not(:disabled) {
-          background: #e9ecef;
-          color: #495057;
+          background: #E5DCC2;
+          color: #2E2E2E;
           transform: translateY(-1px);
         }
         
@@ -1452,7 +1477,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         
         .borrowers-content::-webkit-scrollbar-track,
         .add-modal::-webkit-scrollbar-track {
-          background: #f1f3f4;
+          background: #F3EED9;
           border-radius: 4px;
         }
         
@@ -1481,47 +1506,21 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         }
         
         .sync-status.synced {
-          background: rgba(40, 167, 69, 0.1);
-          color: #28a745;
-          border: 1px solid rgba(40, 167, 69, 0.2);
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+          border: 1px solid rgba(62, 92, 73, 0.2);
         }
         
         .sync-status.pending {
-          background: rgba(255, 193, 7, 0.1);
-          color: #ffc107;
-          border: 1px solid rgba(255, 193, 7, 0.2);
+          background: rgba(194, 87, 27, 0.1);
+          color: #C2571B;
+          border: 1px solid rgba(194, 87, 27, 0.2);
         }
         
         .sync-status.error {
-          background: rgba(220, 53, 69, 0.1);
-          color: #dc3545;
-          border: 1px solid rgba(220, 53, 69, 0.2);
-        }
-        
-        /* Animation de chargement */
-        .loading-spinner {
-          display: inline-block;
-          width: 16px;
-          height: 16px;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          border-radius: 50%;
-          border-top-color: #FFFFFF;
-          animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-        
-        /* Effet de focus amélioré */
-        .form-input:focus,
-        .search-input:focus,
-        .filter-select:focus {
-          border-color: #3E5C49;
-          box-shadow: 
-            0 0 0 3px rgba(102, 126, 234, 0.1),
-            0 4px 12px rgba(102, 126, 234, 0.15);
-          transform: translateY(-1px);
+          background: rgba(220, 38, 38, 0.1);
+          color: #DC2626;
+          border: 1px solid rgba(220, 38, 38, 0.2);
         }
         
         /* Amélioration des tooltips */
@@ -1555,49 +1554,15 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         
         /* Indicateur de validation */
         .form-input.valid {
-          border-color: #28a745;
-          background: rgba(40, 167, 69, 0.05);
+          border-color: #3E5C49;
+          background: rgba(62, 92, 73, 0.05);
         }
         
         .form-input.valid:focus {
-          border-color: #28a745;
+          border-color: #3E5C49;
           box-shadow: 
-            0 0 0 3px rgba(40, 167, 69, 0.1),
-            0 4px 12px rgba(40, 167, 69, 0.15);
-        }
-        
-        /* Messages de succès */
-        .success-message {
-          background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-          color: white;
-          padding: 12px 20px;
-          border-radius: 12px;
-          margin-bottom: 20px;
-          font-weight: 600;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          animation: slideDown 0.3s ease;
-        }
-        
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        /* Amélioration des états vides */
-        .empty-state {
-          background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-          border-radius: 20px;
-          margin: 20px;
-          padding: 60px 40px;
-          animation: fadeIn 0.5s ease;
+            0 0 0 3px rgba(62, 92, 73, 0.1),
+            0 4px 12px rgba(62, 92, 73, 0.15);
         }
         
         /* Indicateurs de statut dans les cartes */
@@ -1617,16 +1582,16 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         }
         
         .borrower-card .sync-indicator.synced {
-          background: #28a745;
+          background: #3E5C49;
         }
         
         .borrower-card .sync-indicator.pending {
-          background: #ffc107;
+          background: #C2571B;
           animation: pulse 2s infinite;
         }
         
         .borrower-card .sync-indicator.error {
-          background: #dc3545;
+          background: #DC2626;
         }
         
         @keyframes pulse {
@@ -1672,7 +1637,7 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
         /* Effet de typing pour les placeholders */
         .search-input::placeholder,
         .form-input::placeholder {
-          color: #adb5bd;
+          color: #6E6E6E;
           font-style: italic;
           transition: all 0.3s ease;
         }
@@ -1683,14 +1648,9 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           transform: translateX(10px);
         }
         
-        /* Amélioration du focus trap */
-        .borrowers-modal:focus-within {
-          outline: none;
-        }
-        
         /* État de chargement pour les boutons */
         .btn-primary:disabled {
-          background: linear-gradient(135deg, #adb5bd 0%, #6c757d 100%);
+          background: linear-gradient(135deg, #6E6E6E 0%, #5A5A5A 100%);
           cursor: not-allowed;
           transform: none;
         }
@@ -1743,45 +1703,6 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
           .type-button {
             padding: 16px;
             font-size: 14px;
-          }
-        }
-        
-        /* Mode sombre (optionnel) */
-        @media (prefers-color-scheme: dark) {
-          .borrowers-modal {
-            background: #1a1a1a;
-            color: #ffffff;
-            border-color: rgba(255, 255, 255, 0.1);
-          }
-          
-          .modal-header {
-            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
-          }
-          
-          .stats-section {
-            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
-          }
-          
-          .stat-card {
-            background: #2d3748;
-            border-color: rgba(255, 255, 255, 0.1);
-          }
-          
-          .borrower-card {
-            background: #2d3748;
-            border-color: rgba(255, 255, 255, 0.1);
-          }
-          
-          .form-input,
-          .search-input,
-          .filter-select {
-            background: #2d3748;
-            border-color: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-          }
-          
-          .add-modal {
-            background: #1a1a1a;
           }
         }
       `}</style>

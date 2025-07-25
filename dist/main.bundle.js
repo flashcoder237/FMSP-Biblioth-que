@@ -4591,7 +4591,7 @@ const BackupManager = ({ onClose }) => {
         .backup-manager-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(0, 0, 0, 0.6);
+          background: rgba(0, 0, 0, 0.7);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -4611,6 +4611,18 @@ const BackupManager = ({ onClose }) => {
           flex-direction: column;
           box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
           border: 1px solid rgba(229, 220, 194, 0.3);
+          animation: slideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
         }
 
         .modal-header {
@@ -4620,12 +4632,27 @@ const BackupManager = ({ onClose }) => {
           display: flex;
           align-items: center;
           justify-content: space-between;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .modal-header::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.1) 0%, transparent 50%);
+          pointer-events: none;
         }
 
         .header-content {
           display: flex;
           align-items: center;
           gap: 20px;
+          position: relative;
+          z-index: 1;
         }
 
         .header-icon {
@@ -4662,7 +4689,8 @@ const BackupManager = ({ onClose }) => {
           align-items: center;
           justify-content: center;
           transition: all 0.2s ease;
-          z-index: 1001;
+          z-index: 1;
+          position: relative;
         }
 
         .close-button:hover {
@@ -4693,6 +4721,12 @@ const BackupManager = ({ onClose }) => {
           display: flex;
           align-items: center;
           gap: 16px;
+          transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(62, 92, 73, 0.15);
         }
 
         .stat-icon {
@@ -4945,6 +4979,25 @@ const BackupManager = ({ onClose }) => {
             grid-template-columns: repeat(2, 1fr);
           }
         }
+
+        /* Scrollbar personnalisé */
+        .modal-content::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+          background: #F3EED9;
+          border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+          background: #3E5C49;
+          border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+          background: #2E453A;
+        }
       ` })] }));
 };
 
@@ -5074,11 +5127,11 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
         }
         
         .borrow-document-modal {
-          background: linear-gradient(135deg, #FFFFFF 0%, #F8F6F0 100%);
+          background: #FFFFFF;
           border-radius: 24px;
           box-shadow: 
             0 32px 64px rgba(0, 0, 0, 0.2),
-            0 0 0 1px rgba(255, 255, 255, 0.1);
+            0 0 0 1px rgba(229, 220, 194, 0.3);
           width: 100%;
           max-width: 800px;
           max-height: 95vh;
@@ -5086,6 +5139,18 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           display: flex;
           flex-direction: column;
           position: relative;
+          animation: modalSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        @keyframes modalSlideIn {
+          from {
+            opacity: 0;
+            transform: translateY(40px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
         }
         
         .modal-header {
@@ -5140,14 +5205,14 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           position: absolute;
           top: -4px;
           right: -4px;
-          background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           border-radius: 50%;
           width: 24px;
           height: 24px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #F3EED9;
           animation: sparkle 2s ease-in-out infinite;
         }
         
@@ -5207,7 +5272,7 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
         
         .document-info-card {
           border: 2px solid rgba(194, 87, 27, 0.1);
-          background: linear-gradient(135deg, #FFF9F0 0%, #FFFFFF 100%);
+          background: linear-gradient(135deg, rgba(194, 87, 27, 0.05) 0%, rgba(243, 238, 217, 0.1) 100%);
         }
         
         .document-preview {
@@ -5225,7 +5290,7 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #F3EED9;
           box-shadow: 0 8px 32px rgba(194, 87, 27, 0.3);
         }
         
@@ -5236,14 +5301,14 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
         .document-title {
           font-size: 20px;
           font-weight: 700;
-          color: #1A1A1A;
+          color: #2E2E2E;
           margin: 0 0 8px 0;
           line-height: 1.3;
         }
         
         .document-author {
           font-size: 16px;
-          color: #4A4A4A;
+          color: #6E6E6E;
           margin: 0 0 12px 0;
           display: flex;
           align-items: center;
@@ -5261,7 +5326,7 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           align-items: center;
           gap: 6px;
           font-size: 14px;
-          color: #6B7280;
+          color: #6E6E6E;
           background: rgba(62, 92, 73, 0.1);
           padding: 4px 12px;
           border-radius: 20px;
@@ -5271,8 +5336,8 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           display: flex;
           align-items: center;
           gap: 8px;
-          color: #F97316;
-          background: rgba(249, 115, 22, 0.1);
+          color: #C2571B;
+          background: rgba(194, 87, 27, 0.1);
           padding: 8px 16px;
           border-radius: 12px;
           font-weight: 600;
@@ -5299,19 +5364,19 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #F3EED9;
           box-shadow: 0 6px 20px rgba(62, 92, 73, 0.3);
         }
         
         .section-icon.return-icon {
-          background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-          box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          box-shadow: 0 6px 20px rgba(62, 92, 73, 0.3);
         }
         
         .section-title {
           font-size: 20px;
           font-weight: 600;
-          color: #1A1A1A;
+          color: #2E2E2E;
           margin: 0;
         }
         
@@ -5320,7 +5385,7 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           display: flex;
           align-items: center;
           gap: 12px;
-          background: white;
+          background: #FFFFFF;
           border: 2px solid #E5DCC2;
           border-radius: 12px;
           padding: 16px 20px;
@@ -5337,12 +5402,12 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           border: none;
           outline: none;
           font-size: 16px;
-          color: #1A1A1A;
+          color: #2E2E2E;
           background: transparent;
         }
         
         .search-input::placeholder {
-          color: #9CA3AF;
+          color: #6E6E6E;
         }
         
         .borrowers-list {
@@ -5359,7 +5424,7 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           align-items: center;
           gap: 16px;
           padding: 16px 20px;
-          background: white;
+          background: #FFFFFF;
           border: 2px solid transparent;
           border-radius: 12px;
           cursor: pointer;
@@ -5382,17 +5447,17 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
         .borrower-avatar {
           width: 48px;
           height: 48px;
-          background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
+          background: linear-gradient(135deg, #E5DCC2 0%, #F3EED9 100%);
           border-radius: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #6B7280;
+          color: #6E6E6E;
         }
         
         .borrower-item.selected .borrower-avatar {
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: white;
+          color: #F3EED9;
         }
         
         .borrower-info {
@@ -5403,7 +5468,7 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
         .borrower-name {
           font-size: 16px;
           font-weight: 600;
-          color: #1A1A1A;
+          color: #2E2E2E;
           margin-bottom: 4px;
         }
         
@@ -5417,8 +5482,8 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
         .borrower-type,
         .borrower-matricule,
         .borrower-class {
-          color: #6B7280;
-          background: rgba(107, 114, 128, 0.1);
+          color: #6E6E6E;
+          background: rgba(110, 110, 110, 0.1);
           padding: 2px 8px;
           border-radius: 6px;
           font-size: 12px;
@@ -5437,7 +5502,7 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
         .no-borrowers {
           text-align: center;
           padding: 40px 20px;
-          color: #9CA3AF;
+          color: #6E6E6E;
         }
         
         .no-borrowers svg {
@@ -5456,8 +5521,8 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           border: 2px solid #E5DCC2;
           border-radius: 12px;
           font-size: 16px;
-          color: #1A1A1A;
-          background: white;
+          color: #2E2E2E;
+          background: #FFFFFF;
           transition: all 0.3s ease;
         }
         
@@ -5472,26 +5537,26 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           align-items: center;
           gap: 8px;
           font-size: 14px;
-          color: #6B7280;
+          color: #6E6E6E;
           background: rgba(62, 92, 73, 0.05);
           padding: 8px 16px;
           border-radius: 8px;
         }
         
         .return-form-card {
-          border: 2px solid rgba(16, 185, 129, 0.2);
-          background: linear-gradient(135deg, #F0FDF9 0%, #FFFFFF 100%);
+          border: 2px solid rgba(62, 92, 73, 0.2);
+          background: linear-gradient(135deg, rgba(62, 92, 73, 0.05) 0%, #FFFFFF 100%);
         }
         
         .return-info {
-          background: rgba(16, 185, 129, 0.05);
+          background: rgba(62, 92, 73, 0.05);
           border-radius: 12px;
           padding: 20px;
         }
         
         .return-message {
           font-size: 16px;
-          color: #1A1A1A;
+          color: #2E2E2E;
           margin: 0 0 16px 0;
           line-height: 1.5;
         }
@@ -5501,7 +5566,7 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           align-items: center;
           gap: 8px;
           font-size: 14px;
-          color: #10B981;
+          color: #3E5C49;
           font-weight: 600;
         }
         
@@ -5569,22 +5634,6 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
           }
         }
         
-        /* Animation d'entrée */
-        .borrow-document-modal {
-          animation: modalSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        
-        @keyframes modalSlideIn {
-          from {
-            opacity: 0;
-            transform: translateY(40px) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-        
         /* Amélioration de l'accessibilité */
         .borrower-item:focus-visible {
           outline: 2px solid #3E5C49;
@@ -5594,6 +5643,25 @@ const BorrowDocument = ({ document, borrowers, onBorrow, onReturn, onCancel }) =
         .close-button:focus-visible {
           outline: 2px solid #F3EED9;
           outline-offset: 2px;
+        }
+        
+        /* Scrollbar personnalisé */
+        .borrowers-list::-webkit-scrollbar {
+          width: 6px;
+        }
+        
+        .borrowers-list::-webkit-scrollbar-track {
+          background: #F3EED9;
+          border-radius: 3px;
+        }
+        
+        .borrowers-list::-webkit-scrollbar-thumb {
+          background: #3E5C49;
+          border-radius: 3px;
+        }
+        
+        .borrowers-list::-webkit-scrollbar-thumb:hover {
+          background: #2E453A;
         }
         
         /* Préférences de mouvement réduit */
@@ -7599,7 +7667,6 @@ function Borrowers({ onClose, onRefreshData }) {
     };
     const handleSearch = (query) => {
         setSearchQuery(query);
-        // Logique de recherche mockée
     };
     const resetForm = () => {
         setBorrower({
@@ -7763,7 +7830,7 @@ function Borrowers({ onClose, onRefreshData }) {
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0, 0, 0, 0.75);
+          background: rgba(0, 0, 0, 0.7);
           backdrop-filter: blur(12px);
           display: flex;
           align-items: center;
@@ -7821,7 +7888,7 @@ function Borrowers({ onClose, onRefreshData }) {
           left: 0;
           right: 0;
           bottom: 0;
-          background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+          background: radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.1) 0%, transparent 50%);
           backdrop-filter: blur(10px);
         }
         
@@ -7869,6 +7936,8 @@ function Borrowers({ onClose, onRefreshData }) {
           align-items: center;
           justify-content: center;
           transition: all 0.2s ease;
+          position: relative;
+          z-index: 1;
         }
         
         .close-button:hover {
@@ -7921,7 +7990,7 @@ function Borrowers({ onClose, onRefreshData }) {
         }
         
         .stat-icon.total {
-          background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
+          background: linear-gradient(135deg, #6E6E6E 0%, #5A5A5A 100%);
         }
         
         .stat-content {
@@ -7951,7 +8020,7 @@ function Borrowers({ onClose, onRefreshData }) {
           align-items: center;
           justify-content: space-between;
           padding: 24px 32px;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
           background: #FFFFFF;
         }
         
@@ -7969,7 +8038,7 @@ function Borrowers({ onClose, onRefreshData }) {
         .search-icon {
           position: absolute;
           left: 16px;
-          color: #7f8c8d;
+          color: #6E6E6E;
           z-index: 2;
         }
         
@@ -7977,11 +8046,11 @@ function Borrowers({ onClose, onRefreshData }) {
           width: 100%;
           height: 52px;
           padding: 0 48px 0 48px;
-          border: 2px solid #e9ecef;
+          border: 2px solid #E5DCC2;
           border-radius: 16px;
           font-size: 16px;
           background: #FFFFFF;
-          color: #2c3e50;
+          color: #2E2E2E;
           transition: all 0.3s ease;
           font-weight: 500;
         }
@@ -7989,25 +8058,25 @@ function Borrowers({ onClose, onRefreshData }) {
         .search-input:focus {
           outline: none;
           border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
           transform: translateY(-1px);
         }
         
         .clear-search {
           position: absolute;
           right: 16px;
-          background: #f8f9fa;
+          background: #F3EED9;
           border: none;
           cursor: pointer;
-          color: #7f8c8d;
+          color: #6E6E6E;
           padding: 8px;
           border-radius: 8px;
           transition: all 0.2s ease;
         }
         
         .clear-search:hover {
-          color: #2c3e50;
-          background: #e9ecef;
+          color: #2E2E2E;
+          background: #E5DCC2;
           transform: scale(1.1);
         }
         
@@ -8021,16 +8090,16 @@ function Borrowers({ onClose, onRefreshData }) {
           display: flex;
           align-items: center;
           gap: 12px;
-          color: #7f8c8d;
+          color: #6E6E6E;
           font-weight: 500;
         }
         
         .filter-select {
-          border: 2px solid #e9ecef;
+          border: 2px solid #E5DCC2;
           border-radius: 12px;
           padding: 12px 16px;
           background: #FFFFFF;
-          color: #2c3e50;
+          color: #2E2E2E;
           font-size: 14px;
           cursor: pointer;
           font-weight: 500;
@@ -8040,7 +8109,7 @@ function Borrowers({ onClose, onRefreshData }) {
         .filter-select:focus {
           outline: none;
           border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
         }
         
         .btn-primary {
@@ -8049,19 +8118,19 @@ function Borrowers({ onClose, onRefreshData }) {
           gap: 10px;
           padding: 14px 24px;
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: #FFFFFF;
+          color: #F3EED9;
           border: none;
           border-radius: 16px;
           font-size: 14px;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
         }
         
         .btn-primary:hover {
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+          box-shadow: 0 8px 20px rgba(62, 92, 73, 0.4);
           background: linear-gradient(135deg, #2E453A 0%, #3E5C49 100%);
         }
         
@@ -8069,7 +8138,7 @@ function Borrowers({ onClose, onRefreshData }) {
           flex: 1;
           overflow-y: auto;
           padding: 32px;
-          background: #f8f9fa;
+          background: rgba(248, 246, 240, 0.3);
         }
         
         .borrowers-grid {
@@ -8081,7 +8150,7 @@ function Borrowers({ onClose, onRefreshData }) {
         .borrower-card {
           background: #FFFFFF;
           border-radius: 20px;
-          border: 1px solid rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(229, 220, 194, 0.3);
           overflow: hidden;
           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
@@ -8100,7 +8169,7 @@ function Borrowers({ onClose, onRefreshData }) {
         }
         
         .borrower-card.staff::before {
-          background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
         }
         
         .borrower-card:hover {
@@ -8119,8 +8188,8 @@ function Borrowers({ onClose, onRefreshData }) {
           align-items: center;
           justify-content: space-between;
           padding: 20px 24px;
-          background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+          background: linear-gradient(135deg, rgba(248, 246, 240, 0.8) 0%, rgba(229, 220, 194, 0.3) 100%);
+          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
         }
         
         .borrower-type {
@@ -8129,7 +8198,7 @@ function Borrowers({ onClose, onRefreshData }) {
           gap: 10px;
           font-size: 13px;
           font-weight: 700;
-          color: #6c757d;
+          color: #6E6E6E;
           text-transform: uppercase;
           letter-spacing: 1px;
         }
@@ -8171,26 +8240,26 @@ function Borrowers({ onClose, onRefreshData }) {
         }
         
         .action-btn.view {
-          background: rgba(108, 117, 125, 0.1);
-          color: #6c757d;
+          background: rgba(110, 110, 110, 0.1);
+          color: #6E6E6E;
         }
         
         .action-btn.view:hover {
-          color: #FFFFFF;
+          color: #F3EED9;
           transform: scale(1.1);
         }
         
         .action-btn.view:hover::before {
-          background: #6c757d;
+          background: #6E6E6E;
         }
         
         .action-btn.edit {
-          background: rgba(102, 126, 234, 0.1);
+          background: rgba(62, 92, 73, 0.1);
           color: #3E5C49;
         }
         
         .action-btn.edit:hover {
-          color: #FFFFFF;
+          color: #F3EED9;
           transform: scale(1.1);
         }
         
@@ -8199,17 +8268,17 @@ function Borrowers({ onClose, onRefreshData }) {
         }
         
         .action-btn.delete {
-          background: rgba(245, 87, 108, 0.1);
-          color: #f5576c;
+          background: rgba(220, 38, 38, 0.1);
+          color: #DC2626;
         }
         
         .action-btn.delete:hover {
-          color: #FFFFFF;
+          color: #F3EED9;
           transform: scale(1.1);
         }
         
         .action-btn.delete:hover::before {
-          background: #f5576c;
+          background: #DC2626;
         }
         
         .card-content {
@@ -8219,7 +8288,7 @@ function Borrowers({ onClose, onRefreshData }) {
         .borrower-name {
           font-size: 20px;
           font-weight: 800;
-          color: #2c3e50;
+          color: #2E2E2E;
           margin: 0 0 20px 0;
           letter-spacing: -0.5px;
         }
@@ -8235,13 +8304,13 @@ function Borrowers({ onClose, onRefreshData }) {
           align-items: center;
           gap: 12px;
           font-size: 14px;
-          color: #6c757d;
+          color: #6E6E6E;
           font-weight: 500;
           padding: 8px 0;
         }
         
         .detail-item svg {
-          color: #adb5bd;
+          color: #C2571B;
         }
         
         .empty-state {
@@ -8251,7 +8320,7 @@ function Borrowers({ onClose, onRefreshData }) {
           justify-content: center;
           padding: 80px 32px;
           text-align: center;
-          color: #6c757d;
+          color: #6E6E6E;
         }
         
         .empty-state svg {
@@ -8263,7 +8332,7 @@ function Borrowers({ onClose, onRefreshData }) {
           font-size: 24px;
           font-weight: 700;
           margin: 0 0 12px 0;
-          color: #495057;
+          color: #2E2E2E;
         }
         
         .empty-state p {
@@ -8271,6 +8340,31 @@ function Borrowers({ onClose, onRefreshData }) {
           font-size: 16px;
           max-width: 400px;
           line-height: 1.5;
+        }
+        
+        .loading-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 80px 32px;
+          text-align: center;
+          color: #6E6E6E;
+        }
+        
+        .loading-spinner {
+          width: 40px;
+          height: 40px;
+          border: 3px solid #E5DCC2;
+          border-top: 3px solid #3E5C49;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin-bottom: 16px;
+        }
+        
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
         
         /* Add Modal */
@@ -8308,30 +8402,30 @@ function Borrowers({ onClose, onRefreshData }) {
           align-items: center;
           justify-content: space-between;
           padding: 28px 32px;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-          background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
+          background: linear-gradient(135deg, rgba(248, 246, 240, 0.8) 0%, rgba(229, 220, 194, 0.3) 100%);
         }
         
         .add-modal-header h3 {
           font-size: 24px;
           font-weight: 800;
-          color: #2c3e50;
+          color: #2E2E2E;
           margin: 0;
         }
         
         .modal-close {
-          background: rgba(108, 117, 125, 0.1);
+          background: rgba(110, 110, 110, 0.1);
           border: none;
           cursor: pointer;
           padding: 12px;
           border-radius: 12px;
-          color: #6c757d;
+          color: #6E6E6E;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .modal-close:hover {
-          background: rgba(108, 117, 125, 0.2);
-          color: #495057;
+          background: rgba(110, 110, 110, 0.2);
+          color: #2E2E2E;
           transform: scale(1.1);
         }
         
@@ -8347,7 +8441,7 @@ function Borrowers({ onClose, onRefreshData }) {
           display: block;
           font-size: 15px;
           font-weight: 700;
-          color: #2c3e50;
+          color: #2E2E2E;
           margin-bottom: 12px;
           letter-spacing: 0.3px;
         }
@@ -8362,10 +8456,10 @@ function Borrowers({ onClose, onRefreshData }) {
           align-items: center;
           gap: 12px;
           padding: 20px 24px;
-          border: 2px solid #e9ecef;
+          border: 2px solid #E5DCC2;
           border-radius: 16px;
           background: #FFFFFF;
-          color: #6c757d;
+          color: #6E6E6E;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           font-size: 15px;
@@ -8378,15 +8472,15 @@ function Borrowers({ onClose, onRefreshData }) {
           border-color: #3E5C49;
           color: #3E5C49;
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+          box-shadow: 0 8px 20px rgba(62, 92, 73, 0.15);
         }
         
         .type-button.active {
           border-color: #3E5C49;
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          color: #FFFFFF;
+          color: #F3EED9;
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+          box-shadow: 0 8px 20px rgba(62, 92, 73, 0.3);
         }
         
         .form-grid {
@@ -8409,11 +8503,11 @@ function Borrowers({ onClose, onRefreshData }) {
         .form-input {
           width: 100%;
           padding: 16px 20px;
-          border: 2px solid #e9ecef;
+          border: 2px solid #E5DCC2;
           border-radius: 12px;
           font-size: 15px;
           background: #FFFFFF;
-          color: #2c3e50;
+          color: #2E2E2E;
           transition: all 0.3s ease;
           font-weight: 500;
         }
@@ -8421,18 +8515,18 @@ function Borrowers({ onClose, onRefreshData }) {
         .form-input:focus {
           outline: none;
           border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
           transform: translateY(-1px);
         }
         
         .form-input.error {
-          border-color: #f5576c;
-          background: rgba(245, 87, 108, 0.05);
+          border-color: #DC2626;
+          background: rgba(220, 38, 38, 0.05);
         }
         
         .error-text {
           font-size: 13px;
-          color: #f5576c;
+          color: #DC2626;
           font-weight: 600;
           margin-top: 4px;
         }
@@ -8442,7 +8536,7 @@ function Borrowers({ onClose, onRefreshData }) {
           gap: 16px;
           justify-content: flex-end;
           padding-top: 32px;
-          border-top: 1px solid rgba(0, 0, 0, 0.1);
+          border-top: 1px solid rgba(229, 220, 194, 0.3);
         }
         
         .btn-secondary {
@@ -8450,9 +8544,9 @@ function Borrowers({ onClose, onRefreshData }) {
           align-items: center;
           gap: 10px;
           padding: 14px 28px;
-          background: #f8f9fa;
-          color: #6c757d;
-          border: 2px solid #e9ecef;
+          background: rgba(248, 246, 240, 0.8);
+          color: #6E6E6E;
+          border: 2px solid #E5DCC2;
           border-radius: 12px;
           font-size: 14px;
           font-weight: 600;
@@ -8461,8 +8555,8 @@ function Borrowers({ onClose, onRefreshData }) {
         }
         
         .btn-secondary:hover:not(:disabled) {
-          background: #e9ecef;
-          color: #495057;
+          background: #E5DCC2;
+          color: #2E2E2E;
           transform: translateY(-1px);
         }
         
@@ -8577,7 +8671,7 @@ function Borrowers({ onClose, onRefreshData }) {
         
         .borrowers-content::-webkit-scrollbar-track,
         .add-modal::-webkit-scrollbar-track {
-          background: #f1f3f4;
+          background: #F3EED9;
           border-radius: 4px;
         }
         
@@ -8606,47 +8700,21 @@ function Borrowers({ onClose, onRefreshData }) {
         }
         
         .sync-status.synced {
-          background: rgba(40, 167, 69, 0.1);
-          color: #28a745;
-          border: 1px solid rgba(40, 167, 69, 0.2);
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+          border: 1px solid rgba(62, 92, 73, 0.2);
         }
         
         .sync-status.pending {
-          background: rgba(255, 193, 7, 0.1);
-          color: #ffc107;
-          border: 1px solid rgba(255, 193, 7, 0.2);
+          background: rgba(194, 87, 27, 0.1);
+          color: #C2571B;
+          border: 1px solid rgba(194, 87, 27, 0.2);
         }
         
         .sync-status.error {
-          background: rgba(220, 53, 69, 0.1);
-          color: #dc3545;
-          border: 1px solid rgba(220, 53, 69, 0.2);
-        }
-        
-        /* Animation de chargement */
-        .loading-spinner {
-          display: inline-block;
-          width: 16px;
-          height: 16px;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          border-radius: 50%;
-          border-top-color: #FFFFFF;
-          animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-        
-        /* Effet de focus amélioré */
-        .form-input:focus,
-        .search-input:focus,
-        .filter-select:focus {
-          border-color: #3E5C49;
-          box-shadow: 
-            0 0 0 3px rgba(102, 126, 234, 0.1),
-            0 4px 12px rgba(102, 126, 234, 0.15);
-          transform: translateY(-1px);
+          background: rgba(220, 38, 38, 0.1);
+          color: #DC2626;
+          border: 1px solid rgba(220, 38, 38, 0.2);
         }
         
         /* Amélioration des tooltips */
@@ -8680,49 +8748,15 @@ function Borrowers({ onClose, onRefreshData }) {
         
         /* Indicateur de validation */
         .form-input.valid {
-          border-color: #28a745;
-          background: rgba(40, 167, 69, 0.05);
+          border-color: #3E5C49;
+          background: rgba(62, 92, 73, 0.05);
         }
         
         .form-input.valid:focus {
-          border-color: #28a745;
+          border-color: #3E5C49;
           box-shadow: 
-            0 0 0 3px rgba(40, 167, 69, 0.1),
-            0 4px 12px rgba(40, 167, 69, 0.15);
-        }
-        
-        /* Messages de succès */
-        .success-message {
-          background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-          color: white;
-          padding: 12px 20px;
-          border-radius: 12px;
-          margin-bottom: 20px;
-          font-weight: 600;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          animation: slideDown 0.3s ease;
-        }
-        
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        /* Amélioration des états vides */
-        .empty-state {
-          background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-          border-radius: 20px;
-          margin: 20px;
-          padding: 60px 40px;
-          animation: fadeIn 0.5s ease;
+            0 0 0 3px rgba(62, 92, 73, 0.1),
+            0 4px 12px rgba(62, 92, 73, 0.15);
         }
         
         /* Indicateurs de statut dans les cartes */
@@ -8742,16 +8776,16 @@ function Borrowers({ onClose, onRefreshData }) {
         }
         
         .borrower-card .sync-indicator.synced {
-          background: #28a745;
+          background: #3E5C49;
         }
         
         .borrower-card .sync-indicator.pending {
-          background: #ffc107;
+          background: #C2571B;
           animation: pulse 2s infinite;
         }
         
         .borrower-card .sync-indicator.error {
-          background: #dc3545;
+          background: #DC2626;
         }
         
         @keyframes pulse {
@@ -8797,7 +8831,7 @@ function Borrowers({ onClose, onRefreshData }) {
         /* Effet de typing pour les placeholders */
         .search-input::placeholder,
         .form-input::placeholder {
-          color: #adb5bd;
+          color: #6E6E6E;
           font-style: italic;
           transition: all 0.3s ease;
         }
@@ -8808,14 +8842,9 @@ function Borrowers({ onClose, onRefreshData }) {
           transform: translateX(10px);
         }
         
-        /* Amélioration du focus trap */
-        .borrowers-modal:focus-within {
-          outline: none;
-        }
-        
         /* État de chargement pour les boutons */
         .btn-primary:disabled {
-          background: linear-gradient(135deg, #adb5bd 0%, #6c757d 100%);
+          background: linear-gradient(135deg, #6E6E6E 0%, #5A5A5A 100%);
           cursor: not-allowed;
           transform: none;
         }
@@ -8868,45 +8897,6 @@ function Borrowers({ onClose, onRefreshData }) {
           .type-button {
             padding: 16px;
             font-size: 14px;
-          }
-        }
-        
-        /* Mode sombre (optionnel) */
-        @media (prefers-color-scheme: dark) {
-          .borrowers-modal {
-            background: #1a1a1a;
-            color: #ffffff;
-            border-color: rgba(255, 255, 255, 0.1);
-          }
-          
-          .modal-header {
-            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
-          }
-          
-          .stats-section {
-            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
-          }
-          
-          .stat-card {
-            background: #2d3748;
-            border-color: rgba(255, 255, 255, 0.1);
-          }
-          
-          .borrower-card {
-            background: #2d3748;
-            border-color: rgba(255, 255, 255, 0.1);
-          }
-          
-          .form-input,
-          .search-input,
-          .filter-select {
-            background: #2d3748;
-            border-color: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-          }
-          
-          .add-modal {
-            background: #1a1a1a;
           }
         }
       ` })] }));
@@ -11321,7 +11311,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/database.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/bar-chart-3.mjs");
 
-// src/renderer/components/EnhancedAuthentication.tsx - Version simplifiée pour mode offline
+// src/renderer/components/EnhancedAuthentication.tsx - Version redesignée
 
 
 const EnhancedAuthentication = ({ onLogin }) => {
@@ -11432,12 +11422,12 @@ const EnhancedAuthentication = ({ onLogin }) => {
         });
         setError('');
     };
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "offline-auth", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-background", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "pattern-overlay" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-shapes", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-3" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app-logo", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "logo-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 32 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "logo-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { children: "Biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Gestion Locale" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "offline-badge", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Mode Hors Ligne" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-tabs", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab ${mode === 'login' ? 'active' : ''}`, onClick: () => { setMode('login'); setStep(1); setError(''); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Connexion" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab ${mode === 'create_institution' ? 'active' : ''}`, onClick: () => { setMode('create_institution'); setStep(1); setError(''); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Nouvel \u00C9tablissement" })] })] }), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "message error", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error })] })), success && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "message success", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: success })] })), mode === 'login' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "login-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Connexion Locale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Connectez-vous avec vos identifiants locaux" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Email ou nom d'utilisateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: loginData.email, onChange: (e) => setLoginData(prev => ({ ...prev, email: e.target.value })), placeholder: "admin@local", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Mot de passe" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: loginData.password, onChange: (e) => setLoginData(prev => ({ ...prev, password: e.target.value })), placeholder: "Votre mot de passe", required: true, disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "toggle-password", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Code d'acc\u00E8s \u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: loginData.institutionCode, onChange: (e) => setLoginData(prev => ({ ...prev, institutionCode: e.target.value })), placeholder: "Code d'acc\u00E8s de votre \u00E9tablissement", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "submit-btn", disabled: !loginData.email || !loginData.password || !loginData.institutionCode || isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), "Connexion..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 18 }), "Se connecter"] })) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "quick-login-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "divider", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Connexions rapides" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "quick-login-grid", children: defaultCredentials.map((cred, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "quick-login-btn", onClick: () => handleQuickLogin(cred.email, cred.password), disabled: isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "credential-icon", children: [cred.role === 'Administrateur' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), cred.role === 'Bibliothécaire' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 }), cred.role === 'Utilisateur' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 16 }), cred.role === 'Démo' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 16 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "credential-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "role", children: cred.role }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "email", children: cred.email })] })] }, index))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "login-hint", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { children: ["\uD83D\uDCA1 ", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: "Astuce :" }), " Cliquez sur une carte pour remplir automatiquement les champs"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "\uD83D\uDD10 Ou utilisez n'importe quel email avec le mot de passe \"demo\"" })] })] })] })), mode === 'create_institution' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-section", children: [step === 1 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Nouvel \u00C9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Cr\u00E9ez votre \u00E9tablissement local" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: (e) => { e.preventDefault(); nextStep(); }, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Nom de l'\u00E9tablissement *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.name, onChange: (e) => setInstitutionData(prev => ({ ...prev, name: e.target.value })), placeholder: "Ma Biblioth\u00E8que", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Type d'\u00E9tablissement *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "type-grid", children: institutionTypes.map((type) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "type-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "radio", name: "type", value: type.value, checked: institutionData.type === type.value, onChange: (e) => setInstitutionData(prev => ({ ...prev, type: e.target.value })), disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "type-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "type-icon", children: type.icon }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "type-label", children: type.label })] })] }, type.value))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Ville *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.city, onChange: (e) => setInstitutionData(prev => ({ ...prev, city: e.target.value })), placeholder: "Votre ville", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", className: "submit-btn", disabled: !institutionData.name || !institutionData.type || !institutionData.city || isLoading, children: ["Continuer", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 18 })] })] })] })), step === 2 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Compte Administrateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Cr\u00E9ez le compte administrateur principal" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Pr\u00E9nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.adminFirstName, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminFirstName: e.target.value })), placeholder: "Pr\u00E9nom", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.adminLastName, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminLastName: e.target.value })), placeholder: "Nom", required: true, disabled: isLoading })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Email administrateur *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: institutionData.adminEmail, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminEmail: e.target.value })), placeholder: "admin@monorganisation.com", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Mot de passe *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: institutionData.adminPassword, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminPassword: e.target.value })), placeholder: "Mot de passe s\u00E9curis\u00E9", required: true, disabled: isLoading, minLength: 3 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "toggle-password", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Minimum 3 caract\u00E8res" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "back-btn", onClick: previousStep, disabled: isLoading, children: "Pr\u00E9c\u00E9dent" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "submit-btn", disabled: !institutionData.adminFirstName || !institutionData.adminLastName ||
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-background", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "pattern-overlay" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-shapes", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-3" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app-logo", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "logo-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 32 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "logo-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { children: "Biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Gestion Locale" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "offline-badge", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Mode Hors Ligne" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "main-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-tabs", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab ${mode === 'login' ? 'active' : ''}`, onClick: () => { setMode('login'); setStep(1); setError(''); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Connexion" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab ${mode === 'create_institution' ? 'active' : ''}`, onClick: () => { setMode('create_institution'); setStep(1); setError(''); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Nouvel \u00C9tablissement" })] })] }), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "message error", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error })] })), success && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "message success", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: success })] })), mode === 'login' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "login-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Connexion Locale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Connectez-vous avec vos identifiants locaux" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Email ou nom d'utilisateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: loginData.email, onChange: (e) => setLoginData(prev => ({ ...prev, email: e.target.value })), placeholder: "admin@local", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Mot de passe" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: loginData.password, onChange: (e) => setLoginData(prev => ({ ...prev, password: e.target.value })), placeholder: "Votre mot de passe", required: true, disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "toggle-password", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Code d'acc\u00E8s \u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: loginData.institutionCode, onChange: (e) => setLoginData(prev => ({ ...prev, institutionCode: e.target.value })), placeholder: "Code d'acc\u00E8s de votre \u00E9tablissement", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "submit-btn", disabled: !loginData.email || !loginData.password || !loginData.institutionCode || isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), "Connexion..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 18 }), "Se connecter"] })) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "quick-login-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "divider", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Connexions rapides" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "quick-login-grid", children: defaultCredentials.map((cred, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "quick-login-btn", onClick: () => handleQuickLogin(cred.email, cred.password), disabled: isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "credential-icon", children: [cred.role === 'Administrateur' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), cred.role === 'Bibliothécaire' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 }), cred.role === 'Utilisateur' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 16 }), cred.role === 'Démo' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 16 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "credential-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "role", children: cred.role }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "email", children: cred.email })] })] }, index))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "login-hint", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { children: ["\uD83D\uDCA1 ", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: "Astuce :" }), " Cliquez sur une carte pour remplir automatiquement les champs"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "\uD83D\uDD10 Ou utilisez n'importe quel email avec le mot de passe \"demo\"" })] })] })] })), mode === 'create_institution' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-section", children: [step === 1 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Nouvel \u00C9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Cr\u00E9ez votre \u00E9tablissement local" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: (e) => { e.preventDefault(); nextStep(); }, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Nom de l'\u00E9tablissement *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.name, onChange: (e) => setInstitutionData(prev => ({ ...prev, name: e.target.value })), placeholder: "Ma Biblioth\u00E8que", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Type d'\u00E9tablissement *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "type-grid", children: institutionTypes.map((type) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "type-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "radio", name: "type", value: type.value, checked: institutionData.type === type.value, onChange: (e) => setInstitutionData(prev => ({ ...prev, type: e.target.value })), disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "type-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "type-icon", children: type.icon }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "type-label", children: type.label })] })] }, type.value))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Ville *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.city, onChange: (e) => setInstitutionData(prev => ({ ...prev, city: e.target.value })), placeholder: "Votre ville", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", className: "submit-btn", disabled: !institutionData.name || !institutionData.type || !institutionData.city || isLoading, children: ["Continuer", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 18 })] })] })] })), step === 2 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Compte Administrateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Cr\u00E9ez le compte administrateur principal" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Pr\u00E9nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.adminFirstName, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminFirstName: e.target.value })), placeholder: "Pr\u00E9nom", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.adminLastName, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminLastName: e.target.value })), placeholder: "Nom", required: true, disabled: isLoading })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Email administrateur *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: institutionData.adminEmail, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminEmail: e.target.value })), placeholder: "admin@monorganisation.com", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Mot de passe *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: institutionData.adminPassword, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminPassword: e.target.value })), placeholder: "Mot de passe s\u00E9curis\u00E9", required: true, disabled: isLoading, minLength: 3 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "toggle-password", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Minimum 3 caract\u00E8res" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "back-btn", onClick: previousStep, disabled: isLoading, children: "Pr\u00E9c\u00E9dent" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "submit-btn", disabled: !institutionData.adminFirstName || !institutionData.adminLastName ||
                                                                             !institutionData.adminEmail || !institutionData.adminPassword ||
                                                                             institutionData.adminPassword.length < 3 || isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), "Cr\u00E9ation..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 18 }), "Cr\u00E9er l'\u00E9tablissement"] })) })] })] })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-indicator", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `step ${step >= 1 ? 'active' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "\u00C9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-line" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `step ${step >= 2 ? 'active' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Administrateur" })] })] })] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-sidebar", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 32 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Base de donn\u00E9es locale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Vos donn\u00E9es sont stock\u00E9es en s\u00E9curit\u00E9 sur votre ordinateur" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 32 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Fonctionne hors ligne" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Aucune connexion Internet requise pour utiliser l'application" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 32 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Gestion compl\u00E8te" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "G\u00E9rez vos livres, emprunts et utilisateurs facilement" })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
-        .offline-auth {
+        .auth-container {
           min-height: 100vh;
-          background: linear-gradient(135deg, #1e3a2e 0%, #2d5a45 50%, #1e3a2e 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           position: relative;
           overflow-x: hidden;
         }
@@ -11458,8 +11448,8 @@ const EnhancedAuthentication = ({ onLogin }) => {
           right: 0;
           bottom: 0;
           background-image: 
-            radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(243, 238, 217, 0.05) 0%, transparent 50%);
           animation: drift 20s ease-in-out infinite;
         }
 
@@ -11479,7 +11469,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
 
         .shape {
           position: absolute;
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(243, 238, 217, 0.05);
           border-radius: 50%;
           animation: float 6s ease-in-out infinite;
         }
@@ -11513,7 +11503,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
           50% { transform: translateY(-20px); }
         }
 
-        .auth-container {
+        .auth-content {
           position: relative;
           z-index: 10;
           min-height: 100vh;
@@ -11541,24 +11531,24 @@ const EnhancedAuthentication = ({ onLogin }) => {
         .logo-icon {
           width: 50px;
           height: 50px;
-          background: rgba(255, 255, 255, 0.15);
+          background: rgba(243, 238, 217, 0.15);
           border-radius: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: #F3EED9;
+          border: 1px solid rgba(243, 238, 217, 0.2);
         }
 
         .logo-text h1 {
           margin: 0;
-          color: white;
+          color: #F3EED9;
           font-size: 24px;
           font-weight: 700;
         }
 
         .logo-text span {
-          color: rgba(255, 255, 255, 0.8);
+          color: rgba(243, 238, 217, 0.8);
           font-size: 14px;
         }
 
@@ -11566,16 +11556,16 @@ const EnhancedAuthentication = ({ onLogin }) => {
           display: flex;
           align-items: center;
           gap: 8px;
-          background: rgba(255, 152, 0, 0.2);
-          color: #ffa726;
+          background: rgba(194, 87, 27, 0.2);
+          color: #C2571B;
           padding: 8px 16px;
           border-radius: 20px;
           font-size: 14px;
           font-weight: 600;
-          border: 1px solid rgba(255, 152, 0, 0.3);
+          border: 1px solid rgba(194, 87, 27, 0.3);
         }
 
-        .auth-content {
+        .main-content {
           display: flex;
           gap: 40px;
           flex: 1;
@@ -11584,7 +11574,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
 
         .auth-card {
           flex: 1;
-          background: white;
+          background: #FFFFFF;
           border-radius: 20px;
           overflow: hidden;
           box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -11593,8 +11583,8 @@ const EnhancedAuthentication = ({ onLogin }) => {
 
         .auth-tabs {
           display: flex;
-          background: #f8f9fa;
-          border-bottom: 1px solid #e9ecef;
+          background: rgba(248, 246, 240, 0.8);
+          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
         }
 
         .tab {
@@ -11609,13 +11599,13 @@ const EnhancedAuthentication = ({ onLogin }) => {
           cursor: pointer;
           font-size: 16px;
           font-weight: 600;
-          color: #6c757d;
+          color: #6E6E6E;
           transition: all 0.2s ease;
         }
 
         .tab.active {
-          background: white;
-          color: #2d5a45;
+          background: #FFFFFF;
+          color: #3E5C49;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
@@ -11625,35 +11615,35 @@ const EnhancedAuthentication = ({ onLogin }) => {
           gap: 12px;
           padding: 16px 24px;
           font-weight: 500;
-          border-bottom: 1px solid #e9ecef;
+          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
         }
 
         .message.error {
-          background: #ffeaea;
-          color: #d32f2f;
+          background: rgba(220, 38, 38, 0.1);
+          color: #DC2626;
         }
 
         .message.success {
-          background: #e8f5e8;
-          color: #2e7d32;
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
         }
 
         .section-header {
           text-align: center;
           padding: 32px 24px 24px;
-          border-bottom: 1px solid #f1f3f4;
+          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
         }
 
         .section-header h2 {
           margin: 16px 0 8px;
-          color: #2d5a45;
+          color: #3E5C49;
           font-size: 24px;
           font-weight: 700;
         }
 
         .section-header p {
           margin: 0;
-          color: #6c757d;
+          color: #6E6E6E;
           font-size: 16px;
         }
 
@@ -11675,7 +11665,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
           display: block;
           margin-bottom: 8px;
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           font-size: 14px;
         }
 
@@ -11688,14 +11678,14 @@ const EnhancedAuthentication = ({ onLogin }) => {
         .input-group svg {
           position: absolute;
           left: 16px;
-          color: #6c757d;
+          color: #6E6E6E;
           z-index: 2;
         }
 
         .input-group input {
           width: 100%;
           padding: 16px 16px 16px 48px;
-          border: 2px solid #e9ecef;
+          border: 2px solid #E5DCC2;
           border-radius: 12px;
           font-size: 16px;
           transition: all 0.2s ease;
@@ -11703,12 +11693,12 @@ const EnhancedAuthentication = ({ onLogin }) => {
 
         .input-group input:focus {
           outline: none;
-          border-color: #2d5a45;
-          box-shadow: 0 0 0 3px rgba(45, 90, 69, 0.1);
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
         }
 
         .input-group input:disabled {
-          background: #f8f9fa;
+          background: rgba(248, 246, 240, 0.5);
           opacity: 0.7;
         }
 
@@ -11718,21 +11708,21 @@ const EnhancedAuthentication = ({ onLogin }) => {
           background: none;
           border: none;
           cursor: pointer;
-          color: #6c757d;
+          color: #6E6E6E;
           padding: 4px;
           border-radius: 4px;
           transition: all 0.2s ease;
         }
 
         .toggle-password:hover {
-          color: #2d5a45;
-          background: rgba(45, 90, 69, 0.1);
+          color: #3E5C49;
+          background: rgba(62, 92, 73, 0.1);
         }
 
         .form-group small {
           display: block;
           margin-top: 4px;
-          color: #6c757d;
+          color: #6E6E6E;
           font-size: 12px;
         }
 
@@ -11757,19 +11747,19 @@ const EnhancedAuthentication = ({ onLogin }) => {
           align-items: center;
           gap: 8px;
           padding: 20px 16px;
-          border: 2px solid #e9ecef;
+          border: 2px solid #E5DCC2;
           border-radius: 12px;
           transition: all 0.2s ease;
           text-align: center;
         }
 
         .type-card input:checked + .type-content {
-          border-color: #2d5a45;
-          background: rgba(45, 90, 69, 0.05);
+          border-color: #3E5C49;
+          background: rgba(62, 92, 73, 0.05);
         }
 
         .type-content:hover {
-          border-color: #2d5a45;
+          border-color: #3E5C49;
         }
 
         .type-icon {
@@ -11778,7 +11768,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
 
         .type-label {
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           font-size: 14px;
         }
 
@@ -11788,8 +11778,8 @@ const EnhancedAuthentication = ({ onLogin }) => {
           align-items: center;
           justify-content: center;
           gap: 8px;
-          background: linear-gradient(135deg, #2d5a45 0%, #1e3a2e 100%);
-          color: white;
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
           border: none;
           padding: 16px 24px;
           border-radius: 12px;
@@ -11801,7 +11791,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
 
         .submit-btn:hover:not(:disabled) {
           transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(45, 90, 69, 0.3);
+          box-shadow: 0 8px 25px rgba(62, 92, 73, 0.3);
         }
 
         .submit-btn:disabled {
@@ -11811,9 +11801,9 @@ const EnhancedAuthentication = ({ onLogin }) => {
         }
 
         .back-btn {
-          background: #f8f9fa;
-          color: #6c757d;
-          border: 2px solid #e9ecef;
+          background: rgba(248, 246, 240, 0.8);
+          color: #6E6E6E;
+          border: 2px solid #E5DCC2;
           padding: 12px 24px;
           border-radius: 12px;
           font-size: 16px;
@@ -11823,8 +11813,8 @@ const EnhancedAuthentication = ({ onLogin }) => {
         }
 
         .back-btn:hover:not(:disabled) {
-          background: #e9ecef;
-          color: #495057;
+          background: #E5DCC2;
+          color: #2E2E2E;
         }
 
         .form-actions {
@@ -11840,8 +11830,8 @@ const EnhancedAuthentication = ({ onLogin }) => {
         .spinner {
           width: 18px;
           height: 18px;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          border-top: 2px solid white;
+          border: 2px solid rgba(243, 238, 217, 0.3);
+          border-top: 2px solid #F3EED9;
           border-radius: 50%;
           animation: spin 1s linear infinite;
         }
@@ -11857,8 +11847,8 @@ const EnhancedAuthentication = ({ onLogin }) => {
           justify-content: center;
           gap: 16px;
           padding: 24px;
-          background: #f8f9fa;
-          border-top: 1px solid #e9ecef;
+          background: rgba(248, 246, 240, 0.8);
+          border-top: 1px solid rgba(229, 220, 194, 0.3);
         }
 
         .step {
@@ -11877,8 +11867,8 @@ const EnhancedAuthentication = ({ onLogin }) => {
         .step span {
           width: 32px;
           height: 32px;
-          background: #e9ecef;
-          color: #6c757d;
+          background: #E5DCC2;
+          color: #6E6E6E;
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -11888,28 +11878,28 @@ const EnhancedAuthentication = ({ onLogin }) => {
         }
 
         .step.active span {
-          background: #2d5a45;
-          color: white;
+          background: #3E5C49;
+          color: #F3EED9;
         }
 
         .step label {
           font-size: 12px;
           font-weight: 600;
-          color: #6c757d;
+          color: #6E6E6E;
           text-align: center;
         }
 
         .step-line {
           width: 40px;
           height: 2px;
-          background: #e9ecef;
+          background: #E5DCC2;
         }
 
         /* Connexions rapides */
         .quick-login-section {
           margin-top: 32px;
           padding-top: 24px;
-          border-top: 1px solid #f1f3f4;
+          border-top: 1px solid rgba(229, 220, 194, 0.3);
         }
 
         .divider {
@@ -11919,9 +11909,9 @@ const EnhancedAuthentication = ({ onLogin }) => {
         }
 
         .divider span {
-          background: white;
+          background: #FFFFFF;
           padding: 0 16px;
-          color: #6c757d;
+          color: #6E6E6E;
           font-size: 14px;
           font-weight: 600;
         }
@@ -11933,7 +11923,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
           left: 0;
           right: 0;
           height: 1px;
-          background: #e9ecef;
+          background: #E5DCC2;
           z-index: -1;
         }
 
@@ -11949,8 +11939,8 @@ const EnhancedAuthentication = ({ onLogin }) => {
           align-items: center;
           gap: 12px;
           padding: 16px;
-          background: #f8f9fa;
-          border: 2px solid #e9ecef;
+          background: rgba(248, 246, 240, 0.8);
+          border: 2px solid #E5DCC2;
           border-radius: 12px;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -11958,8 +11948,8 @@ const EnhancedAuthentication = ({ onLogin }) => {
         }
 
         .quick-login-btn:hover:not(:disabled) {
-          border-color: #2d5a45;
-          background: rgba(45, 90, 69, 0.05);
+          border-color: #3E5C49;
+          background: rgba(62, 92, 73, 0.05);
         }
 
         .quick-login-btn:disabled {
@@ -11970,8 +11960,8 @@ const EnhancedAuthentication = ({ onLogin }) => {
         .credential-icon {
           width: 36px;
           height: 36px;
-          background: #2d5a45;
-          color: white;
+          background: #3E5C49;
+          color: #F3EED9;
           border-radius: 8px;
           display: flex;
           align-items: center;
@@ -11987,18 +11977,18 @@ const EnhancedAuthentication = ({ onLogin }) => {
 
         .credential-info .role {
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           font-size: 14px;
         }
 
         .credential-info .email {
           font-size: 12px;
-          color: #6c757d;
+          color: #6E6E6E;
         }
 
         .login-hint {
-          background: rgba(45, 90, 69, 0.05);
-          border: 1px solid rgba(45, 90, 69, 0.1);
+          background: rgba(62, 92, 73, 0.05);
+          border: 1px solid rgba(62, 92, 73, 0.1);
           border-radius: 12px;
           padding: 16px;
           margin-top: 16px;
@@ -12007,7 +11997,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
         .login-hint p {
           margin: 0 0 8px 0;
           font-size: 14px;
-          color: #2d5a45;
+          color: #3E5C49;
         }
 
         .login-hint p:last-child {
@@ -12023,12 +12013,12 @@ const EnhancedAuthentication = ({ onLogin }) => {
         }
 
         .feature-card {
-          background: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          background: rgba(243, 238, 217, 0.1);
+          border: 1px solid rgba(243, 238, 217, 0.2);
           border-radius: 16px;
           padding: 24px;
           text-align: center;
-          color: white;
+          color: #F3EED9;
           backdrop-filter: blur(10px);
         }
 
@@ -12052,7 +12042,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
 
         /* Responsive */
         @media (max-width: 1024px) {
-          .auth-content {
+          .main-content {
             flex-direction: column;
             align-items: center;
           }
@@ -12071,7 +12061,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
         }
 
         @media (max-width: 768px) {
-          .auth-container {
+          .auth-content {
             padding: 16px;
           }
 
@@ -12082,7 +12072,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
             padding: 0;
           }
 
-          .auth-content {
+          .main-content {
             gap: 24px;
           }
 
@@ -12129,7 +12119,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
         }
 
         @media (max-width: 480px) {
-          .auth-container {
+          .auth-content {
             padding: 12px;
           }
 
@@ -13224,7 +13214,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-circle.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/arrow-right.mjs");
 
-// src/renderer/components/InitialSetup.tsx
+// src/renderer/components/InitialSetup.tsx - Version redesignée
 
 
 const InitialSetup = ({ onComplete }) => {
@@ -13236,7 +13226,7 @@ const InitialSetup = ({ onComplete }) => {
           left: 0;
           right: 0;
           bottom: 0;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -13257,8 +13247,8 @@ const InitialSetup = ({ onComplete }) => {
           width: 100%;
           height: 100%;
           background-image: 
-            radial-gradient(circle at 25% 25%, white 2px, transparent 2px),
-            radial-gradient(circle at 75% 75%, white 2px, transparent 2px);
+            radial-gradient(circle at 25% 25%, rgba(243, 238, 217, 0.5) 2px, transparent 2px),
+            radial-gradient(circle at 75% 75%, rgba(243, 238, 217, 0.5) 2px, transparent 2px);
           background-size: 50px 50px;
           animation: patternMove 20s linear infinite;
         }
@@ -13273,7 +13263,7 @@ const InitialSetup = ({ onComplete }) => {
 
         .floating-icon {
           position: absolute;
-          color: rgba(255, 255, 255, 0.2);
+          color: rgba(243, 238, 217, 0.2);
           animation: float 6s ease-in-out infinite;
         }
 
@@ -13296,7 +13286,7 @@ const InitialSetup = ({ onComplete }) => {
         }
 
         .setup-container {
-          background: white;
+          background: #FFFFFF;
           border-radius: 20px;
           padding: 32px;
           max-width: 1000px;
@@ -13307,6 +13297,18 @@ const InitialSetup = ({ onComplete }) => {
           position: relative;
           z-index: 1;
           margin: 20px auto;
+          animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
         }
 
         .setup-header {
@@ -13320,22 +13322,24 @@ const InitialSetup = ({ onComplete }) => {
           justify-content: center;
           width: 80px;
           height: 80px;
-          background: linear-gradient(135deg, #667eea, #764ba2);
+          background: linear-gradient(135deg, #3E5C49, #2E453A);
           border-radius: 20px;
-          color: white;
+          color: #F3EED9;
           margin-bottom: 20px;
+          box-shadow: 0 8px 32px rgba(62, 92, 73, 0.3);
         }
 
         .setup-title {
           font-size: 2.5rem;
           font-weight: 800;
-          color: #2d3748;
+          color: #2E2E2E;
           margin: 0 0 10px 0;
+          letter-spacing: -0.5px;
         }
 
         .setup-subtitle {
           font-size: 1.1rem;
-          color: #718096;
+          color: #6E6E6E;
           margin: 0;
         }
 
@@ -13349,7 +13353,7 @@ const InitialSetup = ({ onComplete }) => {
           gap: 10px;
           font-size: 1.4rem;
           font-weight: 700;
-          color: #2d3748;
+          color: #2E2E2E;
           margin-bottom: 16px;
         }
 
@@ -13360,33 +13364,55 @@ const InitialSetup = ({ onComplete }) => {
         }
 
         .mode-card {
-          border: 2px solid #e2e8f0;
+          border: 2px solid #E5DCC2;
           border-radius: 16px;
           padding: 20px;
           cursor: pointer;
           transition: all 0.3s ease;
-          background: white;
+          background: #FFFFFF;
           min-height: 380px;
           display: flex;
           flex-direction: column;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .mode-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, #3E5C49, #C2571B);
+          transform: scaleX(0);
+          transition: transform 0.3s ease;
         }
 
         .mode-card:not(.disabled):hover {
-          border-color: #667eea;
+          border-color: #3E5C49;
           transform: translateY(-2px);
-          box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+          box-shadow: 0 10px 30px rgba(62, 92, 73, 0.2);
+        }
+
+        .mode-card:not(.disabled):hover::before {
+          transform: scaleX(1);
         }
 
         .mode-card.selected {
-          border-color: #667eea;
-          background: linear-gradient(135deg, #667eea05, #764ba205);
-          box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+          border-color: #3E5C49;
+          background: linear-gradient(135deg, rgba(62, 92, 73, 0.05), rgba(243, 238, 217, 0.1));
+          box-shadow: 0 10px 30px rgba(62, 92, 73, 0.2);
+        }
+
+        .mode-card.selected::before {
+          transform: scaleX(1);
         }
 
         .mode-card.disabled {
           opacity: 0.6;
           cursor: not-allowed;
-          background: #f7fafc;
+          background: rgba(248, 246, 240, 0.5);
         }
 
         .mode-header {
@@ -13403,26 +13429,26 @@ const InitialSetup = ({ onComplete }) => {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #F3EED9;
           flex-shrink: 0;
         }
 
         .mode-icon.offline {
-          background: linear-gradient(135deg, #48bb78, #38a169);
+          background: linear-gradient(135deg, #3E5C49, #2E453A);
         }
 
         .mode-icon.online {
-          background: linear-gradient(135deg, #4299e1, #3182ce);
+          background: linear-gradient(135deg, #C2571B, #A8481A);
         }
 
         .mode-icon.disabled {
-          background: #cbd5e0;
+          background: #6E6E6E;
         }
 
         .mode-info h3 {
           font-size: 1.2rem;
           font-weight: 700;
-          color: #2d3748;
+          color: #2E2E2E;
           margin: 0 0 4px 0;
         }
 
@@ -13434,13 +13460,13 @@ const InitialSetup = ({ onComplete }) => {
         }
 
         .mode-status.recommended {
-          background: #c6f6d5;
-          color: #22543d;
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
         }
 
         .mode-status.coming-soon {
-          background: #fed7d7;
-          color: #742a2a;
+          background: rgba(194, 87, 27, 0.1);
+          color: #C2571B;
         }
 
         .mode-description {
@@ -13449,7 +13475,7 @@ const InitialSetup = ({ onComplete }) => {
         }
 
         .mode-description p {
-          color: #4a5568;
+          color: #6E6E6E;
           margin: 0;
           line-height: 1.4;
           font-size: 0.95rem;
@@ -13470,11 +13496,11 @@ const InitialSetup = ({ onComplete }) => {
         }
 
         .feature:not(.disabled) {
-          color: #48bb78;
+          color: #3E5C49;
         }
 
         .feature.disabled {
-          color: #a0aec0;
+          color: #6E6E6E;
         }
 
         .mode-ideal {
@@ -13482,16 +13508,16 @@ const InitialSetup = ({ onComplete }) => {
           align-items: center;
           gap: 6px;
           padding: 10px;
-          background: #f7fafc;
+          background: rgba(248, 246, 240, 0.8);
           border-radius: 6px;
           font-size: 0.8rem;
-          color: #4a5568;
+          color: #6E6E6E;
           margin-top: auto;
         }
 
         .mode-ideal.disabled {
-          background: #edf2f7;
-          color: #a0aec0;
+          background: rgba(229, 220, 194, 0.3);
+          color: #6E6E6E;
         }
 
         .info-panel {
@@ -13499,8 +13525,8 @@ const InitialSetup = ({ onComplete }) => {
         }
 
         .info-card {
-          background: #f8f9fa;
-          border: 1px solid #e9ecef;
+          background: rgba(248, 246, 240, 0.8);
+          border: 1px solid #E5DCC2;
           border-radius: 10px;
           padding: 16px;
         }
@@ -13515,7 +13541,7 @@ const InitialSetup = ({ onComplete }) => {
         .info-header h3 {
           font-size: 1.05rem;
           font-weight: 600;
-          color: #495057;
+          color: #2E2E2E;
           margin: 0;
         }
 
@@ -13526,7 +13552,7 @@ const InitialSetup = ({ onComplete }) => {
 
         .info-content li {
           margin-bottom: 3px;
-          color: #6c757d;
+          color: #6E6E6E;
           font-size: 0.9rem;
         }
 
@@ -13538,8 +13564,8 @@ const InitialSetup = ({ onComplete }) => {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: linear-gradient(135deg, #667eea, #764ba2);
-          color: white;
+          background: linear-gradient(135deg, #3E5C49, #2E453A);
+          color: #F3EED9;
           border: none;
           padding: 14px 28px;
           border-radius: 10px;
@@ -13552,7 +13578,7 @@ const InitialSetup = ({ onComplete }) => {
 
         .continue-btn:not(:disabled):hover {
           transform: translateY(-2px);
-          box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+          box-shadow: 0 10px 30px rgba(62, 92, 73, 0.3);
         }
 
         .continue-btn:disabled {
@@ -13561,7 +13587,7 @@ const InitialSetup = ({ onComplete }) => {
         }
 
         .setup-note {
-          color: #718096;
+          color: #6E6E6E;
           font-size: 0.85rem;
           margin: 0;
         }
@@ -13626,6 +13652,25 @@ const InitialSetup = ({ onComplete }) => {
             font-size: 1rem;
           }
         }
+
+        /* Scrollbar personnalisé */
+        .setup-container::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .setup-container::-webkit-scrollbar-track {
+          background: #F3EED9;
+          border-radius: 4px;
+        }
+
+        .setup-container::-webkit-scrollbar-thumb {
+          background: #3E5C49;
+          border-radius: 4px;
+        }
+
+        .setup-container::-webkit-scrollbar-thumb:hover {
+          background: #2E453A;
+        }
       ` })] }));
 };
 
@@ -13660,7 +13705,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/zap.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/arrow-right.mjs");
 
-// src/renderer/components/InstitutionSetup.tsx - Version simplifiée pour mode offline
+// src/renderer/components/InstitutionSetup.tsx - Version redesignée
 
 
 const InstitutionSetup = ({ institutionCode, institution, onComplete }) => {
@@ -13674,7 +13719,6 @@ const InstitutionSetup = ({ institutionCode, institution, onComplete }) => {
             setTimeout(() => setCopied(false), 2000);
         }
         catch (error) {
-            // Fallback pour les navigateurs plus anciens
             const textArea = document.createElement('textarea');
             textArea.value = institutionCode;
             document.body.appendChild(textArea);
@@ -13782,10 +13826,10 @@ L'équipe de ${institution?.name}
             icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"]
         }
     ];
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "offline-institution-setup", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setup-background", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "pattern-overlay" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-shapes", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-3" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setup-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setup-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "offline-badge", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Mode Hors Ligne" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 40 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "setup-title", children: "Configuration Termin\u00E9e" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-steps", children: steps.map((step, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${currentStep >= step.number ? 'active' : ''} ${currentStep === step.number ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(step.icon, { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-title", children: step.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-subtitle", children: step.subtitle })] }), index < steps.length - 1 && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-connector" })] }, step.number))) }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setup-content", children: [currentStep === 1 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content success-step", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "success-animation", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "success-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 48 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "success-sparkles", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { className: "sparkle sparkle-1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { className: "sparkle sparkle-2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { className: "sparkle sparkle-3" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "step-title", children: "F\u00E9licitations ! \uD83C\uDF89" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "step-description", children: ["Votre \u00E9tablissement ", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: institution?.name }), " a \u00E9t\u00E9 configur\u00E9 avec succ\u00E8s en mode hors ligne. Vous pouvez maintenant g\u00E9rer votre biblioth\u00E8que localement."] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Biblioth\u00E8que Locale" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "info-label", children: "Nom:" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "info-value", children: institution?.name })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "info-label", children: "Type:" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "info-value", children: [institution?.type === 'school' && '🏫 École/Lycée', institution?.type === 'university' && '🎓 Université', institution?.type === 'library' && '📚 Bibliothèque', institution?.type === 'other' && '🏢 Autre'] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "info-label", children: "Ville:" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "info-value", children: institution?.city })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-row highlight", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "info-label", children: "Code d'acc\u00E8s:" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "info-value code-value", children: institutionCode })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "features-preview", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Fonctionnalit\u00E9s disponibles :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "features-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Base de donn\u00E9es locale" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Fonctionne hors ligne" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Gestion des livres" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Gestion des utilisateurs" })] })] })] })] })), currentStep === 2 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content share-step", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "share-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "share-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 40 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "step-title", children: "Code d'Acc\u00E8s Local" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "step-description", children: "Ce code permet aux utilisateurs locaux d'acc\u00E9der \u00E0 votre biblioth\u00E8que. Conservez-le pr\u00E9cieusement et partagez-le uniquement avec des personnes autoris\u00E9es." })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "code-display", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "code-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "code-label", children: "Code d'acc\u00E8s local" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "code-value-large", children: institutionCode }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `copy-button ${copied ? 'copied' : ''}`, onClick: handleCopyCode, children: [copied ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: copied ? 'Copié !' : 'Copier le code' })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sharing-options", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Options de partage" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sharing-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "sharing-option", onClick: handleDownloadInfo, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "option-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "option-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "option-title", children: "T\u00E9l\u00E9charger les infos" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "option-description", children: "Fichier avec code et instructions" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "sharing-option", onClick: sendInvitation, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "option-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "option-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "option-title", children: "Envoyer par email" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "option-description", children: "Invitation pr\u00E9-r\u00E9dig\u00E9e" })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "instructions-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Instructions pour vos utilisateurs :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("ol", { className: "instructions-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Se connecter au r\u00E9seau local de l'\u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Lancer l'application Biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("li", { children: ["Utiliser ce code d'acc\u00E8s : ", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("code", { children: institutionCode })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Les donn\u00E9es seront synchronis\u00E9es localement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "offline-note", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Aucune connexion Internet requise" })] })] })] })), currentStep === 3 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content ready-step", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "ready-animation", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "ready-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 48 }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "step-title", children: "Tout est pr\u00EAt ! \uD83D\uDE80" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "step-description", children: "Votre biblioth\u00E8que locale est configur\u00E9e et pr\u00EAte \u00E0 \u00EAtre utilis\u00E9e. Vous allez maintenant acc\u00E9der au tableau de bord administrateur." }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "quick-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Prochaines \u00E9tapes recommand\u00E9es :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "actions-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-number", children: "1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "action-title", children: "Ajoutez vos premiers livres" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "action-description", children: "Construisez votre catalogue local" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-number", children: "2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "action-title", children: "Configurez vos param\u00E8tres" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "action-description", children: "Personnalisez votre biblioth\u00E8que" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-number", children: "3" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "action-title", children: "Partagez le code d'acc\u00E8s" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "action-description", children: "Invitez vos utilisateurs locaux" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-number", children: "4" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "action-title", children: "Testez le syst\u00E8me" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "action-description", children: "V\u00E9rifiez toutes les fonctionnalit\u00E9s" })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "offline-advantages", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Avantages du mode hors ligne :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "advantages-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "advantage-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Donn\u00E9es locales s\u00E9curis\u00E9es" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "advantage-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Ind\u00E9pendance Internet" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "advantage-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Performance optimale" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "advantage-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Contr\u00F4le total" })] })] })] })] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setup-navigation", children: [currentStep > 1 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "nav-button secondary", onClick: previousStep, disabled: isLoading, children: "Pr\u00E9c\u00E9dent" })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "nav-button primary", onClick: nextStep, disabled: isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), "Chargement..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [currentStep === 3 ? 'Accéder à ma bibliothèque' : 'Continuer', (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 })] })) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
-        .offline-institution-setup {
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-setup", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setup-background", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "pattern-overlay" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-shapes", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-3" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setup-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setup-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "offline-badge", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Mode Hors Ligne" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 40 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "setup-title", children: "Configuration Termin\u00E9e" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-steps", children: steps.map((step, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${currentStep >= step.number ? 'active' : ''} ${currentStep === step.number ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(step.icon, { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-title", children: step.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-subtitle", children: step.subtitle })] }), index < steps.length - 1 && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-connector" })] }, step.number))) }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setup-content", children: [currentStep === 1 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content success-step", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "success-animation", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "success-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 48 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "success-sparkles", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { className: "sparkle sparkle-1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { className: "sparkle sparkle-2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { className: "sparkle sparkle-3" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "step-title", children: "F\u00E9licitations ! \uD83C\uDF89" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "step-description", children: ["Votre \u00E9tablissement ", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: institution?.name }), " a \u00E9t\u00E9 configur\u00E9 avec succ\u00E8s en mode hors ligne. Vous pouvez maintenant g\u00E9rer votre biblioth\u00E8que localement."] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Biblioth\u00E8que Locale" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "card-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "info-label", children: "Nom:" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "info-value", children: institution?.name })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "info-label", children: "Type:" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "info-value", children: [institution?.type === 'school' && '🏫 École/Lycée', institution?.type === 'university' && '🎓 Université', institution?.type === 'library' && '📚 Bibliothèque', institution?.type === 'other' && '🏢 Autre'] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "info-label", children: "Ville:" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "info-value", children: institution?.city })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-row highlight", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "info-label", children: "Code d'acc\u00E8s:" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "info-value code-value", children: institutionCode })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "features-preview", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Fonctionnalit\u00E9s disponibles :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "features-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Base de donn\u00E9es locale" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Fonctionne hors ligne" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Gestion des livres" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Gestion des utilisateurs" })] })] })] })] })), currentStep === 2 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content share-step", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "share-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "share-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 40 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "step-title", children: "Code d'Acc\u00E8s Local" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "step-description", children: "Ce code permet aux utilisateurs locaux d'acc\u00E9der \u00E0 votre biblioth\u00E8que. Conservez-le pr\u00E9cieusement et partagez-le uniquement avec des personnes autoris\u00E9es." })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "code-display", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "code-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "code-label", children: "Code d'acc\u00E8s local" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "code-value-large", children: institutionCode }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `copy-button ${copied ? 'copied' : ''}`, onClick: handleCopyCode, children: [copied ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: copied ? 'Copié !' : 'Copier le code' })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sharing-options", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Options de partage" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sharing-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "sharing-option", onClick: handleDownloadInfo, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "option-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "option-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "option-title", children: "T\u00E9l\u00E9charger les infos" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "option-description", children: "Fichier avec code et instructions" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "sharing-option", onClick: sendInvitation, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "option-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "option-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "option-title", children: "Envoyer par email" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "option-description", children: "Invitation pr\u00E9-r\u00E9dig\u00E9e" })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "instructions-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Instructions pour vos utilisateurs :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("ol", { className: "instructions-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Se connecter au r\u00E9seau local de l'\u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Lancer l'application Biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("li", { children: ["Utiliser ce code d'acc\u00E8s : ", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("code", { children: institutionCode })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Les donn\u00E9es seront synchronis\u00E9es localement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "offline-note", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Aucune connexion Internet requise" })] })] })] })), currentStep === 3 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content ready-step", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "ready-animation", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "ready-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 48 }) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "step-title", children: "Tout est pr\u00EAt ! \uD83D\uDE80" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "step-description", children: "Votre biblioth\u00E8que locale est configur\u00E9e et pr\u00EAte \u00E0 \u00EAtre utilis\u00E9e. Vous allez maintenant acc\u00E9der au tableau de bord administrateur." }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "quick-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Prochaines \u00E9tapes recommand\u00E9es :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "actions-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-number", children: "1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "action-title", children: "Ajoutez vos premiers livres" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "action-description", children: "Construisez votre catalogue local" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-number", children: "2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "action-title", children: "Configurez vos param\u00E8tres" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "action-description", children: "Personnalisez votre biblioth\u00E8que" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-number", children: "3" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "action-title", children: "Partagez le code d'acc\u00E8s" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "action-description", children: "Invitez vos utilisateurs locaux" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "action-number", children: "4" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "action-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "action-title", children: "Testez le syst\u00E8me" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "action-description", children: "V\u00E9rifiez toutes les fonctionnalit\u00E9s" })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "offline-advantages", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Avantages du mode hors ligne :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "advantages-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "advantage-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Donn\u00E9es locales s\u00E9curis\u00E9es" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "advantage-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Ind\u00E9pendance Internet" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "advantage-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Performance optimale" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "advantage-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Contr\u00F4le total" })] })] })] })] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setup-navigation", children: [currentStep > 1 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "nav-button secondary", onClick: previousStep, disabled: isLoading, children: "Pr\u00E9c\u00E9dent" })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "nav-button primary", onClick: nextStep, disabled: isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), "Chargement..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [currentStep === 3 ? 'Accéder à ma bibliothèque' : 'Continuer', (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 })] })) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+        .institution-setup {
           min-height: 100vh;
-          background: linear-gradient(135deg, #1e3a2e 0%, #2d5a45 50%, #1e3a2e 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           position: relative;
           overflow-x: hidden;
         }
@@ -13806,8 +13850,8 @@ L'équipe de ${institution?.name}
           right: 0;
           bottom: 0;
           background-image: 
-            radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(243, 238, 217, 0.05) 0%, transparent 50%);
           animation: drift 20s ease-in-out infinite;
         }
 
@@ -13827,7 +13871,7 @@ L'équipe de ${institution?.name}
 
         .shape {
           position: absolute;
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(243, 238, 217, 0.05);
           border-radius: 50%;
           animation: float 6s ease-in-out infinite;
         }
@@ -13875,33 +13919,33 @@ L'équipe de ${institution?.name}
         .setup-header {
           text-align: center;
           margin-bottom: 32px;
-          color: white;
+          color: #F3EED9;
         }
 
         .offline-badge {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: rgba(255, 152, 0, 0.2);
-          color: #ffa726;
+          background: rgba(194, 87, 27, 0.2);
+          color: #C2571B;
           padding: 8px 16px;
           border-radius: 20px;
           font-size: 14px;
           font-weight: 600;
-          border: 1px solid rgba(255, 152, 0, 0.3);
+          border: 1px solid rgba(194, 87, 27, 0.3);
           margin-bottom: 24px;
         }
 
         .header-logo {
           width: 60px;
           height: 60px;
-          background: rgba(255, 255, 255, 0.15);
+          background: rgba(243, 238, 217, 0.15);
           border-radius: 16px;
           display: flex;
           align-items: center;
           justify-content: center;
           margin: 0 auto 20px;
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          border: 1px solid rgba(243, 238, 217, 0.2);
         }
 
         .setup-title {
@@ -13944,8 +13988,8 @@ L'équipe de ${institution?.name}
           width: 40px;
           height: 40px;
           border-radius: 50%;
-          background: rgba(255, 255, 255, 0.15);
-          border: 2px solid rgba(255, 255, 255, 0.3);
+          background: rgba(243, 238, 217, 0.15);
+          border: 2px solid rgba(243, 238, 217, 0.3);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -13953,15 +13997,15 @@ L'équipe de ${institution?.name}
         }
 
         .progress-step.active .step-circle {
-          background: rgba(255, 255, 255, 0.25);
-          border-color: rgba(255, 255, 255, 0.5);
+          background: rgba(243, 238, 217, 0.25);
+          border-color: rgba(243, 238, 217, 0.5);
         }
 
         .progress-step.current .step-circle {
-          background: #ffa726;
-          border-color: #ffa726;
-          color: #1e3a2e;
-          box-shadow: 0 4px 16px rgba(255, 167, 38, 0.3);
+          background: #C2571B;
+          border-color: #C2571B;
+          color: #F3EED9;
+          box-shadow: 0 4px 16px rgba(194, 87, 27, 0.3);
         }
 
         .step-info {
@@ -13985,13 +14029,13 @@ L'équipe de ${institution?.name}
           left: calc(100% + 8px);
           width: 24px;
           height: 2px;
-          background: rgba(255, 255, 255, 0.2);
+          background: rgba(243, 238, 217, 0.2);
           z-index: -1;
         }
 
         .setup-content {
           flex: 1;
-          background: white;
+          background: #FFFFFF;
           border-radius: 20px;
           padding: 32px;
           margin-bottom: 24px;
@@ -14015,7 +14059,7 @@ L'équipe de ${institution?.name}
         }
 
         .success-circle {
-          color: #2d5a45;
+          color: #3E5C49;
           animation: bounce 0.6s ease-out;
         }
 
@@ -14027,7 +14071,7 @@ L'équipe de ${institution?.name}
 
         .sparkle {
           position: absolute;
-          color: #ffa726;
+          color: #C2571B;
           animation: sparkle 2s ease-in-out infinite;
         }
 
@@ -14064,21 +14108,21 @@ L'équipe de ${institution?.name}
         .step-title {
           font-size: 24px;
           font-weight: 700;
-          color: #2d5a45;
+          color: #3E5C49;
           margin: 0 0 12px 0;
           letter-spacing: -0.3px;
         }
 
         .step-description {
           font-size: 16px;
-          color: #6c757d;
+          color: #6E6E6E;
           line-height: 1.5;
           margin-bottom: 24px;
         }
 
         .institution-card {
-          background: #f8f9fa;
-          border: 1px solid #e9ecef;
+          background: rgba(243, 238, 217, 0.1);
+          border: 1px solid rgba(243, 238, 217, 0.3);
           border-radius: 12px;
           margin-bottom: 24px;
           overflow: hidden;
@@ -14089,14 +14133,14 @@ L'équipe de ${institution?.name}
           align-items: center;
           gap: 8px;
           padding: 16px 20px;
-          background: rgba(45, 90, 69, 0.1);
-          border-bottom: 1px solid #e9ecef;
+          background: rgba(62, 92, 73, 0.1);
+          border-bottom: 1px solid rgba(243, 238, 217, 0.3);
         }
 
         .card-header h3 {
           font-size: 16px;
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           margin: 0;
         }
 
@@ -14110,7 +14154,7 @@ L'équipe de ${institution?.name}
           align-items: center;
           margin-bottom: 12px;
           padding-bottom: 12px;
-          border-bottom: 1px solid #f1f3f4;
+          border-bottom: 1px solid rgba(243, 238, 217, 0.3);
         }
 
         .info-row:last-child {
@@ -14120,29 +14164,29 @@ L'équipe de ${institution?.name}
         }
 
         .info-row.highlight {
-          background: rgba(45, 90, 69, 0.05);
+          background: rgba(62, 92, 73, 0.05);
           padding: 12px;
           border-radius: 8px;
-          border: 1px solid rgba(45, 90, 69, 0.2);
-          border-bottom: 1px solid rgba(45, 90, 69, 0.2);
+          border: 1px solid rgba(62, 92, 73, 0.2);
+          border-bottom: 1px solid rgba(62, 92, 73, 0.2);
         }
 
         .info-label {
           font-weight: 600;
-          color: #6c757d;
+          color: #6E6E6E;
           font-size: 14px;
         }
 
         .info-value {
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           font-size: 14px;
         }
 
         .code-value {
           font-family: 'Monaco', 'Consolas', monospace;
-          background: #2d5a45;
-          color: white;
+          background: #3E5C49;
+          color: #F3EED9;
           padding: 6px 10px;
           border-radius: 6px;
           font-size: 14px;
@@ -14152,7 +14196,7 @@ L'équipe de ${institution?.name}
         .features-preview h3 {
           font-size: 16px;
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           margin: 0 0 12px 0;
           text-align: left;
         }
@@ -14168,10 +14212,10 @@ L'équipe de ${institution?.name}
           align-items: center;
           gap: 8px;
           padding: 12px;
-          background: rgba(45, 90, 69, 0.05);
-          border: 1px solid rgba(45, 90, 69, 0.1);
+          background: rgba(62, 92, 73, 0.05);
+          border: 1px solid rgba(62, 92, 73, 0.1);
           border-radius: 8px;
-          color: #2d5a45;
+          color: #3E5C49;
           font-weight: 500;
           font-size: 14px;
         }
@@ -14186,7 +14230,7 @@ L'équipe de ${institution?.name}
         }
 
         .share-icon {
-          color: #ffa726;
+          color: #C2571B;
           margin-bottom: 16px;
         }
 
@@ -14195,10 +14239,10 @@ L'équipe de ${institution?.name}
         }
 
         .code-container {
-          background: linear-gradient(135deg, #2d5a45 0%, #1e3a2e 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           border-radius: 16px;
           padding: 24px;
-          color: white;
+          color: #F3EED9;
           position: relative;
           overflow: hidden;
         }
@@ -14210,7 +14254,7 @@ L'équipe de ${institution?.name}
           right: 0;
           width: 80px;
           height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1));
+          background: linear-gradient(90deg, transparent, rgba(243, 238, 217, 0.1));
           transform: skewX(-15deg);
         }
 
@@ -14236,9 +14280,9 @@ L'équipe de ${institution?.name}
           display: flex;
           align-items: center;
           gap: 6px;
-          background: rgba(255, 255, 255, 0.2);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          color: white;
+          background: rgba(243, 238, 217, 0.2);
+          border: 1px solid rgba(243, 238, 217, 0.3);
+          color: #F3EED9;
           padding: 8px 16px;
           border-radius: 8px;
           cursor: pointer;
@@ -14251,14 +14295,14 @@ L'équipe de ${institution?.name}
         }
 
         .copy-button:hover {
-          background: rgba(255, 255, 255, 0.3);
+          background: rgba(243, 238, 217, 0.3);
           transform: translateY(-1px);
         }
 
         .copy-button.copied {
-          background: rgba(255, 167, 38, 0.8);
-          border-color: rgba(255, 167, 38, 0.8);
-          color: white;
+          background: rgba(194, 87, 27, 0.8);
+          border-color: rgba(194, 87, 27, 0.8);
+          color: #F3EED9;
         }
 
         .sharing-options {
@@ -14268,7 +14312,7 @@ L'équipe de ${institution?.name}
         .sharing-options h3 {
           font-size: 16px;
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           margin: 0 0 16px 0;
         }
 
@@ -14283,29 +14327,29 @@ L'équipe de ${institution?.name}
           align-items: center;
           gap: 12px;
           padding: 16px;
-          background: rgba(45, 90, 69, 0.05);
-          border: 1px solid rgba(45, 90, 69, 0.1);
+          background: rgba(62, 92, 73, 0.05);
+          border: 1px solid rgba(62, 92, 73, 0.1);
           border-radius: 12px;
           cursor: pointer;
           transition: all 0.2s ease;
-          color: #2d5a45;
+          color: #3E5C49;
           font-weight: 600;
         }
 
         .sharing-option:hover {
-          background: rgba(45, 90, 69, 0.1);
-          border-color: rgba(45, 90, 69, 0.2);
+          background: rgba(62, 92, 73, 0.1);
+          border-color: rgba(62, 92, 73, 0.2);
         }
 
         .option-icon {
           width: 36px;
           height: 36px;
-          background: #ffa726;
+          background: #C2571B;
           border-radius: 8px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #F3EED9;
           flex-shrink: 0;
         }
 
@@ -14322,15 +14366,15 @@ L'équipe de ${institution?.name}
 
         .option-description {
           font-size: 12px;
-          color: #6c757d;
+          color: #6E6E6E;
         }
 
         .instructions-card {
-          background: #f8f9fa;
-          border: 1px solid #e9ecef;
+          background: rgba(243, 238, 217, 0.1);
+          border: 1px solid rgba(243, 238, 217, 0.3);
           border-radius: 12px;
           padding: 20px;
-          color: #2d5a45;
+          color: #3E5C49;
           text-align: left;
           max-width: 500px;
           margin: 0 auto;
@@ -14355,8 +14399,8 @@ L'équipe de ${institution?.name}
         }
 
         .instructions-list code {
-          background: #2d5a45;
-          color: white;
+          background: #3E5C49;
+          color: #F3EED9;
           padding: 2px 6px;
           border-radius: 4px;
           font-family: 'Monaco', 'Consolas', monospace;
@@ -14367,9 +14411,9 @@ L'équipe de ${institution?.name}
           display: flex;
           align-items: center;
           gap: 8px;
-          background: rgba(255, 167, 38, 0.1);
-          border: 1px solid rgba(255, 167, 38, 0.2);
-          color: #e65100;
+          background: rgba(194, 87, 27, 0.1);
+          border: 1px solid rgba(194, 87, 27, 0.2);
+          color: #C2571B;
           padding: 8px 12px;
           border-radius: 8px;
           font-size: 12px;
@@ -14386,7 +14430,7 @@ L'équipe de ${institution?.name}
         }
 
         .ready-icon {
-          color: #ffa726;
+          color: #C2571B;
           animation: pulse 2s ease-in-out infinite;
         }
 
@@ -14402,7 +14446,7 @@ L'équipe de ${institution?.name}
         .quick-actions h3 {
           font-size: 16px;
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           margin: 0 0 16px 0;
           text-align: left;
         }
@@ -14418,16 +14462,16 @@ L'équipe de ${institution?.name}
           align-items: center;
           gap: 16px;
           padding: 16px;
-          background: rgba(45, 90, 69, 0.05);
-          border: 1px solid rgba(45, 90, 69, 0.1);
+          background: rgba(62, 92, 73, 0.05);
+          border: 1px solid rgba(62, 92, 73, 0.1);
           border-radius: 12px;
         }
 
         .action-number {
           width: 32px;
           height: 32px;
-          background: #ffa726;
-          color: white;
+          background: #C2571B;
+          color: #F3EED9;
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -14446,19 +14490,19 @@ L'équipe de ${institution?.name}
 
         .action-title {
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           font-size: 14px;
         }
 
         .action-description {
           font-size: 12px;
-          color: #6c757d;
+          color: #6E6E6E;
         }
 
         .offline-advantages h4 {
           font-size: 14px;
           font-weight: 600;
-          color: #2d5a45;
+          color: #3E5C49;
           margin: 0 0 12px 0;
           text-align: left;
         }
@@ -14474,10 +14518,10 @@ L'équipe de ${institution?.name}
           align-items: center;
           gap: 8px;
           padding: 10px 12px;
-          background: rgba(255, 167, 38, 0.1);
-          border: 1px solid rgba(255, 167, 38, 0.2);
+          background: rgba(194, 87, 27, 0.1);
+          border: 1px solid rgba(194, 87, 27, 0.2);
           border-radius: 8px;
-          color: #e65100;
+          color: #C2571B;
           font-weight: 500;
           font-size: 13px;
         }
@@ -14504,25 +14548,25 @@ L'équipe de ${institution?.name}
         }
 
         .nav-button.primary {
-          background: #ffa726;
-          color: white;
+          background: #C2571B;
+          color: #F3EED9;
         }
 
         .nav-button.primary:hover:not(:disabled) {
-          background: #ff9800;
+          background: #A8481A;
           transform: translateY(-1px);
-          box-shadow: 0 4px 16px rgba(255, 167, 38, 0.3);
+          box-shadow: 0 4px 16px rgba(194, 87, 27, 0.3);
         }
 
         .nav-button.secondary {
-          background: #f8f9fa;
-          color: #6c757d;
-          border: 1px solid #e9ecef;
+          background: rgba(243, 238, 217, 0.1);
+          color: #F3EED9;
+          border: 1px solid rgba(243, 238, 217, 0.3);
         }
 
         .nav-button.secondary:hover:not(:disabled) {
-          background: #e9ecef;
-          color: #495057;
+          background: rgba(243, 238, 217, 0.2);
+          border-color: rgba(243, 238, 217, 0.5);
         }
 
         .nav-button:disabled {
@@ -14535,8 +14579,8 @@ L'équipe de ${institution?.name}
         .loading-spinner {
           width: 16px;
           height: 16px;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          border-top: 2px solid white;
+          border: 2px solid rgba(243, 238, 217, 0.3);
+          border-top: 2px solid #F3EED9;
           border-radius: 50%;
           animation: spin 1s linear infinite;
         }
