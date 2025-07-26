@@ -38,11 +38,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_UserProfile__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./components/UserProfile */ "./src/renderer/components/UserProfile.tsx");
 /* harmony import */ var _components_BackupManager__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./components/BackupManager */ "./src/renderer/components/BackupManager.tsx");
 /* harmony import */ var _components_ReportsManager__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./components/ReportsManager */ "./src/renderer/components/ReportsManager.tsx");
-/* harmony import */ var _components_ToastSystem__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./components/ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
-/* harmony import */ var _components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./components/KeyboardShortcuts */ "./src/renderer/components/KeyboardShortcuts.tsx");
-/* harmony import */ var _types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./types/UnifiedTypes */ "./src/renderer/types/UnifiedTypes.ts");
+/* harmony import */ var _components_StatisticsManager__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./components/StatisticsManager */ "./src/renderer/components/StatisticsManager.tsx");
+/* harmony import */ var _components_ToastSystem__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./components/ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
+/* harmony import */ var _components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./components/KeyboardShortcuts */ "./src/renderer/components/KeyboardShortcuts.tsx");
+/* harmony import */ var _types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./types/UnifiedTypes */ "./src/renderer/types/UnifiedTypes.ts");
 
 // src/renderer/App.tsx - Version modifiée pour Supabase
+
 
 
 
@@ -108,6 +110,7 @@ const App = () => {
     const [selectedDocumentForBorrow, setSelectedDocumentForBorrow] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
     const [editingDocument, setEditingDocument] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
     const [showReportsModal, setShowReportsModal] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [showStatisticsModal, setShowStatisticsModal] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [error, setError] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
     (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
@@ -536,8 +539,8 @@ const App = () => {
                         setCurrentUser(appUser);
                         setCurrentInstitution(appInstitution);
                         // Créer les versions unifiées
-                        setUnifiedUser((0,_types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_27__.convertToUnifiedUser)(localUser, 'offline'));
-                        setUnifiedInstitution((0,_types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_27__.convertToUnifiedInstitution)(institution || {
+                        setUnifiedUser((0,_types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_28__.convertToUnifiedUser)(localUser, 'offline'));
+                        setUnifiedInstitution((0,_types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_28__.convertToUnifiedInstitution)(institution || {
                             id: 'default-offline',
                             name: 'Ma Bibliothèque',
                             code: localUser.institutionCode,
@@ -971,16 +974,21 @@ const App = () => {
     };
     // Gérer l'affichage avec TitleBar toujours visible
     const renderAuthenticatedContent = () => {
-        // Écran de configuration initiale
+        // Écran de configuration initiale - sans TitleBar
         if (currentView === 'initial_setup') {
-            return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_InitialSetup__WEBPACK_IMPORTED_MODULE_16__.InitialSetup, { onComplete: handleInitialSetup });
+            return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_InitialSetup__WEBPACK_IMPORTED_MODULE_16__.InitialSetup, { onComplete: handleInitialSetup, onClose: () => window.electronAPI?.closeWindow?.() });
         }
+        // Tous les autres écrans auront la TitleBar
+        return null; // Sera géré dans renderMainContent
+    };
+    // Gérer le contenu principal avec TitleBar
+    const renderMainContent = () => {
         if (!isAuthenticated) {
             if (currentView === 'institution_setup') {
                 return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_InstitutionSetup__WEBPACK_IMPORTED_MODULE_15__.InstitutionSetup, { institutionCode: institutionCode, institution: currentInstitution, onComplete: () => {
                         setCurrentView('auth');
                         alert('Votre établissement a été créé avec succès ! Vous pouvez maintenant vous connecter.');
-                    } }));
+                    }, onClose: () => window.electronAPI?.closeWindow?.() }));
             }
             return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_EnhancedAuthentication__WEBPACK_IMPORTED_MODULE_14__.EnhancedAuthentication, { onLogin: handleAuthentication });
         }
@@ -1035,10 +1043,15 @@ const App = () => {
     if (isAppLocked || needsPasswordSetup) {
         return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_AppPasswordScreen__WEBPACK_IMPORTED_MODULE_17__.AppPasswordScreen, { onUnlock: handleAppUnlock, onSkip: needsPasswordSetup ? handlePasswordSetup : undefined, onClose: () => window.electronAPI?.closeWindow?.(), isSetup: needsPasswordSetup }));
     }
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_25__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_26__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, { onRefresh: refreshData, isAuthenticated: isAuthenticated }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-container", children: isAuthenticated ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(AppContent, { isDemoMode: isDemoMode, currentView: currentView, setCurrentView: setCurrentView, isLoading: isLoading, error: error, setError: setError, renderCurrentView: renderCurrentView, showBorrowModal: showBorrowModal, selectedDocumentForBorrow: selectedDocumentForBorrow, closeBorrowModal: closeBorrowModal, handleBorrow: handleBorrow, handleReturn: handleReturn, handleAddBorrower: handleAddBorrower, refreshData: refreshData, supabaseService: supabaseService, borrowers: borrowers, documents: documents, borrowedDocuments: borrowedDocuments, showReportsModal: showReportsModal, setShowReportsModal: setShowReportsModal, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution, unifiedUser: unifiedUser, unifiedInstitution: unifiedInstitution, isAuthenticated: isAuthenticated, onLogout: handleLogout })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-container", children: renderAuthenticatedContent() })) })] }) }) }));
+    // Vérifier si on doit afficher l'écran de configuration initiale sans TitleBar
+    const initialSetupContent = renderAuthenticatedContent();
+    if (initialSetupContent) {
+        return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_26__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_27__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app", children: initialSetupContent }) }) }));
+    }
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_26__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_27__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, { onRefresh: refreshData, isAuthenticated: isAuthenticated }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-container", children: isAuthenticated ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(AppContent, { isDemoMode: isDemoMode, currentView: currentView, setCurrentView: setCurrentView, isLoading: isLoading, error: error, setError: setError, renderCurrentView: renderCurrentView, showBorrowModal: showBorrowModal, selectedDocumentForBorrow: selectedDocumentForBorrow, closeBorrowModal: closeBorrowModal, handleBorrow: handleBorrow, handleReturn: handleReturn, handleAddBorrower: handleAddBorrower, refreshData: refreshData, supabaseService: supabaseService, borrowers: borrowers, documents: documents, borrowedDocuments: borrowedDocuments, showReportsModal: showReportsModal, setShowReportsModal: setShowReportsModal, showStatisticsModal: showStatisticsModal, setShowStatisticsModal: setShowStatisticsModal, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution, unifiedUser: unifiedUser, unifiedInstitution: unifiedInstitution, isAuthenticated: isAuthenticated, onLogout: handleLogout })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-container", children: renderMainContent() })) })] }) }) }));
 };
-const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error, setError, renderCurrentView, showBorrowModal, selectedDocumentForBorrow, closeBorrowModal, handleBorrow, handleReturn, handleAddBorrower, refreshData, supabaseService, borrowers, documents, borrowedDocuments, showReportsModal, setShowReportsModal, stats, currentUser, currentInstitution, unifiedUser, unifiedInstitution, isAuthenticated, onLogout }) => {
-    const { info } = (0,_components_ToastSystem__WEBPACK_IMPORTED_MODULE_25__.useQuickToast)();
+const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error, setError, renderCurrentView, showBorrowModal, selectedDocumentForBorrow, closeBorrowModal, handleBorrow, handleReturn, handleAddBorrower, refreshData, supabaseService, borrowers, documents, borrowedDocuments, showReportsModal, setShowReportsModal, showStatisticsModal, setShowStatisticsModal, stats, currentUser, currentInstitution, unifiedUser, unifiedInstitution, isAuthenticated, onLogout }) => {
+    const { info } = (0,_components_ToastSystem__WEBPACK_IMPORTED_MODULE_26__.useQuickToast)();
     const [demoNotificationShown, setDemoNotificationShown] = react__WEBPACK_IMPORTED_MODULE_1___default().useState(false);
     react__WEBPACK_IMPORTED_MODULE_1___default().useEffect(() => {
         if (isDemoMode && !demoNotificationShown) {
@@ -1053,10 +1066,13 @@ const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error,
                     if (view === 'reports') {
                         setShowReportsModal(true);
                     }
+                    else if (view === 'statistics') {
+                        setShowStatisticsModal(true);
+                    }
                     else {
                         setCurrentView(view);
                     }
-                }, stats: stats, currentUser: unifiedUser, currentInstitution: unifiedInstitution, onLogout: onLogout }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("main", { className: "main-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-wrapper", children: [isLoading && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Chargement..." })] })), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "error-banner", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => setError(''), children: "\u00D7" })] })), renderCurrentView()] }) }), showBorrowModal && selectedDocumentForBorrow && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowDocument__WEBPACK_IMPORTED_MODULE_8__.BorrowDocument, { document: selectedDocumentForBorrow, borrowers: borrowers, onBorrow: handleBorrow, onReturn: handleReturn, onCancel: closeBorrowModal, onAddBorrower: handleAddBorrower })), showReportsModal && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ReportsManager__WEBPACK_IMPORTED_MODULE_24__.ReportsManager, { documents: documents, borrowers: borrowers, borrowHistory: borrowedDocuments, onClose: () => setShowReportsModal(false) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+                }, stats: stats, currentUser: unifiedUser, currentInstitution: unifiedInstitution, onLogout: onLogout }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("main", { className: "main-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-wrapper", children: [isLoading && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Chargement..." })] })), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "error-banner", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => setError(''), children: "\u00D7" })] })), renderCurrentView()] }) }), showBorrowModal && selectedDocumentForBorrow && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowDocument__WEBPACK_IMPORTED_MODULE_8__.BorrowDocument, { document: selectedDocumentForBorrow, borrowers: borrowers, onBorrow: handleBorrow, onReturn: handleReturn, onCancel: closeBorrowModal, onAddBorrower: handleAddBorrower })), showReportsModal && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ReportsManager__WEBPACK_IMPORTED_MODULE_24__.ReportsManager, { documents: documents, borrowers: borrowers, borrowHistory: borrowedDocuments, onClose: () => setShowReportsModal(false) })), showStatisticsModal && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_StatisticsManager__WEBPACK_IMPORTED_MODULE_25__.StatisticsManager, { documents: documents, borrowers: borrowers, borrowHistory: borrowedDocuments, onClose: () => setShowStatisticsModal(false) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .app {
           height: 100vh;
           display: flex;
@@ -1070,6 +1086,15 @@ const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error,
           display: flex;
           overflow: hidden;
         }
+
+        .auth-container {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          overflow-y: auto;
+          overflow-x: hidden;
+          background: #FAF9F6;
+        }
         
         .main-content {
           flex: 1;
@@ -1082,10 +1107,12 @@ const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error,
         
         .content-wrapper {
           flex: 1;
-          overflow: hidden;
+          overflow-y: auto;
+          overflow-x: hidden;
           border-radius: 12px 0 0 0;
           background: #FAF9F6;
           box-shadow: -2px 0 8px rgba(0, 0, 0, 0.08);
+          max-height: 100vh;
         }
 
         .loading-overlay {
@@ -7486,7 +7513,7 @@ const EmptyState = ({ hasDocuments, searchQuery, filterStatus, onClearFilters })
                     ? `Aucun résultat pour "${searchQuery}"`
                     : 'Aucun document ne correspond aux filtres sélectionnés.' }), (searchQuery || filterStatus !== 'all') && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "clear-filters", onClick: onClearFilters, children: "Effacer les filtres" }))] }));
 // Main Component
-const BorrowedDocuments = ({ documents, onReturn }) => {
+const BorrowedDocuments = ({ documents, onReturn, onClose }) => {
     const [searchQuery, setSearchQuery] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
     const [sortBy, setSortBy] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('date');
     const [filterStatus, setFilterStatus] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('all');
@@ -12744,19 +12771,20 @@ const EnhancedAuthentication = ({ onLogin }) => {
         });
         setError('');
     };
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-background", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "pattern-overlay" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-shapes", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-3" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "main-title", children: "Biblioth\u00E8que Locale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "main-subtitle", children: "Connectez-vous ou cr\u00E9ez votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "main-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-tabs", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab ${mode === 'login' ? 'active' : ''}`, onClick: () => { setMode('login'); setStep(1); setError(''); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Connexion" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab ${mode === 'create_institution' ? 'active' : ''}`, onClick: () => { setMode('create_institution'); setStep(1); setError(''); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Nouvel \u00C9tablissement" })] })] }), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "message error", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error })] })), success && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "message success", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: success })] })), mode === 'login' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "login-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Connexion Locale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Connectez-vous avec vos identifiants locaux" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Email ou nom d'utilisateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: loginData.email, onChange: (e) => setLoginData(prev => ({ ...prev, email: e.target.value })), placeholder: "admin@local", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Mot de passe" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: loginData.password, onChange: (e) => setLoginData(prev => ({ ...prev, password: e.target.value })), placeholder: "Votre mot de passe", required: true, disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "toggle-password", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Code d'acc\u00E8s \u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: loginData.institutionCode, onChange: (e) => setLoginData(prev => ({ ...prev, institutionCode: e.target.value })), placeholder: "Code d'acc\u00E8s de votre \u00E9tablissement", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "submit-btn", disabled: !loginData.email || !loginData.password || !loginData.institutionCode || isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), "Connexion..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }), "Se connecter"] })) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "quick-login-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "divider", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Connexions rapides" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "quick-login-grid", children: defaultCredentials.map((cred, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "quick-login-btn", onClick: () => handleQuickLogin(cred.email, cred.password), disabled: isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "credential-icon", children: [cred.role === 'Administrateur' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), cred.role === 'Bibliothécaire' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 }), cred.role === 'Utilisateur' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 16 }), cred.role === 'Démo' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 16 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "credential-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "role", children: cred.role }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "email", children: cred.email })] })] }, index))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "login-hint", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { children: ["\uD83D\uDCA1 ", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: "Astuce :" }), " Cliquez sur une carte pour remplir automatiquement les champs"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "\uD83D\uDD10 Ou utilisez n'importe quel email avec le mot de passe \"demo\"" })] })] })] })), mode === 'create_institution' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-fill", style: { width: `${(step / 4) * 100}%` } }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-steps", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 1 ? 'active' : ''} ${step === 1 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Nom" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 2 ? 'active' : ''} ${step === 2 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Type" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 3 ? 'active' : ''} ${step === 3 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Lieu" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 4 ? 'active' : ''} ${step === 4 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Admin" })] })] })] }), step === 1 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Nom de votre \u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Choisissez un nom unique pour identifier votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: (e) => { e.preventDefault(); nextStep(); }, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 18 }), "Nom de l'\u00E9tablissement *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.name, onChange: (e) => setInstitutionData(prev => ({ ...prev, name: e.target.value })), placeholder: "\u00C9cole Primaire Martin Luther King", required: true, disabled: isLoading, autoFocus: true }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Ce nom appara\u00EEtra dans l'interface de votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-info-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "info-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Conseils pour le nom" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("ul", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Utilisez le nom officiel de votre \u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "\u00C9vitez les abr\u00E9viations trop complexes" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Vous pourrez le modifier plus tard si n\u00E9cessaire" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "form-actions", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", className: "submit-btn primary", disabled: !institutionData.name.trim() || isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Continuer" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 16 })] }) })] })] })), step === 2 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Type d'\u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "S\u00E9lectionnez le type qui correspond le mieux \u00E0 votre organisation" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: (e) => { e.preventDefault(); nextStep(); }, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 18 }), "Choisissez votre type *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "type-selector", children: institutionTypes.map((type) => {
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "enhanced-auth-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-background", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "pattern-overlay" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-shapes", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-3" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "main-title", children: "Biblioth\u00E8que Locale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "main-subtitle", children: "Connectez-vous ou cr\u00E9ez votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "main-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-tabs", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab ${mode === 'login' ? 'active' : ''}`, onClick: () => { setMode('login'); setStep(1); setError(''); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Connexion" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab ${mode === 'create_institution' ? 'active' : ''}`, onClick: () => { setMode('create_institution'); setStep(1); setError(''); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Nouvel \u00C9tablissement" })] })] }), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "message error", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error })] })), success && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "message success", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: success })] })), mode === 'login' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "login-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Connexion Locale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Connectez-vous avec vos identifiants locaux" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Email ou nom d'utilisateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: loginData.email, onChange: (e) => setLoginData(prev => ({ ...prev, email: e.target.value })), placeholder: "admin@local", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Mot de passe" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: loginData.password, onChange: (e) => setLoginData(prev => ({ ...prev, password: e.target.value })), placeholder: "Votre mot de passe", required: true, disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "toggle-password", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Code d'acc\u00E8s \u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: loginData.institutionCode, onChange: (e) => setLoginData(prev => ({ ...prev, institutionCode: e.target.value })), placeholder: "Code d'acc\u00E8s de votre \u00E9tablissement", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "submit-btn", disabled: !loginData.email || !loginData.password || !loginData.institutionCode || isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), "Connexion..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }), "Se connecter"] })) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "quick-login-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "divider", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Connexions rapides" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "quick-login-grid", children: defaultCredentials.map((cred, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "quick-login-btn", onClick: () => handleQuickLogin(cred.email, cred.password), disabled: isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "credential-icon", children: [cred.role === 'Administrateur' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), cred.role === 'Bibliothécaire' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 }), cred.role === 'Utilisateur' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 16 }), cred.role === 'Démo' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 16 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "credential-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "role", children: cred.role }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "email", children: cred.email })] })] }, index))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "login-hint", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { children: ["\uD83D\uDCA1 ", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: "Astuce :" }), " Cliquez sur une carte pour remplir automatiquement les champs"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "\uD83D\uDD10 Ou utilisez n'importe quel email avec le mot de passe \"demo\"" })] })] })] })), mode === 'create_institution' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-fill", style: { width: `${(step / 4) * 100}%` } }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-steps", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 1 ? 'active' : ''} ${step === 1 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Nom" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 2 ? 'active' : ''} ${step === 2 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Type" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 3 ? 'active' : ''} ${step === 3 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Lieu" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 4 ? 'active' : ''} ${step === 4 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Admin" })] })] })] }), step === 1 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Nom de votre \u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Choisissez un nom unique pour identifier votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: (e) => { e.preventDefault(); nextStep(); }, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 18 }), "Nom de l'\u00E9tablissement *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.name, onChange: (e) => setInstitutionData(prev => ({ ...prev, name: e.target.value })), placeholder: "\u00C9cole Primaire Martin Luther King", required: true, disabled: isLoading, autoFocus: true }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Ce nom appara\u00EEtra dans l'interface de votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-info-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "info-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Conseils pour le nom" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("ul", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Utilisez le nom officiel de votre \u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "\u00C9vitez les abr\u00E9viations trop complexes" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Vous pourrez le modifier plus tard si n\u00E9cessaire" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "form-actions", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", className: "submit-btn primary", disabled: !institutionData.name.trim() || isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Continuer" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 16 })] }) })] })] })), step === 2 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Type d'\u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "S\u00E9lectionnez le type qui correspond le mieux \u00E0 votre organisation" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: (e) => { e.preventDefault(); nextStep(); }, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 18 }), "Choisissez votre type *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "type-selector", children: institutionTypes.map((type) => {
                                                                             const IconComponent = type.icon;
                                                                             const isSelected = institutionData.type === type.value;
                                                                             return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: `type-option ${isSelected ? 'selected' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "radio", name: "type", value: type.value, checked: isSelected, onChange: (e) => setInstitutionData(prev => ({ ...prev, type: e.target.value })), disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "type-card-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "type-icon-wrapper", style: { backgroundColor: isSelected ? type.color : 'rgba(110, 110, 110, 0.1)' }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(IconComponent, { size: 20, color: isSelected ? '#F3EED9' : type.color }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "type-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "type-name", children: type.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "type-description", children: [type.value === 'school' && 'Établissement scolaire', type.value === 'university' && 'Enseignement supérieur', type.value === 'library' && 'Bibliothèque publique', type.value === 'other' && 'Autre organisation'] })] }), isSelected && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "selection-indicator", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 18, color: type.color }) }))] })] }, type.value));
                                                                         }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: previousStep, className: "submit-btn secondary", disabled: isLoading, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Retour" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", className: "submit-btn primary", disabled: !institutionData.type || isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Continuer" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 16 })] })] })] })] })), step === 3 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Localisation" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Indiquez o\u00F9 se trouve votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: (e) => { e.preventDefault(); nextStep(); }, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 18 }), "Ville *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.city, onChange: (e) => setInstitutionData(prev => ({ ...prev, city: e.target.value })), placeholder: "Paris", required: true, disabled: isLoading, autoFocus: true }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Ville o\u00F9 se trouve votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "establishment-preview", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "R\u00E9capitulatif" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-label", children: "Nom :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-value", children: institutionData.name })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-label", children: "Type :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-value", children: institutionTypes.find(t => t.value === institutionData.type)?.label })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-label", children: "Ville :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-value", children: institutionData.city || 'À compléter' })] })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: previousStep, className: "submit-btn secondary", disabled: isLoading, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Retour" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", className: "submit-btn primary", disabled: !institutionData.city.trim() || isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Continuer" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 16 })] })] })] })] })), step === 4 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Compte administrateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Cr\u00E9ez le compte administrateur principal de votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 18 }), "Pr\u00E9nom *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.adminFirstName, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminFirstName: e.target.value })), placeholder: "Jean", required: true, disabled: isLoading, autoFocus: true }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 18 }), "Nom *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.adminLastName, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminLastName: e.target.value })), placeholder: "Dupont", required: true, disabled: isLoading }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 18 }), "Email administrateur *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: institutionData.adminEmail, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminEmail: e.target.value })), placeholder: "admin@etablissement.fr", required: true, disabled: isLoading }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Utilis\u00E9 pour la connexion \u00E0 votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 18 }), "Mot de passe administrateur *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: institutionData.adminPassword, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminPassword: e.target.value })), placeholder: "Mot de passe s\u00E9curis\u00E9", required: true, minLength: 3, disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "toggle-password", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Minimum 3 caract\u00E8res requis" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "final-summary", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "R\u00E9capitulatif final" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h5", { children: "\u00C9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: institutionData.name }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { children: [institutionTypes.find(t => t.value === institutionData.type)?.label, " \u2022 ", institutionData.city] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h5", { children: "Administrateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { children: [institutionData.adminFirstName, " ", institutionData.adminLastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: institutionData.adminEmail })] })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "admin-info", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Privil\u00E8ges administrateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Ce compte aura tous les privil\u00E8ges pour g\u00E9rer votre biblioth\u00E8que locale : ajout de livres, gestion des utilisateurs, param\u00E8tres syst\u00E8me." })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: previousStep, className: "submit-btn secondary", disabled: isLoading, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Retour" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "submit-btn primary", disabled: !institutionData.adminFirstName || !institutionData.adminLastName ||
                                                                             !institutionData.adminEmail || !institutionData.adminPassword ||
                                                                             institutionData.adminPassword.length < 3 || isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Cr\u00E9ation..." })] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Cr\u00E9er l'\u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 16 })] })) })] })] })] }))] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-sidebar", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 32 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Base de donn\u00E9es locale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Vos donn\u00E9es sont stock\u00E9es en s\u00E9curit\u00E9 sur votre ordinateur" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 32 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Fonctionne hors ligne" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Aucune connexion Internet requise pour utiliser l'application" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_22__["default"], { size: 32 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Gestion compl\u00E8te" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "G\u00E9rez vos livres, emprunts et utilisateurs facilement" })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
-        .auth-container {
-          min-height: 100vh;
+        .enhanced-auth-container {
+          min-height: calc(100vh - 40px);
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           position: relative;
+          overflow-y: auto;
           overflow-x: hidden;
-          /* Retirer: overflow-y: auto; - laissez le scroll naturel */
+          padding: 20px 0;
         }
 
         .auth-background {
@@ -12833,7 +12861,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
         .auth-content {
           position: relative;
           z-index: 10;
-          min-height: 100vh; /* Garder min-height au lieu de height */
+          min-height: calc(100vh - 80px);
           display: flex;
           flex-direction: column;
           padding: 20px;
@@ -14808,23 +14836,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/database.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/cloud.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/network.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/monitor.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/settings.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/hard-drive.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check-circle.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/info.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/globe.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/wifi.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-circle.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/arrow-right.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/monitor.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/settings.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/hard-drive.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check-circle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/info.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/globe.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/wifi.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-circle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/arrow-right.mjs");
 
 // src/renderer/components/InitialSetup.tsx - Version redesignée
 
 
-const InitialSetup = ({ onComplete }) => {
+const InitialSetup = ({ onComplete, onClose }) => {
     const [selectedMode, setSelectedMode] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('offline');
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "initial-setup", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setup-background", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setup-pattern" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-elements", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], {}) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], {}) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], {}) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setup-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setup-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setup-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 48 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "setup-title", children: "Configuration Initiale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setup-subtitle", children: "Configurez le mode de fonctionnement de votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-selection", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h2", { className: "section-title", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 24 }), "Choisissez votre mode de fonctionnement"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-options", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `mode-card ${selectedMode === 'offline' ? 'selected' : ''}`, onClick: () => setSelectedMode('offline'), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "mode-icon offline", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 32 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Mode Hors Ligne" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "mode-status recommended", children: "Recommand\u00E9" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "mode-description", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Utilise une base de donn\u00E9es locale (SQLite) pour stocker toutes les donn\u00E9es. Fonctionne sans connexion Internet et peut \u00EAtre partag\u00E9 en r\u00E9seau local." }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "mode-features", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Fonctionne sans Internet" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Donn\u00E9es stock\u00E9es localement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Partage en r\u00E9seau local" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Performance optimale" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Contr\u00F4le total des donn\u00E9es" })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-ideal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Id\u00E9al pour : Biblioth\u00E8ques locales, \u00E9tablissements scolaires, usage priv\u00E9" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-card disabled", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "mode-icon online disabled", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 32 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Mode En Ligne" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "mode-status coming-soon", children: "Bient\u00F4t disponible" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "mode-description", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Utilise Supabase pour la synchronisation cloud et le partage multi-\u00E9tablissements. N\u00E9cessite une connexion Internet stable." }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "mode-features", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature disabled", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Synchronisation cloud" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature disabled", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Multi-\u00E9tablissements" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature disabled", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Acc\u00E8s depuis partout" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature disabled", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Sauvegarde automatique" })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-ideal disabled", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Cette fonctionnalit\u00E9 sera disponible dans une prochaine version" })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "info-panel", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Informations importantes" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "info-content", children: selectedMode === 'offline' ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: "Mode Hors Ligne s\u00E9lectionn\u00E9 :" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("ul", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Vos donn\u00E9es seront stock\u00E9es localement sur cet ordinateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "L'application fonctionnera sans connexion Internet" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Vous pouvez partager la base de donn\u00E9es sur votre r\u00E9seau local" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Ce choix peut \u00EAtre modifi\u00E9 ult\u00E9rieurement dans les param\u00E8tres" })] })] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: "Mode En Ligne :" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("ul", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Fonctionnalit\u00E9 en cours de d\u00E9veloppement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Permettra la synchronisation cloud via Supabase" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Gestion multi-\u00E9tablissements" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Disponible dans une prochaine mise \u00E0 jour" })] })] })) })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setup-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "continue-btn", onClick: () => onComplete(selectedMode), disabled: selectedMode === 'online', children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["Continuer avec le mode ", selectedMode === 'offline' ? 'Hors Ligne' : 'En Ligne'] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 20 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setup-note", children: "Vous pourrez modifier ce choix plus tard dans les param\u00E8tres de l'application" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "initial-setup", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setup-background", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setup-pattern" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-elements", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], {}) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], {}) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], {}) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setup-container", children: [onClose && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-app-btn", onClick: onClose, title: "Fermer l'application", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setup-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "setup-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 48 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "setup-title", children: "Configuration Initiale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setup-subtitle", children: "Configurez le mode de fonctionnement de votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-selection", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h2", { className: "section-title", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 24 }), "Choisissez votre mode de fonctionnement"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-options", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `mode-card ${selectedMode === 'offline' ? 'selected' : ''}`, onClick: () => setSelectedMode('offline'), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "mode-icon offline", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 32 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Mode Hors Ligne" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "mode-status recommended", children: "Recommand\u00E9" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "mode-description", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Utilise une base de donn\u00E9es locale (SQLite) pour stocker toutes les donn\u00E9es. Fonctionne sans connexion Internet et peut \u00EAtre partag\u00E9 en r\u00E9seau local." }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "mode-features", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Fonctionne sans Internet" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Donn\u00E9es stock\u00E9es localement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Partage en r\u00E9seau local" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Performance optimale" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Contr\u00F4le total des donn\u00E9es" })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-ideal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Id\u00E9al pour : Biblioth\u00E8ques locales, \u00E9tablissements scolaires, usage priv\u00E9" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-card disabled", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "mode-icon online disabled", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 32 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Mode En Ligne" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "mode-status coming-soon", children: "Bient\u00F4t disponible" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "mode-description", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Utilise Supabase pour la synchronisation cloud et le partage multi-\u00E9tablissements. N\u00E9cessite une connexion Internet stable." }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "mode-features", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature disabled", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Synchronisation cloud" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature disabled", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Multi-\u00E9tablissements" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature disabled", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Acc\u00E8s depuis partout" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature disabled", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Sauvegarde automatique" })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mode-ideal disabled", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Cette fonctionnalit\u00E9 sera disponible dans une prochaine version" })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "info-panel", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Informations importantes" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "info-content", children: selectedMode === 'offline' ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: "Mode Hors Ligne s\u00E9lectionn\u00E9 :" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("ul", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Vos donn\u00E9es seront stock\u00E9es localement sur cet ordinateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "L'application fonctionnera sans connexion Internet" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Vous pouvez partager la base de donn\u00E9es sur votre r\u00E9seau local" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Ce choix peut \u00EAtre modifi\u00E9 ult\u00E9rieurement dans les param\u00E8tres" })] })] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: "Mode En Ligne :" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("ul", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Fonctionnalit\u00E9 en cours de d\u00E9veloppement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Permettra la synchronisation cloud via Supabase" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Gestion multi-\u00E9tablissements" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Disponible dans une prochaine mise \u00E0 jour" })] })] })) })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "setup-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "continue-btn", onClick: () => onComplete(selectedMode), disabled: selectedMode === 'online', children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["Continuer avec le mode ", selectedMode === 'offline' ? 'Hors Ligne' : 'En Ligne'] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 20 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "setup-note", children: "Vous pourrez modifier ce choix plus tard dans les param\u00E8tres de l'application" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .initial-setup {
           position: fixed;
           top: 0;
@@ -15276,6 +15305,30 @@ const InitialSetup = ({ onComplete }) => {
         .setup-container::-webkit-scrollbar-thumb:hover {
           background: #2E453A;
         }
+
+        .close-app-btn {
+          position: absolute;
+          top: 16px;
+          right: 16px;
+          width: 40px;
+          height: 40px;
+          border: none;
+          background: rgba(243, 238, 217, 0.1);
+          color: #6E6E6E;
+          border-radius: 10px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+          z-index: 10;
+        }
+
+        .close-app-btn:hover {
+          background: rgba(220, 38, 38, 0.1);
+          color: #DC2626;
+          transform: scale(1.05);
+        }
       ` })] }));
 };
 
@@ -15522,7 +15575,8 @@ L'équipe de ${institution?.name}
           padding: 20px;
           max-width: 1000px;
           margin: 0 auto;
-          overflow: hidden;
+          overflow-y: auto;
+          overflow-x: hidden;
         }
 
         .close-app-btn {
@@ -20544,21 +20598,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/file-text.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/history.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/settings.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/hard-drive.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/heart.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/info.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/bar-chart-3.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/briefcase.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-right.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-left.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/log-out.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/zap.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trending-up.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/pie-chart.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/history.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/settings.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/hard-drive.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/heart.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/info.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/bar-chart-3.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/briefcase.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-right.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-left.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/log-out.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/zap.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trending-up.mjs");
 
 
 
@@ -20621,9 +20676,17 @@ const Sidebar = ({ currentView, onNavigate, onLogout, stats, currentUser, curren
             highlight: true
         },
         {
+            id: 'statistics',
+            label: 'Statistiques Avancées',
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"],
+            description: 'Analyses et insights détaillés',
+            gradient: 'linear-gradient(135deg, #3E5C49 0%, #2E453A 100%)',
+            highlight: true
+        },
+        {
             id: 'history',
             label: 'Historique Complet',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"],
             description: 'Tous les emprunts et retours',
             gradient: 'linear-gradient(135deg, #607D8B 0%, #455A64 100%)'
         }
@@ -20632,21 +20695,21 @@ const Sidebar = ({ currentView, onNavigate, onLogout, stats, currentUser, curren
         {
             id: 'app-settings',
             label: 'Paramètres',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"],
             description: 'Configuration de l\'application',
             gradient: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)'
         },
         {
             id: 'backup-manager',
             label: 'Sauvegardes',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"],
             description: 'Gérer les sauvegardes de données',
             gradient: 'linear-gradient(135deg, #0891B2 0%, #0E7490 100%)'
         },
         {
             id: 'donation',
             label: 'Soutenir le projet',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"],
             description: 'Faire une donation',
             gradient: 'linear-gradient(135deg, #E91E63 0%, #C2185B 100%)',
             support: true
@@ -20654,7 +20717,7 @@ const Sidebar = ({ currentView, onNavigate, onLogout, stats, currentUser, curren
         {
             id: 'about',
             label: 'À propos',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"],
             description: 'Développeur & crédits',
             gradient: 'linear-gradient(135deg, #607D8B 0%, #455A64 100%)'
         }
@@ -20677,14 +20740,14 @@ const Sidebar = ({ currentView, onNavigate, onLogout, stats, currentUser, curren
         {
             label: 'Empruntés',
             value: stats.borrowedDocuments,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"],
             color: '#C2571B',
             percentage: stats.totalDocuments > 0 ? Math.round((stats.borrowedDocuments / stats.totalDocuments) * 100) : 0
         },
         {
             label: 'En retard',
             value: stats.overdueDocuments,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"],
             color: '#DC2626',
             urgent: stats.overdueDocuments > 0
         }
@@ -20693,13 +20756,13 @@ const Sidebar = ({ currentView, onNavigate, onLogout, stats, currentUser, curren
         {
             label: 'Étudiants',
             value: stats.totalStudents,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"],
             color: '#3E5C49'
         },
         {
             label: 'Personnel',
             value: stats.totalStaff,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"],
             color: '#C2571B'
         }
     ];
@@ -20708,15 +20771,15 @@ const Sidebar = ({ currentView, onNavigate, onLogout, stats, currentUser, curren
             return 0;
         return Math.round((stats.borrowedDocuments / stats.totalDocuments) * 100);
     };
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `sidebar ${isCollapsed ? 'collapsed' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "sidebar-toggle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "toggle-button", onClick: () => setIsCollapsed(!isCollapsed), title: isCollapsed ? 'Développer le menu' : 'Réduire le menu', children: isCollapsed ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 18 }) }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-brand", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "brand-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "brand-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "brand-title", children: "Biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "brand-subtitle", children: "Syst\u00E8me de gestion moderne" })] })] }))] }), currentUser && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-profile-section", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-profile", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-avatar", onClick: () => onNavigate('user-profile'), title: "Voir le profil utilisateur", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "avatar-text", children: currentUser.firstName?.charAt(0)?.toUpperCase() || currentUser.email?.charAt(0)?.toUpperCase() || 'U' }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-name", children: currentUser.firstName ? `${currentUser.firstName} ${currentUser.lastName || ''}`.trim() : currentUser.email }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-role", children: currentUser.role || 'Utilisateur' }), currentInstitution && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-institution", children: currentInstitution.name }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "user-settings-btn", onClick: () => onNavigate('user-profile'), title: "Modifier le profil", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 16 }) }), onLogout && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "user-logout-btn", onClick: onLogout, title: "Se d\u00E9connecter", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 16 }) }))] })] }))] }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("nav", { className: "sidebar-nav", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Principal" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: menuItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.urgent ? 'urgent' : ''} ${item.highlight ? 'highlight' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `sidebar ${isCollapsed ? 'collapsed' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "sidebar-toggle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "toggle-button", onClick: () => setIsCollapsed(!isCollapsed), title: isCollapsed ? 'Développer le menu' : 'Réduire le menu', children: isCollapsed ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 18 }) }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-brand", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "brand-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "brand-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "brand-title", children: "Biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "brand-subtitle", children: "Syst\u00E8me de gestion moderne" })] })] }))] }), currentUser && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-profile-section", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-profile", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-avatar", onClick: () => onNavigate('user-profile'), title: "Voir le profil utilisateur", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "avatar-text", children: currentUser.firstName?.charAt(0)?.toUpperCase() || currentUser.email?.charAt(0)?.toUpperCase() || 'U' }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-name", children: currentUser.firstName ? `${currentUser.firstName} ${currentUser.lastName || ''}`.trim() : currentUser.email }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-role", children: currentUser.role || 'Utilisateur' }), currentInstitution && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-institution", children: currentInstitution.name }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "user-settings-btn", onClick: () => onNavigate('user-profile'), title: "Modifier le profil", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 16 }) }), onLogout && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "user-logout-btn", onClick: onLogout, title: "Se d\u00E9connecter", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 16 }) }))] })] }))] }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("nav", { className: "sidebar-nav", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Principal" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: menuItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.urgent ? 'urgent' : ''} ${item.highlight ? 'highlight' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
                                                     '--item-gradient': item.gradient
-                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''} ${item.urgent ? 'urgent' : ''}`, children: item.count })), item.highlight && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-highlight", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 14 }) }))] })), isCollapsed && item.badge && stats.borrowedDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-indicator ${item.urgent ? 'urgent' : ''}` }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Actions" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: actionItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.highlight ? 'highlight' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
+                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''} ${item.urgent ? 'urgent' : ''}`, children: item.count })), item.highlight && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-highlight", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_22__["default"], { size: 14 }) }))] })), isCollapsed && item.badge && stats.borrowedDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-indicator ${item.urgent ? 'urgent' : ''}` }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Actions" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: actionItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.highlight ? 'highlight' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
                                                     '--item-gradient': item.gradient
-                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''}`, children: item.count })), item.highlight && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-highlight", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 14 }) }))] }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Rapports" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: reportItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
+                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''}`, children: item.count })), item.highlight && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-highlight", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_22__["default"], { size: 14 }) }))] }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Rapports" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: reportItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
                                                     '--item-gradient': item.gradient
                                                 }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Communaut\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: supportItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.support ? 'support' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
                                                     '--item-gradient': item.gradient
-                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }))] }) }, item.id))) })] })] }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Statistiques de collection" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "popularity-score", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_22__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [getPopularityScore(), "% popularit\u00E9"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stats-grid", children: quickStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `stat-card ${stat.urgent ? 'urgent' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-label", children: stat.label }), stat.trend && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-trend", children: stat.trend })), stat.percentage !== undefined && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-percentage", children: [stat.percentage, "%"] }))] })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "users-stats", children: userStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 18 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-label", children: stat.label })] })] }, index))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "total-users", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "total-label", children: "Total des utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "total-value", children: stats.totalBorrowers })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Activit\u00E9 r\u00E9cente" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-pulse" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-summary", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot available" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.availableDocuments, " documents pr\u00EAts \u00E0 emprunter"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot borrowed" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.borrowedDocuments, " emprunts en cours"] })] }), stats.overdueDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item urgent", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot overdue" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.overdueDocuments, " document(s) en retard"] })] }))] })] })] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }))] }) }, item.id))) })] })] }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Statistiques de collection" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "popularity-score", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_23__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [getPopularityScore(), "% popularit\u00E9"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stats-grid", children: quickStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `stat-card ${stat.urgent ? 'urgent' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-label", children: stat.label }), stat.trend && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-trend", children: stat.trend })), stat.percentage !== undefined && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-percentage", children: [stat.percentage, "%"] }))] })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "users-stats", children: userStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 18 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-label", children: stat.label })] })] }, index))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "total-users", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "total-label", children: "Total des utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "total-value", children: stats.totalBorrowers })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Activit\u00E9 r\u00E9cente" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-pulse" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-summary", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot available" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.availableDocuments, " documents pr\u00EAts \u00E0 emprunter"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot borrowed" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.borrowedDocuments, " emprunts en cours"] })] }), stats.overdueDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item urgent", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot overdue" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.overdueDocuments, " document(s) en retard"] })] }))] })] })] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .sidebar {
           width: 300px;
           background: linear-gradient(180deg, #3E5C49 0%, #2E453A 100%);
@@ -21558,7 +21621,7 @@ const Sidebar = ({ currentView, onNavigate, onLogout, stats, currentUser, curren
             border-width: 2px;
           }
         }
-      ` }), !isCollapsed && stats.overdueDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "emergency-alert", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "alert-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "alert-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "alert-title", children: "Action requise" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "alert-message", children: [stats.overdueDocuments, " document(s) en retard"] })] })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+      ` }), !isCollapsed && stats.overdueDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "emergency-alert", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "alert-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "alert-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "alert-title", children: "Action requise" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "alert-message", children: [stats.overdueDocuments, " document(s) en retard"] })] })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .emergency-alert {
           margin: 16px 20px;
           background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
@@ -22205,6 +22268,1000 @@ const SmartSearch = ({ onSearch, data = [], placeholder = "Rechercher dans la bi
         }
       ` })] }));
 };
+
+
+/***/ }),
+
+/***/ "./src/renderer/components/StatisticsManager.tsx":
+/*!*******************************************************!*\
+  !*** ./src/renderer/components/StatisticsManager.tsx ***!
+  \*******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   StatisticsManager: () => (/* binding */ StatisticsManager)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/bar-chart-3.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trending-up.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/lightbulb.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/refresh-cw.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/download.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/file-text.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/activity.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/target.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/pie-chart.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/star.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-triangle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/award.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trending-down.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/calendar.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-circle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/zap.mjs");
+/* harmony import */ var _services_StatisticsService__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../services/StatisticsService */ "./src/renderer/services/StatisticsService.ts");
+/* harmony import */ var _ToastSystem__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
+
+
+
+
+
+const StatisticsManager = ({ documents, borrowers, borrowHistory, onClose }) => {
+    const [statistics, setStatistics] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+    const [selectedTab, setSelectedTab] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('overview');
+    const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const toast = (0,_ToastSystem__WEBPACK_IMPORTED_MODULE_3__.useQuickToast)();
+    const generateStatistics = () => {
+        setIsLoading(true);
+        try {
+            const stats = _services_StatisticsService__WEBPACK_IMPORTED_MODULE_2__.StatisticsService.generateDetailedStatistics(documents, borrowers, borrowHistory);
+            setStatistics(stats);
+            toast.success('Statistiques générées', 'Les statistiques ont été calculées avec succès');
+        }
+        catch (error) {
+            console.error('Erreur lors de la génération des statistiques:', error);
+            toast.error('Erreur de génération', 'Impossible de générer les statistiques: ' + error.message);
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+        generateStatistics();
+    }, [documents, borrowers, borrowHistory]);
+    const exportStatistics = (format) => {
+        if (!statistics)
+            return;
+        try {
+            let content;
+            let filename;
+            let mimeType;
+            if (format === 'csv') {
+                content = _services_StatisticsService__WEBPACK_IMPORTED_MODULE_2__.StatisticsService.exportToCSV(statistics);
+                filename = `statistiques_${new Date().toISOString().split('T')[0]}.csv`;
+                mimeType = 'text/csv;charset=utf-8';
+            }
+            else {
+                content = _services_StatisticsService__WEBPACK_IMPORTED_MODULE_2__.StatisticsService.exportToPDF(statistics);
+                filename = `statistiques_${new Date().toISOString().split('T')[0]}.html`;
+                mimeType = 'text/html;charset=utf-8';
+            }
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            toast.success('Export réussi', `Statistiques exportées en ${format.toUpperCase()}`);
+        }
+        catch (error) {
+            toast.error('Erreur d\'export', 'Impossible d\'exporter: ' + error.message);
+        }
+    };
+    const tabs = [
+        { key: 'overview', label: 'Vue d\'ensemble', icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"] },
+        { key: 'documents', label: 'Documents', icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"] },
+        { key: 'borrowers', label: 'Emprunteurs', icon: lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"] },
+        { key: 'trends', label: 'Tendances', icon: lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"] },
+        { key: 'insights', label: 'Insights', icon: lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"] }
+    ];
+    if (isLoading || !statistics) {
+        return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "statistics-manager", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "statistics-overlay", onClick: onClose }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "statistics-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 48, className: "spinning" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "G\u00E9n\u00E9ration des statistiques..." }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Analyse des donn\u00E9es en cours" })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: getStyles() })] }));
+    }
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "statistics-manager", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "statistics-overlay", onClick: onClose }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "statistics-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "statistics-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Statistiques Avanc\u00E9es" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Analyse d\u00E9taill\u00E9e des donn\u00E9es de votre biblioth\u00E8que" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "action-btn", onClick: () => exportStatistics('csv'), title: "Exporter en CSV", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), "CSV"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "action-btn", onClick: () => exportStatistics('pdf'), title: "Exporter en PDF", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }), "PDF"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-btn", onClick: onClose, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 20 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "statistics-tabs", children: tabs.map(tab => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab-btn ${selectedTab === tab.key ? 'active' : ''}`, onClick: () => setSelectedTab(tab.key), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(tab.icon, { size: 16 }), tab.label] }, tab.key))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "statistics-content", children: [selectedTab === 'overview' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(OverviewTab, { statistics: statistics })), selectedTab === 'documents' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(DocumentsTab, { statistics: statistics })), selectedTab === 'borrowers' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(BorrowersTab, { statistics: statistics })), selectedTab === 'trends' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(TrendsTab, { statistics: statistics })), selectedTab === 'insights' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(InsightsTab, { statistics: statistics }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: getStyles() })] }));
+};
+// Composants des onglets
+const OverviewTab = ({ statistics }) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tab-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metrics-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(MetricCard, { title: "Documents", value: statistics.overview.totalDocuments, icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], color: "#3E5C49" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(MetricCard, { title: "Emprunteurs", value: statistics.overview.totalBorrowers, icon: lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], color: "#C2571B" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(MetricCard, { title: "Emprunts Actifs", value: statistics.overview.activeLoans, icon: lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], color: "#2E453A" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(MetricCard, { title: "Taux d'Utilisation", value: `${statistics.overview.utilizationRate.toFixed(1)}%`, icon: lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], color: "#6B7280" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "overview-charts", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "chart-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 20 }), " R\u00E9partition des Emprunts"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "chart-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-breakdown", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "status-indicator available" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["Disponibles: ", statistics.overview.availableDocuments] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "status-indicator borrowed" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["Emprunt\u00E9s: ", statistics.overview.activeLoans] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "status-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "status-indicator overdue" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["En retard: ", statistics.overview.overdueLoans] })] })] }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "chart-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 20 }), " Performance"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "performance-metrics", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "perf-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "perf-label", children: "Dur\u00E9e moyenne d'emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "perf-value", children: [statistics.overview.averageLoanDuration, " jours"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "perf-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "perf-label", children: "Sant\u00E9 globale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "health-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "health-fill", style: { width: `${statistics.insights.performance.overallHealth}%` } }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "perf-value", children: [statistics.insights.performance.overallHealth, "%"] })] })] })] })] })] }));
+const DocumentsTab = ({ statistics }) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tab-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 20 }), " Documents les Plus Populaires"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "list-container", children: statistics.documents.mostBorrowedDocuments.slice(0, 10).map((item, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "list-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "item-rank", children: index + 1 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "item-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "item-title", children: item.document.titre }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "item-subtitle", children: item.document.auteur })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "item-value", children: [item.borrowCount, " emprunts"] })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 20 }), " Documents Jamais Emprunt\u00E9s"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-highlight", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: statistics.documents.neverBorrowedDocuments.length }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-text", children: "documents n'ont jamais \u00E9t\u00E9 emprunt\u00E9s" })] }), statistics.documents.neverBorrowedDocuments.length > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mini-list", children: [statistics.documents.neverBorrowedDocuments.slice(0, 5).map((doc, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mini-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [doc.titre, " - ", doc.auteur] })] }, index))), statistics.documents.neverBorrowedDocuments.length > 5 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mini-item more", children: ["+", statistics.documents.neverBorrowedDocuments.length - 5, " autres..."] }))] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Par Type" }), Object.entries(statistics.documents.totalByType).map(([type, count]) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: type }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: count })] }, type)))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "\u00C2ge Moyen" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "big-stat", children: [statistics.documents.averageDocumentAge, " ans"] })] })] })] }));
+const BorrowersTab = ({ statistics }) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tab-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 20 }), " Top Emprunteurs"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "list-container", children: statistics.borrowers.topBorrowers.slice(0, 10).map((item, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "list-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "item-rank", children: index + 1 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "item-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "item-title", children: [item.borrower.firstName, " ", item.borrower.lastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "item-subtitle", children: [item.borrower.type === 'student' ? 'Étudiant' : 'Personnel', " - ", item.borrower.matricule] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "item-stats", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-chip", children: [item.borrowCount, " emprunts"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-chip active", children: [item.activeLoans, " actifs"] }), item.overdueLoans > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-chip overdue", children: [item.overdueLoans, " retard"] }))] })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 20 }), " Activit\u00E9 des Emprunteurs"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-chart", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-bar", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-segment very-active", style: { width: `${(statistics.borrowers.borrowerActivity.veryActive / statistics.overview.totalBorrowers) * 100}%` }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["Tr\u00E8s Actifs (", statistics.borrowers.borrowerActivity.veryActive, ")"] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-segment active", style: { width: `${(statistics.borrowers.borrowerActivity.active / statistics.overview.totalBorrowers) * 100}%` }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["Actifs (", statistics.borrowers.borrowerActivity.active, ")"] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-segment moderate", style: { width: `${(statistics.borrowers.borrowerActivity.moderate / statistics.overview.totalBorrowers) * 100}%` }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["Mod\u00E9r\u00E9s (", statistics.borrowers.borrowerActivity.moderate, ")"] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-segment low", style: { width: `${(statistics.borrowers.borrowerActivity.low / statistics.overview.totalBorrowers) * 100}%` }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["Faibles (", statistics.borrowers.borrowerActivity.low, ")"] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-segment inactive", style: { width: `${(statistics.borrowers.borrowerActivity.inactive / statistics.overview.totalBorrowers) * 100}%` }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: ["Inactifs (", statistics.borrowers.borrowerActivity.inactive, ")"] }) })] }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "R\u00E9partition" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "\u00C9tudiants" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: statistics.borrowers.totalByType.students })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Personnel" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: statistics.borrowers.totalByType.staff })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Moyenne" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "big-stat", children: [statistics.borrowers.averageBorrowsPerBorrower.toFixed(1), " emprunts/personne"] })] })] })] }));
+const TrendsTab = ({ statistics }) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tab-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 20 }), " Tendances d'Emprunts"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "trend-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "trend-metric", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "trend-label", children: "Ce mois" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "trend-value", children: statistics.trends.borrowingTrends.thisMonth })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "trend-indicator", children: [statistics.trends.borrowingTrends.trend === 'up' ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { className: "trend-up" })) : statistics.trends.borrowingTrends.trend === 'down' ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { className: "trend-down" })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "trend-stable", children: "\u2192" })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: `trend-growth ${statistics.trends.borrowingTrends.trend}`, children: [statistics.trends.borrowingTrends.growth > 0 ? '+' : '', statistics.trends.borrowingTrends.growth.toFixed(1), "%"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "trend-metric", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "trend-label", children: "Mois dernier" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "trend-value", children: statistics.trends.borrowingTrends.lastMonth })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 20 }), " Mod\u00E8les Quotidiens"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "daily-pattern", children: Object.entries(statistics.trends.dailyPatterns).map(([day, count]) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "day-bar", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "day-label", children: day.slice(0, 3) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "day-bar-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "day-bar-fill", style: { height: `${(count / Math.max(...Object.values(statistics.trends.dailyPatterns))) * 100}%` } }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "day-count", children: count })] }, day))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 20 }), " Cat\u00E9gories Populaires"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "category-list", children: statistics.trends.popularCategories.slice(0, 8).map((category, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "category-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "category-name", children: category.category }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "category-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "category-fill", style: { width: `${(category.borrowCount / statistics.trends.popularCategories[0]?.borrowCount || 1) * 100}%` } }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "category-count", children: category.borrowCount })] }, index))) })] })] }));
+const InsightsTab = ({ statistics }) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tab-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 20 }), " Recommandations"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "insights-container", children: statistics.insights.recommendations.map((rec, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `insight-card recommendation ${rec.priority}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "insight-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "insight-title", children: rec.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: `priority-badge ${rec.priority}`, children: rec.priority })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "insight-description", children: rec.description }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "insight-impact", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: "Impact:" }), " ", rec.impact] })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_22__["default"], { size: 20 }), " Alertes"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "insights-container", children: statistics.insights.alerts.map((alert, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `insight-card alert ${alert.severity}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "insight-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_22__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "insight-title", children: alert.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "alert-count", children: alert.count })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "insight-description", children: alert.description })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_23__["default"], { size: 20 }), " Performance Globale"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "performance-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "perf-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "perf-title", children: "Utilisation Collection" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "perf-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("svg", { viewBox: "0 0 36 36", className: "circular-chart", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { className: "circle-bg", d: "M18 2.0845\r\n                a 15.9155 15.9155 0 0 1 0 31.831\r\n                a 15.9155 15.9155 0 0 1 0 -31.831" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { className: "circle", strokeDasharray: `${statistics.insights.performance.collectionUtilization}, 100`, d: "M18 2.0845\r\n                a 15.9155 15.9155 0 0 1 0 31.831\r\n                a 15.9155 15.9155 0 0 1 0 -31.831" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("text", { x: "18", y: "20.35", className: "percentage", children: [statistics.insights.performance.collectionUtilization, "%"] })] }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "perf-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "perf-title", children: "Engagement Emprunteurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "perf-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("svg", { viewBox: "0 0 36 36", className: "circular-chart", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { className: "circle-bg", d: "M18 2.0845\r\n                a 15.9155 15.9155 0 0 1 0 31.831\r\n                a 15.9155 15.9155 0 0 1 0 -31.831" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { className: "circle", strokeDasharray: `${statistics.insights.performance.borrowerEngagement}, 100`, d: "M18 2.0845\r\n                a 15.9155 15.9155 0 0 1 0 31.831\r\n                a 15.9155 15.9155 0 0 1 0 -31.831" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("text", { x: "18", y: "20.35", className: "percentage", children: [statistics.insights.performance.borrowerEngagement, "%"] })] }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "perf-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "perf-title", children: "Conformit\u00E9 Retours" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "perf-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("svg", { viewBox: "0 0 36 36", className: "circular-chart", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { className: "circle-bg", d: "M18 2.0845\r\n                a 15.9155 15.9155 0 0 1 0 31.831\r\n                a 15.9155 15.9155 0 0 1 0 -31.831" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("path", { className: "circle", strokeDasharray: `${statistics.insights.performance.returnCompliance}, 100`, d: "M18 2.0845\r\n                a 15.9155 15.9155 0 0 1 0 31.831\r\n                a 15.9155 15.9155 0 0 1 0 -31.831" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("text", { x: "18", y: "20.35", className: "percentage", children: [statistics.insights.performance.returnCompliance, "%"] })] }) })] })] })] })] }));
+// Composant MetricCard
+const MetricCard = ({ title, value, icon: Icon, color }) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metric-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "metric-icon", style: { backgroundColor: color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(Icon, { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "metric-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "metric-value", children: value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "metric-title", children: title })] })] }));
+// Styles CSS
+const getStyles = () => `
+  .statistics-manager {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .statistics-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+  }
+
+  .statistics-container {
+    position: relative;
+    background: white;
+    border-radius: 20px;
+    max-width: 1200px;
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(229, 220, 194, 0.3);
+    overflow: hidden;
+  }
+
+  .statistics-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+    border-bottom: 1px solid rgba(229, 220, 194, 0.3);
+    background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+    color: #F3EED9;
+  }
+
+  .header-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .header-info h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .header-info p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 14px;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(243, 238, 217, 0.1);
+    border: 1px solid rgba(243, 238, 217, 0.2);
+    color: #F3EED9;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .action-btn:hover {
+    background: rgba(243, 238, 217, 0.2);
+    transform: translateY(-1px);
+  }
+
+  .close-btn {
+    background: rgba(243, 238, 217, 0.1);
+    border: none;
+    color: #F3EED9;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .close-btn:hover {
+    background: rgba(220, 38, 38, 0.2);
+    color: #DC2626;
+  }
+
+  .statistics-tabs {
+    display: flex;
+    background: #F8F9FA;
+    border-bottom: 1px solid rgba(229, 220, 194, 0.3);
+    overflow-x: auto;
+  }
+
+  .tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 24px;
+    border: none;
+    background: none;
+    color: #6B7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  .tab-btn:hover {
+    background: rgba(62, 92, 73, 0.05);
+    color: #3E5C49;
+  }
+
+  .tab-btn.active {
+    color: #3E5C49;
+    border-bottom-color: #3E5C49;
+    background: rgba(62, 92, 73, 0.05);
+  }
+
+  .statistics-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px;
+  }
+
+  .tab-content {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    text-align: center;
+    color: #3E5C49;
+  }
+
+  .loading-state h3 {
+    margin: 20px 0 8px 0;
+    font-size: 18px;
+  }
+
+  .loading-state p {
+    margin: 0;
+    color: #6B7280;
+  }
+
+  .spinning {
+    animation: spin 1s linear infinite;
+    color: #C2571B;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Métriques */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  .metric-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: white;
+    border: 1px solid rgba(229, 220, 194, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s ease;
+  }
+
+  .metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(62, 92, 73, 0.1);
+  }
+
+  .metric-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .metric-content {
+    flex: 1;
+  }
+
+  .metric-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2E2E2E;
+    line-height: 1;
+  }
+
+  .metric-title {
+    font-size: 14px;
+    color: #6B7280;
+    margin-top: 4px;
+  }
+
+  /* Charts et Graphiques */
+  .overview-charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+  }
+
+  .chart-card {
+    background: white;
+    border: 1px solid rgba(229, 220, 194, 0.3);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  .chart-card h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 20px 0;
+    color: #3E5C49;
+    font-size: 16px;
+  }
+
+  .status-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .status-indicator.available { background: #10B981; }
+  .status-indicator.borrowed { background: #F59E0B; }
+  .status-indicator.overdue { background: #EF4444; }
+
+  .performance-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .perf-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .perf-label {
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .perf-value {
+    font-weight: 600;
+    color: #3E5C49;
+  }
+
+  .health-bar {
+    flex: 1;
+    height: 8px;
+    background: #E5E7EB;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 0 12px;
+  }
+
+  .health-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #EF4444 0%, #F59E0B 50%, #10B981 100%);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  /* Sections et Listes */
+  .section {
+    margin-bottom: 32px;
+  }
+
+  .section h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px 0;
+    color: #3E5C49;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .list-container {
+    background: white;
+    border: 1px solid rgba(229, 220, 194, 0.3);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .list-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(229, 220, 194, 0.2);
+    transition: background 0.2s ease;
+  }
+
+  .list-item:last-child {
+    border-bottom: none;
+  }
+
+  .list-item:hover {
+    background: rgba(62, 92, 73, 0.02);
+  }
+
+  .item-rank {
+    width: 32px;
+    height: 32px;
+    background: #3E5C49;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .item-info {
+    flex: 1;
+  }
+
+  .item-title {
+    font-weight: 600;
+    color: #2E2E2E;
+    margin-bottom: 2px;
+  }
+
+  .item-subtitle {
+    font-size: 13px;
+    color: #6B7280;
+  }
+
+  .item-value {
+    font-weight: 600;
+    color: #C2571B;
+  }
+
+  .item-stats {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .stat-chip {
+    background: #E5DCC2;
+    color: #6B7280;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .stat-chip.active {
+    background: #3E5C49;
+    color: white;
+  }
+
+  .stat-chip.overdue {
+    background: #FEE2E2;
+    color: #DC2626;
+  }
+
+  /* Activité et Tendances */
+  .activity-chart {
+    background: white;
+    border: 1px solid rgba(229, 220, 194, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .activity-bar {
+    display: flex;
+    height: 40px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #F3F4F6;
+  }
+
+  .activity-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .activity-segment:hover {
+    filter: brightness(1.1);
+  }
+
+  .activity-segment.very-active { background: #059669; }
+  .activity-segment.active { background: #10B981; }
+  .activity-segment.moderate { background: #F59E0B; }
+  .activity-segment.low { background: #EF4444; }
+  .activity-segment.inactive { background: #6B7280; }
+
+  .trend-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    border: 1px solid rgba(229, 220, 194, 0.3);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  .trend-metric {
+    text-align: center;
+  }
+
+  .trend-label {
+    display: block;
+    font-size: 14px;
+    color: #6B7280;
+    margin-bottom: 4px;
+  }
+
+  .trend-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #2E2E2E;
+  }
+
+  .trend-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .trend-up { color: #10B981; }
+  .trend-down { color: #EF4444; }
+  .trend-stable { color: #6B7280; font-size: 24px; font-weight: bold; }
+
+  .trend-growth {
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  .trend-growth.up { color: #10B981; }
+  .trend-growth.down { color: #EF4444; }
+  .trend-growth.stable { color: #6B7280; }
+
+  .daily-pattern {
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    background: white;
+    border: 1px solid rgba(229, 220, 194, 0.3);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  .day-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .day-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6B7280;
+    text-transform: uppercase;
+  }
+
+  .day-bar-container {
+    height: 80px;
+    width: 20px;
+    background: #F3F4F6;
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+
+  .day-bar-fill {
+    width: 100%;
+    background: linear-gradient(to top, #3E5C49, #C2571B);
+    border-radius: 10px;
+    transition: height 0.3s ease;
+  }
+
+  .day-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: #2E2E2E;
+  }
+
+  .category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .category-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: white;
+    border: 1px solid rgba(229, 220, 194, 0.3);
+    border-radius: 8px;
+    padding: 12px 16px;
+  }
+
+  .category-name {
+    min-width: 120px;
+    font-weight: 500;
+    color: #2E2E2E;
+  }
+
+  .category-bar {
+    flex: 1;
+    height: 8px;
+    background: #F3F4F6;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .category-fill {
+    height: 100%;
+    background: #3E5C49;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  .category-count {
+    min-width: 40px;
+    text-align: right;
+    font-weight: 600;
+    color: #C2571B;
+  }
+
+  /* Insights */
+  .insights-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .insight-card {
+    background: white;
+    border: 1px solid rgba(229, 220, 194, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    border-left: 4px solid #3E5C49;
+  }
+
+  .insight-card.recommendation.high {
+    border-left-color: #EF4444;
+    background: rgba(239, 68, 68, 0.02);
+  }
+
+  .insight-card.recommendation.medium {
+    border-left-color: #F59E0B;
+    background: rgba(245, 158, 11, 0.02);
+  }
+
+  .insight-card.recommendation.low {
+    border-left-color: #10B981;
+    background: rgba(16, 185, 129, 0.02);
+  }
+
+  .insight-card.alert.critical {
+    border-left-color: #DC2626;
+    background: rgba(220, 38, 38, 0.02);
+  }
+
+  .insight-card.alert.warning {
+    border-left-color: #D97706;
+    background: rgba(217, 119, 6, 0.02);
+  }
+
+  .insight-card.alert.info {
+    border-left-color: #2563EB;
+    background: rgba(37, 99, 235, 0.02);
+  }
+
+  .insight-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .insight-title {
+    flex: 1;
+    font-weight: 600;
+    color: #2E2E2E;
+  }
+
+  .priority-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .priority-badge.high {
+    background: #FEE2E2;
+    color: #DC2626;
+  }
+
+  .priority-badge.medium {
+    background: #FEF3C7;
+    color: #D97706;
+  }
+
+  .priority-badge.low {
+    background: #D1FAE5;
+    color: #059669;
+  }
+
+  .alert-count {
+    background: #DC2626;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .insight-description {
+    margin: 0 0 12px 0;
+    color: #4B5563;
+    line-height: 1.5;
+  }
+
+  .insight-impact {
+    font-size: 14px;
+    color: #6B7280;
+  }
+
+  /* Performance Circles */
+  .performance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+  }
+
+  .perf-card {
+    background: white;
+    border: 1px solid rgba(229, 220, 194, 0.3);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .perf-title {
+    font-weight: 600;
+    color: #2E2E2E;
+    margin-bottom: 16px;
+  }
+
+  .perf-circle {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+  }
+
+  .circular-chart {
+    width: 100%;
+    height: 100%;
+  }
+
+  .circle-bg {
+    fill: none;
+    stroke: #E5E7EB;
+    stroke-width: 2.8;
+  }
+
+  .circle {
+    fill: none;
+    stroke: #3E5C49;
+    stroke-width: 2.8;
+    stroke-linecap: round;
+    animation: progress 1s ease-out forwards;
+  }
+
+  .percentage {
+    fill: #2E2E2E;
+    font-size: 0.5em;
+    text-anchor: middle;
+    font-weight: 600;
+  }
+
+  @keyframes progress {
+    0% {
+      stroke-dasharray: 0 100;
+    }
+  }
+
+  /* Utilitaires */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
+
+  .stat-card {
+    background: white;
+    border: 1px solid rgba(229, 220, 194, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .stat-card h4 {
+    margin: 0 0 16px 0;
+    color: #3E5C49;
+    font-size: 16px;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(229, 220, 194, 0.2);
+  }
+
+  .stat-row:last-child {
+    border-bottom: none;
+  }
+
+  .big-stat {
+    font-size: 32px;
+    font-weight: 700;
+    color: #C2571B;
+    text-align: center;
+    margin: 20px 0;
+  }
+
+  .stat-highlight {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .stat-number {
+    font-size: 48px;
+    font-weight: 700;
+    color: #C2571B;
+  }
+
+  .stat-text {
+    color: #6B7280;
+    font-weight: 500;
+  }
+
+  .mini-list {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .mini-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    font-size: 13px;
+    color: #6B7280;
+  }
+
+  .mini-item.more {
+    font-style: italic;
+    color: #9CA3AF;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .statistics-container {
+      margin: 10px;
+      max-height: calc(100vh - 20px);
+    }
+
+    .statistics-header {
+      padding: 20px;
+      flex-direction: column;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .header-actions {
+      align-self: flex-end;
+    }
+
+    .statistics-content {
+      padding: 20px;
+    }
+
+    .metrics-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .overview-charts {
+      grid-template-columns: 1fr;
+    }
+
+    .daily-pattern {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .performance-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .tab-btn {
+      padding: 12px 16px;
+    }
+  }
+`;
 
 
 /***/ }),
@@ -24101,6 +25158,565 @@ class ReportService {
             notes: 'Notes'
         };
         return headerMap[header] || header;
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/renderer/services/StatisticsService.ts":
+/*!****************************************************!*\
+  !*** ./src/renderer/services/StatisticsService.ts ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   StatisticsService: () => (/* binding */ StatisticsService)
+/* harmony export */ });
+class StatisticsService {
+    static generateDetailedStatistics(documents, borrowers, borrowHistory) {
+        return {
+            overview: this.generateOverviewStats(documents, borrowers, borrowHistory),
+            documents: this.generateDocumentStats(documents, borrowHistory),
+            borrowers: this.generateBorrowerStats(borrowers, borrowHistory),
+            borrowHistory: this.generateBorrowHistoryStats(borrowHistory),
+            trends: this.generateTrendStats(borrowHistory),
+            insights: this.generateInsightStats(documents, borrowers, borrowHistory)
+        };
+    }
+    static generateOverviewStats(documents, borrowers, borrowHistory) {
+        const activeLoans = borrowHistory.filter(bh => bh.status === 'active').length;
+        const overdueLoans = borrowHistory.filter(bh => bh.status === 'overdue').length;
+        const availableDocuments = documents.length - activeLoans;
+        const returnedLoans = borrowHistory.filter(bh => bh.actualReturnDate);
+        const totalLoanDays = returnedLoans.reduce((sum, bh) => {
+            const borrowDate = new Date(bh.borrowDate);
+            const returnDate = new Date(bh.actualReturnDate);
+            const days = Math.ceil((returnDate.getTime() - borrowDate.getTime()) / (1000 * 60 * 60 * 24));
+            return sum + days;
+        }, 0);
+        return {
+            totalDocuments: documents.length,
+            totalBorrowers: borrowers.length,
+            totalBorrows: borrowHistory.length,
+            activeLoans,
+            overdueLoans,
+            availableDocuments,
+            utilizationRate: documents.length > 0 ? (activeLoans / documents.length) * 100 : 0,
+            averageLoanDuration: returnedLoans.length > 0 ? Math.round(totalLoanDays / returnedLoans.length) : 0
+        };
+    }
+    static generateDocumentStats(documents, borrowHistory) {
+        // Compter les emprunts par document
+        const borrowCounts = new Map();
+        const lastBorrowed = new Map();
+        borrowHistory.forEach(bh => {
+            borrowCounts.set(bh.documentId, (borrowCounts.get(bh.documentId) || 0) + 1);
+            const currentDate = lastBorrowed.get(bh.documentId);
+            if (!currentDate || new Date(bh.borrowDate) > new Date(currentDate)) {
+                lastBorrowed.set(bh.documentId, bh.borrowDate);
+            }
+        });
+        // Documents par type
+        const totalByType = documents.reduce((acc, doc) => {
+            const type = doc.type || 'Livre';
+            acc[type] = (acc[type] || 0) + 1;
+            return acc;
+        }, {});
+        // Documents par année
+        const totalByYear = documents.reduce((acc, doc) => {
+            const year = doc.annee || 'Non spécifié';
+            acc[year] = (acc[year] || 0) + 1;
+            return acc;
+        }, {});
+        // Documents par auteur
+        const totalByAuthor = documents.reduce((acc, doc) => {
+            acc[doc.auteur] = (acc[doc.auteur] || 0) + 1;
+            return acc;
+        }, {});
+        // Documents avec leur popularité
+        const documentsWithBorrowCount = documents.map(doc => ({
+            document: doc,
+            borrowCount: borrowCounts.get(doc.id) || 0,
+            lastBorrowed: lastBorrowed.get(doc.id)
+        }));
+        // Trier par popularité
+        const sortedByPopularity = [...documentsWithBorrowCount].sort((a, b) => b.borrowCount - a.borrowCount);
+        // Documents les plus/moins empruntés
+        const mostBorrowedDocuments = sortedByPopularity.slice(0, 10);
+        const leastBorrowedDocuments = sortedByPopularity.slice(-10).reverse();
+        const neverBorrowedDocuments = documents.filter(doc => (borrowCounts.get(doc.id) || 0) === 0);
+        // Catégoriser par popularité
+        const maxBorrows = Math.max(...documentsWithBorrowCount.map(d => d.borrowCount));
+        const documentsByPopularity = documentsWithBorrowCount.map(item => ({
+            ...item,
+            rating: this.getRatingFromBorrowCount(item.borrowCount, maxBorrows)
+        }));
+        // Âge moyen des documents
+        const currentYear = new Date().getFullYear();
+        const averageDocumentAge = documents.reduce((sum, doc) => {
+            const year = parseInt(doc.annee) || currentYear;
+            return sum + (currentYear - year);
+        }, 0) / documents.length;
+        return {
+            totalByType,
+            totalByYear,
+            totalByAuthor,
+            mostBorrowedDocuments,
+            leastBorrowedDocuments,
+            neverBorrowedDocuments,
+            documentsByPopularity,
+            averageDocumentAge: Math.round(averageDocumentAge),
+            documentsByStatus: {
+                available: documents.filter(d => !d.estEmprunte).length,
+                borrowed: documents.filter(d => d.estEmprunte && !this.isOverdue(d)).length,
+                overdue: documents.filter(d => d.estEmprunte && this.isOverdue(d)).length
+            }
+        };
+    }
+    static generateBorrowerStats(borrowers, borrowHistory) {
+        // Statistiques par emprunteur
+        const borrowerStats = new Map();
+        borrowHistory.forEach(bh => {
+            const stats = borrowerStats.get(bh.borrowerId) || {
+                borrowCount: 0,
+                activeLoans: 0,
+                overdueLoans: 0,
+                totalDuration: 0,
+                returnedLoans: 0
+            };
+            stats.borrowCount++;
+            if (bh.status === 'active')
+                stats.activeLoans++;
+            if (bh.status === 'overdue')
+                stats.overdueLoans++;
+            if (bh.actualReturnDate) {
+                const duration = Math.ceil((new Date(bh.actualReturnDate).getTime() - new Date(bh.borrowDate).getTime()) / (1000 * 60 * 60 * 24));
+                stats.totalDuration += duration;
+                stats.returnedLoans++;
+            }
+            if (!stats.lastActivity || new Date(bh.borrowDate) > new Date(stats.lastActivity)) {
+                stats.lastActivity = bh.borrowDate;
+            }
+            borrowerStats.set(bh.borrowerId, stats);
+        });
+        // Top emprunteurs
+        const topBorrowers = borrowers
+            .map(borrower => {
+            const stats = borrowerStats.get(borrower.id) || {
+                borrowCount: 0, activeLoans: 0, overdueLoans: 0, totalDuration: 0, returnedLoans: 0
+            };
+            return {
+                borrower,
+                borrowCount: stats.borrowCount,
+                activeLoans: stats.activeLoans,
+                overdueLoans: stats.overdueLoans,
+                averageLoanDuration: stats.returnedLoans > 0 ? Math.round(stats.totalDuration / stats.returnedLoans) : 0,
+                lastActivity: stats.lastActivity
+            };
+        })
+            .sort((a, b) => b.borrowCount - a.borrowCount)
+            .slice(0, 20);
+        // Emprunteurs inactifs
+        const now = new Date();
+        const inactiveBorrowers = borrowers
+            .filter(borrower => {
+            const stats = borrowerStats.get(borrower.id);
+            return !stats || !stats.lastActivity ||
+                (now.getTime() - new Date(stats.lastActivity).getTime()) > (90 * 24 * 60 * 60 * 1000); // 90 jours
+        })
+            .map(borrower => {
+            const stats = borrowerStats.get(borrower.id);
+            const lastActivity = stats?.lastActivity ? new Date(stats.lastActivity) : null;
+            const daysSinceLastActivity = lastActivity ?
+                Math.ceil((now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60 * 24)) :
+                Infinity;
+            return {
+                borrower,
+                daysSinceLastActivity,
+                totalBorrows: stats?.borrowCount || 0
+            };
+        })
+            .sort((a, b) => b.daysSinceLastActivity - a.daysSinceLastActivity);
+        // Activité des emprunteurs
+        const borrowerActivity = {
+            veryActive: 0,
+            active: 0,
+            moderate: 0,
+            low: 0,
+            inactive: 0
+        };
+        borrowers.forEach(borrower => {
+            const stats = borrowerStats.get(borrower.id);
+            const borrowCount = stats?.borrowCount || 0;
+            if (borrowCount === 0)
+                borrowerActivity.inactive++;
+            else if (borrowCount === 1)
+                borrowerActivity.low++;
+            else if (borrowCount <= 4)
+                borrowerActivity.moderate++;
+            else if (borrowCount <= 10)
+                borrowerActivity.active++;
+            else
+                borrowerActivity.veryActive++;
+        });
+        return {
+            totalByType: {
+                students: borrowers.filter(b => b.type === 'student').length,
+                staff: borrowers.filter(b => b.type === 'staff').length
+            },
+            topBorrowers,
+            inactiveBorrowers,
+            borrowerActivity,
+            averageBorrowsPerBorrower: borrowHistory.length / Math.max(borrowers.length, 1)
+        };
+    }
+    static generateBorrowHistoryStats(borrowHistory) {
+        const totalBorrows = borrowHistory.length;
+        const totalReturns = borrowHistory.filter(bh => bh.actualReturnDate).length;
+        const activeLoans = borrowHistory.filter(bh => bh.status === 'active').length;
+        const overdueLoans = borrowHistory.filter(bh => bh.status === 'overdue').length;
+        // Taux de retour à temps
+        const onTimeReturns = borrowHistory.filter(bh => {
+            if (!bh.actualReturnDate)
+                return false;
+            return new Date(bh.actualReturnDate) <= new Date(bh.expectedReturnDate);
+        }).length;
+        const returnRate = totalReturns > 0 ? (onTimeReturns / totalReturns) * 100 : 0;
+        // Emprunts par mois
+        const borrowsByMonth = borrowHistory.reduce((acc, bh) => {
+            const month = new Date(bh.borrowDate).toLocaleString('fr-FR', { year: 'numeric', month: 'long' });
+            acc[month] = (acc[month] || 0) + 1;
+            return acc;
+        }, {});
+        // Retours par mois
+        const returnsByMonth = borrowHistory
+            .filter(bh => bh.actualReturnDate)
+            .reduce((acc, bh) => {
+            const month = new Date(bh.actualReturnDate).toLocaleString('fr-FR', { year: 'numeric', month: 'long' });
+            acc[month] = (acc[month] || 0) + 1;
+            return acc;
+        }, {});
+        // Périodes de pointe
+        const peakBorrowingPeriods = Object.entries(borrowsByMonth)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 5)
+            .map(([period, count]) => ({
+            period,
+            count,
+            type: 'month'
+        }));
+        // Durée moyenne d'emprunt
+        const returnedLoans = borrowHistory.filter(bh => bh.actualReturnDate);
+        const totalDuration = returnedLoans.reduce((sum, bh) => {
+            const duration = Math.ceil((new Date(bh.actualReturnDate).getTime() - new Date(bh.borrowDate).getTime()) / (1000 * 60 * 60 * 24));
+            return sum + duration;
+        }, 0);
+        const averageLoanDuration = returnedLoans.length > 0 ? Math.round(totalDuration / returnedLoans.length) : 0;
+        // Emprunts les plus longs
+        const longestLoans = borrowHistory
+            .map(bh => {
+            const endDate = bh.actualReturnDate ? new Date(bh.actualReturnDate) : new Date();
+            const duration = Math.ceil((endDate.getTime() - new Date(bh.borrowDate).getTime()) / (1000 * 60 * 60 * 24));
+            return {
+                borrowHistory: bh,
+                duration,
+                status: bh.status
+            };
+        })
+            .sort((a, b) => b.duration - a.duration)
+            .slice(0, 10);
+        // Emprunteurs les plus fréquents
+        const borrowerCounts = borrowHistory.reduce((acc, bh) => {
+            if (bh.borrower) {
+                const existing = acc.find(item => item.borrower.id === bh.borrower.id);
+                if (existing) {
+                    existing.borrowCount++;
+                }
+                else {
+                    acc.push({
+                        borrower: bh.borrower,
+                        borrowCount: 1
+                    });
+                }
+            }
+            return acc;
+        }, []);
+        const mostFrequentBorrowers = borrowerCounts
+            .sort((a, b) => b.borrowCount - a.borrowCount)
+            .slice(0, 10);
+        return {
+            totalBorrows,
+            totalReturns,
+            activeLoans,
+            overdueLoans,
+            returnRate,
+            borrowsByMonth,
+            returnsByMonth,
+            peakBorrowingPeriods,
+            averageLoanDuration,
+            longestLoans,
+            mostFrequentBorrowers
+        };
+    }
+    static generateTrendStats(borrowHistory) {
+        const now = new Date();
+        const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const thisMonthBorrows = borrowHistory.filter(bh => new Date(bh.borrowDate) >= thisMonth).length;
+        const lastMonthBorrows = borrowHistory.filter(bh => {
+            const borrowDate = new Date(bh.borrowDate);
+            return borrowDate >= lastMonth && borrowDate < thisMonth;
+        }).length;
+        const growth = lastMonthBorrows > 0 ? ((thisMonthBorrows - lastMonthBorrows) / lastMonthBorrows) * 100 : 0;
+        let trend = 'stable';
+        if (Math.abs(growth) > 5) {
+            trend = growth > 0 ? 'up' : 'down';
+        }
+        // Catégories populaires (basé sur les descripteurs)
+        const categoryBorrows = borrowHistory.reduce((acc, bh) => {
+            if (bh.document?.descripteurs) {
+                const categories = bh.document.descripteurs.split(',').map(c => c.trim());
+                categories.forEach(category => {
+                    acc[category] = (acc[category] || 0) + 1;
+                });
+            }
+            return acc;
+        }, {});
+        const popularCategories = Object.entries(categoryBorrows)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 10)
+            .map(([category, borrowCount]) => ({
+            category,
+            borrowCount,
+            growthRate: 0 // Simplified for now
+        }));
+        // Tendances saisonnières (simplifié)
+        const seasonalTrends = {
+            borrowing: {
+                spring: borrowHistory.filter(bh => this.getSeason(new Date(bh.borrowDate)) === 'spring').length,
+                summer: borrowHistory.filter(bh => this.getSeason(new Date(bh.borrowDate)) === 'summer').length,
+                fall: borrowHistory.filter(bh => this.getSeason(new Date(bh.borrowDate)) === 'fall').length,
+                winter: borrowHistory.filter(bh => this.getSeason(new Date(bh.borrowDate)) === 'winter').length
+            }
+        };
+        // Modèles quotidiens (jour de la semaine)
+        const dailyPatterns = borrowHistory.reduce((acc, bh) => {
+            const dayOfWeek = new Date(bh.borrowDate).toLocaleDateString('fr-FR', { weekday: 'long' });
+            acc[dayOfWeek] = (acc[dayOfWeek] || 0) + 1;
+            return acc;
+        }, {});
+        return {
+            borrowingTrends: {
+                thisMonth: thisMonthBorrows,
+                lastMonth: lastMonthBorrows,
+                growth,
+                trend
+            },
+            popularCategories,
+            seasonalTrends,
+            dailyPatterns
+        };
+    }
+    static generateInsightStats(documents, borrowers, borrowHistory) {
+        const recommendations = [];
+        const alerts = [];
+        // Documents jamais empruntés
+        const neverBorrowedCount = documents.filter(doc => !borrowHistory.some(bh => bh.documentId === doc.id)).length;
+        if (neverBorrowedCount > documents.length * 0.3) {
+            recommendations.push({
+                type: 'marketing',
+                title: 'Promouvoir les documents non empruntés',
+                description: `${neverBorrowedCount} documents (${Math.round(neverBorrowedCount / documents.length * 100)}%) n'ont jamais été empruntés. Considérez une campagne de promotion.`,
+                priority: 'medium',
+                impact: 'Amélioration de l\'utilisation de la collection'
+            });
+        }
+        // Documents en retard
+        const overdueCount = borrowHistory.filter(bh => bh.status === 'overdue').length;
+        if (overdueCount > 0) {
+            alerts.push({
+                type: 'overdue',
+                title: 'Documents en retard',
+                description: 'Des documents sont en retard et nécessitent un suivi',
+                count: overdueCount,
+                severity: overdueCount > 10 ? 'critical' : 'warning'
+            });
+        }
+        // Emprunteurs inactifs
+        const inactiveCount = borrowers.filter(borrower => {
+            const hasRecentActivity = borrowHistory.some(bh => bh.borrowerId === borrower.id &&
+                new Date(bh.borrowDate) > new Date(Date.now() - 90 * 24 * 60 * 60 * 1000));
+            return !hasRecentActivity;
+        }).length;
+        if (inactiveCount > borrowers.length * 0.5) {
+            recommendations.push({
+                type: 'marketing',
+                title: 'Réengager les emprunteurs inactifs',
+                description: `${inactiveCount} emprunteurs n'ont pas d'activité récente. Lancez une campagne de réengagement.`,
+                priority: 'medium',
+                impact: 'Augmentation de l\'engagement des utilisateurs'
+            });
+        }
+        // Performance générale
+        const collectionUtilization = documents.length > 0 ?
+            (borrowHistory.length / documents.length) * 100 : 0;
+        const borrowerEngagement = borrowers.length > 0 ?
+            (borrowHistory.length / borrowers.length) * 100 : 0;
+        const onTimeReturns = borrowHistory.filter(bh => bh.actualReturnDate && new Date(bh.actualReturnDate) <= new Date(bh.expectedReturnDate)).length;
+        const returnCompliance = borrowHistory.length > 0 ?
+            (onTimeReturns / borrowHistory.filter(bh => bh.actualReturnDate).length) * 100 : 100;
+        const overallHealth = (collectionUtilization + borrowerEngagement + returnCompliance) / 3;
+        return {
+            recommendations,
+            alerts,
+            performance: {
+                collectionUtilization: Math.round(collectionUtilization),
+                borrowerEngagement: Math.round(borrowerEngagement),
+                returnCompliance: Math.round(returnCompliance),
+                overallHealth: Math.round(overallHealth)
+            }
+        };
+    }
+    // Méthodes utilitaires
+    static getRatingFromBorrowCount(borrowCount, maxBorrows) {
+        if (borrowCount === 0)
+            return 'none';
+        if (borrowCount >= maxBorrows * 0.7)
+            return 'high';
+        if (borrowCount >= maxBorrows * 0.3)
+            return 'medium';
+        return 'low';
+    }
+    static isOverdue(document) {
+        if (!document.dateRetourPrevu || !document.estEmprunte)
+            return false;
+        return new Date() > new Date(document.dateRetourPrevu);
+    }
+    static getSeason(date) {
+        const month = date.getMonth();
+        if (month >= 2 && month <= 4)
+            return 'spring';
+        if (month >= 5 && month <= 7)
+            return 'summer';
+        if (month >= 8 && month <= 10)
+            return 'fall';
+        return 'winter';
+    }
+    // Export des statistiques
+    static exportToCSV(statistics) {
+        const sections = [
+            '# VUE D\'ENSEMBLE',
+            `Total Documents,${statistics.overview.totalDocuments}`,
+            `Total Emprunteurs,${statistics.overview.totalBorrowers}`,
+            `Total Emprunts,${statistics.overview.totalBorrows}`,
+            `Emprunts Actifs,${statistics.overview.activeLoans}`,
+            `Emprunts en Retard,${statistics.overview.overdueLoans}`,
+            `Taux d'Utilisation,%${statistics.overview.utilizationRate.toFixed(2)}`,
+            '',
+            '# DOCUMENTS POPULAIRES',
+            'Titre,Auteur,Nombre d\'Emprunts',
+            ...statistics.documents.mostBorrowedDocuments.slice(0, 10).map(item => `"${item.document.titre}","${item.document.auteur}",${item.borrowCount}`),
+            '',
+            '# TOP EMPRUNTEURS',
+            'Nom,Type,Nombre d\'Emprunts,Emprunts Actifs',
+            ...statistics.borrowers.topBorrowers.slice(0, 10).map(item => `"${item.borrower.firstName} ${item.borrower.lastName}","${item.borrower.type}",${item.borrowCount},${item.activeLoans}`)
+        ];
+        return sections.join('\n');
+    }
+    static exportToPDF(statistics) {
+        // Génère du HTML pour conversion PDF
+        return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Statistiques Détaillées de la Bibliothèque</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3E5C49; padding-bottom: 20px; }
+            .section { margin-bottom: 30px; }
+            .section h2 { color: #3E5C49; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+            .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+            .stat-card { background: #f5f5f5; padding: 15px; border-radius: 8px; text-align: center; }
+            .stat-value { font-size: 24px; font-weight: bold; color: #C2571B; }
+            .stat-label { font-size: 14px; color: #666; }
+            table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+            th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+            th { background-color: #3E5C49; color: white; }
+            .insight { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 10px 0; }
+            .alert { background: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 5px; margin: 10px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Statistiques Détaillées de la Bibliothèque</h1>
+            <p>Généré le ${new Date().toLocaleString('fr-FR')}</p>
+          </div>
+          
+          <div class="section">
+            <h2>Vue d'Ensemble</h2>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-value">${statistics.overview.totalDocuments}</div>
+                <div class="stat-label">Documents</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value">${statistics.overview.totalBorrowers}</div>
+                <div class="stat-label">Emprunteurs</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value">${statistics.overview.totalBorrows}</div>
+                <div class="stat-label">Total Emprunts</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value">${statistics.overview.utilizationRate.toFixed(1)}%</div>
+                <div class="stat-label">Taux d'Utilisation</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Documents les Plus Populaires</h2>
+            <table>
+              <thead>
+                <tr><th>Titre</th><th>Auteur</th><th>Emprunts</th></tr>
+              </thead>
+              <tbody>
+                ${statistics.documents.mostBorrowedDocuments.slice(0, 10).map(item => `
+                  <tr>
+                    <td>${item.document.titre}</td>
+                    <td>${item.document.auteur}</td>
+                    <td>${item.borrowCount}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section">
+            <h2>Recommandations</h2>
+            ${statistics.insights.recommendations.map(rec => `
+              <div class="insight">
+                <strong>${rec.title}</strong><br>
+                ${rec.description}
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="section">
+            <h2>Alertes</h2>
+            ${statistics.insights.alerts.map(alert => `
+              <div class="alert">
+                <strong>${alert.title}</strong> (${alert.count})<br>
+                ${alert.description}
+              </div>
+            `).join('')}
+          </div>
+        </body>
+      </html>
+    `;
     }
 }
 

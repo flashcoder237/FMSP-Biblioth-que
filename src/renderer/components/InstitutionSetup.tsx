@@ -548,7 +548,8 @@ L'équipe de ${institution?.name}
           padding: 20px;
           max-width: 1000px;
           margin: 0 auto;
-          overflow: hidden;
+          overflow-y: auto;
+          overflow-x: hidden;
         }
 
         .close-app-btn {

@@ -24,11 +24,12 @@ import { AppSettings } from './components/AppSettings';
 import { UserProfile } from './components/UserProfile';
 import { BackupManager } from './components/BackupManager';
 import { ReportsManager } from './components/ReportsManager';
+import { StatisticsManager } from './components/StatisticsManager';
 import { ToastProvider, useQuickToast } from './components/ToastSystem';
 import { KeyboardShortcutsProvider } from './components/KeyboardShortcuts';
 import { UnifiedUser, UnifiedInstitution, convertToUnifiedUser, convertToUnifiedInstitution } from './types/UnifiedTypes';
 
-type ViewType = 'initial_setup' | 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'reports' | 'settings' | 'app-settings' | 'user-profile' | 'backup-manager' | 'donation' | 'about' | 'auth' | 'institution_setup';
+type ViewType = 'initial_setup' | 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'reports' | 'statistics' | 'settings' | 'app-settings' | 'user-profile' | 'backup-manager' | 'donation' | 'about' | 'auth' | 'institution_setup';
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewType>('initial_setup');
@@ -71,6 +72,7 @@ export const App: React.FC = () => {
   const [selectedDocumentForBorrow, setSelectedDocumentForBorrow] = useState<Document | null>(null);
   const [editingDocument, setEditingDocument] = useState<Document | null>(null);
   const [showReportsModal, setShowReportsModal] = useState(false);
+  const [showStatisticsModal, setShowStatisticsModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
 
@@ -1031,11 +1033,17 @@ export const App: React.FC = () => {
 
   // Gérer l'affichage avec TitleBar toujours visible
   const renderAuthenticatedContent = () => {
-    // Écran de configuration initiale
+    // Écran de configuration initiale - sans TitleBar
     if (currentView === 'initial_setup') {
-      return <InitialSetup onComplete={handleInitialSetup} />;
+      return <InitialSetup onComplete={handleInitialSetup} onClose={() => window.electronAPI?.closeWindow?.()} />;
     }
 
+    // Tous les autres écrans auront la TitleBar
+    return null; // Sera géré dans renderMainContent
+  };
+
+  // Gérer le contenu principal avec TitleBar
+  const renderMainContent = () => {
     if (!isAuthenticated) {
       if (currentView === 'institution_setup') {
         return (
@@ -1046,6 +1054,7 @@ export const App: React.FC = () => {
               setCurrentView('auth');
               alert('Votre établissement a été créé avec succès ! Vous pouvez maintenant vous connecter.');
             }}
+            onClose={() => window.electronAPI?.closeWindow?.()}
           />
         );
       }
@@ -1188,6 +1197,24 @@ export const App: React.FC = () => {
     );
   }
 
+  // Vérifier si on doit afficher l'écran de configuration initiale sans TitleBar
+  const initialSetupContent = renderAuthenticatedContent();
+  if (initialSetupContent) {
+    return (
+      <ToastProvider>
+        <KeyboardShortcutsProvider
+          onNavigate={setCurrentView}
+          onOpenAddDocument={() => setCurrentView('add-document')}
+          onOpenSettings={() => setCurrentView('settings')}
+        >
+          <div className="app">
+            {initialSetupContent}
+          </div>
+        </KeyboardShortcutsProvider>
+      </ToastProvider>
+    );
+  }
+
   return (
     <ToastProvider>
       <KeyboardShortcutsProvider
@@ -1220,6 +1247,8 @@ export const App: React.FC = () => {
                 borrowedDocuments={borrowedDocuments}
                 showReportsModal={showReportsModal}
                 setShowReportsModal={setShowReportsModal}
+                showStatisticsModal={showStatisticsModal}
+                setShowStatisticsModal={setShowStatisticsModal}
                 stats={stats}
                 currentUser={currentUser}
                 currentInstitution={currentInstitution}
@@ -1230,7 +1259,7 @@ export const App: React.FC = () => {
               />
             ) : (
               <div className="auth-container">
-                {renderAuthenticatedContent()}
+                {renderMainContent()}
               </div>
             )}
           </div>
@@ -1261,6 +1290,8 @@ interface AppContentProps {
   borrowedDocuments: BorrowHistoryType[];
   showReportsModal: boolean;
   setShowReportsModal: (show: boolean) => void;
+  showStatisticsModal: boolean;
+  setShowStatisticsModal: (show: boolean) => void;
   stats: Stats;
   currentUser: User | null;
   currentInstitution: Institution | null;
@@ -1291,6 +1322,8 @@ const AppContent: React.FC<AppContentProps> = ({
   borrowedDocuments,
   showReportsModal,
   setShowReportsModal,
+  showStatisticsModal,
+  setShowStatisticsModal,
   stats,
   currentUser,
   currentInstitution,
@@ -1322,6 +1355,8 @@ const AppContent: React.FC<AppContentProps> = ({
         onNavigate={(view) => {
           if (view === 'reports') {
             setShowReportsModal(true);
+          } else if (view === 'statistics') {
+            setShowStatisticsModal(true);
           } else {
             setCurrentView(view);
           }
@@ -1370,6 +1405,16 @@ const AppContent: React.FC<AppContentProps> = ({
           onClose={() => setShowReportsModal(false)}
         />
       )}
+
+      {/* Statistics Modal */}
+      {showStatisticsModal && (
+        <StatisticsManager
+          documents={documents}
+          borrowers={borrowers}
+          borrowHistory={borrowedDocuments}
+          onClose={() => setShowStatisticsModal(false)}
+        />
+      )}
       
       <style>{`
         .app {
@@ -1384,6 +1429,15 @@ const AppContent: React.FC<AppContentProps> = ({
           flex: 1;
           display: flex;
           overflow: hidden;
+        }
+
+        .auth-container {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          overflow-y: auto;
+          overflow-x: hidden;
+          background: #FAF9F6;
         }
         
         .main-content {

@@ -14,16 +14,18 @@ import {
   Globe,
   HardDrive,
   Network,
-  Users
+  Users,
+  X
 } from 'lucide-react';
 
 export type AppMode = 'offline' | 'online';
 
 interface InitialSetupProps {
   onComplete: (mode: AppMode) => void;
+  onClose?: () => void;
 }
 
-export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
+export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete, onClose }) => {
   const [selectedMode, setSelectedMode] = useState<AppMode>('offline');
   
   return (
@@ -39,6 +41,13 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
       </div>
 
       <div className="setup-container">
+        {/* Close Button */}
+        {onClose && (
+          <button className="close-app-btn" onClick={onClose} title="Fermer l'application">
+            <X size={20} />
+          </button>
+        )}
+        
         {/* Header */}
         <div className="setup-header">
           <div className="setup-logo">
@@ -660,6 +669,30 @@ export const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
 
         .setup-container::-webkit-scrollbar-thumb:hover {
           background: #2E453A;
+        }
+
+        .close-app-btn {
+          position: absolute;
+          top: 16px;
+          right: 16px;
+          width: 40px;
+          height: 40px;
+          border: none;
+          background: rgba(243, 238, 217, 0.1);
+          color: #6E6E6E;
+          border-radius: 10px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+          z-index: 10;
+        }
+
+        .close-app-btn:hover {
+          background: rgba(220, 38, 38, 0.1);
+          color: #DC2626;
+          transform: scale(1.05);
         }
       `}</style>
     </div>

@@ -156,7 +156,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
   };
 
   return (
-    <div className="auth-container">
+    <div className="enhanced-auth-container">
       <div className="auth-background">
         <div className="pattern-overlay"></div>
         <div className="floating-shapes">
@@ -750,12 +750,13 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
       </div>
 
       <style>{`
-        .auth-container {
-          min-height: 100vh;
+        .enhanced-auth-container {
+          min-height: calc(100vh - 40px);
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           position: relative;
+          overflow-y: auto;
           overflow-x: hidden;
-          /* Retirer: overflow-y: auto; - laissez le scroll naturel */
+          padding: 20px 0;
         }
 
         .auth-background {
@@ -832,7 +833,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         .auth-content {
           position: relative;
           z-index: 10;
-          min-height: 100vh; /* Garder min-height au lieu de height */
+          min-height: calc(100vh - 80px);
           display: flex;
           flex-direction: column;
           padding: 20px;

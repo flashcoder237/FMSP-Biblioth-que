@@ -21,7 +21,8 @@ import {
   HardDrive,
   User,
   LogOut,
-  FileText
+  FileText,
+  PieChart
 } from 'lucide-react';
 import { Stats } from '../../types';
 import { MicroButton } from './MicroInteractions';
@@ -29,7 +30,7 @@ import { UnifiedUser, UnifiedInstitution } from '../types/UnifiedTypes';
 
 interface SidebarProps {
   currentView: string;
-  onNavigate: (view: 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'reports' | 'app-settings' | 'user-profile' | 'donation' | 'about') => void;
+  onNavigate: (view: 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'reports' | 'statistics' | 'app-settings' | 'user-profile' | 'donation' | 'about') => void;
   onLogout?: () => void;
   stats: Stats;
   currentUser: UnifiedUser | null;
@@ -113,6 +114,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLog
       icon: FileText,
       description: 'Créer et exporter des rapports',
       gradient: 'linear-gradient(135deg, #C2571B 0%, #E65100 100%)',
+      highlight: true
+    },
+    { 
+      id: 'statistics', 
+      label: 'Statistiques Avancées', 
+      icon: PieChart,
+      description: 'Analyses et insights détaillés',
+      gradient: 'linear-gradient(135deg, #3E5C49 0%, #2E453A 100%)',
       highlight: true
     },
     { 
