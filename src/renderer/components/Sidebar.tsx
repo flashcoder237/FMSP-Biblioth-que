@@ -20,7 +20,8 @@ import {
   Settings,
   HardDrive,
   User,
-  LogOut
+  LogOut,
+  FileText
 } from 'lucide-react';
 import { Stats } from '../../types';
 import { MicroButton } from './MicroInteractions';
@@ -28,7 +29,7 @@ import { UnifiedUser, UnifiedInstitution } from '../types/UnifiedTypes';
 
 interface SidebarProps {
   currentView: string;
-  onNavigate: (view: 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'app-settings' | 'user-profile' | 'donation' | 'about') => void;
+  onNavigate: (view: 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'reports' | 'app-settings' | 'user-profile' | 'donation' | 'about') => void;
   onLogout?: () => void;
   stats: Stats;
   currentUser: UnifiedUser | null;
@@ -106,6 +107,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLog
   ];
 
   const reportItems: MenuItem[] = [
+    { 
+      id: 'reports', 
+      label: 'Générer Rapports', 
+      icon: FileText,
+      description: 'Créer et exporter des rapports',
+      gradient: 'linear-gradient(135deg, #C2571B 0%, #E65100 100%)',
+      highlight: true
+    },
     { 
       id: 'history', 
       label: 'Historique Complet', 

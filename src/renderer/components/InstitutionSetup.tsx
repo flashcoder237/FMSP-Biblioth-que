@@ -14,7 +14,8 @@ import {
   Database,
   WifiOff,
   HardDrive,
-  Zap
+  Zap,
+  X
 } from 'lucide-react';
 import { Institution } from '../services/SupabaseClient';
 
@@ -22,12 +23,14 @@ interface InstitutionSetupProps {
   institutionCode: string;
   institution: Institution | null;
   onComplete: () => void;
+  onClose?: () => void;
 }
 
 export const InstitutionSetup: React.FC<InstitutionSetupProps> = ({
   institutionCode,
   institution,
-  onComplete
+  onComplete,
+  onClose
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [copied, setCopied] = useState(false);
@@ -165,6 +168,13 @@ L'équipe de ${institution?.name}
       </div>
 
       <div className="setup-container">
+        {/* Close Button */}
+        {onClose && (
+          <button className="close-app-btn" onClick={onClose} title="Fermer l'application">
+            <X size={20} />
+          </button>
+        )}
+        
         {/* Header */}
         <div className="setup-header">
           <div className="offline-badge">
@@ -539,6 +549,32 @@ L'équipe de ${institution?.name}
           max-width: 1000px;
           margin: 0 auto;
           overflow: hidden;
+        }
+
+        .close-app-btn {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          width: 44px;
+          height: 44px;
+          border: none;
+          background: rgba(243, 238, 217, 0.15);
+          color: #F3EED9;
+          border-radius: 12px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+          z-index: 20;
+          border: 1px solid rgba(243, 238, 217, 0.2);
+        }
+
+        .close-app-btn:hover {
+          background: rgba(220, 38, 38, 0.2);
+          color: #DC2626;
+          border-color: rgba(220, 38, 38, 0.3);
+          transform: scale(1.05);
         }
 
         .setup-header {

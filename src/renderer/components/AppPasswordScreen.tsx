@@ -195,6 +195,8 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
           align-items: center;
           justify-content: center;
           z-index: 9999;
+          overflow-y: auto;
+          padding: 20px;
         }
 
         .password-background {
@@ -258,6 +260,10 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
           position: relative;
           z-index: 1;
           border: 1px solid rgba(229, 220, 194, 0.3);
+          margin: auto;
+          min-height: fit-content;
+          max-height: calc(100vh - 40px);
+          overflow-y: auto;
         }
 
         .close-app-btn {

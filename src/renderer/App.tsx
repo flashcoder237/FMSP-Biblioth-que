@@ -23,11 +23,12 @@ import { LocalAuthService } from './services/LocalAuthService';
 import { AppSettings } from './components/AppSettings';
 import { UserProfile } from './components/UserProfile';
 import { BackupManager } from './components/BackupManager';
+import { ReportsManager } from './components/ReportsManager';
 import { ToastProvider, useQuickToast } from './components/ToastSystem';
 import { KeyboardShortcutsProvider } from './components/KeyboardShortcuts';
 import { UnifiedUser, UnifiedInstitution, convertToUnifiedUser, convertToUnifiedInstitution } from './types/UnifiedTypes';
 
-type ViewType = 'initial_setup' | 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'settings' | 'app-settings' | 'user-profile' | 'backup-manager' | 'donation' | 'about' | 'auth' | 'institution_setup';
+type ViewType = 'initial_setup' | 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'reports' | 'settings' | 'app-settings' | 'user-profile' | 'backup-manager' | 'donation' | 'about' | 'auth' | 'institution_setup';
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewType>('initial_setup');
@@ -69,6 +70,7 @@ export const App: React.FC = () => {
   const [showBorrowModal, setShowBorrowModal] = useState(false);
   const [selectedDocumentForBorrow, setSelectedDocumentForBorrow] = useState<Document | null>(null);
   const [editingDocument, setEditingDocument] = useState<Document | null>(null);
+  const [showReportsModal, setShowReportsModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
 
@@ -1214,6 +1216,10 @@ export const App: React.FC = () => {
                 refreshData={refreshData}
                 supabaseService={supabaseService}
                 borrowers={borrowers}
+                documents={documents}
+                borrowedDocuments={borrowedDocuments}
+                showReportsModal={showReportsModal}
+                setShowReportsModal={setShowReportsModal}
                 stats={stats}
                 currentUser={currentUser}
                 currentInstitution={currentInstitution}
@@ -1251,6 +1257,10 @@ interface AppContentProps {
   refreshData: () => Promise<void>;
   supabaseService: SupabaseRendererService;
   borrowers: Borrower[];
+  documents: Document[];
+  borrowedDocuments: BorrowHistoryType[];
+  showReportsModal: boolean;
+  setShowReportsModal: (show: boolean) => void;
   stats: Stats;
   currentUser: User | null;
   currentInstitution: Institution | null;
@@ -1277,6 +1287,10 @@ const AppContent: React.FC<AppContentProps> = ({
   refreshData,
   supabaseService,
   borrowers,
+  documents,
+  borrowedDocuments,
+  showReportsModal,
+  setShowReportsModal,
   stats,
   currentUser,
   currentInstitution,
@@ -1305,7 +1319,13 @@ const AppContent: React.FC<AppContentProps> = ({
     <>
       <Sidebar
         currentView={currentView}
-        onNavigate={setCurrentView}
+        onNavigate={(view) => {
+          if (view === 'reports') {
+            setShowReportsModal(true);
+          } else {
+            setCurrentView(view);
+          }
+        }}
         stats={stats}
         currentUser={unifiedUser}
         currentInstitution={unifiedInstitution}
@@ -1340,6 +1360,16 @@ const AppContent: React.FC<AppContentProps> = ({
           onAddBorrower={handleAddBorrower}
         />
       )}
+
+      {/* Reports Modal */}
+      {showReportsModal && (
+        <ReportsManager
+          documents={documents}
+          borrowers={borrowers}
+          borrowHistory={borrowedDocuments}
+          onClose={() => setShowReportsModal(false)}
+        />
+      )}
       
       <style>{`
         .app {
@@ -1367,10 +1397,12 @@ const AppContent: React.FC<AppContentProps> = ({
         
         .content-wrapper {
           flex: 1;
-          overflow: hidden;
+          overflow-y: auto;
+          overflow-x: hidden;
           border-radius: 12px 0 0 0;
           background: #FAF9F6;
           box-shadow: -2px 0 8px rgba(0, 0, 0, 0.08);
+          max-height: 100vh;
         }
 
         .loading-overlay {

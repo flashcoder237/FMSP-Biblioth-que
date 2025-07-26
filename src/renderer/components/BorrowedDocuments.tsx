@@ -25,6 +25,7 @@ interface Document {
 interface BorrowedDocumentsProps {
   documents: Document[];
   onReturn: (documentId: number) => void;
+  onClose?: () => void;
 }
 
 type SortBy = 'borrower' | 'date' | 'title' | 'status';
@@ -233,7 +234,7 @@ const EmptyState: React.FC<{
 );
 
 // Main Component
-export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents, onReturn }) => {
+export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents, onReturn, onClose }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortBy>('date');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
