@@ -453,7 +453,9 @@ L'équipe de ${institution?.name}
           min-height: 100vh;
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           position: relative;
-          overflow-x: hidden;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
         }
 
         .setup-background {
@@ -530,18 +532,20 @@ L'équipe de ${institution?.name}
         .setup-container {
           position: relative;
           z-index: 10;
-          min-height: 100vh;
+          height: 100vh;
           display: flex;
           flex-direction: column;
           padding: 20px;
           max-width: 1000px;
           margin: 0 auto;
+          overflow: hidden;
         }
 
         .setup-header {
           text-align: center;
-          margin-bottom: 32px;
+          margin-bottom: 20px;
           color: #F3EED9;
+          flex-shrink: 0;
         }
 
         .offline-badge {
@@ -660,9 +664,11 @@ L'équipe de ${institution?.name}
           background: #FFFFFF;
           border-radius: 20px;
           padding: 32px;
-          margin-bottom: 24px;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+          margin-bottom: 16px;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+          border: 1px solid rgba(229, 220, 194, 0.3);
           overflow-y: auto;
+          min-height: 0;
         }
 
         .step-content {
@@ -1154,6 +1160,7 @@ L'équipe de ${institution?.name}
           justify-content: flex-end;
           gap: 12px;
           padding: 0 20px 20px;
+          flex-shrink: 0;
         }
 
         .nav-button {
@@ -1170,14 +1177,14 @@ L'équipe de ${institution?.name}
         }
 
         .nav-button.primary {
-          background: #C2571B;
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
           color: #F3EED9;
         }
 
         .nav-button.primary:hover:not(:disabled) {
-          background: #A8481A;
+          background: linear-gradient(135deg, #A8481A 0%, #8A3C18 100%);
           transform: translateY(-1px);
-          box-shadow: 0 4px 16px rgba(194, 87, 27, 0.3);
+          box-shadow: 0 4px 12px rgba(194, 87, 27, 0.3);
         }
 
         .nav-button.secondary {
@@ -1189,6 +1196,7 @@ L'équipe de ${institution?.name}
         .nav-button.secondary:hover:not(:disabled) {
           background: rgba(243, 238, 217, 0.2);
           border-color: rgba(243, 238, 217, 0.5);
+          transform: translateY(-1px);
         }
 
         .nav-button:disabled {
@@ -1216,6 +1224,7 @@ L'équipe de ${institution?.name}
         @media (max-width: 768px) {
           .setup-container {
             padding: 16px;
+            height: 100vh;
           }
 
           .progress-steps {
@@ -1229,6 +1238,7 @@ L'équipe de ${institution?.name}
 
           .setup-content {
             padding: 24px 16px;
+            margin-bottom: 12px;
           }
 
           .features-grid,

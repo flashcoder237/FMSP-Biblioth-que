@@ -190,7 +190,7 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
           left: 0;
           right: 0;
           bottom: 0;
-          background: linear-gradient(135deg, #3E5C49 0%, #399b5dff 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -210,8 +210,8 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
           width: 100%;
           height: 100%;
           background-image: 
-            radial-gradient(circle at 25% 25%, white 2px, transparent 2px),
-            radial-gradient(circle at 75% 75%, white 2px, transparent 2px);
+            radial-gradient(circle at 25% 25%, #F3EED9 2px, transparent 2px),
+            radial-gradient(circle at 75% 75%, #F3EED9 2px, transparent 2px);
           background-size: 60px 60px;
           animation: patternMove 25s linear infinite;
         }
@@ -226,7 +226,7 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
 
         .floating-lock {
           position: absolute;
-          color: rgba(255, 255, 255, 0.15);
+          color: rgba(243, 238, 217, 0.15);
           animation: float 8s ease-in-out infinite;
         }
 
@@ -254,9 +254,10 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
           padding: 40px;
           max-width: 450px;
           width: 90%;
-          box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
           position: relative;
           z-index: 1;
+          border: 1px solid rgba(229, 220, 194, 0.3);
         }
 
         .close-app-btn {
@@ -266,14 +267,14 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
           width: 40px;
           height: 40px;
           border: none;
-          background: rgba(0, 0, 0, 0.1);
-          color: #374151;
+          background: rgba(243, 238, 217, 0.1);
+          color: #6E6E6E;
           border-radius: 10px;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: all 0.3s ease;
+          transition: all 0.2s ease;
           z-index: 10;
         }
 
@@ -294,29 +295,32 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
           justify-content: center;
           width: 80px;
           height: 80px;
-          background: linear-gradient(135deg, #3E5C49, #399b5dff);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           border-radius: 20px;
-          color: white;
+          color: #F3EED9;
           margin-bottom: 20px;
+          box-shadow: 0 8px 24px rgba(62, 92, 73, 0.3);
         }
 
         .password-header h1 {
-          font-size: 2rem;
-          font-weight: 800;
-          color: #1f2937;
-          margin: 0 0 12px 0;
+          font-size: 24px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 8px 0;
+          line-height: 1.2;
         }
 
         .password-header p {
-          color: #374151;
+          color: #4A4A4A;
           margin: 0;
           line-height: 1.5;
+          font-size: 14px;
         }
 
         .password-form {
           display: flex;
           flex-direction: column;
-          gap: 20px;
+          gap: 24px;
         }
 
         .form-group {
@@ -326,28 +330,33 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
         }
 
         .form-group label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
           font-weight: 600;
-          color: #374151;
-          font-size: 0.9rem;
+          color: #2E2E2E;
         }
 
         .input-group {
           position: relative;
           display: flex;
           align-items: center;
-          border: 2px solid #e5e7eb;
-          border-radius: 12px;
+          border: 2px solid rgba(229, 220, 194, 0.4);
+          border-radius: 10px;
           padding: 0 16px;
-          transition: border-color 0.3s ease;
+          transition: all 0.2s ease;
+          background: white;
         }
 
         .input-group:focus-within {
-          border-color: #399b5dff;
-          box-shadow: 0 0 0 3px rgba(55, 48, 163, 0.1);
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
         }
 
         .input-group svg {
-          color: #9ca3af;
+          color: #6E6E6E;
           margin-right: 12px;
           flex-shrink: 0;
         }
@@ -355,36 +364,47 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
         .input-group input {
           flex: 1;
           border: none;
-          padding: 16px 0;
-          font-size: 1rem;
+          padding: 12px 0;
+          font-size: 14px;
           outline: none;
           background: transparent;
+          color: #2E2E2E;
+        }
+
+        .input-group input::placeholder {
+          color: #9ca3af;
+          opacity: 1;
         }
 
         .toggle-password {
           background: none;
           border: none;
-          color: #9ca3af;
+          color: #6E6E6E;
           cursor: pointer;
           padding: 4px;
           margin-left: 8px;
-          border-radius: 4px;
-          transition: color 0.3s ease;
+          border-radius: 6px;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .toggle-password:hover {
-          color: #6b7280;
+          color: #3E5C49;
+          background: rgba(62, 92, 73, 0.1);
         }
 
         .error-message {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 12px;
           color: #dc2626;
           background: #fef2f2;
-          padding: 12px 16px;
-          border-radius: 8px;
-          font-size: 0.9rem;
+          padding: 16px;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 500;
           border: 1px solid #fecaca;
         }
 
@@ -399,21 +419,23 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 10px;
-          background: linear-gradient(135deg, #3E5C49, #399b5dff);
-          color: white;
+          gap: 8px;
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
           border: none;
-          padding: 16px 24px;
-          border-radius: 12px;
-          font-size: 1.1rem;
+          padding: 12px 20px;
+          border-radius: 10px;
+          font-size: 14px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: all 0.2s ease;
+          min-width: 120px;
         }
 
         .unlock-btn:not(:disabled):hover {
-          transform: translateY(-2px);
-          box-shadow: 0 10px 30px rgba(30, 138, 100, 0.3);
+          background: linear-gradient(135deg, #2E453A 0%, #1F2F25 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
         }
 
         .unlock-btn:disabled {
@@ -423,46 +445,48 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
         }
 
         .skip-btn {
-          background: none;
-          border: 2px solid #e5e7eb;
-          color: #374151;
-          padding: 12px 24px;
-          border-radius: 12px;
-          font-size: 0.9rem;
+          background: #F3EED9;
+          border: 1px solid rgba(229, 220, 194, 0.4);
+          color: #2E2E2E;
+          padding: 12px 20px;
+          border-radius: 10px;
+          font-size: 14px;
+          font-weight: 600;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: all 0.2s ease;
         }
 
         .skip-btn:hover {
-          border-color: #d1d5db;
-          background: #f9fafb;
+          background: #E5DCC2;
+          transform: translateY(-1px);
         }
 
         .security-notice {
-          background: #f0f9ff;
-          border: 1px solid #bae6fd;
+          background: rgba(62, 92, 73, 0.05);
+          border: 1px solid rgba(62, 92, 73, 0.1);
           border-radius: 12px;
           padding: 16px;
           margin-top: 8px;
         }
 
         .notice-icon {
-          color: #02c78fff;
+          color: #3E5C49;
           margin-bottom: 8px;
         }
 
         .notice-content p {
           font-weight: 600;
-          color: #0c6e52ff;
-          margin: 0 0 8px 0;
-          font-size: 0.9rem;
+          color: #3E5C49;
+          margin: 0 0 12px 0;
+          font-size: 14px;
         }
 
         .notice-content ul {
           margin: 0;
           padding-left: 20px;
-          color: #078561ff;
-          font-size: 0.85rem;
+          color: #2E453A;
+          font-size: 13px;
+          line-height: 1.5;
         }
 
         .notice-content li {
@@ -472,8 +496,8 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
         .spinner {
           width: 16px;
           height: 16px;
-          border: 2px solid transparent;
-          border-top: 2px solid currentColor;
+          border: 2px solid rgba(243, 238, 217, 0.3);
+          border-top: 2px solid #F3EED9;
           border-radius: 50%;
           animation: spin 1s linear infinite;
         }
@@ -492,19 +516,40 @@ export const AppPasswordScreen: React.FC<AppPasswordScreenProps> = ({
           to { transform: rotate(360deg); }
         }
 
-        @media (max-width: 500px) {
+        @media (max-width: 768px) {
           .password-container {
-            padding: 24px;
+            padding: 32px 24px;
             width: 95%;
+            margin: 16px;
           }
 
           .password-header h1 {
-            font-size: 1.6rem;
+            font-size: 20px;
           }
 
           .lock-icon {
-            width: 60px;
-            height: 60px;
+            width: 64px;
+            height: 64px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .password-container {
+            padding: 24px 20px;
+            border-radius: 16px;
+          }
+
+          .password-header h1 {
+            font-size: 18px;
+          }
+
+          .lock-icon {
+            width: 56px;
+            height: 56px;
+          }
+
+          .password-header p {
+            font-size: 13px;
           }
         }
       `}</style>

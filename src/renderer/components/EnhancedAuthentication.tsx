@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { 
   Book, 
+  BookOpen,
   User, 
   Lock, 
   Eye, 
@@ -93,7 +94,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           mode: 'login'
         });
       } else if (mode === 'create_institution') {
-        if (step === 2) {
+        if (step === 4) {
           await onLogin({
             email: institutionData.adminEmail,
             password: institutionData.adminPassword,
@@ -116,22 +117,26 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
   };
 
   const nextStep = () => {
-    if (step === 1 && institutionData.name && institutionData.type && institutionData.city) {
+    if (step === 1 && institutionData.name) {
       setStep(2);
+    } else if (step === 2 && institutionData.type) {
+      setStep(3);
+    } else if (step === 3 && institutionData.city) {
+      setStep(4);
     }
   };
 
   const previousStep = () => {
-    if (step === 2) {
-      setStep(1);
+    if (step > 1) {
+      setStep(step - 1);
     }
   };
 
   const institutionTypes = [
-    { value: 'school', label: 'École/Lycée', icon: '🏫' },
-    { value: 'university', label: 'Université', icon: '🎓' },
-    { value: 'library', label: 'Bibliothèque', icon: '📚' },
-    { value: 'other', label: 'Autre', icon: '🏢' }
+    { value: 'school', label: 'École/Lycée', icon: Building, color: '#3E5C49' },
+    { value: 'university', label: 'Université', icon: BookOpen, color: '#C2571B' },
+    { value: 'library', label: 'Bibliothèque', icon: Book, color: '#2E453A' },
+    { value: 'other', label: 'Autre', icon: HardDrive, color: '#6E6E6E' }
   ];
 
   const defaultCredentials = [
@@ -162,22 +167,10 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
       </div>
 
       <div className="auth-content">
-        {/* Header avec logo et status offline */}
+        {/* Header simplifié */}
         <div className="auth-header">
-          <div className="app-logo">
-            <div className="logo-icon">
-              <Book size={32} />
-            </div>
-            <div className="logo-text">
-              <h1>Bibliothèque</h1>
-              <span>Gestion Locale</span>
-            </div>
-          </div>
-          
-          <div className="offline-badge">
-            <WifiOff size={16} />
-            <span>Mode Hors Ligne</span>
-          </div>
+          <h1 className="main-title">Bibliothèque Locale</h1>
+          <p className="main-subtitle">Connectez-vous ou créez votre établissement</p>
         </div>
 
         {/* Contenu principal */}
@@ -336,113 +329,285 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
             {/* Création d'établissement */}
             {mode === 'create_institution' && (
               <div className="institution-section">
+                {/* Progress Header */}
+                <div className="progress-header">
+                  <div className="progress-bar">
+                    <div className="progress-fill" style={{ width: `${(step / 4) * 100}%` }}></div>
+                  </div>
+                  <div className="progress-steps">
+                    <div className={`progress-step ${step >= 1 ? 'active' : ''} ${step === 1 ? 'current' : ''}`}>
+                      <div className="step-circle">
+                        <Building size={14} />
+                      </div>
+                      <span className="step-label">Nom</span>
+                    </div>
+                    <div className={`progress-step ${step >= 2 ? 'active' : ''} ${step === 2 ? 'current' : ''}`}>
+                      <div className="step-circle">
+                        <Users size={14} />
+                      </div>
+                      <span className="step-label">Type</span>
+                    </div>
+                    <div className={`progress-step ${step >= 3 ? 'active' : ''} ${step === 3 ? 'current' : ''}`}>
+                      <div className="step-circle">
+                        <MapPin size={14} />
+                      </div>
+                      <span className="step-label">Lieu</span>
+                    </div>
+                    <div className={`progress-step ${step >= 4 ? 'active' : ''} ${step === 4 ? 'current' : ''}`}>
+                      <div className="step-circle">
+                        <Shield size={14} />
+                      </div>
+                      <span className="step-label">Admin</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Étape 1: Nom de l'établissement */}
                 {step === 1 && (
                   <div className="step-content">
                     <div className="section-header">
-                      <Building size={24} />
-                      <h2>Nouvel Établissement</h2>
-                      <p>Créez votre établissement local</p>
+                      <h2>Nom de votre établissement</h2>
+                      <p>Choisissez un nom unique pour identifier votre bibliothèque</p>
                     </div>
 
                     <form onSubmit={(e) => { e.preventDefault(); nextStep(); }} className="auth-form">
                       <div className="form-group">
-                        <label>Nom de l'établissement *</label>
+                        <label>
+                          <Building size={18} />
+                          Nom de l'établissement *
+                        </label>
                         <div className="input-group">
-                          <Building size={20} />
                           <input
                             type="text"
                             value={institutionData.name}
                             onChange={(e) => setInstitutionData(prev => ({ ...prev, name: e.target.value }))}
-                            placeholder="Ma Bibliothèque"
+                            placeholder="École Primaire Martin Luther King"
                             required
                             disabled={isLoading}
+                            autoFocus
                           />
                         </div>
+                        <small>Ce nom apparaîtra dans l'interface de votre bibliothèque</small>
                       </div>
 
-                      <div className="form-group">
-                        <label>Type d'établissement *</label>
-                        <div className="type-grid">
-                          {institutionTypes.map((type) => (
-                            <label key={type.value} className="type-card">
-                              <input
-                                type="radio"
-                                name="type"
-                                value={type.value}
-                                checked={institutionData.type === type.value}
-                                onChange={(e) => setInstitutionData(prev => ({ ...prev, type: e.target.value as any }))}
-                                disabled={isLoading}
-                              />
-                              <div className="type-content">
-                                <span className="type-icon">{type.icon}</span>
-                                <span className="type-label">{type.label}</span>
-                              </div>
-                            </label>
-                          ))}
+                      <div className="step-info-card">
+                        <div className="info-icon">
+                          <Sparkles size={20} />
+                        </div>
+                        <div className="info-content">
+                          <h4>Conseils pour le nom</h4>
+                          <ul>
+                            <li>Utilisez le nom officiel de votre établissement</li>
+                            <li>Évitez les abréviations trop complexes</li>
+                            <li>Vous pourrez le modifier plus tard si nécessaire</li>
+                          </ul>
                         </div>
                       </div>
 
-                      <div className="form-group">
-                        <label>Ville *</label>
-                        <div className="input-group">
-                          <MapPin size={20} />
-                          <input
-                            type="text"
-                            value={institutionData.city}
-                            onChange={(e) => setInstitutionData(prev => ({ ...prev, city: e.target.value }))}
-                            placeholder="Votre ville"
-                            required
-                            disabled={isLoading}
-                          />
-                        </div>
+                      <div className="form-actions">
+                        <button
+                          type="submit"
+                          className="submit-btn primary"
+                          disabled={!institutionData.name.trim() || isLoading}
+                        >
+                          <span>Continuer</span>
+                          <ArrowRight size={16} />
+                        </button>
                       </div>
-
-                      <button
-                        type="submit"
-                        className="submit-btn"
-                        disabled={!institutionData.name || !institutionData.type || !institutionData.city || isLoading}
-                      >
-                        Continuer
-                        <ArrowRight size={18} />
-                      </button>
                     </form>
                   </div>
                 )}
 
+                {/* Étape 2: Type d'établissement */}
                 {step === 2 && (
                   <div className="step-content">
                     <div className="section-header">
-                      <Shield size={24} />
-                      <h2>Compte Administrateur</h2>
-                      <p>Créez le compte administrateur principal</p>
+                      <h2>Type d'établissement</h2>
+                      <p>Sélectionnez le type qui correspond le mieux à votre organisation</p>
+                    </div>
+
+                    <form onSubmit={(e) => { e.preventDefault(); nextStep(); }} className="auth-form">
+                      <div className="form-group">
+                        <label>
+                          <Users size={18} />
+                          Choisissez votre type *
+                        </label>
+                        <div className="type-selector">
+                          {institutionTypes.map((type) => {
+                            const IconComponent = type.icon;
+                            const isSelected = institutionData.type === type.value;
+                            
+                            return (
+                              <label key={type.value} className={`type-option ${isSelected ? 'selected' : ''}`}>
+                                <input
+                                  type="radio"
+                                  name="type"
+                                  value={type.value}
+                                  checked={isSelected}
+                                  onChange={(e) => setInstitutionData(prev => ({ ...prev, type: e.target.value as any }))}
+                                  disabled={isLoading}
+                                />
+                                <div className="type-card-content">
+                                  <div className="type-icon-wrapper" style={{ backgroundColor: isSelected ? type.color : 'rgba(110, 110, 110, 0.1)' }}>
+                                    <IconComponent size={20} color={isSelected ? '#F3EED9' : type.color} />
+                                  </div>
+                                  <div className="type-info">
+                                    <span className="type-name">{type.label}</span>
+                                    <span className="type-description">
+                                      {type.value === 'school' && 'Établissement scolaire'}
+                                      {type.value === 'university' && 'Enseignement supérieur'}
+                                      {type.value === 'library' && 'Bibliothèque publique'}
+                                      {type.value === 'other' && 'Autre organisation'}
+                                    </span>
+                                  </div>
+                                  {isSelected && (
+                                    <div className="selection-indicator">
+                                      <CheckCircle size={18} color={type.color} />
+                                    </div>
+                                  )}
+                                </div>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="form-actions">
+                        <button
+                          type="button"
+                          onClick={previousStep}
+                          className="submit-btn secondary"
+                          disabled={isLoading}
+                        >
+                          <span>Retour</span>
+                        </button>
+                        <button
+                          type="submit"
+                          className="submit-btn primary"
+                          disabled={!institutionData.type || isLoading}
+                        >
+                          <span>Continuer</span>
+                          <ArrowRight size={16} />
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
+                {/* Étape 3: Localisation */}
+                {step === 3 && (
+                  <div className="step-content">
+                    <div className="section-header">
+                      <h2>Localisation</h2>
+                      <p>Indiquez où se trouve votre établissement</p>
+                    </div>
+
+                    <form onSubmit={(e) => { e.preventDefault(); nextStep(); }} className="auth-form">
+                      <div className="form-group">
+                        <label>
+                          <MapPin size={18} />
+                          Ville *
+                        </label>
+                        <div className="input-group">
+                          <input
+                            type="text"
+                            value={institutionData.city}
+                            onChange={(e) => setInstitutionData(prev => ({ ...prev, city: e.target.value }))}
+                            placeholder="Paris"
+                            required
+                            disabled={isLoading}
+                            autoFocus
+                          />
+                        </div>
+                        <small>Ville où se trouve votre établissement</small>
+                      </div>
+
+                      <div className="establishment-preview">
+                        <div className="preview-card">
+                          <div className="preview-header">
+                            <Building size={20} />
+                            <span>Récapitulatif</span>
+                          </div>
+                          <div className="preview-content">
+                            <div className="preview-item">
+                              <span className="preview-label">Nom :</span>
+                              <span className="preview-value">{institutionData.name}</span>
+                            </div>
+                            <div className="preview-item">
+                              <span className="preview-label">Type :</span>
+                              <span className="preview-value">
+                                {institutionTypes.find(t => t.value === institutionData.type)?.label}
+                              </span>
+                            </div>
+                            <div className="preview-item">
+                              <span className="preview-label">Ville :</span>
+                              <span className="preview-value">{institutionData.city || 'À compléter'}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="form-actions">
+                        <button
+                          type="button"
+                          onClick={previousStep}
+                          className="submit-btn secondary"
+                          disabled={isLoading}
+                        >
+                          <span>Retour</span>
+                        </button>
+                        <button
+                          type="submit"
+                          className="submit-btn primary"
+                          disabled={!institutionData.city.trim() || isLoading}
+                        >
+                          <span>Continuer</span>
+                          <ArrowRight size={16} />
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
+                {/* Étape 4: Administrateur */}
+                {step === 4 && (
+                  <div className="step-content">
+                    <div className="section-header">
+                      <h2>Compte administrateur</h2>
+                      <p>Créez le compte administrateur principal de votre établissement</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="auth-form">
                       <div className="form-row">
                         <div className="form-group">
-                          <label>Prénom *</label>
+                          <label>
+                            <User size={18} />
+                            Prénom *
+                          </label>
                           <div className="input-group">
-                            <User size={20} />
                             <input
                               type="text"
                               value={institutionData.adminFirstName}
                               onChange={(e) => setInstitutionData(prev => ({ ...prev, adminFirstName: e.target.value }))}
-                              placeholder="Prénom"
+                              placeholder="Jean"
                               required
                               disabled={isLoading}
+                              autoFocus
                             />
                           </div>
                         </div>
 
                         <div className="form-group">
-                          <label>Nom *</label>
+                          <label>
+                            <User size={18} />
+                            Nom *
+                          </label>
                           <div className="input-group">
-                            <User size={20} />
                             <input
                               type="text"
                               value={institutionData.adminLastName}
                               onChange={(e) => setInstitutionData(prev => ({ ...prev, adminLastName: e.target.value }))}
-                              placeholder="Nom"
+                              placeholder="Dupont"
                               required
                               disabled={isLoading}
                             />
@@ -451,32 +616,37 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
                       </div>
 
                       <div className="form-group">
-                        <label>Email administrateur *</label>
+                        <label>
+                          <Mail size={18} />
+                          Email administrateur *
+                        </label>
                         <div className="input-group">
-                          <Mail size={20} />
                           <input
                             type="email"
                             value={institutionData.adminEmail}
                             onChange={(e) => setInstitutionData(prev => ({ ...prev, adminEmail: e.target.value }))}
-                            placeholder="admin@monorganisation.com"
+                            placeholder="admin@etablissement.fr"
                             required
                             disabled={isLoading}
                           />
                         </div>
+                        <small>Utilisé pour la connexion à votre bibliothèque</small>
                       </div>
 
                       <div className="form-group">
-                        <label>Mot de passe *</label>
+                        <label>
+                          <Lock size={18} />
+                          Mot de passe administrateur *
+                        </label>
                         <div className="input-group">
-                          <Lock size={20} />
                           <input
                             type={showPassword ? 'text' : 'password'}
                             value={institutionData.adminPassword}
                             onChange={(e) => setInstitutionData(prev => ({ ...prev, adminPassword: e.target.value }))}
                             placeholder="Mot de passe sécurisé"
                             required
-                            disabled={isLoading}
                             minLength={3}
+                            disabled={isLoading}
                           />
                           <button
                             type="button"
@@ -486,21 +656,52 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
                             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                           </button>
                         </div>
-                        <small>Minimum 3 caractères</small>
+                        <small>Minimum 3 caractères requis</small>
+                      </div>
+
+                      <div className="final-summary">
+                        <div className="summary-card">
+                          <div className="summary-header">
+                            <CheckCircle size={20} />
+                            <span>Récapitulatif final</span>
+                          </div>
+                          <div className="summary-content">
+                            <div className="summary-section">
+                              <h5>Établissement</h5>
+                              <p><strong>{institutionData.name}</strong></p>
+                              <p>{institutionTypes.find(t => t.value === institutionData.type)?.label} • {institutionData.city}</p>
+                            </div>
+                            <div className="summary-section">
+                              <h5>Administrateur</h5>
+                              <p>{institutionData.adminFirstName} {institutionData.adminLastName}</p>
+                              <p>{institutionData.adminEmail}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="admin-info">
+                        <div className="info-card">
+                          <Shield size={20} />
+                          <div className="info-content">
+                            <h4>Privilèges administrateur</h4>
+                            <p>Ce compte aura tous les privilèges pour gérer votre bibliothèque locale : ajout de livres, gestion des utilisateurs, paramètres système.</p>
+                          </div>
+                        </div>
                       </div>
 
                       <div className="form-actions">
                         <button
                           type="button"
-                          className="back-btn"
                           onClick={previousStep}
+                          className="submit-btn secondary"
                           disabled={isLoading}
                         >
-                          Précédent
+                          <span>Retour</span>
                         </button>
                         <button
                           type="submit"
-                          className="submit-btn"
+                          className="submit-btn primary"
                           disabled={!institutionData.adminFirstName || !institutionData.adminLastName || 
                                    !institutionData.adminEmail || !institutionData.adminPassword || 
                                    institutionData.adminPassword.length < 3 || isLoading}
@@ -508,12 +709,12 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
                           {isLoading ? (
                             <>
                               <div className="spinner"></div>
-                              Création...
+                              <span>Création...</span>
                             </>
                           ) : (
                             <>
-                              <Building size={18} />
-                              Créer l'établissement
+                              <span>Créer l'établissement</span>
+                              <Sparkles size={16} />
                             </>
                           )}
                         </button>
@@ -521,19 +722,6 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
                     </form>
                   </div>
                 )}
-
-                {/* Indicateur de progression */}
-                <div className="step-indicator">
-                  <div className={`step ${step >= 1 ? 'active' : ''}`}>
-                    <span>1</span>
-                    <label>Établissement</label>
-                  </div>
-                  <div className="step-line"></div>
-                  <div className={`step ${step >= 2 ? 'active' : ''}`}>
-                    <span>2</span>
-                    <label>Administrateur</label>
-                  </div>
-                </div>
               </div>
             )}
           </div>
@@ -567,7 +755,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           position: relative;
           overflow-x: hidden;
-          overflow-y: auto;
+          /* Retirer: overflow-y: auto; - laissez le scroll naturel */
         }
 
         .auth-background {
@@ -644,7 +832,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         .auth-content {
           position: relative;
           z-index: 10;
-          min-height: 100vh;
+          min-height: 100vh; /* Garder min-height au lieu de height */
           display: flex;
           flex-direction: column;
           padding: 20px;
@@ -654,54 +842,25 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         }
 
         .auth-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 40px;
+          text-align: center;
+          margin-bottom: 32px;
           padding: 0 20px;
         }
 
-        .app-logo {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-        }
-
-        .logo-icon {
-          width: 50px;
-          height: 50px;
-          background: rgba(243, 238, 217, 0.15);
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+        .main-title {
+          margin: 0 0 8px 0;
           color: #F3EED9;
-          border: 1px solid rgba(243, 238, 217, 0.2);
+          font-size: 32px;
+          font-weight: 800;
+          letter-spacing: -0.5px;
         }
 
-        .logo-text h1 {
+        .main-subtitle {
           margin: 0;
-          color: #F3EED9;
-          font-size: 24px;
-          font-weight: 700;
-        }
-
-        .logo-text span {
           color: rgba(243, 238, 217, 0.8);
-          font-size: 14px;
-        }
-
-        .offline-badge {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: rgba(194, 87, 27, 0.2);
-          color: #C2571B;
-          padding: 8px 16px;
-          border-radius: 20px;
-          font-size: 14px;
-          font-weight: 600;
-          border: 1px solid rgba(194, 87, 27, 0.3);
+          font-size: 16px;
+          font-weight: 400;
+          line-height: 1.5;
         }
 
         .main-content {
@@ -712,23 +871,24 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           min-height: 0;
         }
 
-        .auth-card {
+       .auth-card {
           flex: 1;
-          background: #FFFFFF;
+          background: white;
           border-radius: 20px;
           overflow: hidden;
-          overflow-y: auto;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-          max-width: 600px;
-          max-height: calc(100vh - 160px);
-          display: flex;
-          flex-direction: column;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+          max-width: 700px;
+          /* RETIRER: height: calc(100vh - 160px); */
+          /* RETIRER: display: flex; */
+          /* RETIRER: flex-direction: column; */
+          border: 1px solid rgba(229, 220, 194, 0.3);
+          /* Ajouter une hauteur minimale si nécessaire */
+          min-height: 600px;
         }
 
         .auth-tabs {
           display: flex;
-          background: rgba(248, 246, 240, 0.8);
-          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           flex-shrink: 0;
         }
 
@@ -738,20 +898,35 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           align-items: center;
           justify-content: center;
           gap: 8px;
-          padding: 20px;
+          padding: 24px;
           background: none;
           border: none;
           cursor: pointer;
           font-size: 16px;
           font-weight: 600;
-          color: #4A4A4A;
+          color: rgba(243, 238, 217, 0.7);
           transition: all 0.2s ease;
+          position: relative;
+        }
+
+        .tab:hover {
+          color: #F3EED9;
+          background: rgba(243, 238, 217, 0.1);
         }
 
         .tab.active {
-          background: #FFFFFF;
-          color: #3E5C49;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          color: #F3EED9;
+          background: rgba(243, 238, 217, 0.15);
+        }
+
+        .tab.active::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: #C2571B;
         }
 
         .message {
@@ -775,27 +950,31 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
         .section-header {
           text-align: center;
-          padding: 32px 24px 24px;
-          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
+          padding: 32px 32px 24px;
+          border-bottom: 1px solid rgba(229, 220, 194, 0.4);
+          background: #FAF9F6;
         }
 
         .section-header h2 {
-          margin: 16px 0 8px;
+          margin: 0 0 8px 0;
           color: #3E5C49;
           font-size: 24px;
           font-weight: 700;
+          line-height: 1.2;
         }
 
         .section-header p {
           margin: 0;
           color: #4A4A4A;
-          font-size: 16px;
+          font-size: 14px;
+          line-height: 1.5;
         }
 
         .auth-form {
-          padding: 32px 24px;
-          flex: 1;
-          overflow-y: auto;
+          padding: 32px;
+          /* RETIRER: flex: 1; */
+          /* RETIRER: overflow-y: auto; */
+          /* RETIRER: min-height: 0; */
         }
 
         .form-group {
@@ -809,10 +988,12 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         }
 
         .form-group label {
-          display: block;
+          display: flex;
+          align-items: center;
+          gap: 8px;
           margin-bottom: 8px;
           font-weight: 600;
-          color: #3E5C49;
+          color: #2E2E2E;
           font-size: 14px;
         }
 
@@ -820,45 +1001,57 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           position: relative;
           display: flex;
           align-items: center;
-        }
-
-        .input-group svg {
-          position: absolute;
-          left: 16px;
-          color: #4A4A4A;
-          z-index: 2;
-        }
-
-        .input-group input {
-          width: 100%;
-          padding: 16px 16px 16px 48px;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          font-size: 16px;
+          border: 2px solid rgba(229, 220, 194, 0.4);
+          border-radius: 10px;
+          padding: 0 16px;
           transition: all 0.2s ease;
+          background: white;
         }
 
-        .input-group input:focus {
+        .input-group:focus-within {
           outline: none;
           border-color: #3E5C49;
           box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
         }
 
+        .input-group svg {
+          color: #6E6E6E;
+          margin-right: 12px;
+          flex-shrink: 0;
+        }
+
+        .input-group input {
+          flex: 1;
+          border: none;
+          padding: 12px 0;
+          font-size: 14px;
+          outline: none;
+          background: transparent;
+          color: #2E2E2E;
+        }
+
+        .input-group input::placeholder {
+          color: #9ca3af;
+          opacity: 1;
+        }
+
         .input-group input:disabled {
-          background: rgba(248, 246, 240, 0.5);
+          background: transparent;
           opacity: 0.7;
         }
 
         .toggle-password {
-          position: absolute;
-          right: 16px;
           background: none;
           border: none;
+          color: #6E6E6E;
           cursor: pointer;
-          color: #4A4A4A;
           padding: 4px;
-          border-radius: 4px;
+          margin-left: 8px;
+          border-radius: 6px;
           transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .toggle-password:hover {
@@ -871,52 +1064,98 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           margin-top: 4px;
           color: #4A4A4A;
           font-size: 12px;
+          line-height: 1.4;
         }
 
-        .type-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
+        .type-selector {
+          display: flex;
+          flex-direction: column;
           gap: 12px;
         }
 
-        .type-card {
+        .type-option {
           display: block;
           cursor: pointer;
+          transition: all 0.2s ease;
         }
 
-        .type-card input {
+        .type-option input {
           display: none;
         }
 
-        .type-content {
+        .type-card-content {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 16px;
+          border: 2px solid rgba(229, 220, 194, 0.4);
+          border-radius: 12px;
+          background: white;
+          transition: all 0.2s ease;
+          position: relative;
+        }
+
+        .type-option:hover .type-card-content {
+          border-color: #3E5C49;
+          box-shadow: 0 2px 8px rgba(62, 92, 73, 0.1);
+          transform: translateY(-1px);
+        }
+
+        .type-option.selected .type-card-content {
+          border-color: #3E5C49;
+          background: rgba(62, 92, 73, 0.02);
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+
+        .type-icon-wrapper {
+          width: 44px;
+          height: 44px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+          flex-shrink: 0;
+        }
+
+        .type-info {
+          flex: 1;
           display: flex;
           flex-direction: column;
-          align-items: center;
-          gap: 8px;
-          padding: 20px 16px;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          transition: all 0.2s ease;
-          text-align: center;
+          gap: 4px;
+          min-width: 0;
         }
 
-        .type-card input:checked + .type-content {
-          border-color: #3E5C49;
-          background: rgba(62, 92, 73, 0.05);
-        }
-
-        .type-content:hover {
-          border-color: #3E5C49;
-        }
-
-        .type-icon {
-          font-size: 24px;
-        }
-
-        .type-label {
+        .type-name {
           font-weight: 600;
-          color: #3E5C49;
+          color: #2E2E2E;
           font-size: 14px;
+          line-height: 1.2;
+        }
+
+        .type-description {
+          font-size: 12px;
+          color: #6E6E6E;
+          line-height: 1.3;
+        }
+
+        .selection-indicator {
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: checkIn 0.2s ease-out;
+        }
+
+        @keyframes checkIn {
+          from {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
         }
 
         .submit-btn {
@@ -928,17 +1167,19 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           color: #F3EED9;
           border: none;
-          padding: 16px 24px;
-          border-radius: 12px;
-          font-size: 16px;
+          padding: 12px 20px;
+          border-radius: 10px;
+          font-size: 14px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: all 0.2s ease;
+          min-width: 120px;
         }
 
         .submit-btn:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(62, 92, 73, 0.3);
+          background: linear-gradient(135deg, #2E453A 0%, #1F2F25 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
         }
 
         .submit-btn:disabled {
@@ -948,12 +1189,12 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         }
 
         .back-btn {
-          background: rgba(248, 246, 240, 0.8);
-          color: #4A4A4A;
-          border: 2px solid #E5DCC2;
-          padding: 12px 24px;
-          border-radius: 12px;
-          font-size: 16px;
+          background: #F3EED9;
+          color: #2E2E2E;
+          border: 1px solid rgba(229, 220, 194, 0.4);
+          padding: 12px 20px;
+          border-radius: 10px;
+          font-size: 14px;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -962,16 +1203,273 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         .back-btn:hover:not(:disabled) {
           background: #E5DCC2;
           color: #2E2E2E;
+          transform: translateY(-1px);
         }
 
         .form-actions {
           display: flex;
           gap: 16px;
-          margin-top: 24px;
+          margin-top: 32px;
         }
 
         .form-actions .submit-btn {
           flex: 1;
+        }
+
+        .submit-btn.primary {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+        }
+
+        .submit-btn.secondary {
+          background: #F3EED9;
+          color: #2E2E2E;
+          border: 1px solid rgba(229, 220, 194, 0.4);
+        }
+
+        .submit-btn.secondary:hover:not(:disabled) {
+          background: #E5DCC2;
+          transform: translateY(-1px);
+        }
+
+        /* Progress Header */
+        .progress-header {
+          padding: 24px 32px;
+          background: #FAF9F6;
+          border-bottom: 1px solid rgba(229, 220, 194, 0.4);
+        }
+
+        .progress-bar {
+          height: 4px;
+          background: rgba(229, 220, 194, 0.3);
+          border-radius: 2px;
+          overflow: hidden;
+          margin-bottom: 20px;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #3E5C49 0%, #C2571B 100%);
+          transition: width 0.3s ease;
+          border-radius: 2px;
+        }
+
+        .progress-steps {
+          display: flex;
+          justify-content: center;
+          gap: 24px;
+        }
+
+        .progress-step {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          opacity: 0.5;
+          transition: all 0.3s ease;
+        }
+
+        .progress-step.active {
+          opacity: 1;
+        }
+
+        .progress-step.current {
+          transform: scale(1.05);
+        }
+
+        .step-circle {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: rgba(229, 220, 194, 0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #6E6E6E;
+          transition: all 0.3s ease;
+        }
+
+        .progress-step.active .step-circle {
+          background: #3E5C49;
+          color: #F3EED9;
+        }
+
+        .progress-step.current .step-circle {
+          background: #C2571B;
+          color: #F3EED9;
+          box-shadow: 0 4px 16px rgba(194, 87, 27, 0.3);
+        }
+
+        .step-label {
+          font-size: 12px;
+          font-weight: 600;
+          color: #2E2E2E;
+          text-align: center;
+        }
+
+        /* Admin Info Card */
+        .admin-info {
+          margin: 24px 0;
+        }
+
+        .info-card {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          padding: 16px;
+          background: rgba(62, 92, 73, 0.05);
+          border: 1px solid rgba(62, 92, 73, 0.1);
+          border-radius: 12px;
+          color: #3E5C49;
+        }
+
+        .info-content h4 {
+          font-size: 14px;
+          font-weight: 600;
+          margin: 0 0 4px 0;
+          color: #3E5C49;
+        }
+
+        .info-content p {
+          font-size: 13px;
+          margin: 0;
+          color: #4A4A4A;
+          line-height: 1.4;
+        }
+
+        /* Step Info Card */
+        .step-info-card {
+          margin: 24px 0;
+          background: rgba(194, 87, 27, 0.05);
+          border: 1px solid rgba(194, 87, 27, 0.1);
+          border-radius: 12px;
+          padding: 16px;
+        }
+
+        .step-info-card .info-icon {
+          color: #C2571B;
+          margin-bottom: 8px;
+        }
+
+        .step-info-card h4 {
+          font-size: 14px;
+          font-weight: 600;
+          margin: 0 0 8px 0;
+          color: #C2571B;
+        }
+
+        .step-info-card ul {
+          margin: 0;
+          padding-left: 16px;
+          color: #4A4A4A;
+        }
+
+        .step-info-card li {
+          font-size: 13px;
+          line-height: 1.4;
+          margin-bottom: 4px;
+        }
+
+        /* Establishment Preview */
+        .establishment-preview {
+          margin: 24px 0;
+        }
+
+        .preview-card {
+          background: rgba(62, 92, 73, 0.05);
+          border: 1px solid rgba(62, 92, 73, 0.1);
+          border-radius: 12px;
+          overflow: hidden;
+        }
+
+        .preview-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          background: rgba(62, 92, 73, 0.1);
+          border-bottom: 1px solid rgba(62, 92, 73, 0.1);
+          font-weight: 600;
+          font-size: 14px;
+          color: #3E5C49;
+        }
+
+        .preview-content {
+          padding: 16px;
+        }
+
+        .preview-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+        }
+
+        .preview-item:last-child {
+          margin-bottom: 0;
+        }
+
+        .preview-label {
+          font-size: 13px;
+          color: #6E6E6E;
+          font-weight: 500;
+        }
+
+        .preview-value {
+          font-size: 13px;
+          font-weight: 600;
+          color: #2E2E2E;
+        }
+
+        /* Final Summary */
+        .final-summary {
+          margin: 24px 0;
+        }
+
+        .summary-card {
+          background: linear-gradient(135deg, rgba(62, 92, 73, 0.05) 0%, rgba(194, 87, 27, 0.05) 100%);
+          border: 1px solid rgba(62, 92, 73, 0.15);
+          border-radius: 12px;
+          overflow: hidden;
+        }
+
+        .summary-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          background: rgba(62, 92, 73, 0.1);
+          border-bottom: 1px solid rgba(62, 92, 73, 0.1);
+          font-weight: 600;
+          font-size: 14px;
+          color: #3E5C49;
+        }
+
+        .summary-content {
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .summary-section h5 {
+          font-size: 12px;
+          font-weight: 600;
+          color: #6E6E6E;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin: 0 0 6px 0;
+        }
+
+        .summary-section p {
+          margin: 0 0 4px 0;
+          font-size: 14px;
+          color: #2E2E2E;
+          line-height: 1.3;
+        }
+
+        .summary-section p:last-child {
+          margin-bottom: 0;
         }
 
         .spinner {
@@ -988,59 +1486,6 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           100% { transform: rotate(360deg); }
         }
 
-        .step-indicator {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 16px;
-          padding: 24px;
-          background: rgba(248, 246, 240, 0.8);
-          border-top: 1px solid rgba(229, 220, 194, 0.3);
-        }
-
-        .step {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 8px;
-          opacity: 0.5;
-          transition: opacity 0.3s ease;
-        }
-
-        .step.active {
-          opacity: 1;
-        }
-
-        .step span {
-          width: 32px;
-          height: 32px;
-          background: #E5DCC2;
-          color: #4A4A4A;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 600;
-          font-size: 14px;
-        }
-
-        .step.active span {
-          background: #3E5C49;
-          color: #F3EED9;
-        }
-
-        .step label {
-          font-size: 12px;
-          font-weight: 600;
-          color: #4A4A4A;
-          text-align: center;
-        }
-
-        .step-line {
-          width: 40px;
-          height: 2px;
-          background: #E5DCC2;
-        }
 
         /* Connexions rapides */
         .quick-login-section {
@@ -1225,6 +1670,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
           .auth-card {
             max-width: none;
+            min-height: auto; /* Permettre à la carte de s'adapter au contenu */
           }
 
           .form-row {
@@ -1235,8 +1681,18 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
             grid-template-columns: 1fr;
           }
 
-          .type-grid {
-            grid-template-columns: 1fr;
+          .type-selector {
+            gap: 10px;
+          }
+
+          .type-card-content {
+            padding: 12px;
+            gap: 12px;
+          }
+
+          .type-icon-wrapper {
+            width: 36px;
+            height: 36px;
           }
 
           .info-sidebar {

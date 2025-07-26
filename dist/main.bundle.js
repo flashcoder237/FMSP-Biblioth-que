@@ -3459,7 +3459,7 @@ const AppPasswordScreen = ({ onUnlock, onSkip, onClose, isSetup = false }) => {
           left: 0;
           right: 0;
           bottom: 0;
-          background: linear-gradient(135deg, #3E5C49 0%, #399b5dff 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -3479,8 +3479,8 @@ const AppPasswordScreen = ({ onUnlock, onSkip, onClose, isSetup = false }) => {
           width: 100%;
           height: 100%;
           background-image: 
-            radial-gradient(circle at 25% 25%, white 2px, transparent 2px),
-            radial-gradient(circle at 75% 75%, white 2px, transparent 2px);
+            radial-gradient(circle at 25% 25%, #F3EED9 2px, transparent 2px),
+            radial-gradient(circle at 75% 75%, #F3EED9 2px, transparent 2px);
           background-size: 60px 60px;
           animation: patternMove 25s linear infinite;
         }
@@ -3495,7 +3495,7 @@ const AppPasswordScreen = ({ onUnlock, onSkip, onClose, isSetup = false }) => {
 
         .floating-lock {
           position: absolute;
-          color: rgba(255, 255, 255, 0.15);
+          color: rgba(243, 238, 217, 0.15);
           animation: float 8s ease-in-out infinite;
         }
 
@@ -3523,9 +3523,10 @@ const AppPasswordScreen = ({ onUnlock, onSkip, onClose, isSetup = false }) => {
           padding: 40px;
           max-width: 450px;
           width: 90%;
-          box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
           position: relative;
           z-index: 1;
+          border: 1px solid rgba(229, 220, 194, 0.3);
         }
 
         .close-app-btn {
@@ -3535,14 +3536,14 @@ const AppPasswordScreen = ({ onUnlock, onSkip, onClose, isSetup = false }) => {
           width: 40px;
           height: 40px;
           border: none;
-          background: rgba(0, 0, 0, 0.1);
-          color: #374151;
+          background: rgba(243, 238, 217, 0.1);
+          color: #6E6E6E;
           border-radius: 10px;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: all 0.3s ease;
+          transition: all 0.2s ease;
           z-index: 10;
         }
 
@@ -3563,29 +3564,32 @@ const AppPasswordScreen = ({ onUnlock, onSkip, onClose, isSetup = false }) => {
           justify-content: center;
           width: 80px;
           height: 80px;
-          background: linear-gradient(135deg, #3E5C49, #399b5dff);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           border-radius: 20px;
-          color: white;
+          color: #F3EED9;
           margin-bottom: 20px;
+          box-shadow: 0 8px 24px rgba(62, 92, 73, 0.3);
         }
 
         .password-header h1 {
-          font-size: 2rem;
-          font-weight: 800;
-          color: #1f2937;
-          margin: 0 0 12px 0;
+          font-size: 24px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 8px 0;
+          line-height: 1.2;
         }
 
         .password-header p {
-          color: #374151;
+          color: #4A4A4A;
           margin: 0;
           line-height: 1.5;
+          font-size: 14px;
         }
 
         .password-form {
           display: flex;
           flex-direction: column;
-          gap: 20px;
+          gap: 24px;
         }
 
         .form-group {
@@ -3595,28 +3599,33 @@ const AppPasswordScreen = ({ onUnlock, onSkip, onClose, isSetup = false }) => {
         }
 
         .form-group label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
           font-weight: 600;
-          color: #374151;
-          font-size: 0.9rem;
+          color: #2E2E2E;
         }
 
         .input-group {
           position: relative;
           display: flex;
           align-items: center;
-          border: 2px solid #e5e7eb;
-          border-radius: 12px;
+          border: 2px solid rgba(229, 220, 194, 0.4);
+          border-radius: 10px;
           padding: 0 16px;
-          transition: border-color 0.3s ease;
+          transition: all 0.2s ease;
+          background: white;
         }
 
         .input-group:focus-within {
-          border-color: #399b5dff;
-          box-shadow: 0 0 0 3px rgba(55, 48, 163, 0.1);
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
         }
 
         .input-group svg {
-          color: #9ca3af;
+          color: #6E6E6E;
           margin-right: 12px;
           flex-shrink: 0;
         }
@@ -3624,36 +3633,47 @@ const AppPasswordScreen = ({ onUnlock, onSkip, onClose, isSetup = false }) => {
         .input-group input {
           flex: 1;
           border: none;
-          padding: 16px 0;
-          font-size: 1rem;
+          padding: 12px 0;
+          font-size: 14px;
           outline: none;
           background: transparent;
+          color: #2E2E2E;
+        }
+
+        .input-group input::placeholder {
+          color: #9ca3af;
+          opacity: 1;
         }
 
         .toggle-password {
           background: none;
           border: none;
-          color: #9ca3af;
+          color: #6E6E6E;
           cursor: pointer;
           padding: 4px;
           margin-left: 8px;
-          border-radius: 4px;
-          transition: color 0.3s ease;
+          border-radius: 6px;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .toggle-password:hover {
-          color: #6b7280;
+          color: #3E5C49;
+          background: rgba(62, 92, 73, 0.1);
         }
 
         .error-message {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 12px;
           color: #dc2626;
           background: #fef2f2;
-          padding: 12px 16px;
-          border-radius: 8px;
-          font-size: 0.9rem;
+          padding: 16px;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 500;
           border: 1px solid #fecaca;
         }
 
@@ -3668,21 +3688,23 @@ const AppPasswordScreen = ({ onUnlock, onSkip, onClose, isSetup = false }) => {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 10px;
-          background: linear-gradient(135deg, #3E5C49, #399b5dff);
-          color: white;
+          gap: 8px;
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
           border: none;
-          padding: 16px 24px;
-          border-radius: 12px;
-          font-size: 1.1rem;
+          padding: 12px 20px;
+          border-radius: 10px;
+          font-size: 14px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: all 0.2s ease;
+          min-width: 120px;
         }
 
         .unlock-btn:not(:disabled):hover {
-          transform: translateY(-2px);
-          box-shadow: 0 10px 30px rgba(30, 138, 100, 0.3);
+          background: linear-gradient(135deg, #2E453A 0%, #1F2F25 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
         }
 
         .unlock-btn:disabled {
@@ -3692,46 +3714,48 @@ const AppPasswordScreen = ({ onUnlock, onSkip, onClose, isSetup = false }) => {
         }
 
         .skip-btn {
-          background: none;
-          border: 2px solid #e5e7eb;
-          color: #374151;
-          padding: 12px 24px;
-          border-radius: 12px;
-          font-size: 0.9rem;
+          background: #F3EED9;
+          border: 1px solid rgba(229, 220, 194, 0.4);
+          color: #2E2E2E;
+          padding: 12px 20px;
+          border-radius: 10px;
+          font-size: 14px;
+          font-weight: 600;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: all 0.2s ease;
         }
 
         .skip-btn:hover {
-          border-color: #d1d5db;
-          background: #f9fafb;
+          background: #E5DCC2;
+          transform: translateY(-1px);
         }
 
         .security-notice {
-          background: #f0f9ff;
-          border: 1px solid #bae6fd;
+          background: rgba(62, 92, 73, 0.05);
+          border: 1px solid rgba(62, 92, 73, 0.1);
           border-radius: 12px;
           padding: 16px;
           margin-top: 8px;
         }
 
         .notice-icon {
-          color: #02c78fff;
+          color: #3E5C49;
           margin-bottom: 8px;
         }
 
         .notice-content p {
           font-weight: 600;
-          color: #0c6e52ff;
-          margin: 0 0 8px 0;
-          font-size: 0.9rem;
+          color: #3E5C49;
+          margin: 0 0 12px 0;
+          font-size: 14px;
         }
 
         .notice-content ul {
           margin: 0;
           padding-left: 20px;
-          color: #078561ff;
-          font-size: 0.85rem;
+          color: #2E453A;
+          font-size: 13px;
+          line-height: 1.5;
         }
 
         .notice-content li {
@@ -3741,8 +3765,8 @@ const AppPasswordScreen = ({ onUnlock, onSkip, onClose, isSetup = false }) => {
         .spinner {
           width: 16px;
           height: 16px;
-          border: 2px solid transparent;
-          border-top: 2px solid currentColor;
+          border: 2px solid rgba(243, 238, 217, 0.3);
+          border-top: 2px solid #F3EED9;
           border-radius: 50%;
           animation: spin 1s linear infinite;
         }
@@ -3761,19 +3785,40 @@ const AppPasswordScreen = ({ onUnlock, onSkip, onClose, isSetup = false }) => {
           to { transform: rotate(360deg); }
         }
 
-        @media (max-width: 500px) {
+        @media (max-width: 768px) {
           .password-container {
-            padding: 24px;
+            padding: 32px 24px;
             width: 95%;
+            margin: 16px;
           }
 
           .password-header h1 {
-            font-size: 1.6rem;
+            font-size: 20px;
           }
 
           .lock-icon {
-            width: 60px;
-            height: 60px;
+            width: 64px;
+            height: 64px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .password-container {
+            padding: 24px 20px;
+            border-radius: 16px;
+          }
+
+          .password-header h1 {
+            font-size: 18px;
+          }
+
+          .lock-icon {
+            width: 56px;
+            height: 56px;
+          }
+
+          .password-header p {
+            font-size: 13px;
           }
         }
       ` })] }));
@@ -12544,13 +12589,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/wifi-off.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/log-in.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/building.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-circle.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check-circle.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/hard-drive.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/building.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/hard-drive.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/log-in.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-circle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check-circle.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/mail.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/lock.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye-off.mjs");
@@ -12563,7 +12608,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/map-pin.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/arrow-right.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/database.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/bar-chart-3.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/wifi-off.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/bar-chart-3.mjs");
 
 // src/renderer/components/EnhancedAuthentication.tsx - Version redesignée
 
@@ -12623,7 +12669,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
                 });
             }
             else if (mode === 'create_institution') {
-                if (step === 2) {
+                if (step === 4) {
                     await onLogin({
                         email: institutionData.adminEmail,
                         password: institutionData.adminPassword,
@@ -12647,20 +12693,26 @@ const EnhancedAuthentication = ({ onLogin }) => {
         }
     };
     const nextStep = () => {
-        if (step === 1 && institutionData.name && institutionData.type && institutionData.city) {
+        if (step === 1 && institutionData.name) {
             setStep(2);
+        }
+        else if (step === 2 && institutionData.type) {
+            setStep(3);
+        }
+        else if (step === 3 && institutionData.city) {
+            setStep(4);
         }
     };
     const previousStep = () => {
-        if (step === 2) {
-            setStep(1);
+        if (step > 1) {
+            setStep(step - 1);
         }
     };
     const institutionTypes = [
-        { value: 'school', label: 'École/Lycée', icon: '🏫' },
-        { value: 'university', label: 'Université', icon: '🎓' },
-        { value: 'library', label: 'Bibliothèque', icon: '📚' },
-        { value: 'other', label: 'Autre', icon: '🏢' }
+        { value: 'school', label: 'École/Lycée', icon: lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], color: '#3E5C49' },
+        { value: 'university', label: 'Université', icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], color: '#C2571B' },
+        { value: 'library', label: 'Bibliothèque', icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], color: '#2E453A' },
+        { value: 'other', label: 'Autre', icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], color: '#6E6E6E' }
     ];
     const defaultCredentials = [
         { email: 'admin@local', password: 'admin', role: 'Administrateur' },
@@ -12676,15 +12728,19 @@ const EnhancedAuthentication = ({ onLogin }) => {
         });
         setError('');
     };
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-background", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "pattern-overlay" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-shapes", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-3" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app-logo", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "logo-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 32 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "logo-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { children: "Biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Gestion Locale" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "offline-badge", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Mode Hors Ligne" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "main-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-tabs", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab ${mode === 'login' ? 'active' : ''}`, onClick: () => { setMode('login'); setStep(1); setError(''); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Connexion" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab ${mode === 'create_institution' ? 'active' : ''}`, onClick: () => { setMode('create_institution'); setStep(1); setError(''); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Nouvel \u00C9tablissement" })] })] }), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "message error", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error })] })), success && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "message success", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: success })] })), mode === 'login' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "login-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Connexion Locale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Connectez-vous avec vos identifiants locaux" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Email ou nom d'utilisateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: loginData.email, onChange: (e) => setLoginData(prev => ({ ...prev, email: e.target.value })), placeholder: "admin@local", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Mot de passe" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: loginData.password, onChange: (e) => setLoginData(prev => ({ ...prev, password: e.target.value })), placeholder: "Votre mot de passe", required: true, disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "toggle-password", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Code d'acc\u00E8s \u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: loginData.institutionCode, onChange: (e) => setLoginData(prev => ({ ...prev, institutionCode: e.target.value })), placeholder: "Code d'acc\u00E8s de votre \u00E9tablissement", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "submit-btn", disabled: !loginData.email || !loginData.password || !loginData.institutionCode || isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), "Connexion..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 18 }), "Se connecter"] })) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "quick-login-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "divider", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Connexions rapides" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "quick-login-grid", children: defaultCredentials.map((cred, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "quick-login-btn", onClick: () => handleQuickLogin(cred.email, cred.password), disabled: isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "credential-icon", children: [cred.role === 'Administrateur' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), cred.role === 'Bibliothécaire' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 }), cred.role === 'Utilisateur' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 16 }), cred.role === 'Démo' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 16 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "credential-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "role", children: cred.role }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "email", children: cred.email })] })] }, index))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "login-hint", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { children: ["\uD83D\uDCA1 ", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: "Astuce :" }), " Cliquez sur une carte pour remplir automatiquement les champs"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "\uD83D\uDD10 Ou utilisez n'importe quel email avec le mot de passe \"demo\"" })] })] })] })), mode === 'create_institution' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-section", children: [step === 1 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Nouvel \u00C9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Cr\u00E9ez votre \u00E9tablissement local" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: (e) => { e.preventDefault(); nextStep(); }, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Nom de l'\u00E9tablissement *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.name, onChange: (e) => setInstitutionData(prev => ({ ...prev, name: e.target.value })), placeholder: "Ma Biblioth\u00E8que", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Type d'\u00E9tablissement *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "type-grid", children: institutionTypes.map((type) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: "type-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "radio", name: "type", value: type.value, checked: institutionData.type === type.value, onChange: (e) => setInstitutionData(prev => ({ ...prev, type: e.target.value })), disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "type-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "type-icon", children: type.icon }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "type-label", children: type.label })] })] }, type.value))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Ville *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.city, onChange: (e) => setInstitutionData(prev => ({ ...prev, city: e.target.value })), placeholder: "Votre ville", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", className: "submit-btn", disabled: !institutionData.name || !institutionData.type || !institutionData.city || isLoading, children: ["Continuer", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 18 })] })] })] })), step === 2 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Compte Administrateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Cr\u00E9ez le compte administrateur principal" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Pr\u00E9nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.adminFirstName, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminFirstName: e.target.value })), placeholder: "Pr\u00E9nom", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.adminLastName, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminLastName: e.target.value })), placeholder: "Nom", required: true, disabled: isLoading })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Email administrateur *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: institutionData.adminEmail, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminEmail: e.target.value })), placeholder: "admin@monorganisation.com", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Mot de passe *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: institutionData.adminPassword, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminPassword: e.target.value })), placeholder: "Mot de passe s\u00E9curis\u00E9", required: true, disabled: isLoading, minLength: 3 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "toggle-password", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Minimum 3 caract\u00E8res" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "back-btn", onClick: previousStep, disabled: isLoading, children: "Pr\u00E9c\u00E9dent" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "submit-btn", disabled: !institutionData.adminFirstName || !institutionData.adminLastName ||
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-background", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "pattern-overlay" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-shapes", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-3" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "main-title", children: "Biblioth\u00E8que Locale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "main-subtitle", children: "Connectez-vous ou cr\u00E9ez votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "main-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-tabs", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab ${mode === 'login' ? 'active' : ''}`, onClick: () => { setMode('login'); setStep(1); setError(''); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Connexion" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab ${mode === 'create_institution' ? 'active' : ''}`, onClick: () => { setMode('create_institution'); setStep(1); setError(''); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Nouvel \u00C9tablissement" })] })] }), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "message error", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error })] })), success && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "message success", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: success })] })), mode === 'login' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "login-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Connexion Locale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Connectez-vous avec vos identifiants locaux" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Email ou nom d'utilisateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: loginData.email, onChange: (e) => setLoginData(prev => ({ ...prev, email: e.target.value })), placeholder: "admin@local", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Mot de passe" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: loginData.password, onChange: (e) => setLoginData(prev => ({ ...prev, password: e.target.value })), placeholder: "Votre mot de passe", required: true, disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "toggle-password", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Code d'acc\u00E8s \u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: loginData.institutionCode, onChange: (e) => setLoginData(prev => ({ ...prev, institutionCode: e.target.value })), placeholder: "Code d'acc\u00E8s de votre \u00E9tablissement", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "submit-btn", disabled: !loginData.email || !loginData.password || !loginData.institutionCode || isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), "Connexion..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }), "Se connecter"] })) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "quick-login-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "divider", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Connexions rapides" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "quick-login-grid", children: defaultCredentials.map((cred, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "quick-login-btn", onClick: () => handleQuickLogin(cred.email, cred.password), disabled: isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "credential-icon", children: [cred.role === 'Administrateur' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), cred.role === 'Bibliothécaire' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 }), cred.role === 'Utilisateur' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 16 }), cred.role === 'Démo' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 16 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "credential-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "role", children: cred.role }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "email", children: cred.email })] })] }, index))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "login-hint", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { children: ["\uD83D\uDCA1 ", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: "Astuce :" }), " Cliquez sur une carte pour remplir automatiquement les champs"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "\uD83D\uDD10 Ou utilisez n'importe quel email avec le mot de passe \"demo\"" })] })] })] })), mode === 'create_institution' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-fill", style: { width: `${(step / 4) * 100}%` } }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-steps", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 1 ? 'active' : ''} ${step === 1 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Nom" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 2 ? 'active' : ''} ${step === 2 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Type" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 3 ? 'active' : ''} ${step === 3 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Lieu" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 4 ? 'active' : ''} ${step === 4 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Admin" })] })] })] }), step === 1 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Nom de votre \u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Choisissez un nom unique pour identifier votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: (e) => { e.preventDefault(); nextStep(); }, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 18 }), "Nom de l'\u00E9tablissement *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.name, onChange: (e) => setInstitutionData(prev => ({ ...prev, name: e.target.value })), placeholder: "\u00C9cole Primaire Martin Luther King", required: true, disabled: isLoading, autoFocus: true }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Ce nom appara\u00EEtra dans l'interface de votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-info-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "info-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Conseils pour le nom" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("ul", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Utilisez le nom officiel de votre \u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "\u00C9vitez les abr\u00E9viations trop complexes" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Vous pourrez le modifier plus tard si n\u00E9cessaire" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "form-actions", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", className: "submit-btn primary", disabled: !institutionData.name.trim() || isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Continuer" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 16 })] }) })] })] })), step === 2 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Type d'\u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "S\u00E9lectionnez le type qui correspond le mieux \u00E0 votre organisation" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: (e) => { e.preventDefault(); nextStep(); }, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 18 }), "Choisissez votre type *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "type-selector", children: institutionTypes.map((type) => {
+                                                                            const IconComponent = type.icon;
+                                                                            const isSelected = institutionData.type === type.value;
+                                                                            return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: `type-option ${isSelected ? 'selected' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "radio", name: "type", value: type.value, checked: isSelected, onChange: (e) => setInstitutionData(prev => ({ ...prev, type: e.target.value })), disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "type-card-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "type-icon-wrapper", style: { backgroundColor: isSelected ? type.color : 'rgba(110, 110, 110, 0.1)' }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(IconComponent, { size: 20, color: isSelected ? '#F3EED9' : type.color }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "type-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "type-name", children: type.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "type-description", children: [type.value === 'school' && 'Établissement scolaire', type.value === 'university' && 'Enseignement supérieur', type.value === 'library' && 'Bibliothèque publique', type.value === 'other' && 'Autre organisation'] })] }), isSelected && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "selection-indicator", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 18, color: type.color }) }))] })] }, type.value));
+                                                                        }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: previousStep, className: "submit-btn secondary", disabled: isLoading, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Retour" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", className: "submit-btn primary", disabled: !institutionData.type || isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Continuer" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 16 })] })] })] })] })), step === 3 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Localisation" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Indiquez o\u00F9 se trouve votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: (e) => { e.preventDefault(); nextStep(); }, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 18 }), "Ville *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.city, onChange: (e) => setInstitutionData(prev => ({ ...prev, city: e.target.value })), placeholder: "Paris", required: true, disabled: isLoading, autoFocus: true }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Ville o\u00F9 se trouve votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "establishment-preview", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "R\u00E9capitulatif" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-label", children: "Nom :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-value", children: institutionData.name })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-label", children: "Type :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-value", children: institutionTypes.find(t => t.value === institutionData.type)?.label })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-label", children: "Ville :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-value", children: institutionData.city || 'À compléter' })] })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: previousStep, className: "submit-btn secondary", disabled: isLoading, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Retour" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", className: "submit-btn primary", disabled: !institutionData.city.trim() || isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Continuer" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 16 })] })] })] })] })), step === 4 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Compte administrateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Cr\u00E9ez le compte administrateur principal de votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 18 }), "Pr\u00E9nom *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.adminFirstName, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminFirstName: e.target.value })), placeholder: "Jean", required: true, disabled: isLoading, autoFocus: true }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 18 }), "Nom *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.adminLastName, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminLastName: e.target.value })), placeholder: "Dupont", required: true, disabled: isLoading }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 18 }), "Email administrateur *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: institutionData.adminEmail, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminEmail: e.target.value })), placeholder: "admin@etablissement.fr", required: true, disabled: isLoading }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Utilis\u00E9 pour la connexion \u00E0 votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 18 }), "Mot de passe administrateur *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: institutionData.adminPassword, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminPassword: e.target.value })), placeholder: "Mot de passe s\u00E9curis\u00E9", required: true, minLength: 3, disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "toggle-password", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Minimum 3 caract\u00E8res requis" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "final-summary", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "R\u00E9capitulatif final" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h5", { children: "\u00C9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: institutionData.name }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { children: [institutionTypes.find(t => t.value === institutionData.type)?.label, " \u2022 ", institutionData.city] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h5", { children: "Administrateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { children: [institutionData.adminFirstName, " ", institutionData.adminLastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: institutionData.adminEmail })] })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "admin-info", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Privil\u00E8ges administrateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Ce compte aura tous les privil\u00E8ges pour g\u00E9rer votre biblioth\u00E8que locale : ajout de livres, gestion des utilisateurs, param\u00E8tres syst\u00E8me." })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: previousStep, className: "submit-btn secondary", disabled: isLoading, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Retour" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "submit-btn primary", disabled: !institutionData.adminFirstName || !institutionData.adminLastName ||
                                                                             !institutionData.adminEmail || !institutionData.adminPassword ||
-                                                                            institutionData.adminPassword.length < 3 || isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), "Cr\u00E9ation..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 18 }), "Cr\u00E9er l'\u00E9tablissement"] })) })] })] })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-indicator", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `step ${step >= 1 ? 'active' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "\u00C9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-line" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `step ${step >= 2 ? 'active' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Administrateur" })] })] })] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-sidebar", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 32 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Base de donn\u00E9es locale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Vos donn\u00E9es sont stock\u00E9es en s\u00E9curit\u00E9 sur votre ordinateur" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 32 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Fonctionne hors ligne" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Aucune connexion Internet requise pour utiliser l'application" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 32 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Gestion compl\u00E8te" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "G\u00E9rez vos livres, emprunts et utilisateurs facilement" })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+                                                                            institutionData.adminPassword.length < 3 || isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Cr\u00E9ation..." })] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Cr\u00E9er l'\u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 16 })] })) })] })] })] }))] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-sidebar", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 32 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Base de donn\u00E9es locale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Vos donn\u00E9es sont stock\u00E9es en s\u00E9curit\u00E9 sur votre ordinateur" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 32 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Fonctionne hors ligne" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Aucune connexion Internet requise pour utiliser l'application" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_22__["default"], { size: 32 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Gestion compl\u00E8te" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "G\u00E9rez vos livres, emprunts et utilisateurs facilement" })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .auth-container {
           min-height: 100vh;
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           position: relative;
           overflow-x: hidden;
-          overflow-y: auto;
+          /* Retirer: overflow-y: auto; - laissez le scroll naturel */
         }
 
         .auth-background {
@@ -12761,7 +12817,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
         .auth-content {
           position: relative;
           z-index: 10;
-          min-height: 100vh;
+          min-height: 100vh; /* Garder min-height au lieu de height */
           display: flex;
           flex-direction: column;
           padding: 20px;
@@ -12771,54 +12827,25 @@ const EnhancedAuthentication = ({ onLogin }) => {
         }
 
         .auth-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 40px;
+          text-align: center;
+          margin-bottom: 32px;
           padding: 0 20px;
         }
 
-        .app-logo {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-        }
-
-        .logo-icon {
-          width: 50px;
-          height: 50px;
-          background: rgba(243, 238, 217, 0.15);
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+        .main-title {
+          margin: 0 0 8px 0;
           color: #F3EED9;
-          border: 1px solid rgba(243, 238, 217, 0.2);
+          font-size: 32px;
+          font-weight: 800;
+          letter-spacing: -0.5px;
         }
 
-        .logo-text h1 {
+        .main-subtitle {
           margin: 0;
-          color: #F3EED9;
-          font-size: 24px;
-          font-weight: 700;
-        }
-
-        .logo-text span {
           color: rgba(243, 238, 217, 0.8);
-          font-size: 14px;
-        }
-
-        .offline-badge {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: rgba(194, 87, 27, 0.2);
-          color: #C2571B;
-          padding: 8px 16px;
-          border-radius: 20px;
-          font-size: 14px;
-          font-weight: 600;
-          border: 1px solid rgba(194, 87, 27, 0.3);
+          font-size: 16px;
+          font-weight: 400;
+          line-height: 1.5;
         }
 
         .main-content {
@@ -12829,23 +12856,24 @@ const EnhancedAuthentication = ({ onLogin }) => {
           min-height: 0;
         }
 
-        .auth-card {
+       .auth-card {
           flex: 1;
-          background: #FFFFFF;
+          background: white;
           border-radius: 20px;
           overflow: hidden;
-          overflow-y: auto;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-          max-width: 600px;
-          max-height: calc(100vh - 160px);
-          display: flex;
-          flex-direction: column;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+          max-width: 700px;
+          /* RETIRER: height: calc(100vh - 160px); */
+          /* RETIRER: display: flex; */
+          /* RETIRER: flex-direction: column; */
+          border: 1px solid rgba(229, 220, 194, 0.3);
+          /* Ajouter une hauteur minimale si nécessaire */
+          min-height: 600px;
         }
 
         .auth-tabs {
           display: flex;
-          background: rgba(248, 246, 240, 0.8);
-          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           flex-shrink: 0;
         }
 
@@ -12855,20 +12883,35 @@ const EnhancedAuthentication = ({ onLogin }) => {
           align-items: center;
           justify-content: center;
           gap: 8px;
-          padding: 20px;
+          padding: 24px;
           background: none;
           border: none;
           cursor: pointer;
           font-size: 16px;
           font-weight: 600;
-          color: #4A4A4A;
+          color: rgba(243, 238, 217, 0.7);
           transition: all 0.2s ease;
+          position: relative;
+        }
+
+        .tab:hover {
+          color: #F3EED9;
+          background: rgba(243, 238, 217, 0.1);
         }
 
         .tab.active {
-          background: #FFFFFF;
-          color: #3E5C49;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          color: #F3EED9;
+          background: rgba(243, 238, 217, 0.15);
+        }
+
+        .tab.active::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: #C2571B;
         }
 
         .message {
@@ -12892,27 +12935,31 @@ const EnhancedAuthentication = ({ onLogin }) => {
 
         .section-header {
           text-align: center;
-          padding: 32px 24px 24px;
-          border-bottom: 1px solid rgba(229, 220, 194, 0.3);
+          padding: 32px 32px 24px;
+          border-bottom: 1px solid rgba(229, 220, 194, 0.4);
+          background: #FAF9F6;
         }
 
         .section-header h2 {
-          margin: 16px 0 8px;
+          margin: 0 0 8px 0;
           color: #3E5C49;
           font-size: 24px;
           font-weight: 700;
+          line-height: 1.2;
         }
 
         .section-header p {
           margin: 0;
           color: #4A4A4A;
-          font-size: 16px;
+          font-size: 14px;
+          line-height: 1.5;
         }
 
         .auth-form {
-          padding: 32px 24px;
-          flex: 1;
-          overflow-y: auto;
+          padding: 32px;
+          /* RETIRER: flex: 1; */
+          /* RETIRER: overflow-y: auto; */
+          /* RETIRER: min-height: 0; */
         }
 
         .form-group {
@@ -12926,10 +12973,12 @@ const EnhancedAuthentication = ({ onLogin }) => {
         }
 
         .form-group label {
-          display: block;
+          display: flex;
+          align-items: center;
+          gap: 8px;
           margin-bottom: 8px;
           font-weight: 600;
-          color: #3E5C49;
+          color: #2E2E2E;
           font-size: 14px;
         }
 
@@ -12937,45 +12986,57 @@ const EnhancedAuthentication = ({ onLogin }) => {
           position: relative;
           display: flex;
           align-items: center;
-        }
-
-        .input-group svg {
-          position: absolute;
-          left: 16px;
-          color: #4A4A4A;
-          z-index: 2;
-        }
-
-        .input-group input {
-          width: 100%;
-          padding: 16px 16px 16px 48px;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          font-size: 16px;
+          border: 2px solid rgba(229, 220, 194, 0.4);
+          border-radius: 10px;
+          padding: 0 16px;
           transition: all 0.2s ease;
+          background: white;
         }
 
-        .input-group input:focus {
+        .input-group:focus-within {
           outline: none;
           border-color: #3E5C49;
           box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
         }
 
+        .input-group svg {
+          color: #6E6E6E;
+          margin-right: 12px;
+          flex-shrink: 0;
+        }
+
+        .input-group input {
+          flex: 1;
+          border: none;
+          padding: 12px 0;
+          font-size: 14px;
+          outline: none;
+          background: transparent;
+          color: #2E2E2E;
+        }
+
+        .input-group input::placeholder {
+          color: #9ca3af;
+          opacity: 1;
+        }
+
         .input-group input:disabled {
-          background: rgba(248, 246, 240, 0.5);
+          background: transparent;
           opacity: 0.7;
         }
 
         .toggle-password {
-          position: absolute;
-          right: 16px;
           background: none;
           border: none;
+          color: #6E6E6E;
           cursor: pointer;
-          color: #4A4A4A;
           padding: 4px;
-          border-radius: 4px;
+          margin-left: 8px;
+          border-radius: 6px;
           transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .toggle-password:hover {
@@ -12988,52 +13049,98 @@ const EnhancedAuthentication = ({ onLogin }) => {
           margin-top: 4px;
           color: #4A4A4A;
           font-size: 12px;
+          line-height: 1.4;
         }
 
-        .type-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
+        .type-selector {
+          display: flex;
+          flex-direction: column;
           gap: 12px;
         }
 
-        .type-card {
+        .type-option {
           display: block;
           cursor: pointer;
+          transition: all 0.2s ease;
         }
 
-        .type-card input {
+        .type-option input {
           display: none;
         }
 
-        .type-content {
+        .type-card-content {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 16px;
+          border: 2px solid rgba(229, 220, 194, 0.4);
+          border-radius: 12px;
+          background: white;
+          transition: all 0.2s ease;
+          position: relative;
+        }
+
+        .type-option:hover .type-card-content {
+          border-color: #3E5C49;
+          box-shadow: 0 2px 8px rgba(62, 92, 73, 0.1);
+          transform: translateY(-1px);
+        }
+
+        .type-option.selected .type-card-content {
+          border-color: #3E5C49;
+          background: rgba(62, 92, 73, 0.02);
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+
+        .type-icon-wrapper {
+          width: 44px;
+          height: 44px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+          flex-shrink: 0;
+        }
+
+        .type-info {
+          flex: 1;
           display: flex;
           flex-direction: column;
-          align-items: center;
-          gap: 8px;
-          padding: 20px 16px;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          transition: all 0.2s ease;
-          text-align: center;
+          gap: 4px;
+          min-width: 0;
         }
 
-        .type-card input:checked + .type-content {
-          border-color: #3E5C49;
-          background: rgba(62, 92, 73, 0.05);
-        }
-
-        .type-content:hover {
-          border-color: #3E5C49;
-        }
-
-        .type-icon {
-          font-size: 24px;
-        }
-
-        .type-label {
+        .type-name {
           font-weight: 600;
-          color: #3E5C49;
+          color: #2E2E2E;
           font-size: 14px;
+          line-height: 1.2;
+        }
+
+        .type-description {
+          font-size: 12px;
+          color: #6E6E6E;
+          line-height: 1.3;
+        }
+
+        .selection-indicator {
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: checkIn 0.2s ease-out;
+        }
+
+        @keyframes checkIn {
+          from {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
         }
 
         .submit-btn {
@@ -13045,17 +13152,19 @@ const EnhancedAuthentication = ({ onLogin }) => {
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           color: #F3EED9;
           border: none;
-          padding: 16px 24px;
-          border-radius: 12px;
-          font-size: 16px;
+          padding: 12px 20px;
+          border-radius: 10px;
+          font-size: 14px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: all 0.2s ease;
+          min-width: 120px;
         }
 
         .submit-btn:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(62, 92, 73, 0.3);
+          background: linear-gradient(135deg, #2E453A 0%, #1F2F25 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
         }
 
         .submit-btn:disabled {
@@ -13065,12 +13174,12 @@ const EnhancedAuthentication = ({ onLogin }) => {
         }
 
         .back-btn {
-          background: rgba(248, 246, 240, 0.8);
-          color: #4A4A4A;
-          border: 2px solid #E5DCC2;
-          padding: 12px 24px;
-          border-radius: 12px;
-          font-size: 16px;
+          background: #F3EED9;
+          color: #2E2E2E;
+          border: 1px solid rgba(229, 220, 194, 0.4);
+          padding: 12px 20px;
+          border-radius: 10px;
+          font-size: 14px;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -13079,16 +13188,273 @@ const EnhancedAuthentication = ({ onLogin }) => {
         .back-btn:hover:not(:disabled) {
           background: #E5DCC2;
           color: #2E2E2E;
+          transform: translateY(-1px);
         }
 
         .form-actions {
           display: flex;
           gap: 16px;
-          margin-top: 24px;
+          margin-top: 32px;
         }
 
         .form-actions .submit-btn {
           flex: 1;
+        }
+
+        .submit-btn.primary {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          color: #F3EED9;
+        }
+
+        .submit-btn.secondary {
+          background: #F3EED9;
+          color: #2E2E2E;
+          border: 1px solid rgba(229, 220, 194, 0.4);
+        }
+
+        .submit-btn.secondary:hover:not(:disabled) {
+          background: #E5DCC2;
+          transform: translateY(-1px);
+        }
+
+        /* Progress Header */
+        .progress-header {
+          padding: 24px 32px;
+          background: #FAF9F6;
+          border-bottom: 1px solid rgba(229, 220, 194, 0.4);
+        }
+
+        .progress-bar {
+          height: 4px;
+          background: rgba(229, 220, 194, 0.3);
+          border-radius: 2px;
+          overflow: hidden;
+          margin-bottom: 20px;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #3E5C49 0%, #C2571B 100%);
+          transition: width 0.3s ease;
+          border-radius: 2px;
+        }
+
+        .progress-steps {
+          display: flex;
+          justify-content: center;
+          gap: 24px;
+        }
+
+        .progress-step {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          opacity: 0.5;
+          transition: all 0.3s ease;
+        }
+
+        .progress-step.active {
+          opacity: 1;
+        }
+
+        .progress-step.current {
+          transform: scale(1.05);
+        }
+
+        .step-circle {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: rgba(229, 220, 194, 0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #6E6E6E;
+          transition: all 0.3s ease;
+        }
+
+        .progress-step.active .step-circle {
+          background: #3E5C49;
+          color: #F3EED9;
+        }
+
+        .progress-step.current .step-circle {
+          background: #C2571B;
+          color: #F3EED9;
+          box-shadow: 0 4px 16px rgba(194, 87, 27, 0.3);
+        }
+
+        .step-label {
+          font-size: 12px;
+          font-weight: 600;
+          color: #2E2E2E;
+          text-align: center;
+        }
+
+        /* Admin Info Card */
+        .admin-info {
+          margin: 24px 0;
+        }
+
+        .info-card {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          padding: 16px;
+          background: rgba(62, 92, 73, 0.05);
+          border: 1px solid rgba(62, 92, 73, 0.1);
+          border-radius: 12px;
+          color: #3E5C49;
+        }
+
+        .info-content h4 {
+          font-size: 14px;
+          font-weight: 600;
+          margin: 0 0 4px 0;
+          color: #3E5C49;
+        }
+
+        .info-content p {
+          font-size: 13px;
+          margin: 0;
+          color: #4A4A4A;
+          line-height: 1.4;
+        }
+
+        /* Step Info Card */
+        .step-info-card {
+          margin: 24px 0;
+          background: rgba(194, 87, 27, 0.05);
+          border: 1px solid rgba(194, 87, 27, 0.1);
+          border-radius: 12px;
+          padding: 16px;
+        }
+
+        .step-info-card .info-icon {
+          color: #C2571B;
+          margin-bottom: 8px;
+        }
+
+        .step-info-card h4 {
+          font-size: 14px;
+          font-weight: 600;
+          margin: 0 0 8px 0;
+          color: #C2571B;
+        }
+
+        .step-info-card ul {
+          margin: 0;
+          padding-left: 16px;
+          color: #4A4A4A;
+        }
+
+        .step-info-card li {
+          font-size: 13px;
+          line-height: 1.4;
+          margin-bottom: 4px;
+        }
+
+        /* Establishment Preview */
+        .establishment-preview {
+          margin: 24px 0;
+        }
+
+        .preview-card {
+          background: rgba(62, 92, 73, 0.05);
+          border: 1px solid rgba(62, 92, 73, 0.1);
+          border-radius: 12px;
+          overflow: hidden;
+        }
+
+        .preview-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          background: rgba(62, 92, 73, 0.1);
+          border-bottom: 1px solid rgba(62, 92, 73, 0.1);
+          font-weight: 600;
+          font-size: 14px;
+          color: #3E5C49;
+        }
+
+        .preview-content {
+          padding: 16px;
+        }
+
+        .preview-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+        }
+
+        .preview-item:last-child {
+          margin-bottom: 0;
+        }
+
+        .preview-label {
+          font-size: 13px;
+          color: #6E6E6E;
+          font-weight: 500;
+        }
+
+        .preview-value {
+          font-size: 13px;
+          font-weight: 600;
+          color: #2E2E2E;
+        }
+
+        /* Final Summary */
+        .final-summary {
+          margin: 24px 0;
+        }
+
+        .summary-card {
+          background: linear-gradient(135deg, rgba(62, 92, 73, 0.05) 0%, rgba(194, 87, 27, 0.05) 100%);
+          border: 1px solid rgba(62, 92, 73, 0.15);
+          border-radius: 12px;
+          overflow: hidden;
+        }
+
+        .summary-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          background: rgba(62, 92, 73, 0.1);
+          border-bottom: 1px solid rgba(62, 92, 73, 0.1);
+          font-weight: 600;
+          font-size: 14px;
+          color: #3E5C49;
+        }
+
+        .summary-content {
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .summary-section h5 {
+          font-size: 12px;
+          font-weight: 600;
+          color: #6E6E6E;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin: 0 0 6px 0;
+        }
+
+        .summary-section p {
+          margin: 0 0 4px 0;
+          font-size: 14px;
+          color: #2E2E2E;
+          line-height: 1.3;
+        }
+
+        .summary-section p:last-child {
+          margin-bottom: 0;
         }
 
         .spinner {
@@ -13105,59 +13471,6 @@ const EnhancedAuthentication = ({ onLogin }) => {
           100% { transform: rotate(360deg); }
         }
 
-        .step-indicator {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 16px;
-          padding: 24px;
-          background: rgba(248, 246, 240, 0.8);
-          border-top: 1px solid rgba(229, 220, 194, 0.3);
-        }
-
-        .step {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 8px;
-          opacity: 0.5;
-          transition: opacity 0.3s ease;
-        }
-
-        .step.active {
-          opacity: 1;
-        }
-
-        .step span {
-          width: 32px;
-          height: 32px;
-          background: #E5DCC2;
-          color: #4A4A4A;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 600;
-          font-size: 14px;
-        }
-
-        .step.active span {
-          background: #3E5C49;
-          color: #F3EED9;
-        }
-
-        .step label {
-          font-size: 12px;
-          font-weight: 600;
-          color: #4A4A4A;
-          text-align: center;
-        }
-
-        .step-line {
-          width: 40px;
-          height: 2px;
-          background: #E5DCC2;
-        }
 
         /* Connexions rapides */
         .quick-login-section {
@@ -13342,6 +13655,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
 
           .auth-card {
             max-width: none;
+            min-height: auto; /* Permettre à la carte de s'adapter au contenu */
           }
 
           .form-row {
@@ -13352,8 +13666,18 @@ const EnhancedAuthentication = ({ onLogin }) => {
             grid-template-columns: 1fr;
           }
 
-          .type-grid {
-            grid-template-columns: 1fr;
+          .type-selector {
+            gap: 10px;
+          }
+
+          .type-card-content {
+            padding: 12px;
+            gap: 12px;
+          }
+
+          .type-icon-wrapper {
+            width: 36px;
+            height: 36px;
           }
 
           .info-sidebar {
@@ -15096,7 +15420,9 @@ L'équipe de ${institution?.name}
           min-height: 100vh;
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           position: relative;
-          overflow-x: hidden;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
         }
 
         .setup-background {
@@ -15173,18 +15499,20 @@ L'équipe de ${institution?.name}
         .setup-container {
           position: relative;
           z-index: 10;
-          min-height: 100vh;
+          height: 100vh;
           display: flex;
           flex-direction: column;
           padding: 20px;
           max-width: 1000px;
           margin: 0 auto;
+          overflow: hidden;
         }
 
         .setup-header {
           text-align: center;
-          margin-bottom: 32px;
+          margin-bottom: 20px;
           color: #F3EED9;
+          flex-shrink: 0;
         }
 
         .offline-badge {
@@ -15303,9 +15631,11 @@ L'équipe de ${institution?.name}
           background: #FFFFFF;
           border-radius: 20px;
           padding: 32px;
-          margin-bottom: 24px;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+          margin-bottom: 16px;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+          border: 1px solid rgba(229, 220, 194, 0.3);
           overflow-y: auto;
+          min-height: 0;
         }
 
         .step-content {
@@ -15797,6 +16127,7 @@ L'équipe de ${institution?.name}
           justify-content: flex-end;
           gap: 12px;
           padding: 0 20px 20px;
+          flex-shrink: 0;
         }
 
         .nav-button {
@@ -15813,14 +16144,14 @@ L'équipe de ${institution?.name}
         }
 
         .nav-button.primary {
-          background: #C2571B;
+          background: linear-gradient(135deg, #C2571B 0%, #A8481A 100%);
           color: #F3EED9;
         }
 
         .nav-button.primary:hover:not(:disabled) {
-          background: #A8481A;
+          background: linear-gradient(135deg, #A8481A 0%, #8A3C18 100%);
           transform: translateY(-1px);
-          box-shadow: 0 4px 16px rgba(194, 87, 27, 0.3);
+          box-shadow: 0 4px 12px rgba(194, 87, 27, 0.3);
         }
 
         .nav-button.secondary {
@@ -15832,6 +16163,7 @@ L'équipe de ${institution?.name}
         .nav-button.secondary:hover:not(:disabled) {
           background: rgba(243, 238, 217, 0.2);
           border-color: rgba(243, 238, 217, 0.5);
+          transform: translateY(-1px);
         }
 
         .nav-button:disabled {
@@ -15859,6 +16191,7 @@ L'équipe de ${institution?.name}
         @media (max-width: 768px) {
           .setup-container {
             padding: 16px;
+            height: 100vh;
           }
 
           .progress-steps {
@@ -15872,6 +16205,7 @@ L'équipe de ${institution?.name}
 
           .setup-content {
             padding: 24px 16px;
+            margin-bottom: 12px;
           }
 
           .features-grid,

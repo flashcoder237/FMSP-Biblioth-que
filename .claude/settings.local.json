@@ -14,7 +14,8 @@
       "Bash(timeout 8 npm start)",
       "Bash(grep:*)",
       "Bash(git add:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npm run:*)"
     ],
     "deny": []
   }
