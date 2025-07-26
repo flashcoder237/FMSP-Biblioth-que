@@ -10,8 +10,7 @@ import { BorrowDocument } from './components/BorrowDocument';
 import Borrowers from './components/Borrowers';
 import { BorrowHistory } from './components/BorrowHistory';
 import { Settings } from './components/Settings';
-import { Donation } from './components/Donation';
-import { About } from './components/About';
+import { AboutAndSupport } from './components/AboutAndSupport';
 import { EnhancedAuthentication } from './components/EnhancedAuthentication';
 import { InstitutionSetup } from './components/InstitutionSetup';
 import { InitialSetup, AppMode } from './components/InitialSetup';
@@ -29,7 +28,7 @@ import { ToastProvider, useQuickToast } from './components/ToastSystem';
 import { KeyboardShortcutsProvider } from './components/KeyboardShortcuts';
 import { UnifiedUser, UnifiedInstitution, convertToUnifiedUser, convertToUnifiedInstitution } from './types/UnifiedTypes';
 
-type ViewType = 'initial_setup' | 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'reports' | 'statistics' | 'settings' | 'app-settings' | 'user-profile' | 'backup-manager' | 'donation' | 'about' | 'auth' | 'institution_setup';
+type ViewType = 'initial_setup' | 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'reports' | 'statistics' | 'settings' | 'app-settings' | 'user-profile' | 'backup-manager' | 'about-support' | 'auth' | 'institution_setup';
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewType>('initial_setup');
@@ -1144,13 +1143,9 @@ export const App: React.FC = () => {
             supabaseService={supabaseService}
           />
         );
-      case 'donation':
+      case 'about-support':
         return (
-          <Donation onClose={() => setCurrentView('dashboard')} />
-        );
-      case 'about':
-        return (
-          <About onClose={() => setCurrentView('dashboard')} />
+          <AboutAndSupport onClose={() => setCurrentView('dashboard')} />
         );
       case 'app-settings':
         return (
@@ -1422,7 +1417,8 @@ const AppContent: React.FC<AppContentProps> = ({
           display: flex;
           flex-direction: column;
           background: #FAF9F6;
-          overflow: hidden;
+          overflow-y: auto;
+          overflow-x: hidden;
         }
         
         .app-container {
@@ -1435,9 +1431,10 @@ const AppContent: React.FC<AppContentProps> = ({
           flex: 1;
           display: flex;
           flex-direction: column;
-          overflow-y: auto;
+          overflow-y: visible;
           overflow-x: hidden;
           background: #FAF9F6;
+          height: 100%;
         }
         
         .main-content {

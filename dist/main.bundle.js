@@ -25,26 +25,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_Borrowers__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./components/Borrowers */ "./src/renderer/components/Borrowers.tsx");
 /* harmony import */ var _components_BorrowHistory__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./components/BorrowHistory */ "./src/renderer/components/BorrowHistory.tsx");
 /* harmony import */ var _components_Settings__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./components/Settings */ "./src/renderer/components/Settings.tsx");
-/* harmony import */ var _components_Donation__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./components/Donation */ "./src/renderer/components/Donation.tsx");
-/* harmony import */ var _components_About__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./components/About */ "./src/renderer/components/About.tsx");
-/* harmony import */ var _components_EnhancedAuthentication__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./components/EnhancedAuthentication */ "./src/renderer/components/EnhancedAuthentication.tsx");
-/* harmony import */ var _components_InstitutionSetup__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./components/InstitutionSetup */ "./src/renderer/components/InstitutionSetup.tsx");
-/* harmony import */ var _components_InitialSetup__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./components/InitialSetup */ "./src/renderer/components/InitialSetup.tsx");
-/* harmony import */ var _components_AppPasswordScreen__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./components/AppPasswordScreen */ "./src/renderer/components/AppPasswordScreen.tsx");
-/* harmony import */ var _services_SupabaseClient__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./services/SupabaseClient */ "./src/renderer/services/SupabaseClient.ts");
-/* harmony import */ var _services_ConfigService__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./services/ConfigService */ "./src/renderer/services/ConfigService.ts");
-/* harmony import */ var _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./services/LocalAuthService */ "./src/renderer/services/LocalAuthService.ts");
-/* harmony import */ var _components_AppSettings__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./components/AppSettings */ "./src/renderer/components/AppSettings.tsx");
-/* harmony import */ var _components_UserProfile__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./components/UserProfile */ "./src/renderer/components/UserProfile.tsx");
-/* harmony import */ var _components_BackupManager__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./components/BackupManager */ "./src/renderer/components/BackupManager.tsx");
-/* harmony import */ var _components_ReportsManager__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./components/ReportsManager */ "./src/renderer/components/ReportsManager.tsx");
-/* harmony import */ var _components_StatisticsManager__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./components/StatisticsManager */ "./src/renderer/components/StatisticsManager.tsx");
-/* harmony import */ var _components_ToastSystem__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./components/ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
-/* harmony import */ var _components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./components/KeyboardShortcuts */ "./src/renderer/components/KeyboardShortcuts.tsx");
-/* harmony import */ var _types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./types/UnifiedTypes */ "./src/renderer/types/UnifiedTypes.ts");
+/* harmony import */ var _components_AboutAndSupport__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./components/AboutAndSupport */ "./src/renderer/components/AboutAndSupport.tsx");
+/* harmony import */ var _components_EnhancedAuthentication__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./components/EnhancedAuthentication */ "./src/renderer/components/EnhancedAuthentication.tsx");
+/* harmony import */ var _components_InstitutionSetup__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./components/InstitutionSetup */ "./src/renderer/components/InstitutionSetup.tsx");
+/* harmony import */ var _components_InitialSetup__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./components/InitialSetup */ "./src/renderer/components/InitialSetup.tsx");
+/* harmony import */ var _components_AppPasswordScreen__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./components/AppPasswordScreen */ "./src/renderer/components/AppPasswordScreen.tsx");
+/* harmony import */ var _services_SupabaseClient__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./services/SupabaseClient */ "./src/renderer/services/SupabaseClient.ts");
+/* harmony import */ var _services_ConfigService__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./services/ConfigService */ "./src/renderer/services/ConfigService.ts");
+/* harmony import */ var _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./services/LocalAuthService */ "./src/renderer/services/LocalAuthService.ts");
+/* harmony import */ var _components_AppSettings__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./components/AppSettings */ "./src/renderer/components/AppSettings.tsx");
+/* harmony import */ var _components_UserProfile__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./components/UserProfile */ "./src/renderer/components/UserProfile.tsx");
+/* harmony import */ var _components_BackupManager__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./components/BackupManager */ "./src/renderer/components/BackupManager.tsx");
+/* harmony import */ var _components_ReportsManager__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./components/ReportsManager */ "./src/renderer/components/ReportsManager.tsx");
+/* harmony import */ var _components_StatisticsManager__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./components/StatisticsManager */ "./src/renderer/components/StatisticsManager.tsx");
+/* harmony import */ var _components_ToastSystem__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./components/ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
+/* harmony import */ var _components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./components/KeyboardShortcuts */ "./src/renderer/components/KeyboardShortcuts.tsx");
+/* harmony import */ var _types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./types/UnifiedTypes */ "./src/renderer/types/UnifiedTypes.ts");
 
 // src/renderer/App.tsx - Version modifiée pour Supabase
-
 
 
 
@@ -105,7 +103,7 @@ const App = () => {
         overdueDocuments: 0
     });
     // Services
-    const [supabaseService] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(() => new _services_SupabaseClient__WEBPACK_IMPORTED_MODULE_18__.SupabaseRendererService());
+    const [supabaseService] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(() => new _services_SupabaseClient__WEBPACK_IMPORTED_MODULE_17__.SupabaseRendererService());
     const [showBorrowModal, setShowBorrowModal] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [selectedDocumentForBorrow, setSelectedDocumentForBorrow] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
     const [editingDocument, setEditingDocument] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
@@ -119,7 +117,7 @@ const App = () => {
     const checkAppSecurity = async () => {
         try {
             // Vérifier si un mot de passe d'application est requis
-            const appSettings = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__.LocalAuthService.getAppSettings();
+            const appSettings = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_19__.LocalAuthService.getAppSettings();
             if (appSettings.requireAppPassword) {
                 setIsAppLocked(true);
                 setNeedsPasswordSetup(false);
@@ -147,16 +145,16 @@ const App = () => {
     const checkInitialConfiguration = async () => {
         try {
             // Vérifier si l'application a été configurée
-            const configured = _services_ConfigService__WEBPACK_IMPORTED_MODULE_19__.ConfigService.isConfigured();
-            const mode = _services_ConfigService__WEBPACK_IMPORTED_MODULE_19__.ConfigService.getMode();
+            const configured = _services_ConfigService__WEBPACK_IMPORTED_MODULE_18__.ConfigService.isConfigured();
+            const mode = _services_ConfigService__WEBPACK_IMPORTED_MODULE_18__.ConfigService.getMode();
             setIsAppConfigured(configured);
             setAppMode(mode);
             // Charger les informations de dernière connexion si disponibles
-            const lastLogin = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__.LocalAuthService.getLastLoginInfo();
+            const lastLogin = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_19__.LocalAuthService.getLastLoginInfo();
             if (configured) {
                 console.log(`Application configurée en mode: ${mode}`);
                 // Si auto-login activé et informations disponibles
-                if (lastLogin && lastLogin.password && _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__.LocalAuthService.getAppSettings().autoLogin) {
+                if (lastLogin && lastLogin.password && _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_19__.LocalAuthService.getAppSettings().autoLogin) {
                     console.log('Tentative de connexion automatique...');
                     try {
                         await handleAuthentication({
@@ -188,7 +186,7 @@ const App = () => {
         try {
             console.log(`Configuration initiale: mode ${mode}`);
             // Sauvegarder la configuration
-            _services_ConfigService__WEBPACK_IMPORTED_MODULE_19__.ConfigService.configureApp(mode);
+            _services_ConfigService__WEBPACK_IMPORTED_MODULE_18__.ConfigService.configureApp(mode);
             // Mettre à jour l'état local
             setAppMode(mode);
             setIsAppConfigured(true);
@@ -478,13 +476,13 @@ const App = () => {
                 if (appMode === 'offline') {
                     console.log('Mode offline - authentification avec LocalAuthService');
                     // Utiliser le service d'authentification local
-                    const authResult = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__.LocalAuthService.authenticate(credentials.email, credentials.password, credentials.institutionCode || '');
+                    const authResult = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_19__.LocalAuthService.authenticate(credentials.email, credentials.password, credentials.institutionCode || '');
                     if (!authResult.success) {
                         throw new Error(authResult.message || 'Échec de l\'authentification');
                     }
                     const localUser = authResult.user;
                     // Sauvegarder les informations de connexion si demandé
-                    _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__.LocalAuthService.saveLastLoginInfo(credentials.email, credentials.institutionCode || '', true, // Toujours mémoriser le mot de passe en mode offline
+                    _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_19__.LocalAuthService.saveLastLoginInfo(credentials.email, credentials.institutionCode || '', true, // Toujours mémoriser le mot de passe en mode offline
                     credentials.password);
                     if (localUser) {
                         // Convertir l'utilisateur local au format User
@@ -496,7 +494,7 @@ const App = () => {
                             role: localUser.role
                         };
                         // Chercher l'institution correspondante ou créer une par défaut
-                        const institution = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__.LocalAuthService.findInstitutionByCode(localUser.institutionCode);
+                        const institution = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_19__.LocalAuthService.findInstitutionByCode(localUser.institutionCode);
                         const appInstitution = institution ? {
                             id: institution.id,
                             name: institution.name,
@@ -539,8 +537,8 @@ const App = () => {
                         setCurrentUser(appUser);
                         setCurrentInstitution(appInstitution);
                         // Créer les versions unifiées
-                        setUnifiedUser((0,_types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_28__.convertToUnifiedUser)(localUser, 'offline'));
-                        setUnifiedInstitution((0,_types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_28__.convertToUnifiedInstitution)(institution || {
+                        setUnifiedUser((0,_types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_27__.convertToUnifiedUser)(localUser, 'offline'));
+                        setUnifiedInstitution((0,_types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_27__.convertToUnifiedInstitution)(institution || {
                             id: 'default-offline',
                             name: 'Ma Bibliothèque',
                             code: localUser.institutionCode,
@@ -583,7 +581,7 @@ const App = () => {
                 // Création d'institution locale
                 const institutionData = credentials.userData.institution;
                 // Créer l'institution avec le service local
-                const newInstitution = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__.LocalAuthService.createInstitution({
+                const newInstitution = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_19__.LocalAuthService.createInstitution({
                     name: institutionData.name,
                     address: institutionData.address || '',
                     city: institutionData.city || '',
@@ -598,7 +596,7 @@ const App = () => {
                 });
                 setInstitutionCode(newInstitution.code);
                 // Créer le compte administrateur local
-                const adminUser = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_20__.LocalAuthService.addUser({
+                const adminUser = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_19__.LocalAuthService.addUser({
                     email: credentials.email,
                     password: credentials.password,
                     firstName: credentials.userData.admin.firstName,
@@ -976,7 +974,7 @@ const App = () => {
     const renderAuthenticatedContent = () => {
         // Écran de configuration initiale - sans TitleBar
         if (currentView === 'initial_setup') {
-            return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_InitialSetup__WEBPACK_IMPORTED_MODULE_16__.InitialSetup, { onComplete: handleInitialSetup, onClose: () => window.electronAPI?.closeWindow?.() });
+            return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_InitialSetup__WEBPACK_IMPORTED_MODULE_15__.InitialSetup, { onComplete: handleInitialSetup, onClose: () => window.electronAPI?.closeWindow?.() });
         }
         // Tous les autres écrans auront la TitleBar
         return null; // Sera géré dans renderMainContent
@@ -985,12 +983,12 @@ const App = () => {
     const renderMainContent = () => {
         if (!isAuthenticated) {
             if (currentView === 'institution_setup') {
-                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_InstitutionSetup__WEBPACK_IMPORTED_MODULE_15__.InstitutionSetup, { institutionCode: institutionCode, institution: currentInstitution, onComplete: () => {
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_InstitutionSetup__WEBPACK_IMPORTED_MODULE_14__.InstitutionSetup, { institutionCode: institutionCode, institution: currentInstitution, onComplete: () => {
                         setCurrentView('auth');
                         alert('Votre établissement a été créé avec succès ! Vous pouvez maintenant vous connecter.');
                     }, onClose: () => window.electronAPI?.closeWindow?.() }));
             }
-            return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_EnhancedAuthentication__WEBPACK_IMPORTED_MODULE_14__.EnhancedAuthentication, { onLogin: handleAuthentication });
+            return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_EnhancedAuthentication__WEBPACK_IMPORTED_MODULE_13__.EnhancedAuthentication, { onLogin: handleAuthentication });
         }
         return renderCurrentView();
     };
@@ -1025,33 +1023,31 @@ const App = () => {
                 return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowHistory__WEBPACK_IMPORTED_MODULE_10__.BorrowHistory, { onClose: () => setCurrentView('dashboard'), supabaseService: supabaseService }));
             case 'settings':
                 return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Settings__WEBPACK_IMPORTED_MODULE_11__.Settings, { onClose: () => setCurrentView('dashboard'), onLogout: handleLogout, currentUser: currentUser, currentInstitution: currentInstitution, supabaseService: supabaseService }));
-            case 'donation':
-                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Donation__WEBPACK_IMPORTED_MODULE_12__.Donation, { onClose: () => setCurrentView('dashboard') }));
-            case 'about':
-                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_About__WEBPACK_IMPORTED_MODULE_13__.About, { onClose: () => setCurrentView('dashboard') }));
+            case 'about-support':
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_AboutAndSupport__WEBPACK_IMPORTED_MODULE_12__.AboutAndSupport, { onClose: () => setCurrentView('dashboard') }));
             case 'app-settings':
-                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_AppSettings__WEBPACK_IMPORTED_MODULE_21__.AppSettings, { onClose: () => setCurrentView('dashboard') }));
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_AppSettings__WEBPACK_IMPORTED_MODULE_20__.AppSettings, { onClose: () => setCurrentView('dashboard') }));
             case 'user-profile':
-                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_UserProfile__WEBPACK_IMPORTED_MODULE_22__.UserProfile, { currentUser: unifiedUser, currentInstitution: unifiedInstitution, appMode: appMode, onClose: () => setCurrentView('dashboard'), onUserUpdate: handleUserUpdate }));
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_UserProfile__WEBPACK_IMPORTED_MODULE_21__.UserProfile, { currentUser: unifiedUser, currentInstitution: unifiedInstitution, appMode: appMode, onClose: () => setCurrentView('dashboard'), onUserUpdate: handleUserUpdate }));
             case 'backup-manager':
-                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BackupManager__WEBPACK_IMPORTED_MODULE_23__.BackupManager, { onClose: () => setCurrentView('dashboard') }));
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BackupManager__WEBPACK_IMPORTED_MODULE_22__.BackupManager, { onClose: () => setCurrentView('dashboard') }));
             default:
                 return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Dashboard__WEBPACK_IMPORTED_MODULE_4__.Dashboard, { stats: stats, onNavigate: setCurrentView, documents: documents, categories: categories, recentActivity: recentActivity }));
         }
     };
     // Rendu des écrans de sécurité
     if (isAppLocked || needsPasswordSetup) {
-        return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_AppPasswordScreen__WEBPACK_IMPORTED_MODULE_17__.AppPasswordScreen, { onUnlock: handleAppUnlock, onSkip: needsPasswordSetup ? handlePasswordSetup : undefined, onClose: () => window.electronAPI?.closeWindow?.(), isSetup: needsPasswordSetup }));
+        return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_AppPasswordScreen__WEBPACK_IMPORTED_MODULE_16__.AppPasswordScreen, { onUnlock: handleAppUnlock, onSkip: needsPasswordSetup ? handlePasswordSetup : undefined, onClose: () => window.electronAPI?.closeWindow?.(), isSetup: needsPasswordSetup }));
     }
     // Vérifier si on doit afficher l'écran de configuration initiale sans TitleBar
     const initialSetupContent = renderAuthenticatedContent();
     if (initialSetupContent) {
-        return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_26__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_27__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app", children: initialSetupContent }) }) }));
+        return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_25__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_26__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app", children: initialSetupContent }) }) }));
     }
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_26__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_27__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, { onRefresh: refreshData, isAuthenticated: isAuthenticated }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-container", children: isAuthenticated ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(AppContent, { isDemoMode: isDemoMode, currentView: currentView, setCurrentView: setCurrentView, isLoading: isLoading, error: error, setError: setError, renderCurrentView: renderCurrentView, showBorrowModal: showBorrowModal, selectedDocumentForBorrow: selectedDocumentForBorrow, closeBorrowModal: closeBorrowModal, handleBorrow: handleBorrow, handleReturn: handleReturn, handleAddBorrower: handleAddBorrower, refreshData: refreshData, supabaseService: supabaseService, borrowers: borrowers, documents: documents, borrowedDocuments: borrowedDocuments, showReportsModal: showReportsModal, setShowReportsModal: setShowReportsModal, showStatisticsModal: showStatisticsModal, setShowStatisticsModal: setShowStatisticsModal, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution, unifiedUser: unifiedUser, unifiedInstitution: unifiedInstitution, isAuthenticated: isAuthenticated, onLogout: handleLogout })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-container", children: renderMainContent() })) })] }) }) }));
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_25__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_26__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, { onRefresh: refreshData, isAuthenticated: isAuthenticated }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-container", children: isAuthenticated ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(AppContent, { isDemoMode: isDemoMode, currentView: currentView, setCurrentView: setCurrentView, isLoading: isLoading, error: error, setError: setError, renderCurrentView: renderCurrentView, showBorrowModal: showBorrowModal, selectedDocumentForBorrow: selectedDocumentForBorrow, closeBorrowModal: closeBorrowModal, handleBorrow: handleBorrow, handleReturn: handleReturn, handleAddBorrower: handleAddBorrower, refreshData: refreshData, supabaseService: supabaseService, borrowers: borrowers, documents: documents, borrowedDocuments: borrowedDocuments, showReportsModal: showReportsModal, setShowReportsModal: setShowReportsModal, showStatisticsModal: showStatisticsModal, setShowStatisticsModal: setShowStatisticsModal, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution, unifiedUser: unifiedUser, unifiedInstitution: unifiedInstitution, isAuthenticated: isAuthenticated, onLogout: handleLogout })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-container", children: renderMainContent() })) })] }) }) }));
 };
 const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error, setError, renderCurrentView, showBorrowModal, selectedDocumentForBorrow, closeBorrowModal, handleBorrow, handleReturn, handleAddBorrower, refreshData, supabaseService, borrowers, documents, borrowedDocuments, showReportsModal, setShowReportsModal, showStatisticsModal, setShowStatisticsModal, stats, currentUser, currentInstitution, unifiedUser, unifiedInstitution, isAuthenticated, onLogout }) => {
-    const { info } = (0,_components_ToastSystem__WEBPACK_IMPORTED_MODULE_26__.useQuickToast)();
+    const { info } = (0,_components_ToastSystem__WEBPACK_IMPORTED_MODULE_25__.useQuickToast)();
     const [demoNotificationShown, setDemoNotificationShown] = react__WEBPACK_IMPORTED_MODULE_1___default().useState(false);
     react__WEBPACK_IMPORTED_MODULE_1___default().useEffect(() => {
         if (isDemoMode && !demoNotificationShown) {
@@ -1072,13 +1068,14 @@ const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error,
                     else {
                         setCurrentView(view);
                     }
-                }, stats: stats, currentUser: unifiedUser, currentInstitution: unifiedInstitution, onLogout: onLogout }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("main", { className: "main-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-wrapper", children: [isLoading && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Chargement..." })] })), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "error-banner", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => setError(''), children: "\u00D7" })] })), renderCurrentView()] }) }), showBorrowModal && selectedDocumentForBorrow && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowDocument__WEBPACK_IMPORTED_MODULE_8__.BorrowDocument, { document: selectedDocumentForBorrow, borrowers: borrowers, onBorrow: handleBorrow, onReturn: handleReturn, onCancel: closeBorrowModal, onAddBorrower: handleAddBorrower })), showReportsModal && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ReportsManager__WEBPACK_IMPORTED_MODULE_24__.ReportsManager, { documents: documents, borrowers: borrowers, borrowHistory: borrowedDocuments, onClose: () => setShowReportsModal(false) })), showStatisticsModal && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_StatisticsManager__WEBPACK_IMPORTED_MODULE_25__.StatisticsManager, { documents: documents, borrowers: borrowers, borrowHistory: borrowedDocuments, onClose: () => setShowStatisticsModal(false) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+                }, stats: stats, currentUser: unifiedUser, currentInstitution: unifiedInstitution, onLogout: onLogout }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("main", { className: "main-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-wrapper", children: [isLoading && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Chargement..." })] })), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "error-banner", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => setError(''), children: "\u00D7" })] })), renderCurrentView()] }) }), showBorrowModal && selectedDocumentForBorrow && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowDocument__WEBPACK_IMPORTED_MODULE_8__.BorrowDocument, { document: selectedDocumentForBorrow, borrowers: borrowers, onBorrow: handleBorrow, onReturn: handleReturn, onCancel: closeBorrowModal, onAddBorrower: handleAddBorrower })), showReportsModal && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ReportsManager__WEBPACK_IMPORTED_MODULE_23__.ReportsManager, { documents: documents, borrowers: borrowers, borrowHistory: borrowedDocuments, onClose: () => setShowReportsModal(false) })), showStatisticsModal && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_StatisticsManager__WEBPACK_IMPORTED_MODULE_24__.StatisticsManager, { documents: documents, borrowers: borrowers, borrowHistory: borrowedDocuments, onClose: () => setShowStatisticsModal(false) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .app {
           height: 100vh;
           display: flex;
           flex-direction: column;
           background: #FAF9F6;
-          overflow: hidden;
+          overflow-y: auto;
+          overflow-x: hidden;
         }
         
         .app-container {
@@ -1091,9 +1088,10 @@ const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error,
           flex: 1;
           display: flex;
           flex-direction: column;
-          overflow-y: auto;
+          overflow-y: visible;
           overflow-x: hidden;
           background: #FAF9F6;
+          height: 100%;
         }
         
         .main-content {
@@ -1356,42 +1354,53 @@ const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error,
 
 /***/ }),
 
-/***/ "./src/renderer/components/About.tsx":
-/*!*******************************************!*\
-  !*** ./src/renderer/components/About.tsx ***!
-  \*******************************************/
+/***/ "./src/renderer/components/AboutAndSupport.tsx":
+/*!*****************************************************!*\
+  !*** ./src/renderer/components/AboutAndSupport.tsx ***!
+  \*****************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   About: () => (/* binding */ About)
+/* harmony export */   AboutAndSupport: () => (/* binding */ AboutAndSupport)
 /* harmony export */ });
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/zap.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/heart.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trophy.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/award.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/star.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/code.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/arrow-left.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/info.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/sparkles.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/map-pin.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/briefcase.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/mail.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/external-link.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/phone.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/coffee.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/heart.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/gift.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/star.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/zap.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/shield.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/rocket.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/code.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/lightbulb.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/info.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/arrow-left.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/target.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/sparkles.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/copy.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/map-pin.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/briefcase.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/mail.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/external-link.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/phone.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trophy.mjs");
 
 
 
-const About = ({ onClose }) => {
-    const [activeTab, setActiveTab] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('developer');
+const AboutAndSupport = ({ onClose }) => {
+    const [activeTab, setActiveTab] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('about');
+    const [selectedAmount, setSelectedAmount] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(1000);
+    const [customAmount, setCustomAmount] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
+    const [copied, setCopied] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+    // Données développeur
     const developerInfo = {
         name: 'CHEUDJEU TEFOYE CÉDRIC BASILIO',
         title: 'Expert en Développement Informatique & Intelligence Artificielle',
@@ -1402,137 +1411,197 @@ const About = ({ onClose }) => {
         experience: '4+ ans d\'expérience',
         avatar: '👨‍💻'
     };
-    const education = [
-        {
-            degree: 'Master en Intelligence Artificielle',
-            institution: 'Université de Dschang, Faculté des Sciences',
-            year: '2022-2023',
-            mention: 'Mention obtenue',
-            specialization: 'Machine Learning, NLP, Computer Vision'
-        },
-        {
-            degree: 'Licence en Informatique Fondamentale',
-            institution: 'Université de Dschang, Faculté des Sciences',
-            year: '2020-2021',
-            specialization: 'Génie Logiciel et Systèmes d\'Information'
-        }
+    // Montants prédéfinis
+    const predefinedAmounts = [
+        { value: 500, label: '500 FCFA', icon: lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], description: 'Un café pour le dev' },
+        { value: 1000, label: '1 000 FCFA', icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], description: 'Petit soutien', popular: true },
+        { value: 2500, label: '2 500 FCFA', icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], description: 'Généreux donateur' },
+        { value: 5000, label: '5 000 FCFA', icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], description: 'Super supporter' }
     ];
-    const experience = [
-        {
-            title: 'Responsable Cellule Informatique',
-            company: 'Faculté de Médecine - Université de Douala',
-            period: 'Jan. 2024 - Présent',
-            description: 'Administration des systèmes, développement d\'applications de gestion académique, implémentation de solutions d\'IA'
-        },
-        {
-            title: 'Co-fondateur',
-            company: 'OVERBRAND',
-            period: 'Août 2021 - Présent',
-            description: 'Direction stratégique et technique, supervision de projets web/mobile'
-        },
-        {
-            title: 'Designer - Projet Help to Win',
-            company: 'VISIBILITY CAM SARL',
-            period: 'Mars 2023 - Présent',
-            description: 'Conception UI/UX d\'application mobile éducative'
-        }
-    ];
+    // Technologies
     const technologies = {
-        frontend: ['React.js', 'Vue.js', 'HTML5/CSS3', 'JavaScript', 'TypeScript'],
-        backend: ['Node.js', 'PHP/Laravel', 'Python', 'Express.js'],
-        mobile: ['React Native', 'Flutter'],
-        ai: ['TensorFlow', 'PyTorch', 'Scikit-Learn', 'Machine Learning', 'NLP'],
-        design: ['Figma', 'Adobe XD', 'Photoshop', 'Illustrator'],
-        database: ['MySQL', 'PostgreSQL', 'MongoDB', 'Firebase'],
-        tools: ['Git/GitHub', 'Docker', 'AWS']
+        frontend: ['React.js', 'TypeScript', 'HTML5/CSS3', 'Electron'],
+        backend: ['Node.js', 'SQLite', 'RESTful APIs'],
+        tools: ['Git/GitHub', 'Webpack', 'VS Code'],
+        design: ['Figma', 'Modern UI/UX', 'Responsive Design']
     };
+    // Fonctionnalités du projet
     const projectFeatures = [
         {
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"],
             title: 'Gestion complète',
             description: 'Système complet de gestion de bibliothèque avec emprunteurs, livres et historique'
         },
         {
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"],
             title: 'Multi-utilisateurs',
             description: 'Support pour étudiants et personnel avec différents types d\'accès'
         },
         {
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"],
             title: 'Interface moderne',
             description: 'Design contemporain avec animations fluides et expérience utilisateur optimisée'
         },
         {
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"],
+            title: 'Sécurisé',
+            description: 'Protection des données avec chiffrement et authentification avancée'
+        },
+        {
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"],
+            title: 'Performance',
+            description: 'Application native rapide avec base de données locale optimisée'
+        },
+        {
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"],
             title: 'Open Source',
             description: 'Code source libre et gratuit pour toute la communauté éducative'
         }
     ];
-    const achievements = [
+    // Raisons de soutenir
+    const supportReasons = [
         {
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"],
-            title: 'Halkaton 2022',
-            description: 'Hackathon de 24 heures'
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"],
+            title: 'Développement continu',
+            description: 'Financer de nouvelles fonctionnalités et l\'amélioration du système',
+            color: '#3E5C49'
+        },
+        {
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"],
+            title: 'Gratuit pour tous',
+            description: 'Maintenir le projet accessible gratuitement pour toutes les bibliothèques',
+            color: '#E91E63'
         },
         {
             icon: lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"],
-            title: 'MountainHack 2020',
-            description: 'Hackathon de 24 heures, Dschang'
+            title: 'Support communautaire',
+            description: 'Fournir une assistance technique et des formations aux utilisateurs',
+            color: '#C2571B'
         },
         {
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"],
-            title: 'Master avec mention',
-            description: 'Intelligence Artificielle - 2023'
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"],
+            title: 'Innovation',
+            description: 'Intégrer les dernières technologies pour une meilleure expérience',
+            color: '#9C27B0'
         }
     ];
+    const handleCopy = async (text, type) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            setCopied(type);
+            setTimeout(() => setCopied(null), 2000);
+        }
+        catch (err) {
+            console.error('Erreur lors de la copie:', err);
+        }
+    };
+    const finalAmount = selectedAmount || parseInt(customAmount) || 0;
     const tabs = [
-        { id: 'developer', label: 'Développeur', icon: lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"] },
-        { id: 'project', label: 'Le Projet', icon: lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"] },
-        { id: 'technologies', label: 'Technologies', icon: lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"] }
+        { id: 'about', label: 'À propos', icon: lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], gradient: 'linear-gradient(135deg, #3E5C49 0%, #2E453A 100%)' },
+        { id: 'project', label: 'Le Projet', icon: lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], gradient: 'linear-gradient(135deg, #C2571B 0%, #A8481A 100%)' },
+        { id: 'support', label: 'Soutenir', icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], gradient: 'linear-gradient(135deg, #E91E63 0%, #C2185B 100%)' },
+        { id: 'developer', label: 'Développeur', icon: lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], gradient: 'linear-gradient(135deg, #607D8B 0%, #455A64 100%)' }
     ];
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "about-page", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-background", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-pattern" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "back-button", onClick: onClose, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Retour" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-main", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 48 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "hero-title", children: "\u00C0 propos du projet" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "hero-subtitle", children: "D\u00E9couvrez l'histoire, les technologies et l'\u00E9quipe derri\u00E8re ce syst\u00E8me de gestion de biblioth\u00E8que" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "project-stats", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: "2024" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Ann\u00E9e de cr\u00E9ation" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: "100%" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "TypeScript" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: "MIT" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Licence libre" })] })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "about-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tabs-navigation", children: tabs.map((tab) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab-button ${activeTab === tab.id ? 'active' : ''}`, onClick: () => setActiveTab(tab.id), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(tab.icon, { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: tab.label })] }, tab.id))) }), activeTab === 'developer' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tab-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "developer-hero", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "developer-avatar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "avatar-emoji", children: developerInfo.avatar }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "developer-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "developer-name", children: developerInfo.name }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "developer-title", children: developerInfo.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "developer-meta", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "meta-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: developerInfo.location })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "meta-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: developerInfo.experience })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "card-title", children: "Contact" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "contact-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("a", { href: `mailto:${developerInfo.email}`, className: "contact-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: developerInfo.email }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 16 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("a", { href: `tel:${developerInfo.phone}`, className: "contact-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: developerInfo.phone }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 16 })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "card-title", children: "Poste actuel" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "position-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "position-title", children: developerInfo.currentPosition }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "position-description", children: "Administration des syst\u00E8mes informatiques, d\u00E9veloppement d'applications de gestion acad\u00E9mique et impl\u00E9mentation de solutions d'IA pour l'optimisation des processus." })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { className: "section-title", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 24 }), "Formation"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "timeline", children: education.map((edu, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "timeline-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "timeline-marker" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "timeline-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "timeline-title", children: edu.degree }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "timeline-subtitle", children: edu.institution }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "timeline-meta", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "timeline-year", children: edu.year }), edu.mention && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "timeline-mention", children: edu.mention })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "timeline-description", children: edu.specialization })] })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { className: "section-title", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 24 }), "Exp\u00E9rience professionnelle"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "experience-grid", children: experience.map((exp, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "experience-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "experience-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "experience-title", children: exp.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "experience-period", children: exp.period })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "experience-company", children: exp.company }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "experience-description", children: exp.description })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { className: "section-title", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 24 }), "R\u00E9alisations"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "achievements-grid", children: achievements.map((achievement, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "achievement-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "achievement-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(achievement.icon, { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "achievement-title", children: achievement.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "achievement-description", children: achievement.description })] }, index))) })] })] })), activeTab === 'project' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tab-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "project-intro", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "intro-title", children: "Syst\u00E8me de Gestion de Biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "intro-description", children: "Une solution moderne et compl\u00E8te pour la gestion des biblioth\u00E8ques, d\u00E9velopp\u00E9e avec les derni\u00E8res technologies web. Ce projet vise \u00E0 simplifier et moderniser la gestion des collections de livres, des emprunteurs et des transactions dans les \u00E9tablissements \u00E9ducatifs." })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "features-grid", children: projectFeatures.map((feature, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "feature-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(feature.icon, { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "feature-title", children: feature.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "feature-description", children: feature.description })] }, index))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "project-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "detail-title", children: "Objectifs du projet" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("ul", { className: "detail-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Moderniser la gestion des biblioth\u00E8ques scolaires et universitaires" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Simplifier les processus d'emprunt et de retour de livres" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Fournir des statistiques et analyses en temps r\u00E9el" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Offrir une interface intuitive et accessible" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Garantir la gratuit\u00E9 et l'open source pour l'\u00E9ducation" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "detail-title", children: "Fonctionnalit\u00E9s principales" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("ul", { className: "detail-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Gestion compl\u00E8te des livres (ajout, modification, suppression)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Syst\u00E8me d'emprunteurs avec diff\u00E9rents types (\u00E9tudiants, personnel)" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Processus d'emprunt et de retour simplifi\u00E9s" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Historique d\u00E9taill\u00E9 des transactions" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "G\u00E9n\u00E9ration de rapports et exports CSV" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Interface responsive adapt\u00E9e \u00E0 tous les appareils" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "project-mission", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "mission-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 32 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "mission-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "mission-title", children: "Notre mission" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "mission-description", children: "D\u00E9mocratiser l'acc\u00E8s aux outils de gestion modernes pour les biblioth\u00E8ques, en particulier dans les \u00E9tablissements \u00E9ducatifs. Nous croyons que chaque institution, quelle que soit sa taille ou ses ressources, devrait avoir acc\u00E8s \u00E0 des solutions technologiques de qualit\u00E9 pour am\u00E9liorer l'exp\u00E9rience de ses utilisateurs." })] })] })] })), activeTab === 'technologies' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tab-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tech-intro", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "intro-title", children: "Stack Technologique" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "intro-description", children: "Ce projet utilise des technologies modernes et \u00E9prouv\u00E9es pour garantir performance, s\u00E9curit\u00E9 et maintenabilit\u00E9. Voici un aper\u00E7u des outils et frameworks utilis\u00E9s." })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tech-categories", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tech-category", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "tech-title", children: "Frontend" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tech-tags", children: technologies.frontend.map((tech, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "tech-tag frontend", children: tech }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tech-category", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "tech-title", children: "Backend" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tech-tags", children: technologies.backend.map((tech, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "tech-tag backend", children: tech }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tech-category", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "tech-title", children: "Mobile" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tech-tags", children: technologies.mobile.map((tech, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "tech-tag mobile", children: tech }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tech-category", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "tech-title", children: "Intelligence Artificielle" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tech-tags", children: technologies.ai.map((tech, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "tech-tag ai", children: tech }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tech-category", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "tech-title", children: "Design" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tech-tags", children: technologies.design.map((tech, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "tech-tag design", children: tech }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tech-category", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "tech-title", children: "Base de donn\u00E9es" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tech-tags", children: technologies.database.map((tech, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "tech-tag database", children: tech }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tech-category", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "tech-title", children: "Outils & DevOps" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tech-tags", children: technologies.tools.map((tech, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "tech-tag tools", children: tech }, index))) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "architecture-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "architecture-title", children: "Architecture" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "architecture-description", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Le syst\u00E8me est construit avec une architecture moderne s\u00E9parant clairement les couches de pr\u00E9sentation, logique m\u00E9tier et donn\u00E9es. L'interface utilisateur est d\u00E9velopp\u00E9e en React avec TypeScript pour une meilleure maintenabilit\u00E9." }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "L'application utilise Electron pour offrir une exp\u00E9rience desktop native tout en conservant la flexibilit\u00E9 du web. La base de donn\u00E9es SQLite garantit une installation simple et une portabilit\u00E9 maximale." })] })] })] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
-        .about-page {
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "about-support-page", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-background", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-pattern" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-elements", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-shape shape-1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-shape shape-2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "floating-shape shape-3" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "back-button", onClick: onClose, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Retour au tableau de bord" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-main", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-icon-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-icon main-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 48 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-icon secondary-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 24 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h1", { className: "hero-title", children: ["Syst\u00E8me de Gestion de Biblioth\u00E8que", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "title-accent", children: "Moderne & Gratuit" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "hero-subtitle", children: "D\u00E9couvrez l'histoire, les technologies et soutenez le d\u00E9veloppement de cette solution open source d\u00E9di\u00E9e aux biblioth\u00E8ques" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-stats", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: "500+" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Biblioth\u00E8ques" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: "10K+" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Livres g\u00E9r\u00E9s" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: "100%" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Open Source" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-number", children: "MIT" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "stat-label", children: "Licence libre" })] })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "main-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tabs-navigation", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tabs-container", children: tabs.map((tab) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab-button ${activeTab === tab.id ? 'active' : ''}`, onClick: () => setActiveTab(tab.id), style: {
+                                    '--tab-gradient': tab.gradient
+                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tab-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(tab.icon, { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "tab-label", children: tab.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tab-indicator" })] }, tab.id))) }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tab-content", children: [activeTab === 'about' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 32 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-title-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "section-title", children: "\u00C0 propos du projet" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "section-subtitle", children: "Une solution moderne pour la gestion des biblioth\u00E8ques" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "about-intro", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "intro-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Vision & Mission" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Notre vision est de d\u00E9mocratiser l'acc\u00E8s aux outils de gestion modernes pour les biblioth\u00E8ques, en particulier dans les \u00E9tablissements \u00E9ducatifs. Nous croyons que chaque institution, quelle que soit sa taille ou ses ressources, devrait avoir acc\u00E8s \u00E0 des solutions technologiques de qualit\u00E9 pour am\u00E9liorer l'exp\u00E9rience de ses utilisateurs." })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "features-showcase", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "showcase-title", children: "Fonctionnalit\u00E9s principales" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "features-grid", children: projectFeatures.map((feature, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "feature-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(feature.icon, { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "feature-title", children: feature.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "feature-description", children: feature.description })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "project-highlights", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "highlight-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "highlight-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 32 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "highlight-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Objectifs 2024-2025" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("ul", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Int\u00E9gration d'intelligence artificielle pour les recommandations" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Mode collaboratif multi-\u00E9tablissements" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Application mobile compagnon" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Syst\u00E8me de notifications avanc\u00E9" })] })] })] }) })] })), activeTab === 'project' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 32 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-title-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "section-title", children: "Technologies & Architecture" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "section-subtitle", children: "Une stack moderne pour une performance optimale" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tech-overview", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tech-categories", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tech-category", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Frontend" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tech-tags", children: technologies.frontend.map((tech, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "tech-tag frontend", children: tech }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tech-category", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Backend" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tech-tags", children: technologies.backend.map((tech, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "tech-tag backend", children: tech }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tech-category", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Outils" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tech-tags", children: technologies.tools.map((tech, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "tech-tag tools", children: tech }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "tech-category", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Design" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "tech-tags", children: technologies.design.map((tech, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "tech-tag design", children: tech }, index))) })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "architecture-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Architecture & Performances" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "architecture-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "arch-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Application Native" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Electron pour une exp\u00E9rience desktop optimale avec les avantages du web" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "arch-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Base de donn\u00E9es locale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "SQLite pour des performances rapides et une installation simplifi\u00E9e" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "arch-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Interface r\u00E9active" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Design responsive adapt\u00E9 \u00E0 tous les \u00E9crans et dispositifs" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "arch-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "S\u00E9curit\u00E9 avanc\u00E9e" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Chiffrement des donn\u00E9es et authentification robuste" })] })] })] })] })), activeTab === 'support' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 32 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-title-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "section-title", children: "Soutenez le d\u00E9veloppement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "section-subtitle", children: "Votre contribution aide \u00E0 maintenir et am\u00E9liorer ce projet open source" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "support-reasons", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Pourquoi votre soutien est important" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "reasons-grid", children: supportReasons.map((reason, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "reason-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "reason-icon", style: { backgroundColor: reason.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(reason.icon, { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "reason-title", children: reason.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "reason-description", children: reason.description })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "donation-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Choisir le montant" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "donation-description", children: "Chaque contribution, m\u00EAme petite, fait une grande diff\u00E9rence pour le d\u00E9veloppement du projet" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "amounts-grid", children: predefinedAmounts.map((amount) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `amount-card ${selectedAmount === amount.value ? 'selected' : ''} ${amount.popular ? 'popular' : ''}`, onClick: () => {
+                                                        setSelectedAmount(amount.value);
+                                                        setCustomAmount('');
+                                                    }, children: [amount.popular && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "popular-badge", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 12 }), "Populaire"] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "amount-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(amount.icon, { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "amount-value", children: amount.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "amount-description", children: amount.description })] }, amount.value))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "custom-amount", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "custom-label", children: "Ou entrez un montant personnalis\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "custom-input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "number", value: customAmount, onChange: (e) => {
+                                                                    setCustomAmount(e.target.value);
+                                                                    setSelectedAmount(null);
+                                                                }, placeholder: "0", className: "custom-input", min: "100" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "currency", children: "FCFA" })] })] }), finalAmount > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "payment-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Informations de paiement Mobile Money" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { children: ["Montant s\u00E9lectionn\u00E9: ", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("strong", { children: [finalAmount.toLocaleString(), " FCFA"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "payment-networks", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "network-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "network-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "network-indicator mtn" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "network-name", children: "MTN Mobile Money" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "network-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "detail-label", children: "Num\u00E9ro" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-value", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "phone-number", children: "+237 652 761 931" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "copy-button", onClick: () => handleCopy('+237652761931', 'mtn-number'), children: copied === 'mtn-number' ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 16 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "detail-label", children: "Nom" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-value", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "CHEUDJEU TEFOYE CEDRIC BASILIO" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "copy-button", onClick: () => handleCopy('CHEUDJEU TEFOYE CEDRIC BASILIO', 'name'), children: copied === 'name' ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 16 }) })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "network-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "network-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "network-indicator orange" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "network-name", children: "Orange Money" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "network-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "detail-label", children: "Num\u00E9ro" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-value", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "phone-number", children: "+237 652 761 931" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "copy-button", onClick: () => handleCopy('+237652761931', 'orange-number'), children: copied === 'orange-number' ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 16 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "detail-label", children: "Nom" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-value", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "CHEUDJEU TEFOYE CEDRIC BASILIO" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "copy-button", onClick: () => handleCopy('CHEUDJEU TEFOYE CEDRIC BASILIO', 'name-orange'), children: copied === 'name-orange' ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 16 }) })] })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "support-note", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "note-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "note-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h5", { children: "Merci pour votre soutien ! \uD83D\uDE4F" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Apr\u00E8s votre transfert, n'h\u00E9sitez pas \u00E0 me contacter pour confirmer votre don. Votre contribution sera utilis\u00E9e pour am\u00E9liorer et maintenir ce projet open source." })] })] })] }))] })] })), activeTab === 'developer' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "section-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 32 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-title-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "section-title", children: "Rencontrez le d\u00E9veloppeur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "section-subtitle", children: "Passionn\u00E9 de technologie et d'innovation au service de l'\u00E9ducation" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "developer-profile", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "profile-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "profile-avatar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "avatar-emoji", children: developerInfo.avatar }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "profile-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "profile-name", children: developerInfo.name }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "profile-title", children: developerInfo.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "profile-meta", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "meta-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: developerInfo.location })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "meta-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: developerInfo.experience })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "contact-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Contact & R\u00E9seaux" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "contact-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("a", { href: `mailto:${developerInfo.email}`, className: "contact-link", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_22__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: developerInfo.email }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_23__["default"], { size: 16 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("a", { href: `tel:${developerInfo.phone}`, className: "contact-link", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_24__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: developerInfo.phone }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_23__["default"], { size: 16 })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "current-position", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Poste actuel" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "position-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "position-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "position-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h5", { children: developerInfo.currentPosition }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Administration des syst\u00E8mes informatiques, d\u00E9veloppement d'applications de gestion acad\u00E9mique et impl\u00E9mentation de solutions d'IA pour l'optimisation des processus." })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "achievements", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Formations & R\u00E9alisations" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "achievements-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "achievement-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "achievement-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_25__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h5", { children: "Master IA" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Intelligence Artificielle - Universit\u00E9 de Dschang (2023)" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "achievement-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "achievement-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_26__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h5", { children: "Hackathons" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Halkaton 2022, MountainHack 2020" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "achievement-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "achievement-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h5", { children: "OVERBRAND" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Co-fondateur & Directeur technique" })] })] })] })] })] }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+        .about-support-page {
           height: 100%;
           overflow-y: auto;
-          background: #FAF9F6;
+          background: linear-gradient(180deg, #FAF9F6 0%, #F8F6F0 100%);
         }
-        
+
+        /* Hero Section */
         .hero-section {
           position: relative;
-          background: linear-gradient(135deg, #607D8B 0%, #455A64 100%);
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 80%, #1A2E21 100%);
           color: #F3EED9;
-          padding: 48px 32px;
+          padding: 48px 32px 64px;
           overflow: hidden;
+          min-height: 60vh;
+          display: flex;
+          align-items: center;
         }
-        
+
         .hero-background {
           position: absolute;
           inset: 0;
           overflow: hidden;
         }
-        
+
         .hero-pattern {
           position: absolute;
           inset: 0;
           background-image: 
-            radial-gradient(circle at 25% 25%, rgba(243, 238, 217, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-          animation: drift 20s ease-in-out infinite;
+            radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(194, 87, 27, 0.08) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(243, 238, 217, 0.05) 0%, transparent 30%);
+          animation: patternMove 30s ease-in-out infinite;
         }
-        
-        @keyframes drift {
-          0%, 100% { transform: translate(0, 0) rotate(0deg); }
-          33% { transform: translate(30px, -30px) rotate(1deg); }
-          66% { transform: translate(-20px, 20px) rotate(-1deg); }
+
+        @keyframes patternMove {
+          0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+          25% { transform: translate(30px, -20px) rotate(1deg) scale(1.02); }
+          50% { transform: translate(-20px, 30px) rotate(-1deg) scale(0.98); }
+          75% { transform: translate(20px, 20px) rotate(0.5deg) scale(1.01); }
         }
-        
+
+        .floating-elements {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+        }
+
+        .floating-shape {
+          position: absolute;
+          background: rgba(243, 238, 217, 0.1);
+          border-radius: 50%;
+          animation: float 8s ease-in-out infinite;
+        }
+
+        .shape-1 {
+          width: 60px;
+          height: 60px;
+          top: 20%;
+          left: 10%;
+          animation-delay: 0s;
+        }
+
+        .shape-2 {
+          width: 40px;
+          height: 40px;
+          top: 60%;
+          right: 15%;
+          animation-delay: 2s;
+        }
+
+        .shape-3 {
+          width: 80px;
+          height: 80px;
+          bottom: 30%;
+          left: 70%;
+          animation-delay: 4s;
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+          50% { transform: translateY(-30px) rotate(180deg); opacity: 1; }
+        }
+
         .hero-content {
           position: relative;
           z-index: 1;
           max-width: 1200px;
           margin: 0 auto;
+          width: 100%;
         }
-        
+
         .back-button {
           display: flex;
           align-items: center;
@@ -1546,69 +1615,121 @@ const About = ({ onClose }) => {
           transition: all 0.3s ease;
           font-size: 14px;
           font-weight: 500;
-          margin-bottom: 32px;
+          margin-bottom: 40px;
           width: fit-content;
+          backdrop-filter: blur(10px);
         }
-        
+
         .back-button:hover {
           background: rgba(243, 238, 217, 0.25);
           transform: translateX(-4px);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         }
-        
+
         .hero-main {
           display: flex;
           align-items: center;
-          gap: 24px;
-          margin-bottom: 40px;
+          gap: 40px;
+          margin-bottom: 48px;
           text-align: center;
           flex-direction: column;
         }
-        
+
+        .hero-icon-container {
+          position: relative;
+          margin-bottom: 16px;
+        }
+
         .hero-icon {
-          width: 96px;
-          height: 96px;
-          background: rgba(243, 238, 217, 0.2);
+          width: 120px;
+          height: 120px;
           border-radius: 24px;
           display: flex;
           align-items: center;
           justify-content: center;
           color: #F3EED9;
+          position: relative;
         }
-        
+
+        .main-icon {
+          background: rgba(243, 238, 217, 0.2);
+          backdrop-filter: blur(10px);
+          border: 2px solid rgba(243, 238, 217, 0.3);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .secondary-icon {
+          position: absolute;
+          top: -8px;
+          right: -8px;
+          width: 40px;
+          height: 40px;
+          background: linear-gradient(135deg, #E91E63, #C2185B);
+          border-radius: 12px;
+          border: 2px solid #F3EED9;
+          animation: heartbeat 2s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+        }
+
         .hero-title {
-          font-size: 42px;
-          font-weight: 800;
+          font-size: 48px;
+          font-weight: 900;
           margin: 0 0 16px 0;
-          line-height: 1.2;
-          letter-spacing: -0.5px;
+          line-height: 1.1;
+          letter-spacing: -1px;
+          text-align: center;
         }
-        
+
+        .title-accent {
+          display: block;
+          font-size: 32px;
+          color: rgba(243, 238, 217, 0.8);
+          font-weight: 600;
+          margin-top: 8px;
+        }
+
         .hero-subtitle {
           font-size: 20px;
           opacity: 0.9;
           margin: 0;
-          line-height: 1.5;
-          max-width: 600px;
+          line-height: 1.6;
+          max-width: 700px;
+          text-align: center;
         }
-        
-        .project-stats {
-          display: flex;
-          justify-content: center;
-          gap: 40px;
-          flex-wrap: wrap;
+
+        .hero-stats {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 24px;
+          max-width: 800px;
+          margin: 0 auto;
         }
-        
-        .stat-item {
-          display: flex;
-          align-items: center;
-          gap: 16px;
+
+        .stat-card {
           background: rgba(243, 238, 217, 0.1);
-          padding: 20px 24px;
-          border-radius: 16px;
           backdrop-filter: blur(10px);
           border: 1px solid rgba(243, 238, 217, 0.2);
+          border-radius: 16px;
+          padding: 20px;
+          text-align: center;
+          transition: all 0.3s ease;
         }
-        
+
+        .stat-card:hover {
+          transform: translateY(-4px);
+          background: rgba(243, 238, 217, 0.15);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+          margin: 0 auto 12px;
+          color: rgba(243, 238, 217, 0.8);
+        }
+
         .stat-number {
           font-size: 24px;
           font-weight: 800;
@@ -1616,85 +1737,779 @@ const About = ({ onClose }) => {
           display: block;
           line-height: 1;
         }
-        
+
         .stat-label {
-          font-size: 14px;
-          color: rgba(243, 238, 217, 0.9);
+          font-size: 12px;
+          color: rgba(243, 238, 217, 0.7);
           margin-top: 4px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
         }
-        
-        .about-content {
+
+        /* Contenu principal */
+        .main-content {
           padding: 0 32px 48px;
           max-width: 1200px;
           margin: 0 auto;
+          position: relative;
+          margin-top: -32px;
         }
-        
+
+        /* Navigation Tabs */
         .tabs-navigation {
-          display: flex;
           background: #FFFFFF;
-          border-radius: 16px;
+          border-radius: 20px;
           padding: 8px;
           margin-bottom: 32px;
-          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
+          box-shadow: 0 8px 32px rgba(62, 92, 73, 0.1);
           border: 1px solid #E5DCC2;
           position: sticky;
           top: 20px;
-          z-index: 10;
+          z-index: 100;
+          backdrop-filter: blur(10px);
         }
-        
-        .tab-button {
-          flex: 1;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+
+        .tabs-container {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
           gap: 8px;
-          padding: 16px 20px;
+        }
+
+        .tab-button {
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          padding: 16px 12px;
           border: none;
           background: transparent;
           color: #4A4A4A;
-          border-radius: 12px;
+          border-radius: 16px;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           font-size: 14px;
           font-weight: 600;
+          overflow: hidden;
         }
-        
+
+        .tab-button::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: var(--tab-gradient);
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          border-radius: 16px;
+        }
+
         .tab-button:hover {
-          background: rgba(96, 125, 139, 0.1);
-          color: #607D8B;
+          color: #2E2E2E;
+          transform: translateY(-2px);
         }
-        
+
+        .tab-button:hover::before {
+          opacity: 0.1;
+        }
+
         .tab-button.active {
-          background: linear-gradient(135deg, #607D8B 0%, #455A64 100%);
-          color: #F3EED9;
-          box-shadow: 0 4px 12px rgba(96, 125, 139, 0.3);
+          color: #FFFFFF;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
         }
-        
-        .tab-content {
-          animation: fadeIn 0.3s ease-out;
+
+        .tab-button.active::before {
+          opacity: 1;
         }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
+
+        .tab-icon {
+          position: relative;
+          z-index: 1;
+          transition: transform 0.3s ease;
         }
-        
-        .developer-hero {
+
+        .tab-button.active .tab-icon {
+          transform: scale(1.1);
+        }
+
+        .tab-label {
+          position: relative;
+          z-index: 1;
+          font-weight: 600;
+        }
+
+        .tab-indicator {
+          position: absolute;
+          bottom: 4px;
+          left: 50%;
+          transform: translateX(-50%) scaleX(0);
+          width: 20px;
+          height: 3px;
+          background: currentColor;
+          border-radius: 2px;
+          transition: transform 0.3s ease;
+        }
+
+        .tab-button.active .tab-indicator {
+          transform: translateX(-50%) scaleX(1);
+        }
+
+        /* Contenu des sections */
+        .content-section {
+          animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+          from { 
+            opacity: 0; 
+            transform: translateY(30px); 
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0); 
+          }
+        }
+
+        .section-header {
           display: flex;
           align-items: center;
+          gap: 20px;
+          margin-bottom: 40px;
+          padding: 32px;
+          background: #FFFFFF;
+          border-radius: 20px;
+          box-shadow: 0 4px 20px rgba(62, 92, 73, 0.1);
+          border: 1px solid #E5DCC2;
+        }
+
+        .section-icon {
+          width: 64px;
+          height: 64px;
+          background: linear-gradient(135deg, #3E5C49, #2E453A);
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #F3EED9;
+          flex-shrink: 0;
+        }
+
+        .section-title {
+          font-size: 32px;
+          font-weight: 800;
+          color: #2E2E2E;
+          margin: 0 0 8px 0;
+          letter-spacing: -0.5px;
+        }
+
+        .section-subtitle {
+          font-size: 16px;
+          color: #4A4A4A;
+          margin: 0;
+          line-height: 1.5;
+        }
+
+        /* Contenu spécifique aux onglets */
+        .about-intro {
+          margin-bottom: 40px;
+        }
+
+        .intro-card {
+          background: #FFFFFF;
+          border-radius: 16px;
+          padding: 32px;
+          box-shadow: 0 4px 16px rgba(62, 92, 73, 0.1);
+          border: 1px solid #E5DCC2;
+        }
+
+        .intro-card h3 {
+          font-size: 24px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 16px 0;
+        }
+
+        .intro-card p {
+          font-size: 16px;
+          color: #4A4A4A;
+          line-height: 1.7;
+          margin: 0;
+        }
+
+        .features-showcase {
+          margin-bottom: 40px;
+        }
+
+        .showcase-title {
+          font-size: 24px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 24px 0;
+          text-align: center;
+        }
+
+        .features-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
           gap: 24px;
+        }
+
+        .feature-card {
+          background: #FFFFFF;
+          border-radius: 16px;
+          padding: 24px;
+          text-align: center;
+          transition: all 0.3s ease;
+          border: 1px solid #E5DCC2;
+          box-shadow: 0 4px 16px rgba(62, 92, 73, 0.08);
+        }
+
+        .feature-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 12px 32px rgba(62, 92, 73, 0.15);
+          border-color: rgba(62, 92, 73, 0.3);
+        }
+
+        .feature-icon {
+          width: 56px;
+          height: 56px;
+          background: linear-gradient(135deg, rgba(62, 92, 73, 0.1), rgba(62, 92, 73, 0.2));
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #3E5C49;
+          margin: 0 auto 16px;
+        }
+
+        .feature-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 12px 0;
+        }
+
+        .feature-description {
+          font-size: 14px;
+          color: #4A4A4A;
+          line-height: 1.6;
+          margin: 0;
+        }
+
+        .project-highlights {
+          margin-bottom: 40px;
+        }
+
+        .highlight-card {
+          background: linear-gradient(135deg, rgba(62, 92, 73, 0.05), rgba(194, 87, 27, 0.05));
+          border: 1px solid rgba(62, 92, 73, 0.2);
+          border-radius: 20px;
+          padding: 32px;
+          display: flex;
+          gap: 24px;
+          align-items: flex-start;
+        }
+
+        .highlight-icon {
+          width: 64px;
+          height: 64px;
+          background: linear-gradient(135deg, #C2571B, #A8481A);
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #F3EED9;
+          flex-shrink: 0;
+        }
+
+        .highlight-content h4 {
+          font-size: 20px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 16px 0;
+        }
+
+        .highlight-content ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+
+        .highlight-content li {
+          padding: 8px 0;
+          padding-left: 20px;
+          position: relative;
+          color: #4A4A4A;
+          line-height: 1.6;
+        }
+
+        .highlight-content li::before {
+          content: '→';
+          position: absolute;
+          left: 0;
+          color: #C2571B;
+          font-weight: bold;
+        }
+
+        /* Onglet Technologies */
+        .tech-overview {
+          margin-bottom: 40px;
+        }
+
+        .tech-categories {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 24px;
+        }
+
+        .tech-category {
+          background: #FFFFFF;
+          border-radius: 16px;
+          padding: 24px;
+          box-shadow: 0 4px 16px rgba(62, 92, 73, 0.1);
+          border: 1px solid #E5DCC2;
+        }
+
+        .tech-category h4 {
+          font-size: 18px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 16px 0;
+        }
+
+        .tech-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .tech-tag {
+          padding: 6px 12px;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: 600;
+          color: #FFFFFF;
+        }
+
+        .tech-tag.frontend { background: #3E5C49; }
+        .tech-tag.backend { background: #C2571B; }
+        .tech-tag.tools { background: #6E6E6E; }
+        .tech-tag.design { background: #E91E63; }
+
+        .architecture-info {
+          background: #FFFFFF;
+          border-radius: 16px;
+          padding: 32px;
+          box-shadow: 0 4px 16px rgba(62, 92, 73, 0.1);
+          border: 1px solid #E5DCC2;
+        }
+
+        .architecture-info h3 {
+          font-size: 24px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 24px 0;
+          text-align: center;
+        }
+
+        .architecture-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 20px;
+        }
+
+        .arch-card {
+          background: rgba(62, 92, 73, 0.05);
+          border: 1px solid rgba(62, 92, 73, 0.1);
+          border-radius: 12px;
+          padding: 20px;
+          text-align: center;
+        }
+
+        .arch-card h4 {
+          font-size: 16px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 8px 0;
+        }
+
+        .arch-card p {
+          font-size: 14px;
+          color: #4A4A4A;
+          margin: 0;
+          line-height: 1.5;
+        }
+
+        /* Onglet Support */
+        .support-reasons {
+          margin-bottom: 40px;
+        }
+
+        .support-reasons h3 {
+          font-size: 24px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 24px 0;
+          text-align: center;
+        }
+
+        .reasons-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 24px;
+        }
+
+        .reason-card {
+          background: #FFFFFF;
+          border-radius: 16px;
+          padding: 24px;
+          text-align: center;
+          transition: all 0.3s ease;
+          border: 1px solid #E5DCC2;
+          box-shadow: 0 4px 16px rgba(62, 92, 73, 0.08);
+        }
+
+        .reason-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 12px 32px rgba(62, 92, 73, 0.15);
+        }
+
+        .reason-icon {
+          width: 56px;
+          height: 56px;
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #FFFFFF;
+          margin: 0 auto 16px;
+        }
+
+        .reason-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 12px 0;
+        }
+
+        .reason-description {
+          font-size: 14px;
+          color: #4A4A4A;
+          line-height: 1.6;
+          margin: 0;
+        }
+
+        .donation-section {
           background: #FFFFFF;
           border-radius: 20px;
           padding: 32px;
-          margin-bottom: 32px;
-          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
+          box-shadow: 0 4px 16px rgba(62, 92, 73, 0.1);
           border: 1px solid #E5DCC2;
+          margin-bottom: 40px;
         }
-        
-        .developer-avatar {
+
+        .donation-section h3 {
+          font-size: 24px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 8px 0;
+        }
+
+        .donation-description {
+          font-size: 16px;
+          color: #4A4A4A;
+          margin: 0 0 32px 0;
+          line-height: 1.6;
+        }
+
+        .amounts-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 16px;
+          margin-bottom: 32px;
+        }
+
+        .amount-card {
+          background: #FFFFFF;
+          border: 2px solid #E5DCC2;
+          border-radius: 16px;
+          padding: 20px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          text-align: center;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .amount-card:hover {
+          border-color: #E91E63;
+          transform: translateY(-4px);
+          box-shadow: 0 8px 24px rgba(233, 30, 99, 0.15);
+        }
+
+        .amount-card.selected {
+          border-color: #E91E63;
+          background: rgba(233, 30, 99, 0.05);
+          box-shadow: 0 8px 24px rgba(233, 30, 99, 0.2);
+        }
+
+        .amount-card.popular {
+          border-color: #E91E63;
+        }
+
+        .popular-badge {
+          position: absolute;
+          top: -8px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #E91E63;
+          color: #FFFFFF;
+          padding: 4px 12px;
+          border-radius: 12px;
+          font-size: 10px;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .amount-icon {
+          width: 40px;
+          height: 40px;
+          background: rgba(233, 30, 99, 0.1);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #E91E63;
+          margin: 0 auto 12px;
+        }
+
+        .amount-value {
+          font-size: 16px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin-bottom: 6px;
+        }
+
+        .amount-description {
+          font-size: 12px;
+          color: #4A4A4A;
+        }
+
+        .custom-amount {
+          background: rgba(233, 30, 99, 0.05);
+          border: 2px solid rgba(233, 30, 99, 0.2);
+          border-radius: 16px;
+          padding: 24px;
+          margin-bottom: 32px;
+        }
+
+        .custom-label {
+          display: block;
+          font-size: 16px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin-bottom: 12px;
+        }
+
+        .custom-input-group {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .custom-input {
+          flex: 1;
+          padding: 16px;
+          border: 2px solid #E5DCC2;
+          border-radius: 12px;
+          font-size: 18px;
+          font-weight: 600;
+          text-align: right;
+        }
+
+        .custom-input:focus {
+          outline: none;
+          border-color: #E91E63;
+        }
+
+        .currency {
+          font-size: 18px;
+          font-weight: 600;
+          color: #4A4A4A;
+        }
+
+        .payment-details {
+          margin-top: 32px;
+        }
+
+        .payment-details h4 {
+          font-size: 20px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 16px 0;
+        }
+
+        .payment-details p {
+          font-size: 16px;
+          color: #4A4A4A;
+          margin: 0 0 24px 0;
+        }
+
+        .payment-networks {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 20px;
+          margin-bottom: 24px;
+        }
+
+        .network-card {
+          background: rgba(248, 246, 240, 0.8);
+          border: 2px solid #E5DCC2;
+          border-radius: 16px;
+          padding: 20px;
+        }
+
+        .network-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 16px;
+        }
+
+        .network-indicator {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+        }
+
+        .network-indicator.mtn {
+          background: #FFCC00;
+        }
+
+        .network-indicator.orange {
+          background: #FF6600;
+        }
+
+        .network-name {
+          font-size: 16px;
+          font-weight: 700;
+          color: #2E2E2E;
+        }
+
+        .network-details {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .detail-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .detail-label {
+          font-size: 12px;
+          font-weight: 600;
+          color: #4A4A4A;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          color: #2E2E2E;
+        }
+
+        .phone-number {
+          font-family: 'Courier New', monospace;
+          background: rgba(233, 30, 99, 0.1);
+          padding: 4px 8px;
+          border-radius: 6px;
+        }
+
+        .copy-button {
+          background: #F3EED9;
+          border: 1px solid #E5DCC2;
+          color: #4A4A4A;
+          padding: 4px;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .copy-button:hover {
+          background: #E91E63;
+          color: #FFFFFF;
+          border-color: #E91E63;
+        }
+
+        .support-note {
+          display: flex;
+          gap: 16px;
+          background: rgba(233, 30, 99, 0.05);
+          border: 1px solid rgba(233, 30, 99, 0.2);
+          border-radius: 16px;
+          padding: 20px;
+          margin-top: 24px;
+        }
+
+        .note-icon {
+          width: 40px;
+          height: 40px;
+          background: #E91E63;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #FFFFFF;
+          flex-shrink: 0;
+        }
+
+        .note-content h5 {
+          font-size: 16px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 8px 0;
+        }
+
+        .note-content p {
+          font-size: 14px;
+          color: #4A4A4A;
+          margin: 0;
+          line-height: 1.6;
+        }
+
+        /* Onglet Développeur */
+        .developer-profile {
+          display: flex;
+          flex-direction: column;
+          gap: 32px;
+        }
+
+        .profile-card {
+          background: #FFFFFF;
+          border-radius: 20px;
+          padding: 32px;
+          box-shadow: 0 4px 16px rgba(62, 92, 73, 0.1);
+          border: 1px solid #E5DCC2;
+          display: flex;
+          align-items: center;
+          gap: 24px;
+        }
+
+        .profile-avatar {
           width: 80px;
           height: 80px;
-          background: linear-gradient(135deg, #607D8B 0%, #455A64 100%);
+          background: linear-gradient(135deg, #607D8B, #455A64);
           border-radius: 20px;
           display: flex;
           align-items: center;
@@ -1702,65 +2517,57 @@ const About = ({ onClose }) => {
           font-size: 32px;
           flex-shrink: 0;
         }
-        
-        .developer-name {
-          font-size: 28px;
+
+        .profile-name {
+          font-size: 24px;
           font-weight: 800;
           color: #2E2E2E;
           margin: 0 0 8px 0;
-          letter-spacing: -0.3px;
         }
-        
-        .developer-title {
+
+        .profile-title {
           font-size: 16px;
           color: #607D8B;
           margin: 0 0 16px 0;
           font-weight: 600;
         }
-        
-        .developer-meta {
+
+        .profile-meta {
           display: flex;
-          gap: 24px;
+          gap: 20px;
           flex-wrap: wrap;
         }
-        
+
         .meta-item {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
           color: #4A4A4A;
           font-size: 14px;
         }
-        
-        .content-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 24px;
-          margin-bottom: 48px;
-        }
-        
-        .info-card {
+
+        .contact-info {
           background: #FFFFFF;
           border-radius: 16px;
           padding: 24px;
-          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
+          box-shadow: 0 4px 16px rgba(62, 92, 73, 0.1);
           border: 1px solid #E5DCC2;
         }
-        
-        .card-title {
+
+        .contact-info h4 {
           font-size: 20px;
           font-weight: 700;
           color: #2E2E2E;
-          margin: 0 0 20px 0;
+          margin: 0 0 16px 0;
         }
-        
-        .contact-list {
-          display: flex;
-          flex-direction: column;
+
+        .contact-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
           gap: 16px;
         }
-        
-        .contact-item {
+
+        .contact-link {
           display: flex;
           align-items: center;
           gap: 12px;
@@ -1771,593 +2578,244 @@ const About = ({ onClose }) => {
           text-decoration: none;
           transition: all 0.2s ease;
         }
-        
-        .contact-item:hover {
+
+        .contact-link:hover {
           background: rgba(96, 125, 139, 0.1);
-          transform: translateY(-1px);
+          transform: translateY(-2px);
         }
-        
-        .position-title {
-          font-size: 16px;
-          font-weight: 700;
-          color: #607D8B;
-          margin-bottom: 8px;
-        }
-        
-        .position-description {
-          font-size: 14px;
-          color: #4A4A4A;
-          line-height: 1.6;
-          margin: 0;
-        }
-        
-        .section {
-          margin-bottom: 48px;
-        }
-        
-        .section-title {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          font-size: 24px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 0 0 24px 0;
-        }
-        
-        .timeline {
-          position: relative;
-          padding-left: 32px;
-        }
-        
-        .timeline::before {
-          content: '';
-          position: absolute;
-          left: 16px;
-          top: 0;
-          bottom: 0;
-          width: 2px;
-          background: linear-gradient(to bottom, #607D8B, #455A64);
-        }
-        
-        .timeline-item {
-          position: relative;
-          margin-bottom: 32px;
+
+        .current-position {
           background: #FFFFFF;
           border-radius: 16px;
           padding: 24px;
-          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
+          box-shadow: 0 4px 16px rgba(62, 92, 73, 0.1);
           border: 1px solid #E5DCC2;
         }
-        
-        .timeline-marker {
-          position: absolute;
-          left: -40px;
-          top: 24px;
-          width: 12px;
-          height: 12px;
-          background: #607D8B;
-          border-radius: 50%;
-          border: 3px solid #FFFFFF;
-          box-shadow: 0 0 0 2px #607D8B;
-        }
-        
-        .timeline-title {
-          font-size: 18px;
+
+        .current-position h4 {
+          font-size: 20px;
           font-weight: 700;
           color: #2E2E2E;
-          margin: 0 0 4px 0;
+          margin: 0 0 16px 0;
         }
-        
-        .timeline-subtitle {
-          font-size: 14px;
-          color: #607D8B;
-          margin: 0 0 8px 0;
-          font-weight: 600;
-        }
-        
-        .timeline-meta {
+
+        .position-card {
           display: flex;
           gap: 16px;
-          margin-bottom: 8px;
-        }
-        
-        .timeline-year {
-          background: rgba(96, 125, 139, 0.1);
-          color: #607D8B;
-          padding: 4px 8px;
-          border-radius: 8px;
-          font-size: 12px;
-          font-weight: 600;
-        }
-        
-        .timeline-mention {
-          background: #4CAF50;
-          color: #FFFFFF;
-          padding: 4px 8px;
-          border-radius: 8px;
-          font-size: 12px;
-          font-weight: 600;
-        }
-        
-        .timeline-description {
-          font-size: 14px;
-          color: #4A4A4A;
-          line-height: 1.6;
-          margin: 0;
-        }
-        
-        .experience-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 24px;
-        }
-        
-        .experience-card {
-          background: #FFFFFF;
-          border-radius: 16px;
-          padding: 24px;
-          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
-          border: 1px solid #E5DCC2;
-          transition: all 0.3s ease;
-        }
-        
-        .experience-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 8px 24px rgba(96, 125, 139, 0.15);
-        }
-        
-        .experience-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 8px;
-        }
-        
-        .experience-title {
-          font-size: 16px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 0;
-          flex: 1;
-        }
-        
-        .experience-period {
-          background: rgba(96, 125, 139, 0.1);
-          color: #607D8B;
-          padding: 4px 8px;
-          border-radius: 8px;
-          font-size: 11px;
-          font-weight: 600;
-          white-space: nowrap;
-        }
-        
-        .experience-company {
-          font-size: 14px;
-          color: #607D8B;
-          font-weight: 600;
-          margin: 0 0 12px 0;
-        }
-        
-        .experience-description {
-          font-size: 14px;
-          color: #4A4A4A;
-          line-height: 1.6;
-          margin: 0;
-        }
-        
-        .achievements-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 20px;
-        }
-        
-        .achievement-card {
-          background: #FFFFFF;
-          border-radius: 16px;
+          background: rgba(96, 125, 139, 0.05);
+          border-radius: 12px;
           padding: 20px;
-          text-align: center;
-          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
-          border: 1px solid #E5DCC2;
-          transition: all 0.3s ease;
         }
-        
-        .achievement-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 8px 24px rgba(96, 125, 139, 0.15);
-        }
-        
-        .achievement-icon {
+
+        .position-icon {
           width: 48px;
           height: 48px;
-          background: rgba(96, 125, 139, 0.1);
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #607D8B;
-          margin: 0 auto 16px;
-        }
-        
-        .achievement-title {
-          font-size: 16px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 0 0 8px 0;
-        }
-        
-        .achievement-description {
-          font-size: 14px;
-          color: #4A4A4A;
-          margin: 0;
-        }
-        
-        .project-intro {
-          background: #FFFFFF;
-          border-radius: 20px;
-          padding: 32px;
-          margin-bottom: 32px;
-          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
-          border: 1px solid #E5DCC2;
-          text-align: center;
-        }
-        
-        .intro-title {
-          font-size: 32px;
-          font-weight: 800;
-          color: #2E2E2E;
-          margin: 0 0 16px 0;
-          letter-spacing: -0.3px;
-        }
-        
-        .intro-description {
-          font-size: 16px;
-          color: #4A4A4A;
-          line-height: 1.6;
-          margin: 0;
-          max-width: 800px;
-          margin: 0 auto;
-        }
-        
-        .features-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 24px;
-          margin-bottom: 48px;
-        }
-        
-        .feature-card {
-          background: #FFFFFF;
-          border-radius: 20px;
-          padding: 28px;
-          text-align: center;
-          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
-          border: 1px solid #E5DCC2;
-          transition: all 0.3s ease;
-        }
-        
-        .feature-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 8px 24px rgba(96, 125, 139, 0.15);
-        }
-        
-        .feature-icon {
-          width: 56px;
-          height: 56px;
-          background: rgba(96, 125, 139, 0.1);
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #607D8B;
-          margin: 0 auto 20px;
-        }
-        
-        .feature-title {
-          font-size: 20px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 0 0 12px 0;
-        }
-        
-        .feature-description {
-          font-size: 14px;
-          color: #4A4A4A;
-          line-height: 1.6;
-          margin: 0;
-        }
-        
-        .project-details {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 24px;
-          margin-bottom: 48px;
-        }
-        
-        .detail-card {
-          background: #FFFFFF;
-          border-radius: 16px;
-          padding: 24px;
-          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
-          border: 1px solid #E5DCC2;
-        }
-        
-        .detail-title {
-          font-size: 20px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 0 0 16px 0;
-        }
-        
-        .detail-list {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-        }
-        
-        .detail-list li {
-          padding: 8px 0;
-          border-bottom: 1px solid #F3EED9;
-          font-size: 14px;
-          color: #4A4A4A;
-          line-height: 1.6;
-          position: relative;
-          padding-left: 20px;
-        }
-        
-        .detail-list li::before {
-          content: '•';
-          color: #607D8B;
-          position: absolute;
-          left: 0;
-          font-weight: bold;
-        }
-        
-        .detail-list li:last-child {
-          border-bottom: none;
-        }
-        
-        .project-mission {
-          display: flex;
-          gap: 24px;
-          background: linear-gradient(135deg, rgba(96, 125, 139, 0.05) 0%, rgba(69, 90, 100, 0.05) 100%);
-          border: 1px solid rgba(96, 125, 139, 0.2);
-          border-radius: 20px;
-          padding: 32px;
-        }
-        
-        .mission-icon {
-          width: 64px;
-          height: 64px;
           background: #607D8B;
-          border-radius: 16px;
+          border-radius: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
           color: #FFFFFF;
           flex-shrink: 0;
         }
-        
-        .mission-title {
-          font-size: 24px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 0 0 12px 0;
-        }
-        
-        .mission-description {
+
+        .position-content h5 {
           font-size: 16px;
-          color: #4A4A4A;
-          line-height: 1.6;
-          margin: 0;
-        }
-        
-        .tech-intro {
-          background: #FFFFFF;
-          border-radius: 20px;
-          padding: 32px;
-          margin-bottom: 32px;
-          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
-          border: 1px solid #E5DCC2;
-          text-align: center;
-        }
-        
-        .tech-categories {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 24px;
-          margin-bottom: 48px;
-        }
-        
-        .tech-category {
-          background: #FFFFFF;
-          border-radius: 16px;
-          padding: 24px;
-          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
-          border: 1px solid #E5DCC2;
-        }
-        
-        .tech-title {
-          font-size: 18px;
           font-weight: 700;
           color: #2E2E2E;
-          margin: 0 0 16px 0;
+          margin: 0 0 8px 0;
         }
-        
-        .tech-tags {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
+
+        .position-content p {
+          font-size: 14px;
+          color: #4A4A4A;
+          margin: 0;
+          line-height: 1.6;
         }
-        
-        .tech-tag {
-          padding: 6px 12px;
-          border-radius: 12px;
-          font-size: 12px;
-          font-weight: 600;
-          color: #FFFFFF;
-        }
-        
-        .tech-tag.frontend { background: #3E5C49; }
-        .tech-tag.backend { background: #C2571B; }
-        .tech-tag.mobile { background: #E91E63; }
-        .tech-tag.ai { background: #9C27B0; }
-        .tech-tag.design { background: #FF9800; }
-        .tech-tag.database { background: #607D8B; }
-        .tech-tag.tools { background: #6E6E6E; }
-        
-        .architecture-info {
+
+        .achievements {
           background: #FFFFFF;
           border-radius: 16px;
           padding: 24px;
-          box-shadow: 0 4px 16px rgba(96, 125, 139, 0.1);
+          box-shadow: 0 4px 16px rgba(62, 92, 73, 0.1);
           border: 1px solid #E5DCC2;
         }
-        
-        .architecture-title {
+
+        .achievements h4 {
           font-size: 20px;
           font-weight: 700;
           color: #2E2E2E;
           margin: 0 0 16px 0;
         }
-        
-        .architecture-description p {
+
+        .achievements-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 16px;
+        }
+
+        .achievement-card {
+          background: rgba(96, 125, 139, 0.05);
+          border: 1px solid rgba(96, 125, 139, 0.1);
+          border-radius: 12px;
+          padding: 16px;
+          text-align: center;
+          transition: all 0.3s ease;
+        }
+
+        .achievement-card:hover {
+          background: rgba(96, 125, 139, 0.1);
+          transform: translateY(-4px);
+        }
+
+        .achievement-icon {
+          width: 40px;
+          height: 40px;
+          background: #607D8B;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #FFFFFF;
+          margin: 0 auto 12px;
+        }
+
+        .achievement-card h5 {
           font-size: 14px;
+          font-weight: 700;
+          color: #2E2E2E;
+          margin: 0 0 4px 0;
+        }
+
+        .achievement-card p {
+          font-size: 12px;
           color: #4A4A4A;
-          line-height: 1.6;
-          margin: 0 0 16px 0;
+          margin: 0;
+          line-height: 1.4;
         }
-        
-        .architecture-description p:last-child {
-          margin-bottom: 0;
-        }
-        
+
         /* Responsive Design */
         @media (max-width: 768px) {
           .hero-section {
-            padding: 32px 16px;
+            padding: 32px 16px 48px;
+            min-height: 50vh;
           }
-          
+
           .hero-title {
-            font-size: 32px;
+            font-size: 36px;
           }
-          
+
+          .title-accent {
+            font-size: 24px;
+          }
+
           .hero-subtitle {
             font-size: 18px;
           }
-          
-          .project-stats {
-            flex-direction: column;
+
+          .hero-stats {
+            grid-template-columns: repeat(2, 1fr);
             gap: 16px;
           }
-          
-          .stat-item {
-            justify-content: center;
-          }
-          
-          .about-content {
+
+          .main-content {
             padding: 0 16px 32px;
           }
-          
-          .tabs-navigation {
-            flex-direction: column;
-            gap: 8px;
+
+          .tabs-container {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
           }
-          
+
           .tab-button {
-            justify-content: flex-start;
+            padding: 12px 8px;
+            font-size: 12px;
           }
-          
-          .developer-hero {
+
+          .section-header {
             flex-direction: column;
             text-align: center;
-            gap: 20px;
+            gap: 16px;
+            padding: 24px;
           }
-          
-          .developer-meta {
-            justify-content: center;
+
+          .section-title {
+            font-size: 28px;
           }
-          
-          .content-grid {
-            grid-template-columns: 1fr;
-          }
-          
-          .timeline {
-            padding-left: 24px;
-          }
-          
-          .timeline-marker {
-            left: -32px;
-          }
-          
-          .experience-grid {
-            grid-template-columns: 1fr;
-          }
-          
-          .achievements-grid {
-            grid-template-columns: 1fr;
-          }
-          
+
           .features-grid {
             grid-template-columns: 1fr;
           }
-          
-          .project-details {
-            grid-template-columns: 1fr;
-          }
-          
-          .project-mission {
+
+          .highlight-card {
             flex-direction: column;
+            gap: 16px;
             text-align: center;
           }
-          
+
           .tech-categories {
             grid-template-columns: 1fr;
           }
+
+          .architecture-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .reasons-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .amounts-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          .payment-networks {
+            grid-template-columns: 1fr;
+          }
+
+          .profile-card {
+            flex-direction: column;
+            text-align: center;
+          }
+
+          .contact-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .achievements-grid {
+            grid-template-columns: 1fr;
+          }
         }
-        
+
         @media (max-width: 480px) {
-          .hero-main {
-            gap: 16px;
-          }
-          
-          .hero-icon {
-            width: 72px;
-            height: 72px;
-          }
-          
           .hero-title {
             font-size: 28px;
           }
-          
-          .intro-title {
-            font-size: 28px;
+
+          .title-accent {
+            font-size: 20px;
           }
-          
-          .developer-name {
-            font-size: 24px;
+
+          .hero-stats {
+            grid-template-columns: 1fr;
           }
-          
-          .experience-header {
+
+          .tabs-container {
+            grid-template-columns: 1fr;
+          }
+
+          .amounts-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .detail-item {
             flex-direction: column;
+            align-items: stretch;
             gap: 8px;
           }
-          
-          .experience-period {
-            align-self: flex-start;
-          }
-          
-          .timeline-item {
-            padding: 20px;
-          }
-          
-          .feature-card,
-          .achievement-card {
-            padding: 20px;
-          }
-          
-          .project-mission {
-            padding: 24px;
+
+          .detail-value {
+            justify-content: space-between;
           }
         }
       ` })] }));
@@ -11930,695 +12388,6 @@ const DocumentList = ({ documents, onAdd, onEdit, onBorrow, onDelete, onRefresh,
 
 /***/ }),
 
-/***/ "./src/renderer/components/Donation.tsx":
-/*!**********************************************!*\
-  !*** ./src/renderer/components/Donation.tsx ***!
-  \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   Donation: () => (/* binding */ Donation)
-/* harmony export */ });
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/coffee.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/heart.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/gift.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/star.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/smartphone.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/credit-card.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/arrow-left.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/code.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/sparkles.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/copy.mjs");
-
-
-
-const Donation = ({ onClose }) => {
-    const [selectedAmount, setSelectedAmount] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(1000);
-    const [customAmount, setCustomAmount] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
-    const [paymentMethod, setPaymentMethod] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('momo');
-    const [copied, setCopied] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
-    const predefinedAmounts = [
-        { value: 500, label: '500 FCFA', icon: lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], description: 'Un café pour le dev' },
-        { value: 1000, label: '1 000 FCFA', icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], description: 'Petit soutien', popular: true },
-        { value: 2500, label: '2 500 FCFA', icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], description: 'Généreux donateur' },
-        { value: 5000, label: '5 000 FCFA', icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], description: 'Super supporter' }
-    ];
-    const paymentMethods = [
-        {
-            id: 'momo',
-            name: 'Mobile Money',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"],
-            networks: [
-                { name: 'MTN MoMo', number: '+237 652 761 931', color: '#FFCC00' },
-                { name: 'Orange Money', number: '+237 652 761 931', color: '#FF6600' }
-            ]
-        },
-        {
-            id: 'card',
-            name: 'Carte bancaire',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"],
-            description: 'Paiement sécurisé via PayPal ou Stripe',
-            comingSoon: true
-        }
-    ];
-    const handleCopy = async (text, type) => {
-        try {
-            await navigator.clipboard.writeText(text);
-            setCopied(type);
-            setTimeout(() => setCopied(null), 2000);
-        }
-        catch (err) {
-            console.error('Erreur lors de la copie:', err);
-        }
-    };
-    const finalAmount = selectedAmount || parseInt(customAmount) || 0;
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "donation-page", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-background", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-pattern" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "back-button", onClick: onClose, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Retour" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-main", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "hero-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 48 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "hero-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "hero-title", children: "Soutenez le projet Biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "hero-subtitle", children: "Votre contribution aide \u00E0 maintenir et am\u00E9liorer ce syst\u00E8me de gestion de biblioth\u00E8que gratuit" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "impact-stats", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "impact-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "impact-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "impact-number", children: "500+" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "impact-label", children: "Biblioth\u00E8ques utilisatrices" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "impact-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "impact-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "impact-number", children: "10K+" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "impact-label", children: "Livres g\u00E9r\u00E9s" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "impact-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "impact-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "impact-number", children: "100%" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "impact-label", children: "Open Source" })] })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "donation-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "section-title", children: "Choisir le montant" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "section-description", children: "Chaque contribution, m\u00EAme petite, fait une grande diff\u00E9rence pour le d\u00E9veloppement du projet" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "amounts-grid", children: predefinedAmounts.map((amount) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `amount-card ${selectedAmount === amount.value ? 'selected' : ''} ${amount.popular ? 'popular' : ''}`, onClick: () => {
-                                        setSelectedAmount(amount.value);
-                                        setCustomAmount('');
-                                    }, children: [amount.popular && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "popular-badge", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 12 }), "Populaire"] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "amount-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(amount.icon, { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "amount-value", children: amount.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "amount-description", children: amount.description })] }, amount.value))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "custom-amount", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "custom-label", children: "Ou entrez un montant personnalis\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "custom-input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "number", value: customAmount, onChange: (e) => {
-                                                    setCustomAmount(e.target.value);
-                                                    setSelectedAmount(null);
-                                                }, placeholder: "0", className: "custom-input", min: "100" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "currency", children: "FCFA" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "section-title", children: "M\u00E9thode de paiement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "section-description", children: "Choisissez votre mode de paiement pr\u00E9f\u00E9r\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "payment-methods", children: paymentMethods.map((method) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `payment-method ${paymentMethod === method.id ? 'selected' : ''} ${method.comingSoon ? 'disabled' : ''}`, onClick: () => !method.comingSoon && setPaymentMethod(method.id), disabled: method.comingSoon, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "payment-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(method.icon, { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "payment-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "payment-name", children: method.name }), method.description && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "payment-description", children: method.description })), method.comingSoon && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "coming-soon-badge", children: "Bient\u00F4t disponible" }))] })] }, method.id))) })] }), finalAmount > 0 && paymentMethod === 'momo' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "section-title", children: "D\u00E9tails de paiement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "section-description", children: ["Utilisez les informations ci-dessous pour effectuer votre don de ", finalAmount.toLocaleString(), " FCFA"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "payment-networks", children: paymentMethods[0].networks?.map((network, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "network-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "network-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "network-indicator", style: { backgroundColor: network.color } }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "network-name", children: network.name })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "network-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "detail-label", children: "Num\u00E9ro" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-value", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "phone-number", children: network.number }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "copy-button", onClick: () => handleCopy(network.number.replace(/\s/g, ''), `${network.name}-number`), children: copied === `${network.name}-number` ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 16 })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 })) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "detail-label", children: "Nom" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-value", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "CHEUDJEU TEFOYE CEDRIC BASILIO" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "copy-button", onClick: () => handleCopy('CHEUDJEU TEFOYE CEDRIC BASILIO', `${network.name}-name`), children: copied === `${network.name}-name` ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 16 })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 })) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "detail-label", children: "Montant" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "detail-value amount-highlight", children: [finalAmount.toLocaleString(), " FCFA"] })] })] })] }, index))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "payment-note", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "note-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "note-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Merci pour votre soutien !" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Apr\u00E8s votre transfert, n'h\u00E9sitez pas \u00E0 me contacter pour confirmer votre don et recevoir un re\u00E7u si n\u00E9cessaire. Votre contribution sera utilis\u00E9e pour am\u00E9liorer et maintenir ce projet open source." })] })] })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "section-title", children: "Pourquoi faire un don ?" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "why-donate-grid", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "why-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "why-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "D\u00E9veloppement continu" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Financer de nouvelles fonctionnalit\u00E9s et l'am\u00E9lioration du syst\u00E8me" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "why-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "why-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Gratuit pour tous" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Maintenir le projet accessible gratuitement pour toutes les biblioth\u00E8ques" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "why-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "why-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Support communautaire" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Fournir une assistance technique et des formations aux utilisateurs" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "why-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "why-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Innovation" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Int\u00E9grer les derni\u00E8res technologies pour une meilleure exp\u00E9rience" })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
-        .donation-page {
-          height: 100%;
-          overflow-y: auto;
-          background: #FAF9F6;
-        }
-        
-        .hero-section {
-          position: relative;
-          background: linear-gradient(135deg, #E91E63 0%, #C2185B 100%);
-          color: #F3EED9;
-          padding: 48px 32px;
-          overflow: hidden;
-        }
-        
-        .hero-background {
-          position: absolute;
-          inset: 0;
-          overflow: hidden;
-        }
-        
-        .hero-pattern {
-          position: absolute;
-          inset: 0;
-          background-image: 
-            radial-gradient(circle at 25% 25%, rgba(243, 238, 217, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-          animation: drift 20s ease-in-out infinite;
-        }
-        
-        @keyframes drift {
-          0%, 100% { transform: translate(0, 0) rotate(0deg); }
-          33% { transform: translate(30px, -30px) rotate(1deg); }
-          66% { transform: translate(-20px, 20px) rotate(-1deg); }
-        }
-        
-        .hero-content {
-          position: relative;
-          z-index: 1;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-        
-        .back-button {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: rgba(243, 238, 217, 0.15);
-          border: 1px solid rgba(243, 238, 217, 0.3);
-          color: #F3EED9;
-          padding: 12px 20px;
-          border-radius: 12px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          font-size: 14px;
-          font-weight: 500;
-          margin-bottom: 32px;
-          width: fit-content;
-        }
-        
-        .back-button:hover {
-          background: rgba(243, 238, 217, 0.25);
-          transform: translateX(-4px);
-        }
-        
-        .hero-main {
-          display: flex;
-          align-items: center;
-          gap: 24px;
-          margin-bottom: 40px;
-          text-align: center;
-          flex-direction: column;
-        }
-        
-        .hero-icon {
-          width: 96px;
-          height: 96px;
-          background: rgba(243, 238, 217, 0.2);
-          border-radius: 24px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #F3EED9;
-          animation: heartbeat 3s ease-in-out infinite;
-        }
-        
-        .hero-title {
-          font-size: 42px;
-          font-weight: 800;
-          margin: 0 0 16px 0;
-          line-height: 1.2;
-          letter-spacing: -0.5px;
-        }
-        
-        .hero-subtitle {
-          font-size: 20px;
-          opacity: 0.9;
-          margin: 0;
-          line-height: 1.5;
-          max-width: 600px;
-        }
-        
-        .impact-stats {
-          display: flex;
-          justify-content: center;
-          gap: 40px;
-          flex-wrap: wrap;
-        }
-        
-        .impact-item {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          background: rgba(243, 238, 217, 0.1);
-          padding: 20px 24px;
-          border-radius: 16px;
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(243, 238, 217, 0.2);
-        }
-        
-        .impact-number {
-          font-size: 24px;
-          font-weight: 800;
-          color: #F3EED9;
-          display: block;
-          line-height: 1;
-        }
-        
-        .impact-label {
-          font-size: 14px;
-          color: rgba(243, 238, 217, 0.9);
-          margin-top: 4px;
-        }
-        
-        .donation-content {
-          padding: 48px 32px;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-        
-        .section {
-          margin-bottom: 56px;
-        }
-        
-        .section-title {
-          font-size: 28px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 0 0 8px 0;
-          letter-spacing: -0.3px;
-        }
-        
-        .section-description {
-          font-size: 16px;
-          color: #4A4A4A;
-          margin: 0 0 32px 0;
-          line-height: 1.6;
-        }
-        
-        .amounts-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 20px;
-          margin-bottom: 32px;
-        }
-        
-        .amount-card {
-          background: #FFFFFF;
-          border: 2px solid #E5DCC2;
-          border-radius: 20px;
-          padding: 24px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          text-align: center;
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .amount-card:hover {
-          border-color: #E91E63;
-          transform: translateY(-4px);
-          box-shadow: 0 12px 32px rgba(233, 30, 99, 0.15);
-        }
-        
-        .amount-card.selected {
-          border-color: #E91E63;
-          background: rgba(233, 30, 99, 0.05);
-          box-shadow: 0 8px 24px rgba(233, 30, 99, 0.2);
-        }
-        
-        .amount-card.popular {
-          border-color: #E91E63;
-        }
-        
-        .popular-badge {
-          position: absolute;
-          top: -8px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: #E91E63;
-          color: #FFFFFF;
-          padding: 4px 12px;
-          border-radius: 12px;
-          font-size: 11px;
-          font-weight: 700;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        
-        .amount-icon {
-          width: 48px;
-          height: 48px;
-          background: rgba(233, 30, 99, 0.1);
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #E91E63;
-          margin: 0 auto 16px;
-        }
-        
-        .amount-value {
-          font-size: 20px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin-bottom: 8px;
-        }
-        
-        .amount-description {
-          font-size: 14px;
-          color: #4A4A4A;
-        }
-        
-        .custom-amount {
-          background: #FFFFFF;
-          border: 2px solid #E5DCC2;
-          border-radius: 16px;
-          padding: 24px;
-        }
-        
-        .custom-label {
-          display: block;
-          font-size: 16px;
-          font-weight: 600;
-          color: #2E2E2E;
-          margin-bottom: 12px;
-        }
-        
-        .custom-input-group {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-        
-        .custom-input {
-          flex: 1;
-          padding: 16px;
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          font-size: 18px;
-          font-weight: 600;
-          text-align: right;
-        }
-        
-        .custom-input:focus {
-          outline: none;
-          border-color: #E91E63;
-        }
-        
-        .currency {
-          font-size: 18px;
-          font-weight: 600;
-          color: #4A4A4A;
-        }
-        
-        .payment-methods {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-        
-        .payment-method {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          background: #FFFFFF;
-          border: 2px solid #E5DCC2;
-          border-radius: 16px;
-          padding: 20px 24px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          text-align: left;
-        }
-        
-        .payment-method.selected {
-          border-color: #E91E63;
-          background: rgba(233, 30, 99, 0.05);
-        }
-        
-        .payment-method.disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-        
-        .payment-icon {
-          width: 48px;
-          height: 48px;
-          background: rgba(233, 30, 99, 0.1);
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #E91E63;
-        }
-        
-        .payment-content {
-          flex: 1;
-        }
-        
-        .payment-name {
-          font-size: 18px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin-bottom: 4px;
-        }
-        
-        .payment-description {
-          font-size: 14px;
-          color: #4A4A4A;
-        }
-        
-        .coming-soon-badge {
-          background: #FFB400;
-          color: #FFFFFF;
-          padding: 2px 8px;
-          border-radius: 8px;
-          font-size: 11px;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          margin-top: 8px;
-          display: inline-block;
-        }
-        
-        .payment-networks {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 24px;
-        }
-        
-        .network-card {
-          background: #FFFFFF;
-          border: 2px solid #E5DCC2;
-          border-radius: 20px;
-          padding: 24px;
-          box-shadow: 0 4px 16px rgba(233, 30, 99, 0.1);
-        }
-        
-        .network-header {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          margin-bottom: 20px;
-        }
-        
-        .network-indicator {
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-        }
-        
-        .network-name {
-          font-size: 18px;
-          font-weight: 700;
-          color: #2E2E2E;
-        }
-        
-        .network-details {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-        
-        .detail-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        
-        .detail-label {
-          font-size: 14px;
-          font-weight: 600;
-          color: #4A4A4A;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        
-        .detail-value {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 16px;
-          font-weight: 600;
-          color: #2E2E2E;
-        }
-        
-        .detail-value.amount-highlight {
-          font-size: 20px;
-          color: #E91E63;
-          font-weight: 800;
-        }
-        
-        .phone-number {
-          font-family: 'Courier New', monospace;
-          background: rgba(233, 30, 99, 0.1);
-          padding: 4px 8px;
-          border-radius: 6px;
-        }
-        
-        .copy-button {
-          background: #F3EED9;
-          border: 1px solid #E5DCC2;
-          color: #4A4A4A;
-          padding: 6px;
-          border-radius: 6px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-        
-        .copy-button:hover {
-          background: #E91E63;
-          color: #FFFFFF;
-          border-color: #E91E63;
-        }
-        
-        .payment-note {
-          display: flex;
-          gap: 16px;
-          background: rgba(233, 30, 99, 0.05);
-          border: 1px solid rgba(233, 30, 99, 0.2);
-          border-radius: 16px;
-          padding: 24px;
-          margin-top: 32px;
-        }
-        
-        .note-icon {
-          width: 40px;
-          height: 40px;
-          background: #E91E63;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #FFFFFF;
-          flex-shrink: 0;
-        }
-        
-        .note-content h4 {
-          font-size: 18px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 0 0 8px 0;
-        }
-        
-        .note-content p {
-          font-size: 14px;
-          color: #4A4A4A;
-          margin: 0;
-          line-height: 1.6;
-        }
-        
-        .why-donate-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 24px;
-        }
-        
-        .why-card {
-          background: #FFFFFF;
-          border: 1px solid #E5DCC2;
-          border-radius: 20px;
-          padding: 28px;
-          text-align: center;
-          transition: all 0.3s ease;
-        }
-        
-        .why-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 32px rgba(233, 30, 99, 0.1);
-          border-color: rgba(233, 30, 99, 0.3);
-        }
-        
-        .why-icon {
-          width: 56px;
-          height: 56px;
-          background: rgba(233, 30, 99, 0.1);
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #E91E63;
-          margin: 0 auto 20px;
-        }
-        
-        .why-card h3 {
-          font-size: 20px;
-          font-weight: 700;
-          color: #2E2E2E;
-          margin: 0 0 12px 0;
-        }
-        
-        .why-card p {
-          font-size: 14px;
-          color: #4A4A4A;
-          margin: 0;
-          line-height: 1.6;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-          .hero-section {
-            padding: 32px 16px;
-          }
-          
-          .hero-title {
-            font-size: 32px;
-          }
-          
-          .hero-subtitle {
-            font-size: 18px;
-          }
-          
-          .impact-stats {
-            flex-direction: column;
-            gap: 16px;
-          }
-          
-          .impact-item {
-            justify-content: center;
-          }
-          
-          .donation-content {
-            padding: 32px 16px;
-          }
-          
-          .amounts-grid {
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-          }
-          
-          .payment-networks {
-            grid-template-columns: 1fr;
-          }
-          
-          .why-donate-grid {
-            grid-template-columns: 1fr;
-          }
-          
-          .detail-item {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 8px;
-          }
-          
-          .detail-value {
-            justify-content: space-between;
-          }
-        }
-        
-        @media (max-width: 480px) {
-          .hero-main {
-            gap: 16px;
-          }
-          
-          .hero-icon {
-            width: 72px;
-            height: 72px;
-          }
-          
-          .hero-title {
-            font-size: 28px;
-          }
-          
-          .amounts-grid {
-            grid-template-columns: 1fr;
-          }
-          
-          .amount-card {
-            padding: 20px;
-          }
-          
-          .payment-method {
-            padding: 16px 20px;
-          }
-          
-          .network-card {
-            padding: 20px;
-          }
-          
-          .payment-note {
-            flex-direction: column;
-            gap: 12px;
-            text-align: center;
-          }
-        }
-      ` })] }));
-};
-
-
-/***/ }),
-
 /***/ "./src/renderer/components/EnhancedAuthentication.tsx":
 /*!************************************************************!*\
   !*** ./src/renderer/components/EnhancedAuthentication.tsx ***!
@@ -12632,29 +12401,30 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/building.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/hard-drive.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/log-in.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-circle.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check-circle.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/mail.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/lock.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye-off.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/key-round.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/shield.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/sparkles.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/school.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/library.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/building.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/log-in.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-circle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check-circle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/zap.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/mail.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/lock.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye-off.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/key-round.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/map-pin.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/arrow-right.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/database.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/wifi-off.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/bar-chart-3.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/shield.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/arrow-right.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/wifi-off.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/bar-chart-3.mjs");
 
-// src/renderer/components/EnhancedAuthentication.tsx - Version redesignée
+// src/renderer/components/EnhancedAuthentication.tsx - Version redesignée moderne
 
 
 const EnhancedAuthentication = ({ onLogin }) => {
@@ -12752,39 +12522,39 @@ const EnhancedAuthentication = ({ onLogin }) => {
         }
     };
     const institutionTypes = [
-        { value: 'school', label: 'École/Lycée', icon: lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], color: '#3E5C49' },
-        { value: 'university', label: 'Université', icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], color: '#C2571B' },
-        { value: 'library', label: 'Bibliothèque', icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], color: '#2E453A' },
-        { value: 'other', label: 'Autre', icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], color: '#6E6E6E' }
+        { value: 'school', label: 'École/Lycée', icon: lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], color: '#3E5C49', description: 'Établissement scolaire primaire ou secondaire' },
+        { value: 'university', label: 'Université', icon: lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], color: '#C2571B', description: 'Enseignement supérieur et recherche' },
+        { value: 'library', label: 'Bibliothèque', icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], color: '#2E453A', description: 'Bibliothèque publique ou municipale' },
+        { value: 'other', label: 'Organisation', icon: lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], color: '#5A6B5D', description: 'Autre type d\'organisation' }
     ];
-    const defaultCredentials = [
-        { email: 'admin@local', password: 'admin', role: 'Administrateur' },
-        { email: 'bibliothecaire@local', password: 'biblio', role: 'Bibliothécaire' },
-        { email: 'test@local', password: 'test', role: 'Utilisateur' },
-        { email: 'demo@demo', password: 'demo', role: 'Démo' }
-    ];
-    const handleQuickLogin = (email, password) => {
-        setLoginData({
-            email,
-            password,
-            institutionCode: 'BIBLIO2024' // Code par défaut pour les connexions rapides
-        });
-        setError('');
-    };
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "enhanced-auth-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-background", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "pattern-overlay" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-shapes", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "shape shape-3" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { className: "main-title", children: "Biblioth\u00E8que Locale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "main-subtitle", children: "Connectez-vous ou cr\u00E9ez votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "main-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-tabs", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab ${mode === 'login' ? 'active' : ''}`, onClick: () => { setMode('login'); setStep(1); setError(''); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Connexion" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab ${mode === 'create_institution' ? 'active' : ''}`, onClick: () => { setMode('create_institution'); setStep(1); setError(''); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Nouvel \u00C9tablissement" })] })] }), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "message error", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error })] })), success && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "message success", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: success })] })), mode === 'login' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "login-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 24 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Connexion Locale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Connectez-vous avec vos identifiants locaux" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Email ou nom d'utilisateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: loginData.email, onChange: (e) => setLoginData(prev => ({ ...prev, email: e.target.value })), placeholder: "admin@local", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Mot de passe" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: loginData.password, onChange: (e) => setLoginData(prev => ({ ...prev, password: e.target.value })), placeholder: "Votre mot de passe", required: true, disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "toggle-password", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Code d'acc\u00E8s \u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: loginData.institutionCode, onChange: (e) => setLoginData(prev => ({ ...prev, institutionCode: e.target.value })), placeholder: "Code d'acc\u00E8s de votre \u00E9tablissement", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "submit-btn", disabled: !loginData.email || !loginData.password || !loginData.institutionCode || isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), "Connexion..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }), "Se connecter"] })) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "quick-login-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "divider", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Connexions rapides" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "quick-login-grid", children: defaultCredentials.map((cred, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: "quick-login-btn", onClick: () => handleQuickLogin(cred.email, cred.password), disabled: isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "credential-icon", children: [cred.role === 'Administrateur' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }), cred.role === 'Bibliothécaire' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 }), cred.role === 'Utilisateur' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 16 }), cred.role === 'Démo' && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 16 })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "credential-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "role", children: cred.role }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "email", children: cred.email })] })] }, index))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "login-hint", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { children: ["\uD83D\uDCA1 ", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: "Astuce :" }), " Cliquez sur une carte pour remplir automatiquement les champs"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "\uD83D\uDD10 Ou utilisez n'importe quel email avec le mot de passe \"demo\"" })] })] })] })), mode === 'create_institution' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-fill", style: { width: `${(step / 4) * 100}%` } }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-steps", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 1 ? 'active' : ''} ${step === 1 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Nom" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 2 ? 'active' : ''} ${step === 2 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Type" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 3 ? 'active' : ''} ${step === 3 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Lieu" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 4 ? 'active' : ''} ${step === 4 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Admin" })] })] })] }), step === 1 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Nom de votre \u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Choisissez un nom unique pour identifier votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: (e) => { e.preventDefault(); nextStep(); }, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 18 }), "Nom de l'\u00E9tablissement *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.name, onChange: (e) => setInstitutionData(prev => ({ ...prev, name: e.target.value })), placeholder: "\u00C9cole Primaire Martin Luther King", required: true, disabled: isLoading, autoFocus: true }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Ce nom appara\u00EEtra dans l'interface de votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-info-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "info-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Conseils pour le nom" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("ul", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Utilisez le nom officiel de votre \u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "\u00C9vitez les abr\u00E9viations trop complexes" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Vous pourrez le modifier plus tard si n\u00E9cessaire" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "form-actions", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", className: "submit-btn primary", disabled: !institutionData.name.trim() || isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Continuer" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 16 })] }) })] })] })), step === 2 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Type d'\u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "S\u00E9lectionnez le type qui correspond le mieux \u00E0 votre organisation" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: (e) => { e.preventDefault(); nextStep(); }, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 18 }), "Choisissez votre type *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "type-selector", children: institutionTypes.map((type) => {
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "enhanced-auth-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-background", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "gradient-orb orb-1" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "gradient-orb orb-2" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "gradient-orb orb-3" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "floating-elements", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "element element-1", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "element element-2", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "element element-3", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 28 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "element element-4", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 22 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-header", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "logo-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "logo-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], { size: 32 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "logo-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h1", { children: "Biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Syst\u00E8me de gestion local" })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "main-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-card glass-effect", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "auth-tabs", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab ${mode === 'login' ? 'active' : ''}`, onClick: () => { setMode('login'); setStep(1); setError(''); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Connexion" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `tab ${mode === 'create_institution' ? 'active' : ''}`, onClick: () => { setMode('create_institution'); setStep(1); setError(''); }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Nouvel \u00C9tablissement" })] })] }), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "message error", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error })] })), success && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "message success", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: success })] })), mode === 'login' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "login-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Connexion Rapide" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Acc\u00E9dez \u00E0 votre biblioth\u00E8que en quelques secondes" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Email ou nom d'utilisateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: loginData.email, onChange: (e) => setLoginData(prev => ({ ...prev, email: e.target.value })), placeholder: "admin@local", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Mot de passe" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: loginData.password, onChange: (e) => setLoginData(prev => ({ ...prev, password: e.target.value })), placeholder: "Votre mot de passe", required: true, disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "toggle-password", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 18 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Code d'acc\u00E8s \u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: loginData.institutionCode, onChange: (e) => setLoginData(prev => ({ ...prev, institutionCode: e.target.value })), placeholder: "Code d'acc\u00E8s de votre \u00E9tablissement", required: true, disabled: isLoading })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "submit-btn", disabled: !loginData.email || !loginData.password || !loginData.institutionCode || isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), "Connexion..."] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 18 }), "Se connecter"] })) })] })] })), mode === 'create_institution' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "institution-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "progress-fill", style: { width: `${(step / 4) * 100}%` } }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "progress-steps", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 1 ? 'active' : ''} ${step === 1 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Nom" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 2 ? 'active' : ''} ${step === 2 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Type" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 3 ? 'active' : ''} ${step === 3 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Lieu" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `progress-step ${step >= 4 ? 'active' : ''} ${step === 4 ? 'current' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "step-circle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 14 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "step-label", children: "Admin" })] })] })] }), step === 1 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Nom de votre \u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Choisissez un nom unique pour identifier votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: (e) => { e.preventDefault(); nextStep(); }, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 18 }), "Nom de l'\u00E9tablissement *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.name, onChange: (e) => setInstitutionData(prev => ({ ...prev, name: e.target.value })), placeholder: "\u00C9cole Primaire Martin Luther King", required: true, disabled: isLoading, autoFocus: true }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Ce nom appara\u00EEtra dans l'interface de votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-info-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "info-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Conseils pour le nom" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("ul", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Utilisez le nom officiel de votre \u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "\u00C9vitez les abr\u00E9viations trop complexes" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { children: "Vous pourrez le modifier plus tard si n\u00E9cessaire" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "form-actions", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", className: "submit-btn primary", disabled: !institutionData.name.trim() || isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Continuer" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 16 })] }) })] })] })), step === 2 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Type d'\u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "S\u00E9lectionnez le type qui correspond le mieux \u00E0 votre organisation" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: (e) => { e.preventDefault(); nextStep(); }, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 18 }), "Choisissez votre type *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "type-selector", children: institutionTypes.map((type) => {
                                                                             const IconComponent = type.icon;
                                                                             const isSelected = institutionData.type === type.value;
-                                                                            return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: `type-option ${isSelected ? 'selected' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "radio", name: "type", value: type.value, checked: isSelected, onChange: (e) => setInstitutionData(prev => ({ ...prev, type: e.target.value })), disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "type-card-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "type-icon-wrapper", style: { backgroundColor: isSelected ? type.color : 'rgba(110, 110, 110, 0.1)' }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(IconComponent, { size: 20, color: isSelected ? '#F3EED9' : type.color }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "type-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "type-name", children: type.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "type-description", children: [type.value === 'school' && 'Établissement scolaire', type.value === 'university' && 'Enseignement supérieur', type.value === 'library' && 'Bibliothèque publique', type.value === 'other' && 'Autre organisation'] })] }), isSelected && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "selection-indicator", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 18, color: type.color }) }))] })] }, type.value));
-                                                                        }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: previousStep, className: "submit-btn secondary", disabled: isLoading, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Retour" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", className: "submit-btn primary", disabled: !institutionData.type || isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Continuer" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 16 })] })] })] })] })), step === 3 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Localisation" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Indiquez o\u00F9 se trouve votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: (e) => { e.preventDefault(); nextStep(); }, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 18 }), "Ville *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.city, onChange: (e) => setInstitutionData(prev => ({ ...prev, city: e.target.value })), placeholder: "Paris", required: true, disabled: isLoading, autoFocus: true }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Ville o\u00F9 se trouve votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "establishment-preview", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "R\u00E9capitulatif" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-label", children: "Nom :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-value", children: institutionData.name })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-label", children: "Type :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-value", children: institutionTypes.find(t => t.value === institutionData.type)?.label })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-label", children: "Ville :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-value", children: institutionData.city || 'À compléter' })] })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: previousStep, className: "submit-btn secondary", disabled: isLoading, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Retour" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", className: "submit-btn primary", disabled: !institutionData.city.trim() || isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Continuer" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 16 })] })] })] })] })), step === 4 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Compte administrateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Cr\u00E9ez le compte administrateur principal de votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 18 }), "Pr\u00E9nom *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.adminFirstName, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminFirstName: e.target.value })), placeholder: "Jean", required: true, disabled: isLoading, autoFocus: true }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 18 }), "Nom *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.adminLastName, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminLastName: e.target.value })), placeholder: "Dupont", required: true, disabled: isLoading }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 18 }), "Email administrateur *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: institutionData.adminEmail, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminEmail: e.target.value })), placeholder: "admin@etablissement.fr", required: true, disabled: isLoading }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Utilis\u00E9 pour la connexion \u00E0 votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 18 }), "Mot de passe administrateur *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: institutionData.adminPassword, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminPassword: e.target.value })), placeholder: "Mot de passe s\u00E9curis\u00E9", required: true, minLength: 3, disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "toggle-password", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Minimum 3 caract\u00E8res requis" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "final-summary", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "R\u00E9capitulatif final" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h5", { children: "\u00C9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: institutionData.name }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { children: [institutionTypes.find(t => t.value === institutionData.type)?.label, " \u2022 ", institutionData.city] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h5", { children: "Administrateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { children: [institutionData.adminFirstName, " ", institutionData.adminLastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: institutionData.adminEmail })] })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "admin-info", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Privil\u00E8ges administrateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Ce compte aura tous les privil\u00E8ges pour g\u00E9rer votre biblioth\u00E8que locale : ajout de livres, gestion des utilisateurs, param\u00E8tres syst\u00E8me." })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: previousStep, className: "submit-btn secondary", disabled: isLoading, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Retour" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "submit-btn primary", disabled: !institutionData.adminFirstName || !institutionData.adminLastName ||
+                                                                            return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { className: `type-option ${isSelected ? 'selected' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "radio", name: "type", value: type.value, checked: isSelected, onChange: (e) => setInstitutionData(prev => ({ ...prev, type: e.target.value })), disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "type-card-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "type-icon-wrapper", style: { backgroundColor: isSelected ? type.color : 'rgba(110, 110, 110, 0.1)' }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(IconComponent, { size: 20, color: isSelected ? '#F3EED9' : type.color }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "type-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "type-name", children: type.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "type-description", children: [type.value === 'school' && 'Établissement scolaire', type.value === 'university' && 'Enseignement supérieur', type.value === 'library' && 'Bibliothèque publique', type.value === 'other' && 'Autre organisation'] })] }), isSelected && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "selection-indicator", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 18, color: type.color }) }))] })] }, type.value));
+                                                                        }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: previousStep, className: "submit-btn secondary", disabled: isLoading, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Retour" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", className: "submit-btn primary", disabled: !institutionData.type || isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Continuer" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 16 })] })] })] })] })), step === 3 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Localisation" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Indiquez o\u00F9 se trouve votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: (e) => { e.preventDefault(); nextStep(); }, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 18 }), "Ville *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.city, onChange: (e) => setInstitutionData(prev => ({ ...prev, city: e.target.value })), placeholder: "Paris", required: true, disabled: isLoading, autoFocus: true }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Ville o\u00F9 se trouve votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "establishment-preview", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "R\u00E9capitulatif" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-label", children: "Nom :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-value", children: institutionData.name })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-label", children: "Type :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-value", children: institutionTypes.find(t => t.value === institutionData.type)?.label })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "preview-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-label", children: "Ville :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "preview-value", children: institutionData.city || 'À compléter' })] })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: previousStep, className: "submit-btn secondary", disabled: isLoading, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Retour" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { type: "submit", className: "submit-btn primary", disabled: !institutionData.city.trim() || isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Continuer" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 16 })] })] })] })] })), step === 4 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "step-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { children: "Compte administrateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Cr\u00E9ez le compte administrateur principal de votre \u00E9tablissement" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("form", { onSubmit: handleSubmit, className: "auth-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 18 }), "Pr\u00E9nom *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.adminFirstName, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminFirstName: e.target.value })), placeholder: "Jean", required: true, disabled: isLoading, autoFocus: true }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 18 }), "Nom *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: institutionData.adminLastName, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminLastName: e.target.value })), placeholder: "Dupont", required: true, disabled: isLoading }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }), "Email administrateur *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "input-group", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: institutionData.adminEmail, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminEmail: e.target.value })), placeholder: "admin@etablissement.fr", required: true, disabled: isLoading }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Utilis\u00E9 pour la connexion \u00E0 votre biblioth\u00E8que" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("label", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 18 }), "Mot de passe administrateur *"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: institutionData.adminPassword, onChange: (e) => setInstitutionData(prev => ({ ...prev, adminPassword: e.target.value })), placeholder: "Mot de passe s\u00E9curis\u00E9", required: true, minLength: 3, disabled: isLoading }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "toggle-password", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 18 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("small", { children: "Minimum 3 caract\u00E8res requis" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "final-summary", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "R\u00E9capitulatif final" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h5", { children: "\u00C9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: institutionData.name }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { children: [institutionTypes.find(t => t.value === institutionData.type)?.label, " \u2022 ", institutionData.city] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "summary-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h5", { children: "Administrateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { children: [institutionData.adminFirstName, " ", institutionData.adminLastName] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: institutionData.adminEmail })] })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "admin-info", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Privil\u00E8ges administrateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Ce compte aura tous les privil\u00E8ges pour g\u00E9rer votre biblioth\u00E8que locale : ajout de livres, gestion des utilisateurs, param\u00E8tres syst\u00E8me." })] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: previousStep, className: "submit-btn secondary", disabled: isLoading, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Retour" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "submit", className: "submit-btn primary", disabled: !institutionData.adminFirstName || !institutionData.adminLastName ||
                                                                             !institutionData.adminEmail || !institutionData.adminPassword ||
-                                                                            institutionData.adminPassword.length < 3 || isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Cr\u00E9ation..." })] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Cr\u00E9er l'\u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 16 })] })) })] })] })] }))] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "info-sidebar", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 32 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Base de donn\u00E9es locale" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Vos donn\u00E9es sont stock\u00E9es en s\u00E9curit\u00E9 sur votre ordinateur" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 32 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Fonctionne hors ligne" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Aucune connexion Internet requise pour utiliser l'application" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_22__["default"], { size: 32 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Gestion compl\u00E8te" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "G\u00E9rez vos livres, emprunts et utilisateurs facilement" })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+                                                                            institutionData.adminPassword.length < 3 || isLoading, children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Cr\u00E9ation..." })] })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Cr\u00E9er l'\u00E9tablissement" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 })] })) })] })] })] }))] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "features-sidebar", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "features-header", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Pourquoi choisir notre solution ?" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "features-list", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "feature-icon security", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "100% Local" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Vos donn\u00E9es restent sur votre ordinateur, s\u00E9curis\u00E9es et priv\u00E9es" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "feature-icon offline", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_22__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Hors ligne" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Fonctionne sans Internet, disponible 24h/24" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "feature-icon management", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Gestion compl\u00E8te" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Documents, emprunts, utilisateurs et statistiques" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "feature-icon analytics", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_23__["default"], { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "feature-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { children: "Rapports d\u00E9taill\u00E9s" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Analyses et exports pour le suivi de votre biblioth\u00E8que" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "trust-indicators", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "indicator", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Installation simple" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "indicator", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Interface intuitive" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "indicator", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Support fran\u00E7ais" })] })] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .enhanced-auth-container {
-          min-height: calc(100vh - 40px);
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          min-height: 100vh;
+          height: auto;
+          background: linear-gradient(135deg, 
+            #1a2e1f 0%, 
+            #2a3f2f 25%, 
+            #3E5C49 50%, 
+            #2E453A 75%, 
+            #1f3024 100%
+          );
+          background-size: 300% 300%;
+          animation: gradientShift 15s ease infinite;
           position: relative;
           overflow-y: auto;
           overflow-x: hidden;
-          padding: 20px 0;
+          padding: 20px;
+        }
+
+        @keyframes gradientShift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
         }
 
         .auth-background {
@@ -12794,26 +12564,46 @@ const EnhancedAuthentication = ({ onLogin }) => {
           right: 0;
           bottom: 0;
           overflow: hidden;
+          pointer-events: none;
         }
 
-        .pattern-overlay {
+        .gradient-orb {
           position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-image: 
-            radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(243, 238, 217, 0.05) 0%, transparent 50%);
-          animation: drift 20s ease-in-out infinite;
+          border-radius: 50%;
+          filter: blur(60px);
+          opacity: 0.3;
+          animation: float 8s ease-in-out infinite;
         }
 
-        @keyframes drift {
-          0%, 100% { transform: translate(0, 0) rotate(0deg); }
-          50% { transform: translate(20px, -20px) rotate(1deg); }
+        .orb-1 {
+          width: 400px;
+          height: 400px;
+          background: radial-gradient(circle, #C2571B 0%, transparent 70%);
+          top: -200px;
+          right: -200px;
+          animation-delay: 0s;
         }
 
-        .floating-shapes {
+        .orb-2 {
+          width: 300px;
+          height: 300px;
+          background: radial-gradient(circle, #3E5C49 0%, transparent 70%);
+          bottom: -150px;
+          left: -150px;
+          animation-delay: 4s;
+        }
+
+        .orb-3 {
+          width: 250px;
+          height: 250px;
+          background: radial-gradient(circle, #F3EED9 0%, transparent 70%);
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          animation-delay: 2s;
+        }
+
+        .floating-elements {
           position: absolute;
           top: 0;
           left: 0;
@@ -12822,103 +12612,171 @@ const EnhancedAuthentication = ({ onLogin }) => {
           pointer-events: none;
         }
 
-        .shape {
+        .element {
           position: absolute;
-          background: rgba(243, 238, 217, 0.05);
-          border-radius: 50%;
-          animation: float 6s ease-in-out infinite;
+          color: rgba(243, 238, 217, 0.1);
+          animation: drift 12s ease-in-out infinite;
         }
 
-        .shape-1 {
-          width: 100px;
-          height: 100px;
+        .element-1 {
           top: 20%;
-          left: 10%;
+          left: 15%;
           animation-delay: 0s;
         }
 
-        .shape-2 {
-          width: 60px;
-          height: 60px;
+        .element-2 {
           top: 60%;
-          right: 15%;
-          animation-delay: 2s;
+          right: 20%;
+          animation-delay: 3s;
         }
 
-        .shape-3 {
-          width: 80px;
-          height: 80px;
-          bottom: 30%;
-          left: 20%;
-          animation-delay: 4s;
+        .element-3 {
+          bottom: 25%;
+          left: 25%;
+          animation-delay: 6s;
+        }
+
+        .element-4 {
+          top: 40%;
+          right: 40%;
+          animation-delay: 9s;
         }
 
         @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-30px) rotate(5deg); }
+        }
+
+        @keyframes drift {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.1; }
+          50% { transform: translate(20px, -15px) rotate(3deg); opacity: 0.2; }
         }
 
         .auth-content {
           position: relative;
           z-index: 10;
           min-height: calc(100vh - 80px);
+          height: auto;
           display: flex;
           flex-direction: column;
           padding: 20px;
-          max-width: 1400px;
+          max-width: 1500px;
           margin: 0 auto;
           box-sizing: border-box;
         }
 
         .auth-header {
           text-align: center;
-          margin-bottom: 32px;
-          padding: 0 20px;
+          margin-bottom: 40px;
+          padding: 20px;
         }
 
-        .main-title {
-          margin: 0 0 8px 0;
+        .logo-container {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 16px;
+          margin-bottom: 20px;
+        }
+
+        .logo-icon {
+          width: 64px;
+          height: 64px;
+          background: linear-gradient(135deg, #C2571B 0%, #3E5C49 100%);
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           color: #F3EED9;
-          font-size: 32px;
-          font-weight: 800;
-          letter-spacing: -0.5px;
+          box-shadow: 
+            0 20px 40px rgba(194, 87, 27, 0.3),
+            inset 0 2px 0 rgba(255, 255, 255, 0.2);
+          position: relative;
+          overflow: hidden;
         }
 
-        .main-subtitle {
+        .logo-icon::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+          0% { left: -100%; }
+          100% { left: 100%; }
+        }
+
+        .logo-text h1 {
           margin: 0;
+          color: #F3EED9;
+          font-size: 36px;
+          font-weight: 800;
+          letter-spacing: -0.8px;
+          text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-text span {
           color: rgba(243, 238, 217, 0.8);
           font-size: 16px;
-          font-weight: 400;
-          line-height: 1.5;
+          font-weight: 500;
+          letter-spacing: 0.2px;
         }
 
         .main-content {
           display: flex;
-          gap: 40px;
+          gap: 48px;
           flex: 1;
           align-items: flex-start;
           min-height: 0;
+          width: 100%;
         }
 
-       .auth-card {
+        .auth-card {
           flex: 1;
-          background: white;
-          border-radius: 20px;
+          max-width: 750px;
+          height: auto;
+          position: relative;
+        }
+
+        .glass-effect {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 24px;
           overflow: hidden;
-          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-          max-width: 700px;
-          /* RETIRER: height: calc(100vh - 160px); */
-          /* RETIRER: display: flex; */
-          /* RETIRER: flex-direction: column; */
-          border: 1px solid rgba(229, 220, 194, 0.3);
-          /* Ajouter une hauteur minimale si nécessaire */
-          min-height: 600px;
+          box-shadow: 
+            0 32px 64px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+          position: relative;
+        }
+
+        .glass-effect::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, 
+            rgba(243, 238, 217, 0.1) 0%, 
+            rgba(194, 87, 27, 0.05) 50%, 
+            rgba(62, 92, 73, 0.1) 100%
+          );
+          pointer-events: none;
         }
 
         .auth-tabs {
           display: flex;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          flex-shrink: 0;
+          background: rgba(62, 92, 73, 0.3);
+          backdrop-filter: blur(10px);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          position: relative;
+          z-index: 2;
         }
 
         .tab {
@@ -12926,36 +12784,57 @@ const EnhancedAuthentication = ({ onLogin }) => {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
-          padding: 24px;
+          gap: 12px;
+          padding: 20px 24px;
           background: none;
           border: none;
           cursor: pointer;
           font-size: 16px;
           font-weight: 600;
           color: rgba(243, 238, 217, 0.7);
-          transition: all 0.2s ease;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
+          overflow: hidden;
+        }
+
+        .tab::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, 
+            rgba(194, 87, 27, 0.2) 0%, 
+            rgba(62, 92, 73, 0.2) 100%
+          );
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+
+        .tab:hover::before {
+          opacity: 1;
         }
 
         .tab:hover {
           color: #F3EED9;
-          background: rgba(243, 238, 217, 0.1);
+          transform: translateY(-2px);
         }
 
         .tab.active {
           color: #F3EED9;
-          background: rgba(243, 238, 217, 0.15);
+          background: rgba(194, 87, 27, 0.2);
         }
 
         .tab.active::after {
           content: '';
           position: absolute;
           bottom: 0;
-          left: 0;
-          right: 0;
+          left: 20%;
+          right: 20%;
           height: 3px;
-          background: #C2571B;
+          background: linear-gradient(90deg, transparent, #C2571B, transparent);
+          border-radius: 2px;
         }
 
         .message {
@@ -12979,100 +12858,128 @@ const EnhancedAuthentication = ({ onLogin }) => {
 
         .section-header {
           text-align: center;
-          padding: 32px 32px 24px;
-          border-bottom: 1px solid rgba(229, 220, 194, 0.4);
-          background: #FAF9F6;
+          padding: 40px 32px 32px;
+          background: rgba(243, 238, 217, 0.05);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          position: relative;
+          z-index: 2;
+        }
+
+        .header-icon {
+          width: 56px;
+          height: 56px;
+          background: linear-gradient(135deg, #C2571B 0%, #3E5C49 100%);
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #F3EED9;
+          margin: 0 auto 20px;
+          box-shadow: 
+            0 10px 30px rgba(194, 87, 27, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .section-header h2 {
-          margin: 0 0 8px 0;
-          color: #3E5C49;
-          font-size: 24px;
+          margin: 0 0 12px 0;
+          color: #F3EED9;
+          font-size: 28px;
           font-weight: 700;
           line-height: 1.2;
+          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
 
         .section-header p {
           margin: 0;
-          color: #4A4A4A;
-          font-size: 14px;
+          color: rgba(243, 238, 217, 0.8);
+          font-size: 16px;
           line-height: 1.5;
+          font-weight: 400;
         }
 
         .auth-form {
-          padding: 32px;
-          /* RETIRER: flex: 1; */
-          /* RETIRER: overflow-y: auto; */
-          /* RETIRER: min-height: 0; */
+          padding: 40px;
+          position: relative;
+          z-index: 2;
         }
 
         .form-group {
-          margin-bottom: 24px;
+          margin-bottom: 28px;
         }
 
         .form-row {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 16px;
+          gap: 20px;
         }
 
         .form-group label {
           display: flex;
           align-items: center;
           gap: 8px;
-          margin-bottom: 8px;
+          margin-bottom: 12px;
           font-weight: 600;
-          color: #2E2E2E;
-          font-size: 14px;
+          color: #F3EED9;
+          font-size: 15px;
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
 
         .input-group {
           position: relative;
           display: flex;
           align-items: center;
-          border: 2px solid rgba(229, 220, 194, 0.4);
-          border-radius: 10px;
-          padding: 0 16px;
-          transition: all 0.2s ease;
-          background: white;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 16px;
+          padding: 0 20px;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
         }
 
         .input-group:focus-within {
-          outline: none;
-          border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+          border-color: rgba(194, 87, 27, 0.6);
+          box-shadow: 
+            0 0 0 3px rgba(194, 87, 27, 0.2),
+            0 8px 25px rgba(194, 87, 27, 0.15);
+          transform: translateY(-2px);
         }
 
         .input-group svg {
-          color: #6E6E6E;
+          color: rgba(243, 238, 217, 0.7);
           margin-right: 12px;
           flex-shrink: 0;
+          transition: color 0.3s ease;
+        }
+
+        .input-group:focus-within svg {
+          color: #C2571B;
         }
 
         .input-group input {
           flex: 1;
           border: none;
-          padding: 12px 0;
-          font-size: 14px;
+          padding: 16px 0;
+          font-size: 15px;
           outline: none;
           background: transparent;
-          color: #2E2E2E;
+          color: #F3EED9;
+          font-weight: 500;
         }
 
         .input-group input::placeholder {
-          color: #9ca3af;
+          color: rgba(243, 238, 217, 0.5);
           opacity: 1;
         }
 
         .input-group input:disabled {
           background: transparent;
-          opacity: 0.7;
+          opacity: 0.6;
         }
 
         .toggle-password {
           background: none;
           border: none;
-          color: #6E6E6E;
+          color: rgba(243, 238, 217, 0.7);
           cursor: pointer;
           padding: 4px;
           margin-left: 8px;
@@ -13084,14 +12991,14 @@ const EnhancedAuthentication = ({ onLogin }) => {
         }
 
         .toggle-password:hover {
-          color: #3E5C49;
-          background: rgba(62, 92, 73, 0.1);
+          color: #F3EED9;
+          background: rgba(243, 238, 217, 0.1);
         }
 
         .form-group small {
           display: block;
           margin-top: 4px;
-          color: #4A4A4A;
+          color: rgba(243, 238, 217, 0.9);
           font-size: 12px;
           line-height: 1.4;
         }
@@ -13164,7 +13071,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
 
         .type-description {
           font-size: 12px;
-          color: #6E6E6E;
+          color: rgba(243, 238, 217, 0.8);
           line-height: 1.3;
         }
 
@@ -13192,27 +13099,52 @@ const EnhancedAuthentication = ({ onLogin }) => {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          gap: 12px;
+          background: linear-gradient(135deg, #C2571B 0%, #3E5C49 100%);
           color: #F3EED9;
           border: none;
-          padding: 12px 20px;
-          border-radius: 10px;
-          font-size: 14px;
+          padding: 18px 24px;
+          border-radius: 16px;
+          font-size: 16px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s ease;
-          min-width: 120px;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          min-width: 140px;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 
+            0 8px 25px rgba(194, 87, 27, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .submit-btn::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          transition: left 0.6s ease;
+        }
+
+        .submit-btn:hover::before {
+          left: 100%;
         }
 
         .submit-btn:hover:not(:disabled) {
-          background: linear-gradient(135deg, #2E453A 0%, #1F2F25 100%);
+          transform: translateY(-3px);
+          box-shadow: 
+            0 12px 35px rgba(194, 87, 27, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .submit-btn:active:not(:disabled) {
           transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
         }
 
         .submit-btn:disabled {
-          opacity: 0.6;
+          opacity: 0.5;
           cursor: not-allowed;
           transform: none;
         }
@@ -13314,7 +13246,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #6E6E6E;
+          color: rgba(243, 238, 217, 0.8);
           transition: all 0.3s ease;
         }
 
@@ -13362,7 +13294,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
         .info-content p {
           font-size: 13px;
           margin: 0;
-          color: #4A4A4A;
+          color: rgba(243, 238, 217, 0.9);
           line-height: 1.4;
         }
 
@@ -13390,7 +13322,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
         .step-info-card ul {
           margin: 0;
           padding-left: 16px;
-          color: #4A4A4A;
+          color: rgba(243, 238, 217, 0.9);
         }
 
         .step-info-card li {
@@ -13440,7 +13372,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
 
         .preview-label {
           font-size: 13px;
-          color: #6E6E6E;
+          color: rgba(243, 238, 217, 0.8);
           font-weight: 500;
         }
 
@@ -13484,7 +13416,7 @@ const EnhancedAuthentication = ({ onLogin }) => {
         .summary-section h5 {
           font-size: 12px;
           font-weight: 600;
-          color: #6E6E6E;
+          color: rgba(243, 238, 217, 0.8);
           text-transform: uppercase;
           letter-spacing: 0.5px;
           margin: 0 0 6px 0;
@@ -13516,153 +13448,129 @@ const EnhancedAuthentication = ({ onLogin }) => {
         }
 
 
-        /* Connexions rapides */
-        .quick-login-section {
-          margin-top: 32px;
-          padding-top: 24px;
-          border-top: 1px solid rgba(229, 220, 194, 0.3);
-        }
 
-        .divider {
-          text-align: center;
-          margin-bottom: 24px;
-          position: relative;
-        }
 
-        .divider span {
-          background: #FFFFFF;
-          padding: 0 16px;
-          color: #4A4A4A;
-          font-size: 14px;
-          font-weight: 600;
-        }
-
-        .divider::before {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: 0;
-          right: 0;
-          height: 1px;
-          background: #E5DCC2;
-          z-index: -1;
-        }
-
-        .quick-login-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 12px;
-          margin-bottom: 20px;
-        }
-
-        .quick-login-btn {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 16px;
-          background: rgba(248, 246, 240, 0.8);
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          text-align: left;
-        }
-
-        .quick-login-btn:hover:not(:disabled) {
-          border-color: #3E5C49;
-          background: rgba(62, 92, 73, 0.05);
-        }
-
-        .quick-login-btn:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-
-        .credential-icon {
-          width: 36px;
-          height: 36px;
-          background: #3E5C49;
-          color: #F3EED9;
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-
-        .credential-info {
+        /* Sidebar moderne */
+        .features-sidebar {
+          flex: 0 0 350px;
           display: flex;
           flex-direction: column;
-          gap: 2px;
+          gap: 32px;
         }
 
-        .credential-info .role {
-          font-weight: 600;
-          color: #3E5C49;
-          font-size: 14px;
+        .features-header h3 {
+          color: #F3EED9;
+          font-size: 20px;
+          font-weight: 700;
+          margin: 0 0 24px 0;
+          text-align: center;
+          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
 
-        .credential-info .email {
-          font-size: 12px;
-          color: #4A4A4A;
-        }
-
-        .login-hint {
-          background: rgba(62, 92, 73, 0.05);
-          border: 1px solid rgba(62, 92, 73, 0.1);
-          border-radius: 12px;
-          padding: 16px;
-          margin-top: 16px;
-        }
-
-        .login-hint p {
-          margin: 0 0 8px 0;
-          font-size: 14px;
-          color: #3E5C49;
-        }
-
-        .login-hint p:last-child {
-          margin-bottom: 0;
-        }
-
-        /* Sidebar d'informations */
-        .info-sidebar {
-          flex: 0 0 300px;
+        .features-list {
           display: flex;
           flex-direction: column;
           gap: 20px;
         }
 
-        .feature-card {
-          background: rgba(243, 238, 217, 0.1);
-          border: 1px solid rgba(243, 238, 217, 0.2);
-          border-radius: 16px;
+        .feature-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 16px;
           padding: 24px;
-          text-align: center;
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 20px;
+          backdrop-filter: blur(20px);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .feature-item:hover {
+          transform: translateY(-4px);
+          background: rgba(255, 255, 255, 0.12);
+          border-color: rgba(194, 87, 27, 0.3);
+          box-shadow: 
+            0 20px 40px rgba(0, 0, 0, 0.2),
+            0 0 0 1px rgba(194, 87, 27, 0.1);
+        }
+
+        .feature-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           color: #F3EED9;
-          backdrop-filter: blur(10px);
+          flex-shrink: 0;
+          position: relative;
+          overflow: hidden;
         }
 
-        .feature-card svg {
-          margin-bottom: 16px;
-          opacity: 0.9;
+        .feature-icon.security {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
         }
 
-        .feature-card h3 {
-          margin: 0 0 12px 0;
-          font-size: 18px;
+        .feature-icon.offline {
+          background: linear-gradient(135deg, #C2571B 0%, #A0471A 100%);
+        }
+
+        .feature-icon.management {
+          background: linear-gradient(135deg, #5A6B5D 0%, #3E5C49 100%);
+        }
+
+        .feature-icon.analytics {
+          background: linear-gradient(135deg, #8B6B47 0%, #C2571B 100%);
+        }
+
+        .feature-content h4 {
+          margin: 0 0 8px 0;
+          color: #F3EED9;
+          font-size: 16px;
           font-weight: 600;
+          line-height: 1.2;
         }
 
-        .feature-card p {
+        .feature-content p {
           margin: 0;
-          opacity: 0.8;
+          color: rgba(243, 238, 217, 0.8);
           font-size: 14px;
           line-height: 1.5;
         }
 
+        .trust-indicators {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          padding: 24px;
+          background: rgba(194, 87, 27, 0.1);
+          border: 1px solid rgba(194, 87, 27, 0.2);
+          border-radius: 20px;
+          backdrop-filter: blur(20px);
+        }
+
+        .indicator {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          color: #F3EED9;
+          font-size: 14px;
+          font-weight: 500;
+        }
+
+        .indicator svg {
+          color: #C2571B;
+          flex-shrink: 0;
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
+          .enhanced-auth-container {
+            padding: 16px;
+            height: auto;
+            min-height: 100vh;
+          }
+
           .main-content {
             flex-direction: column;
             align-items: center;
@@ -13682,8 +13590,15 @@ const EnhancedAuthentication = ({ onLogin }) => {
         }
 
         @media (max-width: 768px) {
+          .enhanced-auth-container {
+            padding: 12px;
+            overflow-y: scroll;
+            -webkit-overflow-scrolling: touch;
+          }
+
           .auth-content {
             padding: 16px;
+            min-height: auto;
           }
 
           .auth-header {
@@ -13695,11 +13610,13 @@ const EnhancedAuthentication = ({ onLogin }) => {
 
           .main-content {
             gap: 24px;
+            flex-direction: column;
           }
 
           .auth-card {
             max-width: none;
-            min-height: auto; /* Permettre à la carte de s'adapter au contenu */
+            min-height: auto;
+            height: auto;
           }
 
           .form-row {
@@ -14305,15 +14222,39 @@ const ExportDialog = ({ isOpen, onClose, onExport, availableData }) => {
             cniNumber: false
         },
         historyFields: {
+            // Document fields - default selection
             documentTitle: true,
+            documentAuthor: true,
+            documentEditor: false,
+            documentYear: false,
+            documentType: true,
+            documentCote: false,
+            documentISBN: false,
+            // Borrower fields - default selection
             borrowerName: true,
+            borrowerFirstName: false,
+            borrowerLastName: false,
+            borrowerMatricule: true,
+            borrowerType: true,
+            borrowerClass: true,
+            borrowerPosition: false,
+            borrowerEmail: false,
+            borrowerPhone: false,
+            borrowerCNI: false,
+            // Loan details - default selection
             borrowDate: true,
+            borrowTime: false,
             expectedReturnDate: true,
             actualReturnDate: true,
+            actualReturnTime: false,
             status: true,
-            notes: false,
-            duration: false,
-            overdueDays: false
+            duration: true,
+            overdueDays: true,
+            isOverdue: true,
+            loanPeriod: false,
+            season: false,
+            schoolYear: false,
+            notes: false
         },
         dateRange: {
             enabled: false,
@@ -14414,17 +14355,40 @@ const ExportDialog = ({ isOpen, onClose, onExport, availableData }) => {
                                             email: 'Email',
                                             phone: 'Téléphone',
                                             cniNumber: 'CNI'
-                                        }).map(([field, label]) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `field-checkbox ${config.borrowerFields[field] ? 'checked' : ''}`, onClick: () => updateBorrowerField(field, !config.borrowerFields[field]), children: [config.borrowerFields[field] ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: label })] }, field))) })] })), config.dataTypes.borrowHistory && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Champs Historique" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "fields-grid", children: Object.entries({
-                                            documentTitle: 'Titre du document',
-                                            borrowerName: 'Nom emprunteur',
-                                            borrowDate: 'Date emprunt',
-                                            expectedReturnDate: 'Date retour prévue',
-                                            actualReturnDate: 'Date retour effective',
-                                            status: 'Statut',
-                                            notes: 'Notes',
-                                            duration: 'Durée (jours)',
-                                            overdueDays: 'Retard (jours)'
-                                        }).map(([field, label]) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `field-checkbox ${config.historyFields[field] ? 'checked' : ''}`, onClick: () => updateHistoryField(field, !config.historyFields[field]), children: [config.historyFields[field] ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: label })] }, field))) })] })), config.dataTypes.borrowHistory && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Filtre par Date" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "toggle-switch", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "checkbox", id: "dateRange", checked: config.dateRange.enabled, onChange: (e) => setConfig(prev => ({
+                                        }).map(([field, label]) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `field-checkbox ${config.borrowerFields[field] ? 'checked' : ''}`, onClick: () => updateBorrowerField(field, !config.borrowerFields[field]), children: [config.borrowerFields[field] ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: label })] }, field))) })] })), config.dataTypes.borrowHistory && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Champs Historique des Emprunts" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "subsection", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "subsection-title", children: "Informations Document" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "fields-grid", children: Object.entries({
+                                                    documentTitle: 'Titre du document',
+                                                    documentAuthor: 'Auteur',
+                                                    documentEditor: 'Éditeur',
+                                                    documentYear: 'Année',
+                                                    documentType: 'Type',
+                                                    documentCote: 'Cote',
+                                                    documentISBN: 'ISBN'
+                                                }).map(([field, label]) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `field-checkbox ${config.historyFields[field] ? 'checked' : ''}`, onClick: () => updateHistoryField(field, !config.historyFields[field]), children: [config.historyFields[field] ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: label })] }, field))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "subsection", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "subsection-title", children: "Informations Emprunteur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "fields-grid", children: Object.entries({
+                                                    borrowerName: 'Nom complet',
+                                                    borrowerFirstName: 'Prénom',
+                                                    borrowerLastName: 'Nom',
+                                                    borrowerMatricule: 'Matricule',
+                                                    borrowerType: 'Type',
+                                                    borrowerClass: 'Classe',
+                                                    borrowerPosition: 'Position',
+                                                    borrowerEmail: 'Email',
+                                                    borrowerPhone: 'Téléphone',
+                                                    borrowerCNI: 'CNI'
+                                                }).map(([field, label]) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `field-checkbox ${config.historyFields[field] ? 'checked' : ''}`, onClick: () => updateHistoryField(field, !config.historyFields[field]), children: [config.historyFields[field] ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: label })] }, field))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "subsection", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h4", { className: "subsection-title", children: "D\u00E9tails de l'Emprunt" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "fields-grid", children: Object.entries({
+                                                    borrowDate: 'Date emprunt',
+                                                    borrowTime: 'Heure emprunt',
+                                                    expectedReturnDate: 'Date retour prévue',
+                                                    actualReturnDate: 'Date retour effective',
+                                                    actualReturnTime: 'Heure retour',
+                                                    status: 'Statut',
+                                                    duration: 'Durée (jours)',
+                                                    overdueDays: 'Jours de retard',
+                                                    isOverdue: 'En retard (Oui/Non)',
+                                                    loanPeriod: 'Période d\'emprunt',
+                                                    season: 'Saison',
+                                                    schoolYear: 'Année scolaire',
+                                                    notes: 'Notes'
+                                                }).map(([field, label]) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `field-checkbox ${config.historyFields[field] ? 'checked' : ''}`, onClick: () => updateHistoryField(field, !config.historyFields[field]), children: [config.historyFields[field] ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: label })] }, field))) })] })] })), config.dataTypes.borrowHistory && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "section-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "section-title", children: "Filtre par Date" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "toggle-switch", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "checkbox", id: "dateRange", checked: config.dateRange.enabled, onChange: (e) => setConfig(prev => ({
                                                             ...prev,
                                                             dateRange: { ...prev.dateRange, enabled: e.target.checked }
                                                         })) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { htmlFor: "dateRange" })] })] }), config.dateRange.enabled && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "date-range-inputs", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "date-input", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Date de d\u00E9but" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "date", value: config.dateRange.startDate, onChange: (e) => setConfig(prev => ({
@@ -14538,6 +14502,21 @@ const ExportDialog = ({ isOpen, onClose, onExport, availableData }) => {
           font-weight: 600;
           color: #2E2E2E;
           margin: 0 0 16px 0;
+        }
+
+        .subsection {
+          margin-bottom: 24px;
+          padding: 16px;
+          background: rgba(62, 92, 73, 0.02);
+          border-radius: 8px;
+          border-left: 3px solid #3E5C49;
+        }
+
+        .subsection-title {
+          font-size: 15px;
+          font-weight: 600;
+          color: #3E5C49;
+          margin: 0 0 12px 0;
         }
 
         .section-header {
@@ -20603,17 +20582,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/settings.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/hard-drive.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/heart.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/info.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/bar-chart-3.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/briefcase.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-right.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-left.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/log-out.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/zap.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trending-up.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/bar-chart-3.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/clock.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/briefcase.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-right.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-left.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/log-out.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/zap.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trending-up.mjs");
 
 
 
@@ -20707,19 +20685,12 @@ const Sidebar = ({ currentView, onNavigate, onLogout, stats, currentUser, curren
             gradient: 'linear-gradient(135deg, #0891B2 0%, #0E7490 100%)'
         },
         {
-            id: 'donation',
-            label: 'Soutenir le projet',
+            id: 'about-support',
+            label: 'À propos & Soutien',
             icon: lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"],
-            description: 'Faire une donation',
-            gradient: 'linear-gradient(135deg, #E91E63 0%, #C2185B 100%)',
+            description: 'Projet, développeur & soutien',
+            gradient: 'linear-gradient(135deg, #E91E63 0%, #3E5C49 100%)',
             support: true
-        },
-        {
-            id: 'about',
-            label: 'À propos',
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"],
-            description: 'Développeur & crédits',
-            gradient: 'linear-gradient(135deg, #607D8B 0%, #455A64 100%)'
         }
     ];
     const quickStats = [
@@ -20740,14 +20711,14 @@ const Sidebar = ({ currentView, onNavigate, onLogout, stats, currentUser, curren
         {
             label: 'Empruntés',
             value: stats.borrowedDocuments,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"],
             color: '#C2571B',
             percentage: stats.totalDocuments > 0 ? Math.round((stats.borrowedDocuments / stats.totalDocuments) * 100) : 0
         },
         {
             label: 'En retard',
             value: stats.overdueDocuments,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"],
             color: '#DC2626',
             urgent: stats.overdueDocuments > 0
         }
@@ -20756,13 +20727,13 @@ const Sidebar = ({ currentView, onNavigate, onLogout, stats, currentUser, curren
         {
             label: 'Étudiants',
             value: stats.totalStudents,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"],
             color: '#3E5C49'
         },
         {
             label: 'Personnel',
             value: stats.totalStaff,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"],
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"],
             color: '#C2571B'
         }
     ];
@@ -20771,15 +20742,15 @@ const Sidebar = ({ currentView, onNavigate, onLogout, stats, currentUser, curren
             return 0;
         return Math.round((stats.borrowedDocuments / stats.totalDocuments) * 100);
     };
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `sidebar ${isCollapsed ? 'collapsed' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "sidebar-toggle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "toggle-button", onClick: () => setIsCollapsed(!isCollapsed), title: isCollapsed ? 'Développer le menu' : 'Réduire le menu', children: isCollapsed ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 18 }) }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-brand", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "brand-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "brand-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "brand-title", children: "Biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "brand-subtitle", children: "Syst\u00E8me de gestion moderne" })] })] }))] }), currentUser && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-profile-section", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-profile", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-avatar", onClick: () => onNavigate('user-profile'), title: "Voir le profil utilisateur", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "avatar-text", children: currentUser.firstName?.charAt(0)?.toUpperCase() || currentUser.email?.charAt(0)?.toUpperCase() || 'U' }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-name", children: currentUser.firstName ? `${currentUser.firstName} ${currentUser.lastName || ''}`.trim() : currentUser.email }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-role", children: currentUser.role || 'Utilisateur' }), currentInstitution && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-institution", children: currentInstitution.name }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "user-settings-btn", onClick: () => onNavigate('user-profile'), title: "Modifier le profil", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 16 }) }), onLogout && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "user-logout-btn", onClick: onLogout, title: "Se d\u00E9connecter", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 16 }) }))] })] }))] }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("nav", { className: "sidebar-nav", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Principal" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: menuItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.urgent ? 'urgent' : ''} ${item.highlight ? 'highlight' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `sidebar ${isCollapsed ? 'collapsed' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "sidebar-toggle", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "toggle-button", onClick: () => setIsCollapsed(!isCollapsed), title: isCollapsed ? 'Développer le menu' : 'Réduire le menu', children: isCollapsed ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 18 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 18 }) }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-brand", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "brand-logo", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "brand-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "brand-title", children: "Biblioth\u00E8que" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "brand-subtitle", children: "Syst\u00E8me de gestion moderne" })] })] }))] }), currentUser && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-profile-section", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-profile", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-avatar", onClick: () => onNavigate('user-profile'), title: "Voir le profil utilisateur", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "avatar-text", children: currentUser.firstName?.charAt(0)?.toUpperCase() || currentUser.email?.charAt(0)?.toUpperCase() || 'U' }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-name", children: currentUser.firstName ? `${currentUser.firstName} ${currentUser.lastName || ''}`.trim() : currentUser.email }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-role", children: currentUser.role || 'Utilisateur' }), currentInstitution && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-institution", children: currentInstitution.name }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "user-settings-btn", onClick: () => onNavigate('user-profile'), title: "Modifier le profil", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_19__["default"], { size: 16 }) }), onLogout && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "user-logout-btn", onClick: onLogout, title: "Se d\u00E9connecter", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_20__["default"], { size: 16 }) }))] })] }))] }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "sidebar-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("nav", { className: "sidebar-nav", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Principal" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: menuItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.urgent ? 'urgent' : ''} ${item.highlight ? 'highlight' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
                                                     '--item-gradient': item.gradient
-                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''} ${item.urgent ? 'urgent' : ''}`, children: item.count })), item.highlight && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-highlight", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_22__["default"], { size: 14 }) }))] })), isCollapsed && item.badge && stats.borrowedDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-indicator ${item.urgent ? 'urgent' : ''}` }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Actions" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: actionItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.highlight ? 'highlight' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
+                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''} ${item.urgent ? 'urgent' : ''}`, children: item.count })), item.highlight && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-highlight", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 14 }) }))] })), isCollapsed && item.badge && stats.borrowedDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-indicator ${item.urgent ? 'urgent' : ''}` }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Actions" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: actionItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.accent ? 'accent' : ''} ${item.highlight ? 'highlight' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
                                                     '--item-gradient': item.gradient
-                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''}`, children: item.count })), item.highlight && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-highlight", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_22__["default"], { size: 14 }) }))] }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Rapports" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: reportItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
+                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }), item.count !== undefined && item.count > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `nav-count ${item.badge ? 'badge' : ''}`, children: item.count })), item.highlight && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-highlight", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_21__["default"], { size: 14 }) }))] }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Rapports" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: reportItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
                                                     '--item-gradient': item.gradient
                                                 }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }))] }) }, item.id))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-section", children: [!isCollapsed && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "nav-title", children: "Communaut\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("ul", { className: "nav-list", children: supportItems.map((item) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("li", { className: "nav-item", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === item.id ? 'active' : ''} ${item.support ? 'support' : ''}`, onClick: () => onNavigate(item.id), title: isCollapsed ? item.label : '', style: {
                                                     '--item-gradient': item.gradient
-                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }))] }) }, item.id))) })] })] }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Statistiques de collection" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "popularity-score", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_23__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [getPopularityScore(), "% popularit\u00E9"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stats-grid", children: quickStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `stat-card ${stat.urgent ? 'urgent' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-label", children: stat.label }), stat.trend && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-trend", children: stat.trend })), stat.percentage !== undefined && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-percentage", children: [stat.percentage, "%"] }))] })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "users-stats", children: userStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 18 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-label", children: stat.label })] })] }, index))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "total-users", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "total-label", children: "Total des utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "total-value", children: stats.totalBorrowers })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Activit\u00E9 r\u00E9cente" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-pulse" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-summary", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot available" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.availableDocuments, " documents pr\u00EAts \u00E0 emprunter"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot borrowed" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.borrowedDocuments, " emprunts en cours"] })] }), stats.overdueDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item urgent", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot overdue" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.overdueDocuments, " document(s) en retard"] })] }))] })] })] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+                                                }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "nav-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(item.icon, { size: 20 }) }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-label", children: item.label }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "nav-description", children: item.description })] }))] }) }, item.id))) })] })] }), !isCollapsed && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Statistiques de collection" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "popularity-score", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_22__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [getPopularityScore(), "% popularit\u00E9"] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stats-grid", children: quickStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `stat-card ${stat.urgent ? 'urgent' : ''}`, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-label", children: stat.label }), stat.trend && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-trend", children: stat.trend })), stat.percentage !== undefined && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-percentage", children: [stat.percentage, "%"] }))] })] }, index))) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stats-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "users-stats", children: userStats.map((stat, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-stat", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-icon", style: { color: stat.color }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(stat.icon, { size: 18 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-stat-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-value", children: stat.value }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-stat-label", children: stat.label })] })] }, index))) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "total-users", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "total-label", children: "Total des utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "total-value", children: stats.totalBorrowers })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { className: "stats-title", children: "Activit\u00E9 r\u00E9cente" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-pulse" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-summary", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot available" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.availableDocuments, " documents pr\u00EAts \u00E0 emprunter"] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot borrowed" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.borrowedDocuments, " emprunts en cours"] })] }), stats.overdueDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "activity-item urgent", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "activity-dot overdue" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { children: [stats.overdueDocuments, " document(s) en retard"] })] }))] })] })] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .sidebar {
           width: 300px;
           background: linear-gradient(180deg, #3E5C49 0%, #2E453A 100%);
@@ -21621,7 +21592,7 @@ const Sidebar = ({ currentView, onNavigate, onLogout, stats, currentUser, curren
             border-width: 2px;
           }
         }
-      ` }), !isCollapsed && stats.overdueDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "emergency-alert", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "alert-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "alert-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "alert-title", children: "Action requise" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "alert-message", children: [stats.overdueDocuments, " document(s) en retard"] })] })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+      ` }), !isCollapsed && stats.overdueDocuments > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "emergency-alert", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "alert-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "alert-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "alert-title", children: "Action requise" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "alert-message", children: [stats.overdueDocuments, " document(s) en retard"] })] })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .emergency-alert {
           margin: 16px 20px;
           background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
@@ -23536,14 +23507,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check-circle.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x-circle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-circle.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/alert-triangle.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/info.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/activity.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/bell.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/book-open.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/check-circle.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/download.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/upload.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/activity.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/star.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/settings.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/shield.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/heart.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/file-text.mjs");
 
 
 
@@ -23587,23 +23567,51 @@ const ToastContainer = ({ toasts, removeToast }) => {
     return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "toast-container", children: [toasts.map((toast, index) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(ToastItem, { toast: toast, onRemove: () => removeToast(toast.id), index: index }, toast.id))), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .toast-container {
           position: fixed;
-          top: 20px;
-          right: 20px;
+          top: 24px;
+          right: 24px;
           z-index: 10000;
           display: flex;
           flex-direction: column;
-          gap: 12px;
-          max-width: 420px;
+          gap: 16px;
+          max-width: 450px;
           width: 100%;
           pointer-events: none;
+        }
+
+        .toast-container::before {
+          content: '';
+          position: fixed;
+          top: 0;
+          right: 0;
+          width: 500px;
+          height: 100vh;
+          background: linear-gradient(135deg, 
+            rgba(62, 92, 73, 0.01) 0%, 
+            rgba(194, 87, 27, 0.005) 50%, 
+            transparent 100%);
+          pointer-events: none;
+          z-index: -1;
         }
 
         @media (max-width: 768px) {
           .toast-container {
             top: 80px;
-            left: 20px;
-            right: 20px;
+            left: 16px;
+            right: 16px;
             max-width: none;
+            gap: 12px;
+          }
+          
+          .toast-container::before {
+            display: none;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .toast-container {
+            top: 70px;
+            left: 12px;
+            right: 12px;
           }
         }
       ` })] }));
@@ -23643,7 +23651,7 @@ const ToastItem = ({ toast, onRemove, index }) => {
             case 'error': return lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"];
             case 'warning': return lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"];
             case 'info': return lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"];
-            default: return lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"];
+            default: return lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"];
         }
     };
     const getColors = () => {
@@ -23656,15 +23664,40 @@ const ToastItem = ({ toast, onRemove, index }) => {
         }
         switch (toast.type) {
             case 'success':
-                return { background: '#10B98115', border: '#10B98140', accent: '#10B981' };
+                return {
+                    background: 'rgba(62, 92, 73, 0.1)',
+                    border: 'rgba(62, 92, 73, 0.25)',
+                    accent: '#3E5C49',
+                    secondaryAccent: '#C2571B'
+                };
             case 'error':
-                return { background: '#EF444415', border: '#EF444440', accent: '#EF4444' };
+                return {
+                    background: 'rgba(194, 87, 27, 0.1)',
+                    border: 'rgba(194, 87, 27, 0.25)',
+                    accent: '#C2571B',
+                    secondaryAccent: '#3E5C49'
+                };
             case 'warning':
-                return { background: '#F59E0B15', border: '#F59E0B40', accent: '#F59E0B' };
+                return {
+                    background: 'rgba(194, 87, 27, 0.08)',
+                    border: 'rgba(194, 87, 27, 0.2)',
+                    accent: '#C2571B',
+                    secondaryAccent: '#3E5C49'
+                };
             case 'info':
-                return { background: '#3B82F615', border: '#3B82F640', accent: '#3B82F6' };
+                return {
+                    background: 'rgba(62, 92, 73, 0.08)',
+                    border: 'rgba(62, 92, 73, 0.2)',
+                    accent: '#3E5C49',
+                    secondaryAccent: '#C2571B'
+                };
             default:
-                return { background: '#6B728015', border: '#6B728040', accent: '#6B7280' };
+                return {
+                    background: 'rgba(62, 92, 73, 0.05)',
+                    border: 'rgba(62, 92, 73, 0.15)',
+                    accent: '#3E5C49',
+                    secondaryAccent: '#C2571B'
+                };
         }
     };
     const Icon = getIcon();
@@ -23672,22 +23705,39 @@ const ToastItem = ({ toast, onRemove, index }) => {
     return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: `toast-item ${isVisible ? 'visible' : ''} ${isRemoving ? 'removing' : ''}`, style: {
             '--toast-bg': colors.background,
             '--toast-border': colors.border,
-            '--toast-accent': colors.accent
-        }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "toast-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "toast-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(Icon, { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "toast-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "toast-title", children: toast.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "toast-message", children: toast.message }), toast.progress !== undefined && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "toast-progress-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "toast-progress-label", children: ["Progression: ", Math.round(toast.progress), "%"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "toast-progress-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "toast-progress-fill", style: { width: `${toast.progress}%` } }) })] }))] }), toast.action && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "toast-action", onClick: toast.action.onClick, children: toast.action.label })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "toast-close", onClick: handleRemove, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 16 }) })] }), !toast.sticky && toast.duration && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "toast-timer", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "toast-timer-fill", style: { width: `${progress}%` } }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+            '--toast-accent': colors.accent,
+            '--toast-secondary': colors.secondaryAccent || colors.accent
+        }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "toast-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "toast-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(Icon, { size: 20 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "toast-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "toast-title", children: toast.title }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "toast-message", children: toast.message }), toast.progress !== undefined && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "toast-progress-container", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "toast-progress-label", children: ["Progression: ", Math.round(toast.progress), "%"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "toast-progress-bar", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "toast-progress-fill", style: { width: `${toast.progress}%` } }) })] }))] }), toast.action && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "toast-action", onClick: toast.action.onClick, children: toast.action.label })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "toast-close", onClick: handleRemove, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 16 }) })] }), !toast.sticky && toast.duration && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "toast-timer", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "toast-timer-fill", style: { width: `${progress}%` } }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .toast-item {
-          background: var(--toast-bg);
-          border: 1px solid var(--toast-border);
-          border-radius: 16px;
+          background: #F3EED9;
+          border: 2px solid var(--toast-border);
+          border-radius: 20px;
           backdrop-filter: blur(20px);
           box-shadow: 
-            0 20px 40px rgba(0, 0, 0, 0.1),
-            0 8px 16px rgba(0, 0, 0, 0.05);
+            0 25px 50px rgba(62, 92, 73, 0.15),
+            0 10px 30px rgba(194, 87, 27, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8);
           overflow: hidden;
           transform: translateX(100%);
           opacity: 0;
-          transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
           pointer-events: auto;
           position: relative;
+          border-left: 6px solid var(--toast-accent);
+        }
+
+        .toast-item::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, 
+            rgba(62, 92, 73, 0.03) 0%, 
+            rgba(194, 87, 27, 0.02) 50%, 
+            rgba(243, 238, 217, 0.05) 100%);
+          pointer-events: none;
         }
 
         .toast-item.visible {
@@ -23696,30 +23746,34 @@ const ToastItem = ({ toast, onRemove, index }) => {
         }
 
         .toast-item.removing {
-          transform: translateX(100%);
+          transform: translateX(100%) scale(0.9);
           opacity: 0;
         }
 
         .toast-content {
           display: flex;
           align-items: flex-start;
-          gap: 12px;
-          padding: 20px;
+          gap: 16px;
+          padding: 24px;
           position: relative;
+          z-index: 1;
         }
 
         .toast-icon {
-          width: 40px;
-          height: 40px;
-          background: var(--toast-accent);
-          border-radius: 12px;
+          width: 48px;
+          height: 48px;
+          background: linear-gradient(135deg, var(--toast-accent) 0%, var(--toast-secondary) 100%);
+          border-radius: 16px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #F3EED9;
           flex-shrink: 0;
           position: relative;
           overflow: hidden;
+          box-shadow: 
+            0 8px 20px rgba(62, 92, 73, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .toast-icon::before {
@@ -23729,13 +23783,24 @@ const ToastItem = ({ toast, onRemove, index }) => {
           left: -100%;
           width: 100%;
           height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-          animation: shimmer 2s infinite;
+          background: linear-gradient(90deg, transparent, rgba(243, 238, 217, 0.4), transparent);
+          animation: shimmer 3s infinite ease-in-out;
+        }
+
+        .toast-icon::after {
+          content: '';
+          position: absolute;
+          inset: 4px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, 
+            rgba(243, 238, 217, 0.2) 0%, 
+            transparent 50%, 
+            rgba(243, 238, 217, 0.1) 100%);
         }
 
         @keyframes shimmer {
-          0% { left: -100%; }
-          100% { left: 100%; }
+          0%, 100% { left: -100%; opacity: 0; }
+          50% { left: 100%; opacity: 1; }
         }
 
         .toast-text {
@@ -23744,43 +23809,54 @@ const ToastItem = ({ toast, onRemove, index }) => {
         }
 
         .toast-title {
-          font-size: 16px;
+          font-size: 17px;
           font-weight: 700;
-          color: #1F2937;
-          margin-bottom: 4px;
-          line-height: 1.2;
+          color: #3E5C49;
+          margin-bottom: 6px;
+          line-height: 1.3;
+          font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         .toast-message {
-          font-size: 14px;
-          color: #6B7280;
-          line-height: 1.4;
+          font-size: 15px;
+          color: #5A6B5D;
+          line-height: 1.5;
+          font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         .toast-progress-container {
-          margin-top: 12px;
+          margin-top: 16px;
+          padding: 12px;
+          background: rgba(62, 92, 73, 0.05);
+          border-radius: 12px;
+          border: 1px solid rgba(62, 92, 73, 0.1);
         }
 
         .toast-progress-label {
-          font-size: 12px;
-          color: #9CA3AF;
-          margin-bottom: 6px;
+          font-size: 13px;
+          color: #3E5C49;
+          margin-bottom: 8px;
           font-weight: 600;
+          font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         .toast-progress-bar {
-          height: 6px;
-          background: rgba(0, 0, 0, 0.1);
-          border-radius: 3px;
+          height: 8px;
+          background: rgba(62, 92, 73, 0.15);
+          border-radius: 6px;
           overflow: hidden;
+          box-shadow: inset 0 2px 4px rgba(62, 92, 73, 0.1);
         }
 
         .toast-progress-fill {
           height: 100%;
-          background: var(--toast-accent);
+          background: linear-gradient(90deg, var(--toast-accent) 0%, var(--toast-secondary) 100%);
           border-radius: inherit;
-          transition: width 0.3s ease;
+          transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
           position: relative;
+          box-shadow: 
+            0 2px 8px rgba(62, 92, 73, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .toast-progress-fill::after {
@@ -23790,8 +23866,8 @@ const ToastItem = ({ toast, onRemove, index }) => {
           left: 0;
           right: 0;
           bottom: 0;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-          animation: progressShimmer 1.5s infinite;
+          background: linear-gradient(90deg, transparent, rgba(243, 238, 217, 0.5), transparent);
+          animation: progressShimmer 2s infinite ease-in-out;
         }
 
         @keyframes progressShimmer {
@@ -23800,89 +23876,165 @@ const ToastItem = ({ toast, onRemove, index }) => {
         }
 
         .toast-action {
-          background: var(--toast-accent);
-          color: white;
+          background: linear-gradient(135deg, var(--toast-accent) 0%, var(--toast-secondary) 100%);
+          color: #F3EED9;
           border: none;
-          padding: 8px 16px;
-          border-radius: 8px;
-          font-size: 12px;
+          padding: 10px 18px;
+          border-radius: 12px;
+          font-size: 13px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           flex-shrink: 0;
+          font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+          box-shadow: 
+            0 4px 15px rgba(62, 92, 73, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .toast-action:hover {
-          transform: scale(1.05);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+          transform: translateY(-2px) scale(1.02);
+          box-shadow: 
+            0 8px 25px rgba(62, 92, 73, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .toast-action:active {
+          transform: translateY(0) scale(0.98);
         }
 
         .toast-close {
-          background: rgba(0, 0, 0, 0.1);
+          background: rgba(62, 92, 73, 0.1);
           border: none;
-          border-radius: 8px;
-          padding: 8px;
+          border-radius: 12px;
+          padding: 10px;
           cursor: pointer;
-          color: #6B7280;
-          transition: all 0.2s ease;
+          color: #5A6B5D;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           flex-shrink: 0;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
         .toast-close:hover {
-          background: rgba(0, 0, 0, 0.2);
-          color: #374151;
+          background: rgba(194, 87, 27, 0.15);
+          color: #C2571B;
+          transform: scale(1.1);
+          box-shadow: 
+            0 4px 12px rgba(194, 87, 27, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        .toast-close:active {
+          transform: scale(0.95);
         }
 
         .toast-timer {
           position: absolute;
           bottom: 0;
-          left: 0;
+          left: 6px;
           right: 0;
-          height: 3px;
-          background: rgba(0, 0, 0, 0.1);
+          height: 4px;
+          background: rgba(62, 92, 73, 0.15);
+          border-radius: 0 0 16px 0;
         }
 
         .toast-timer-fill {
           height: 100%;
-          background: var(--toast-accent);
+          background: linear-gradient(90deg, var(--toast-accent) 0%, var(--toast-secondary) 100%);
           transition: width 0.1s linear;
+          border-radius: inherit;
+          box-shadow: 
+            0 -2px 8px rgba(62, 92, 73, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
-        /* Dark mode */
-        @media (prefers-color-scheme: dark) {
+        /* Animation d'entrée en cascade */
+        .toast-item:nth-child(1) { animation-delay: 0s; }
+        .toast-item:nth-child(2) { animation-delay: 0.1s; }
+        .toast-item:nth-child(3) { animation-delay: 0.2s; }
+        .toast-item:nth-child(4) { animation-delay: 0.3s; }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+          .toast-content {
+            padding: 20px;
+            gap: 14px;
+          }
+          
+          .toast-icon {
+            width: 44px;
+            height: 44px;
+          }
+          
           .toast-title {
-            color: #F3F4F6;
+            font-size: 16px;
           }
           
           .toast-message {
-            color: #D1D5DB;
-          }
-          
-          .toast-close {
-            color: #9CA3AF;
-          }
-          
-          .toast-close:hover {
-            color: #F3F4F6;
+            font-size: 14px;
           }
         }
 
         /* High contrast mode */
         @media (prefers-contrast: high) {
           .toast-item {
-            border: 2px solid var(--toast-accent);
+            border: 3px solid var(--toast-accent);
+            background: #FFFFFF;
+          }
+          
+          .toast-title {
+            color: #000000;
+          }
+          
+          .toast-message {
+            color: #333333;
           }
         }
 
         /* Reduced motion */
         @media (prefers-reduced-motion: reduce) {
           .toast-item {
-            transition: opacity 0.2s ease;
+            transition: opacity 0.3s ease;
           }
 
           .toast-icon::before,
           .toast-progress-fill::after {
             animation: none;
+          }
+          
+          .toast-action:hover,
+          .toast-close:hover {
+            transform: none;
+          }
+        }
+
+        /* Dark mode adaptation */
+        @media (prefers-color-scheme: dark) {
+          .toast-item {
+            background: #2A3B2E;
+            border-color: rgba(243, 238, 217, 0.2);
+            box-shadow: 
+              0 25px 50px rgba(0, 0, 0, 0.3),
+              0 10px 30px rgba(62, 92, 73, 0.2),
+              inset 0 1px 0 rgba(243, 238, 217, 0.1);
+          }
+          
+          .toast-title {
+            color: #F3EED9;
+          }
+          
+          .toast-message {
+            color: #C5D0C7;
+          }
+          
+          .toast-close {
+            background: rgba(243, 238, 217, 0.1);
+            color: #C5D0C7;
+          }
+          
+          .toast-close:hover {
+            background: rgba(194, 87, 27, 0.2);
+            color: #F3EED9;
           }
         }
       ` })] }));
@@ -23897,24 +24049,46 @@ const useQuickToast = () => {
         info: (title, message, action) => addToast({ type: 'info', title, message, action }),
         documentAdded: (title) => addToast({
             type: 'custom',
-            title: 'Document ajouté !',
-            message: `"${title}" a été ajouté à votre collection`,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"],
-            color: '#10B981'
+            title: 'Document ajouté avec succès !',
+            message: `"${title}" a été ajouté à votre bibliothèque`,
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"],
+            color: '#3E5C49'
         }),
         documentBorrowed: (title, borrower) => addToast({
             type: 'custom',
-            title: 'Document emprunté',
+            title: 'Emprunt enregistré',
             message: `"${title}" emprunté par ${borrower}`,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"],
-            color: '#F59E0B'
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"],
+            color: '#C2571B'
         }),
         documentReturned: (title) => addToast({
             type: 'custom',
-            title: 'Document rendu',
-            message: `"${title}" a été rendu avec succès`,
-            icon: lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"],
-            color: '#10B981'
+            title: 'Retour confirmé',
+            message: `"${title}" a été retourné avec succès`,
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"],
+            color: '#3E5C49'
+        }),
+        borrowerAdded: (name) => addToast({
+            type: 'custom',
+            title: 'Emprunteur ajouté',
+            message: `${name} a été ajouté au système`,
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"],
+            color: '#3E5C49'
+        }),
+        exportCompleted: (format, filename) => addToast({
+            type: 'custom',
+            title: 'Export terminé',
+            message: `Fichier ${format.toUpperCase()} "${filename}" généré avec succès`,
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"],
+            color: '#3E5C49',
+            duration: 7000
+        }),
+        backupCreated: (filename) => addToast({
+            type: 'custom',
+            title: 'Sauvegarde créée',
+            message: `Sauvegarde "${filename}" créée avec succès`,
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"],
+            color: '#3E5C49'
         }),
         syncProgress: (progress) => {
             const id = 'sync-progress';
@@ -23923,22 +24097,89 @@ const useQuickToast = () => {
                     type: 'custom',
                     title: 'Synchronisation terminée',
                     message: 'Toutes vos données sont à jour',
-                    icon: lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"],
-                    color: '#10B981'
+                    icon: lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"],
+                    color: '#3E5C49'
                 });
             }
             else {
                 addToast({
                     type: 'custom',
                     title: 'Synchronisation en cours...',
-                    message: 'Mise à jour de vos données',
-                    icon: lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"],
-                    color: '#3B82F6',
+                    message: `Mise à jour de vos données (${Math.round(progress)}%)`,
+                    icon: lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"],
+                    color: '#C2571B',
                     progress,
                     sticky: true
                 });
             }
-        }
+        },
+        overdueAlert: (count) => addToast({
+            type: 'warning',
+            title: 'Documents en retard !',
+            message: `${count} document${count > 1 ? 's' : ''} en retard de retour`,
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"],
+            duration: 10000,
+            action: {
+                label: 'Voir',
+                onClick: () => {
+                    // Navigation vers les documents en retard
+                    console.log('Navigate to overdue documents');
+                }
+            }
+        }),
+        systemUpdate: (version) => addToast({
+            type: 'info',
+            title: 'Mise à jour disponible',
+            message: `Version ${version} disponible au téléchargement`,
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"],
+            duration: 15000,
+            action: {
+                label: 'Télécharger',
+                onClick: () => {
+                    // Ouvrir la page de téléchargement
+                    console.log('Open download page');
+                }
+            }
+        }),
+        settingsUpdated: () => addToast({
+            type: 'success',
+            title: 'Paramètres sauvegardés',
+            message: 'Vos préférences ont été mises à jour',
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"],
+            color: '#3E5C49'
+        }),
+        securityAlert: (message) => addToast({
+            type: 'warning',
+            title: 'Alerte de sécurité',
+            message: message,
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"],
+            duration: 12000,
+            sticky: true
+        }),
+        welcome: (username) => addToast({
+            type: 'custom',
+            title: `Bienvenue ${username} !`,
+            message: 'Votre bibliothèque numérique est prête',
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"],
+            color: '#C2571B',
+            duration: 6000
+        }),
+        reportGenerated: (reportType, itemCount) => addToast({
+            type: 'success',
+            title: 'Rapport généré',
+            message: `Rapport ${reportType} créé avec ${itemCount} élément${itemCount > 1 ? 's' : ''}`,
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"],
+            color: '#3E5C49'
+        }),
+        maintenance: (message) => addToast({
+            type: 'info',
+            title: 'Maintenance programmée',
+            message: message,
+            icon: lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"],
+            color: '#C2571B',
+            duration: 20000,
+            sticky: true
+        })
     };
 };
 
@@ -24933,21 +25174,60 @@ class ReportService {
             title: 'Rapport d\'Historique des Emprunts',
             subtitle: `Bibliothèque - ${now.toLocaleDateString('fr-FR')}`,
             generatedAt: now.toISOString(),
-            data: filteredHistory.map(history => ({
-                id: history.id,
-                document: history.document?.titre || `Document ID: ${history.documentId}`,
-                auteur: history.document?.auteur || '',
-                emprunteur: history.borrower ? `${history.borrower.firstName} ${history.borrower.lastName}` : `Emprunteur ID: ${history.borrowerId}`,
-                matricule: history.borrower?.matricule || '',
-                dateEmprunt: new Date(history.borrowDate).toLocaleDateString('fr-FR'),
-                dateRetourPrevu: new Date(history.expectedReturnDate).toLocaleDateString('fr-FR'),
-                dateRetourEffective: history.actualReturnDate ? new Date(history.actualReturnDate).toLocaleDateString('fr-FR') : '',
-                statut: history.status === 'active' ? 'Actif' : history.status === 'returned' ? 'Retourné' : 'En retard',
-                dureeEmprunt: history.actualReturnDate ?
-                    Math.ceil((new Date(history.actualReturnDate).getTime() - new Date(history.borrowDate).getTime()) / (1000 * 60 * 60 * 24)) + ' jours' :
-                    Math.ceil((now.getTime() - new Date(history.borrowDate).getTime()) / (1000 * 60 * 60 * 24)) + ' jours',
-                notes: history.notes || ''
-            })),
+            data: filteredHistory.map(history => {
+                const borrowDate = new Date(history.borrowDate);
+                const expectedReturnDate = new Date(history.expectedReturnDate);
+                const actualReturnDate = history.actualReturnDate ? new Date(history.actualReturnDate) : null;
+                const currentDate = new Date();
+                // Calculate loan duration
+                const endDate = actualReturnDate || currentDate;
+                const loanDuration = Math.ceil((endDate.getTime() - borrowDate.getTime()) / (1000 * 60 * 60 * 24));
+                // Calculate overdue days
+                let overdueDays = 0;
+                if (history.status === 'overdue' || (history.status === 'active' && currentDate > expectedReturnDate)) {
+                    const checkDate = actualReturnDate || currentDate;
+                    overdueDays = Math.max(0, Math.ceil((checkDate.getTime() - expectedReturnDate.getTime()) / (1000 * 60 * 60 * 24)));
+                }
+                return {
+                    // Document Information
+                    documentTitre: history.document?.titre || `Document ID: ${history.documentId}`,
+                    documentAuteur: history.document?.auteur || '',
+                    documentEditeur: history.document?.editeur || '',
+                    documentAnnee: history.document?.annee || '',
+                    documentType: history.document?.type || 'Livre',
+                    documentCote: history.document?.cote || '',
+                    documentISBN: history.document?.isbn || '',
+                    // Borrower Information  
+                    emprunteurNom: history.borrower ? `${history.borrower.firstName} ${history.borrower.lastName}` : `Emprunteur ID: ${history.borrowerId}`,
+                    emprunteurPrenom: history.borrower?.firstName || '',
+                    emprunteurNomFamille: history.borrower?.lastName || '',
+                    emprunteurMatricule: history.borrower?.matricule || '',
+                    emprunteurType: history.borrower?.type === 'student' ? 'Étudiant' : history.borrower?.type === 'staff' ? 'Personnel' : '',
+                    emprunteurClasse: history.borrower?.classe || '',
+                    emprunteurPosition: history.borrower?.position || '',
+                    emprunteurEmail: history.borrower?.email || '',
+                    emprunteurTelephone: history.borrower?.phone || '',
+                    emprunteurCNI: history.borrower?.cniNumber || '',
+                    // Loan Details
+                    dateEmprunt: borrowDate.toLocaleDateString('fr-FR'),
+                    heureEmprunt: borrowDate.toLocaleTimeString('fr-FR'),
+                    dateRetourPrevu: expectedReturnDate.toLocaleDateString('fr-FR'),
+                    dateRetourEffective: actualReturnDate ? actualReturnDate.toLocaleDateString('fr-FR') : '',
+                    heureRetourEffective: actualReturnDate ? actualReturnDate.toLocaleTimeString('fr-FR') : '',
+                    // Status and Duration
+                    statut: history.status === 'active' ? 'En cours' :
+                        history.status === 'returned' ? 'Retourné' :
+                            history.status === 'overdue' ? 'En retard' : 'Inconnu',
+                    dureeEmprunt: `${loanDuration} jour${loanDuration > 1 ? 's' : ''}`,
+                    joursRetard: overdueDays > 0 ? `${overdueDays} jour${overdueDays > 1 ? 's' : ''}` : '',
+                    estEnRetard: overdueDays > 0 ? 'Oui' : 'Non',
+                    // Additional Information
+                    notes: history.notes || '',
+                    periodeEmprunt: this.calculateLoanPeriod(borrowDate, expectedReturnDate),
+                    saisonEmprunt: this.getSeason(borrowDate),
+                    anneeScolaire: this.getSchoolYear(borrowDate)
+                };
+            }),
             summary: {
                 totalItems: filteredHistory.length,
                 empruntsActifs: filteredHistory.filter(h => h.status === 'active').length,
@@ -24970,7 +25250,8 @@ class ReportService {
             headers.map(h => `"${h}"`).join(','),
             ...reportData.data.map(row => headers.map(header => `"${(row[header] || '').toString().replace(/"/g, '""')}"`).join(','))
         ].join('\n');
-        return csvContent;
+        // Add UTF-8 BOM for proper Excel encoding
+        return '\ufeff' + csvContent;
     }
     // Export en PDF (génère le contenu HTML à convertir)
     static generatePDFContent(reportData) {
@@ -25048,7 +25329,10 @@ class ReportService {
     }
     // Téléchargement du fichier
     static downloadFile(content, filename, mimeType) {
-        const blob = new Blob([content], { type: mimeType });
+        // Ensure proper UTF-8 encoding for CSV files
+        const blob = new Blob([content], {
+            type: mimeType + ';charset=utf-8'
+        });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -25129,6 +25413,7 @@ class ReportService {
     }
     static formatColumnHeader(header) {
         const headerMap = {
+            // Document fields
             id: 'ID',
             titre: 'Titre',
             auteur: 'Auteur',
@@ -25137,11 +25422,16 @@ class ReportService {
             type: 'Type',
             cote: 'Cote',
             statut: 'Statut',
-            emprunteur: 'Emprunteur',
-            dateEmprunt: 'Date d\'emprunt',
-            dateRetourPrevu: 'Retour prévu',
-            dateRetourEffective: 'Retour effectif',
             descripteurs: 'Descripteurs',
+            // Enhanced document fields for history report
+            documentTitre: 'Titre du Document',
+            documentAuteur: 'Auteur du Document',
+            documentEditeur: 'Éditeur',
+            documentAnnee: 'Année de Publication',
+            documentType: 'Type de Document',
+            documentCote: 'Cote',
+            documentISBN: 'ISBN',
+            // Borrower fields
             nom: 'Nom',
             matricule: 'Matricule',
             classe: 'Classe',
@@ -25149,15 +25439,73 @@ class ReportService {
             position: 'Position',
             email: 'Email',
             telephone: 'Téléphone',
-            totalEmprunts: 'Total emprunts',
-            empruntsActifs: 'Emprunts actifs',
-            empruntsEnRetard: 'En retard',
-            derniereActivite: 'Dernière activité',
+            // Enhanced borrower fields for history report
+            emprunteur: 'Emprunteur',
+            emprunteurNom: 'Nom Complet',
+            emprunteurPrenom: 'Prénom',
+            emprunteurNomFamille: 'Nom de Famille',
+            emprunteurMatricule: 'Matricule',
+            emprunteurType: 'Type d\'Emprunteur',
+            emprunteurClasse: 'Classe/Niveau',
+            emprunteurPosition: 'Poste/Position',
+            emprunteurEmail: 'Email',
+            emprunteurTelephone: 'Téléphone',
+            emprunteurCNI: 'CNI',
+            // Loan fields
+            dateEmprunt: 'Date d\'Emprunt',
+            heureEmprunt: 'Heure d\'Emprunt',
+            dateRetourPrevu: 'Date de Retour Prévue',
+            dateRetourEffective: 'Date de Retour Effective',
+            heureRetourEffective: 'Heure de Retour',
+            dureeEmprunt: 'Durée d\'Emprunt',
+            joursRetard: 'Jours de Retard',
+            estEnRetard: 'En Retard',
+            periodeEmprunt: 'Période d\'Emprunt',
+            saisonEmprunt: 'Saison',
+            anneeScolaire: 'Année Scolaire',
+            // Statistics fields
+            totalEmprunts: 'Total Emprunts',
+            empruntsActifs: 'Emprunts Actifs',
+            empruntsEnRetard: 'En Retard',
+            derniereActivite: 'Dernière Activité',
+            // General fields
             document: 'Document',
-            dureeEmprunt: 'Durée',
-            notes: 'Notes'
+            notes: 'Notes et Observations'
         };
         return headerMap[header] || header;
+    }
+    // New utility methods for enhanced history report
+    static calculateLoanPeriod(borrowDate, expectedReturnDate) {
+        const diffTime = expectedReturnDate.getTime() - borrowDate.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays <= 7)
+            return 'Court terme (≤7 jours)';
+        if (diffDays <= 14)
+            return 'Moyen terme (8-14 jours)';
+        if (diffDays <= 30)
+            return 'Long terme (15-30 jours)';
+        return 'Très long terme (>30 jours)';
+    }
+    static getSeason(date) {
+        const month = date.getMonth() + 1; // getMonth() returns 0-11
+        if (month >= 3 && month <= 5)
+            return 'Printemps';
+        if (month >= 6 && month <= 8)
+            return 'Été';
+        if (month >= 9 && month <= 11)
+            return 'Automne';
+        return 'Hiver';
+    }
+    static getSchoolYear(date) {
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        // Academic year typically starts in September
+        if (month >= 9) {
+            return `${year}-${year + 1}`;
+        }
+        else {
+            return `${year - 1}-${year}`;
+        }
     }
 }
 

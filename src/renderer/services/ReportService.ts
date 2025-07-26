@@ -138,21 +138,67 @@ export class ReportService {
       title: 'Rapport d\'Historique des Emprunts',
       subtitle: `Bibliothèque - ${now.toLocaleDateString('fr-FR')}`,
       generatedAt: now.toISOString(),
-      data: filteredHistory.map(history => ({
-        id: history.id,
-        document: history.document?.titre || `Document ID: ${history.documentId}`,
-        auteur: history.document?.auteur || '',
-        emprunteur: history.borrower ? `${history.borrower.firstName} ${history.borrower.lastName}` : `Emprunteur ID: ${history.borrowerId}`,
-        matricule: history.borrower?.matricule || '',
-        dateEmprunt: new Date(history.borrowDate).toLocaleDateString('fr-FR'),
-        dateRetourPrevu: new Date(history.expectedReturnDate).toLocaleDateString('fr-FR'),
-        dateRetourEffective: history.actualReturnDate ? new Date(history.actualReturnDate).toLocaleDateString('fr-FR') : '',
-        statut: history.status === 'active' ? 'Actif' : history.status === 'returned' ? 'Retourné' : 'En retard',
-        dureeEmprunt: history.actualReturnDate ? 
-          Math.ceil((new Date(history.actualReturnDate).getTime() - new Date(history.borrowDate).getTime()) / (1000 * 60 * 60 * 24)) + ' jours' : 
-          Math.ceil((now.getTime() - new Date(history.borrowDate).getTime()) / (1000 * 60 * 60 * 24)) + ' jours',
-        notes: history.notes || ''
-      })),
+      data: filteredHistory.map(history => {
+        const borrowDate = new Date(history.borrowDate);
+        const expectedReturnDate = new Date(history.expectedReturnDate);
+        const actualReturnDate = history.actualReturnDate ? new Date(history.actualReturnDate) : null;
+        const currentDate = new Date();
+        
+        // Calculate loan duration
+        const endDate = actualReturnDate || currentDate;
+        const loanDuration = Math.ceil((endDate.getTime() - borrowDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        // Calculate overdue days
+        let overdueDays = 0;
+        if (history.status === 'overdue' || (history.status === 'active' && currentDate > expectedReturnDate)) {
+          const checkDate = actualReturnDate || currentDate;
+          overdueDays = Math.max(0, Math.ceil((checkDate.getTime() - expectedReturnDate.getTime()) / (1000 * 60 * 60 * 24)));
+        }
+        
+        return {
+          // Document Information
+          documentTitre: history.document?.titre || `Document ID: ${history.documentId}`,
+          documentAuteur: history.document?.auteur || '',
+          documentEditeur: history.document?.editeur || '',
+          documentAnnee: history.document?.annee || '',
+          documentType: history.document?.type || 'Livre',
+          documentCote: history.document?.cote || '',
+          documentISBN: history.document?.isbn || '',
+          
+          // Borrower Information  
+          emprunteurNom: history.borrower ? `${history.borrower.firstName} ${history.borrower.lastName}` : `Emprunteur ID: ${history.borrowerId}`,
+          emprunteurPrenom: history.borrower?.firstName || '',
+          emprunteurNomFamille: history.borrower?.lastName || '',
+          emprunteurMatricule: history.borrower?.matricule || '',
+          emprunteurType: history.borrower?.type === 'student' ? 'Étudiant' : history.borrower?.type === 'staff' ? 'Personnel' : '',
+          emprunteurClasse: history.borrower?.classe || '',
+          emprunteurPosition: history.borrower?.position || '',
+          emprunteurEmail: history.borrower?.email || '',
+          emprunteurTelephone: history.borrower?.phone || '',
+          emprunteurCNI: history.borrower?.cniNumber || '',
+          
+          // Loan Details
+          dateEmprunt: borrowDate.toLocaleDateString('fr-FR'),
+          heureEmprunt: borrowDate.toLocaleTimeString('fr-FR'),
+          dateRetourPrevu: expectedReturnDate.toLocaleDateString('fr-FR'),
+          dateRetourEffective: actualReturnDate ? actualReturnDate.toLocaleDateString('fr-FR') : '',
+          heureRetourEffective: actualReturnDate ? actualReturnDate.toLocaleTimeString('fr-FR') : '',
+          
+          // Status and Duration
+          statut: history.status === 'active' ? 'En cours' : 
+                  history.status === 'returned' ? 'Retourné' : 
+                  history.status === 'overdue' ? 'En retard' : 'Inconnu',
+          dureeEmprunt: `${loanDuration} jour${loanDuration > 1 ? 's' : ''}`,
+          joursRetard: overdueDays > 0 ? `${overdueDays} jour${overdueDays > 1 ? 's' : ''}` : '',
+          estEnRetard: overdueDays > 0 ? 'Oui' : 'Non',
+          
+          // Additional Information
+          notes: history.notes || '',
+          periodeEmprunt: this.calculateLoanPeriod(borrowDate, expectedReturnDate),
+          saisonEmprunt: this.getSeason(borrowDate),
+          anneeScolaire: this.getSchoolYear(borrowDate)
+        };
+      }),
       summary: {
         totalItems: filteredHistory.length,
         empruntsActifs: filteredHistory.filter(h => h.status === 'active').length,
@@ -180,7 +226,8 @@ export class ReportService {
       )
     ].join('\n');
 
-    return csvContent;
+    // Add UTF-8 BOM for proper Excel encoding
+    return '\ufeff' + csvContent;
   }
 
   // Export en PDF (génère le contenu HTML à convertir)
@@ -263,7 +310,10 @@ export class ReportService {
 
   // Téléchargement du fichier
   static downloadFile(content: string, filename: string, mimeType: string) {
-    const blob = new Blob([content], { type: mimeType });
+    // Ensure proper UTF-8 encoding for CSV files
+    const blob = new Blob([content], { 
+      type: mimeType + ';charset=utf-8'
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -355,6 +405,7 @@ export class ReportService {
 
   private static formatColumnHeader(header: string): string {
     const headerMap: Record<string, string> = {
+      // Document fields
       id: 'ID',
       titre: 'Titre',
       auteur: 'Auteur',
@@ -363,11 +414,18 @@ export class ReportService {
       type: 'Type',
       cote: 'Cote',
       statut: 'Statut',
-      emprunteur: 'Emprunteur',
-      dateEmprunt: 'Date d\'emprunt',
-      dateRetourPrevu: 'Retour prévu',
-      dateRetourEffective: 'Retour effectif',
       descripteurs: 'Descripteurs',
+      
+      // Enhanced document fields for history report
+      documentTitre: 'Titre du Document',
+      documentAuteur: 'Auteur du Document',
+      documentEditeur: 'Éditeur',
+      documentAnnee: 'Année de Publication',
+      documentType: 'Type de Document',
+      documentCote: 'Cote',
+      documentISBN: 'ISBN',
+      
+      // Borrower fields
       nom: 'Nom',
       matricule: 'Matricule',
       classe: 'Classe',
@@ -375,14 +433,75 @@ export class ReportService {
       position: 'Position',
       email: 'Email',
       telephone: 'Téléphone',
-      totalEmprunts: 'Total emprunts',
-      empruntsActifs: 'Emprunts actifs',
-      empruntsEnRetard: 'En retard',
-      derniereActivite: 'Dernière activité',
+      
+      // Enhanced borrower fields for history report
+      emprunteur: 'Emprunteur',
+      emprunteurNom: 'Nom Complet',
+      emprunteurPrenom: 'Prénom',
+      emprunteurNomFamille: 'Nom de Famille',
+      emprunteurMatricule: 'Matricule',
+      emprunteurType: 'Type d\'Emprunteur',
+      emprunteurClasse: 'Classe/Niveau',
+      emprunteurPosition: 'Poste/Position',
+      emprunteurEmail: 'Email',
+      emprunteurTelephone: 'Téléphone',
+      emprunteurCNI: 'CNI',
+      
+      // Loan fields
+      dateEmprunt: 'Date d\'Emprunt',
+      heureEmprunt: 'Heure d\'Emprunt',
+      dateRetourPrevu: 'Date de Retour Prévue',
+      dateRetourEffective: 'Date de Retour Effective',
+      heureRetourEffective: 'Heure de Retour',
+      dureeEmprunt: 'Durée d\'Emprunt',
+      joursRetard: 'Jours de Retard',
+      estEnRetard: 'En Retard',
+      periodeEmprunt: 'Période d\'Emprunt',
+      saisonEmprunt: 'Saison',
+      anneeScolaire: 'Année Scolaire',
+      
+      // Statistics fields
+      totalEmprunts: 'Total Emprunts',
+      empruntsActifs: 'Emprunts Actifs',
+      empruntsEnRetard: 'En Retard',
+      derniereActivite: 'Dernière Activité',
+      
+      // General fields
       document: 'Document',
-      dureeEmprunt: 'Durée',
-      notes: 'Notes'
+      notes: 'Notes et Observations'
     };
     return headerMap[header] || header;
+  }
+
+  // New utility methods for enhanced history report
+  private static calculateLoanPeriod(borrowDate: Date, expectedReturnDate: Date): string {
+    const diffTime = expectedReturnDate.getTime() - borrowDate.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays <= 7) return 'Court terme (≤7 jours)';
+    if (diffDays <= 14) return 'Moyen terme (8-14 jours)';
+    if (diffDays <= 30) return 'Long terme (15-30 jours)';
+    return 'Très long terme (>30 jours)';
+  }
+
+  private static getSeason(date: Date): string {
+    const month = date.getMonth() + 1; // getMonth() returns 0-11
+    
+    if (month >= 3 && month <= 5) return 'Printemps';
+    if (month >= 6 && month <= 8) return 'Été';
+    if (month >= 9 && month <= 11) return 'Automne';
+    return 'Hiver';
+  }
+
+  private static getSchoolYear(date: Date): string {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    
+    // Academic year typically starts in September
+    if (month >= 9) {
+      return `${year}-${year + 1}`;
+    } else {
+      return `${year - 1}-${year}`;
+    }
   }
 }

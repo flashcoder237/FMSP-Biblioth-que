@@ -12,7 +12,13 @@ import {
   Bell,
   Star,
   Users,
-  Activity
+  Activity,
+  Check,
+  AlertCircle,
+  FileText,
+  Shield,
+  Settings,
+  Heart
 } from 'lucide-react';
 
 interface Toast {
@@ -115,23 +121,51 @@ const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, removeToast }) 
       <style>{`
         .toast-container {
           position: fixed;
-          top: 20px;
-          right: 20px;
+          top: 24px;
+          right: 24px;
           z-index: 10000;
           display: flex;
           flex-direction: column;
-          gap: 12px;
-          max-width: 420px;
+          gap: 16px;
+          max-width: 450px;
           width: 100%;
           pointer-events: none;
+        }
+
+        .toast-container::before {
+          content: '';
+          position: fixed;
+          top: 0;
+          right: 0;
+          width: 500px;
+          height: 100vh;
+          background: linear-gradient(135deg, 
+            rgba(62, 92, 73, 0.01) 0%, 
+            rgba(194, 87, 27, 0.005) 50%, 
+            transparent 100%);
+          pointer-events: none;
+          z-index: -1;
         }
 
         @media (max-width: 768px) {
           .toast-container {
             top: 80px;
-            left: 20px;
-            right: 20px;
+            left: 16px;
+            right: 16px;
             max-width: none;
+            gap: 12px;
+          }
+          
+          .toast-container::before {
+            display: none;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .toast-container {
+            top: 70px;
+            left: 12px;
+            right: 12px;
           }
         }
       `}</style>
@@ -182,11 +216,11 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, index }) => {
     if (toast.icon) return toast.icon;
     
     switch (toast.type) {
-      case 'success': return CheckCircle;
-      case 'error': return XCircle;
+      case 'success': return Check;
+      case 'error': return AlertCircle;
       case 'warning': return AlertTriangle;
       case 'info': return Info;
-      default: return Info;
+      default: return Bell;
     }
   };
 
@@ -201,15 +235,40 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, index }) => {
 
     switch (toast.type) {
       case 'success':
-        return { background: '#10B98115', border: '#10B98140', accent: '#10B981' };
+        return { 
+          background: 'rgba(62, 92, 73, 0.1)', 
+          border: 'rgba(62, 92, 73, 0.25)', 
+          accent: '#3E5C49',
+          secondaryAccent: '#C2571B'
+        };
       case 'error':
-        return { background: '#EF444415', border: '#EF444440', accent: '#EF4444' };
+        return { 
+          background: 'rgba(194, 87, 27, 0.1)', 
+          border: 'rgba(194, 87, 27, 0.25)', 
+          accent: '#C2571B',
+          secondaryAccent: '#3E5C49'
+        };
       case 'warning':
-        return { background: '#F59E0B15', border: '#F59E0B40', accent: '#F59E0B' };
+        return { 
+          background: 'rgba(194, 87, 27, 0.08)', 
+          border: 'rgba(194, 87, 27, 0.2)', 
+          accent: '#C2571B',
+          secondaryAccent: '#3E5C49'
+        };
       case 'info':
-        return { background: '#3B82F615', border: '#3B82F640', accent: '#3B82F6' };
+        return { 
+          background: 'rgba(62, 92, 73, 0.08)', 
+          border: 'rgba(62, 92, 73, 0.2)', 
+          accent: '#3E5C49',
+          secondaryAccent: '#C2571B'
+        };
       default:
-        return { background: '#6B728015', border: '#6B728040', accent: '#6B7280' };
+        return { 
+          background: 'rgba(62, 92, 73, 0.05)', 
+          border: 'rgba(62, 92, 73, 0.15)', 
+          accent: '#3E5C49',
+          secondaryAccent: '#C2571B'
+        };
     }
   };
 
@@ -222,7 +281,8 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, index }) => {
       style={{
         '--toast-bg': colors.background,
         '--toast-border': colors.border,
-        '--toast-accent': colors.accent
+        '--toast-accent': colors.accent,
+        '--toast-secondary': colors.secondaryAccent || colors.accent
       } as React.CSSProperties}
     >
       <div className="toast-content">
@@ -274,19 +334,35 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, index }) => {
 
       <style>{`
         .toast-item {
-          background: var(--toast-bg);
-          border: 1px solid var(--toast-border);
-          border-radius: 16px;
+          background: #F3EED9;
+          border: 2px solid var(--toast-border);
+          border-radius: 20px;
           backdrop-filter: blur(20px);
           box-shadow: 
-            0 20px 40px rgba(0, 0, 0, 0.1),
-            0 8px 16px rgba(0, 0, 0, 0.05);
+            0 25px 50px rgba(62, 92, 73, 0.15),
+            0 10px 30px rgba(194, 87, 27, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8);
           overflow: hidden;
           transform: translateX(100%);
           opacity: 0;
-          transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
           pointer-events: auto;
           position: relative;
+          border-left: 6px solid var(--toast-accent);
+        }
+
+        .toast-item::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, 
+            rgba(62, 92, 73, 0.03) 0%, 
+            rgba(194, 87, 27, 0.02) 50%, 
+            rgba(243, 238, 217, 0.05) 100%);
+          pointer-events: none;
         }
 
         .toast-item.visible {
@@ -295,30 +371,34 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, index }) => {
         }
 
         .toast-item.removing {
-          transform: translateX(100%);
+          transform: translateX(100%) scale(0.9);
           opacity: 0;
         }
 
         .toast-content {
           display: flex;
           align-items: flex-start;
-          gap: 12px;
-          padding: 20px;
+          gap: 16px;
+          padding: 24px;
           position: relative;
+          z-index: 1;
         }
 
         .toast-icon {
-          width: 40px;
-          height: 40px;
-          background: var(--toast-accent);
-          border-radius: 12px;
+          width: 48px;
+          height: 48px;
+          background: linear-gradient(135deg, var(--toast-accent) 0%, var(--toast-secondary) 100%);
+          border-radius: 16px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #F3EED9;
           flex-shrink: 0;
           position: relative;
           overflow: hidden;
+          box-shadow: 
+            0 8px 20px rgba(62, 92, 73, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .toast-icon::before {
@@ -328,13 +408,24 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, index }) => {
           left: -100%;
           width: 100%;
           height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-          animation: shimmer 2s infinite;
+          background: linear-gradient(90deg, transparent, rgba(243, 238, 217, 0.4), transparent);
+          animation: shimmer 3s infinite ease-in-out;
+        }
+
+        .toast-icon::after {
+          content: '';
+          position: absolute;
+          inset: 4px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, 
+            rgba(243, 238, 217, 0.2) 0%, 
+            transparent 50%, 
+            rgba(243, 238, 217, 0.1) 100%);
         }
 
         @keyframes shimmer {
-          0% { left: -100%; }
-          100% { left: 100%; }
+          0%, 100% { left: -100%; opacity: 0; }
+          50% { left: 100%; opacity: 1; }
         }
 
         .toast-text {
@@ -343,43 +434,54 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, index }) => {
         }
 
         .toast-title {
-          font-size: 16px;
+          font-size: 17px;
           font-weight: 700;
-          color: #1F2937;
-          margin-bottom: 4px;
-          line-height: 1.2;
+          color: #3E5C49;
+          margin-bottom: 6px;
+          line-height: 1.3;
+          font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         .toast-message {
-          font-size: 14px;
-          color: #6B7280;
-          line-height: 1.4;
+          font-size: 15px;
+          color: #5A6B5D;
+          line-height: 1.5;
+          font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         .toast-progress-container {
-          margin-top: 12px;
+          margin-top: 16px;
+          padding: 12px;
+          background: rgba(62, 92, 73, 0.05);
+          border-radius: 12px;
+          border: 1px solid rgba(62, 92, 73, 0.1);
         }
 
         .toast-progress-label {
-          font-size: 12px;
-          color: #9CA3AF;
-          margin-bottom: 6px;
+          font-size: 13px;
+          color: #3E5C49;
+          margin-bottom: 8px;
           font-weight: 600;
+          font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         .toast-progress-bar {
-          height: 6px;
-          background: rgba(0, 0, 0, 0.1);
-          border-radius: 3px;
+          height: 8px;
+          background: rgba(62, 92, 73, 0.15);
+          border-radius: 6px;
           overflow: hidden;
+          box-shadow: inset 0 2px 4px rgba(62, 92, 73, 0.1);
         }
 
         .toast-progress-fill {
           height: 100%;
-          background: var(--toast-accent);
+          background: linear-gradient(90deg, var(--toast-accent) 0%, var(--toast-secondary) 100%);
           border-radius: inherit;
-          transition: width 0.3s ease;
+          transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
           position: relative;
+          box-shadow: 
+            0 2px 8px rgba(62, 92, 73, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .toast-progress-fill::after {
@@ -389,8 +491,8 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, index }) => {
           left: 0;
           right: 0;
           bottom: 0;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-          animation: progressShimmer 1.5s infinite;
+          background: linear-gradient(90deg, transparent, rgba(243, 238, 217, 0.5), transparent);
+          animation: progressShimmer 2s infinite ease-in-out;
         }
 
         @keyframes progressShimmer {
@@ -399,89 +501,165 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, index }) => {
         }
 
         .toast-action {
-          background: var(--toast-accent);
-          color: white;
+          background: linear-gradient(135deg, var(--toast-accent) 0%, var(--toast-secondary) 100%);
+          color: #F3EED9;
           border: none;
-          padding: 8px 16px;
-          border-radius: 8px;
-          font-size: 12px;
+          padding: 10px 18px;
+          border-radius: 12px;
+          font-size: 13px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           flex-shrink: 0;
+          font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+          box-shadow: 
+            0 4px 15px rgba(62, 92, 73, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .toast-action:hover {
-          transform: scale(1.05);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+          transform: translateY(-2px) scale(1.02);
+          box-shadow: 
+            0 8px 25px rgba(62, 92, 73, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .toast-action:active {
+          transform: translateY(0) scale(0.98);
         }
 
         .toast-close {
-          background: rgba(0, 0, 0, 0.1);
+          background: rgba(62, 92, 73, 0.1);
           border: none;
-          border-radius: 8px;
-          padding: 8px;
+          border-radius: 12px;
+          padding: 10px;
           cursor: pointer;
-          color: #6B7280;
-          transition: all 0.2s ease;
+          color: #5A6B5D;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           flex-shrink: 0;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
         .toast-close:hover {
-          background: rgba(0, 0, 0, 0.2);
-          color: #374151;
+          background: rgba(194, 87, 27, 0.15);
+          color: #C2571B;
+          transform: scale(1.1);
+          box-shadow: 
+            0 4px 12px rgba(194, 87, 27, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        .toast-close:active {
+          transform: scale(0.95);
         }
 
         .toast-timer {
           position: absolute;
           bottom: 0;
-          left: 0;
+          left: 6px;
           right: 0;
-          height: 3px;
-          background: rgba(0, 0, 0, 0.1);
+          height: 4px;
+          background: rgba(62, 92, 73, 0.15);
+          border-radius: 0 0 16px 0;
         }
 
         .toast-timer-fill {
           height: 100%;
-          background: var(--toast-accent);
+          background: linear-gradient(90deg, var(--toast-accent) 0%, var(--toast-secondary) 100%);
           transition: width 0.1s linear;
+          border-radius: inherit;
+          box-shadow: 
+            0 -2px 8px rgba(62, 92, 73, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
-        /* Dark mode */
-        @media (prefers-color-scheme: dark) {
+        /* Animation d'entrée en cascade */
+        .toast-item:nth-child(1) { animation-delay: 0s; }
+        .toast-item:nth-child(2) { animation-delay: 0.1s; }
+        .toast-item:nth-child(3) { animation-delay: 0.2s; }
+        .toast-item:nth-child(4) { animation-delay: 0.3s; }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+          .toast-content {
+            padding: 20px;
+            gap: 14px;
+          }
+          
+          .toast-icon {
+            width: 44px;
+            height: 44px;
+          }
+          
           .toast-title {
-            color: #F3F4F6;
+            font-size: 16px;
           }
           
           .toast-message {
-            color: #D1D5DB;
-          }
-          
-          .toast-close {
-            color: #9CA3AF;
-          }
-          
-          .toast-close:hover {
-            color: #F3F4F6;
+            font-size: 14px;
           }
         }
 
         /* High contrast mode */
         @media (prefers-contrast: high) {
           .toast-item {
-            border: 2px solid var(--toast-accent);
+            border: 3px solid var(--toast-accent);
+            background: #FFFFFF;
+          }
+          
+          .toast-title {
+            color: #000000;
+          }
+          
+          .toast-message {
+            color: #333333;
           }
         }
 
         /* Reduced motion */
         @media (prefers-reduced-motion: reduce) {
           .toast-item {
-            transition: opacity 0.2s ease;
+            transition: opacity 0.3s ease;
           }
 
           .toast-icon::before,
           .toast-progress-fill::after {
             animation: none;
+          }
+          
+          .toast-action:hover,
+          .toast-close:hover {
+            transform: none;
+          }
+        }
+
+        /* Dark mode adaptation */
+        @media (prefers-color-scheme: dark) {
+          .toast-item {
+            background: #2A3B2E;
+            border-color: rgba(243, 238, 217, 0.2);
+            box-shadow: 
+              0 25px 50px rgba(0, 0, 0, 0.3),
+              0 10px 30px rgba(62, 92, 73, 0.2),
+              inset 0 1px 0 rgba(243, 238, 217, 0.1);
+          }
+          
+          .toast-title {
+            color: #F3EED9;
+          }
+          
+          .toast-message {
+            color: #C5D0C7;
+          }
+          
+          .toast-close {
+            background: rgba(243, 238, 217, 0.1);
+            color: #C5D0C7;
+          }
+          
+          .toast-close:hover {
+            background: rgba(194, 87, 27, 0.2);
+            color: #F3EED9;
           }
         }
       `}</style>
@@ -509,28 +687,56 @@ export const useQuickToast = () => {
     documentAdded: (title: string) => 
       addToast({ 
         type: 'custom', 
-        title: 'Document ajouté !', 
-        message: `"${title}" a été ajouté à votre collection`,
+        title: 'Document ajouté avec succès !', 
+        message: `"${title}" a été ajouté à votre bibliothèque`,
         icon: BookOpen,
-        color: '#10B981'
+        color: '#3E5C49'
       }),
 
     documentBorrowed: (title: string, borrower: string) => 
       addToast({ 
         type: 'custom', 
-        title: 'Document emprunté', 
+        title: 'Emprunt enregistré', 
         message: `"${title}" emprunté par ${borrower}`,
         icon: Users,
-        color: '#F59E0B'
+        color: '#C2571B'
       }),
 
     documentReturned: (title: string) => 
       addToast({ 
         type: 'custom', 
-        title: 'Document rendu', 
-        message: `"${title}" a été rendu avec succès`,
+        title: 'Retour confirmé', 
+        message: `"${title}" a été retourné avec succès`,
         icon: CheckCircle,
-        color: '#10B981'
+        color: '#3E5C49'
+      }),
+
+    borrowerAdded: (name: string) => 
+      addToast({ 
+        type: 'custom', 
+        title: 'Emprunteur ajouté', 
+        message: `${name} a été ajouté au système`,
+        icon: Users,
+        color: '#3E5C49'
+      }),
+
+    exportCompleted: (format: string, filename: string) => 
+      addToast({ 
+        type: 'custom', 
+        title: 'Export terminé', 
+        message: `Fichier ${format.toUpperCase()} "${filename}" généré avec succès`,
+        icon: Download,
+        color: '#3E5C49',
+        duration: 7000
+      }),
+
+    backupCreated: (filename: string) => 
+      addToast({ 
+        type: 'custom', 
+        title: 'Sauvegarde créée', 
+        message: `Sauvegarde "${filename}" créée avec succès`,
+        icon: Upload,
+        color: '#3E5C49'
       }),
 
     syncProgress: (progress: number) => {
@@ -541,19 +747,100 @@ export const useQuickToast = () => {
           title: 'Synchronisation terminée',
           message: 'Toutes vos données sont à jour',
           icon: CheckCircle,
-          color: '#10B981'
+          color: '#3E5C49'
         });
       } else {
         addToast({
           type: 'custom',
           title: 'Synchronisation en cours...',
-          message: 'Mise à jour de vos données',
+          message: `Mise à jour de vos données (${Math.round(progress)}%)`,
           icon: Activity,
-          color: '#3B82F6',
+          color: '#C2571B',
           progress,
           sticky: true
         });
       }
-    }
+    },
+
+    overdueAlert: (count: number) => 
+      addToast({ 
+        type: 'warning', 
+        title: 'Documents en retard !', 
+        message: `${count} document${count > 1 ? 's' : ''} en retard de retour`,
+        icon: AlertTriangle,
+        duration: 10000,
+        action: {
+          label: 'Voir',
+          onClick: () => {
+            // Navigation vers les documents en retard
+            console.log('Navigate to overdue documents');
+          }
+        }
+      }),
+
+    systemUpdate: (version: string) => 
+      addToast({ 
+        type: 'info', 
+        title: 'Mise à jour disponible', 
+        message: `Version ${version} disponible au téléchargement`,
+        icon: Star,
+        duration: 15000,
+        action: {
+          label: 'Télécharger',
+          onClick: () => {
+            // Ouvrir la page de téléchargement
+            console.log('Open download page');
+          }
+        }
+      }),
+
+    settingsUpdated: () => 
+      addToast({ 
+        type: 'success', 
+        title: 'Paramètres sauvegardés', 
+        message: 'Vos préférences ont été mises à jour',
+        icon: Settings,
+        color: '#3E5C49'
+      }),
+
+    securityAlert: (message: string) => 
+      addToast({ 
+        type: 'warning', 
+        title: 'Alerte de sécurité', 
+        message: message,
+        icon: Shield,
+        duration: 12000,
+        sticky: true
+      }),
+
+    welcome: (username: string) => 
+      addToast({ 
+        type: 'custom', 
+        title: `Bienvenue ${username} !`, 
+        message: 'Votre bibliothèque numérique est prête',
+        icon: Heart,
+        color: '#C2571B',
+        duration: 6000
+      }),
+
+    reportGenerated: (reportType: string, itemCount: number) => 
+      addToast({ 
+        type: 'success', 
+        title: 'Rapport généré', 
+        message: `Rapport ${reportType} créé avec ${itemCount} élément${itemCount > 1 ? 's' : ''}`,
+        icon: FileText,
+        color: '#3E5C49'
+      }),
+
+    maintenance: (message: string) => 
+      addToast({ 
+        type: 'info', 
+        title: 'Maintenance programmée', 
+        message: message,
+        icon: Settings,
+        color: '#C2571B',
+        duration: 20000,
+        sticky: true
+      })
   };
 };

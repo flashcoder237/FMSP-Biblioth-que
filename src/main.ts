@@ -1009,7 +1009,9 @@ ipcMain.handle('export:advanced', async (_, config) => {
       finalPath = await generateExcel(exportData, result.filePath, config);
     } else {
       const csvContent = generateAdvancedCSV(exportData, config);
-      fs.writeFileSync(result.filePath, csvContent, 'utf8');
+      // Add UTF-8 BOM for proper Excel encoding
+      const csvWithBOM = '\ufeff' + csvContent;
+      fs.writeFileSync(result.filePath, csvWithBOM, 'utf8');
     }
     
     return { success: true, path: finalPath };
@@ -1037,7 +1039,9 @@ ipcMain.handle('export:csv', async (_, data) => {
     }
 
     const csvContent = generateCSV(data);
-    fs.writeFileSync(result.filePath, csvContent, 'utf8');
+    // Add UTF-8 BOM for proper Excel encoding
+    const csvWithBOM = '\ufeff' + csvContent;
+    fs.writeFileSync(result.filePath, csvWithBOM, 'utf8');
     return result.filePath;
 
   } catch (error) {
@@ -1320,11 +1324,11 @@ async function generateExcel(exportData: any, filePath: string, config: any): Pr
     // Write the file with error handling using buffer approach
     let finalFilePath = filePath;
     try {
-      // Generate buffer instead of writing directly
+      // Generate buffer with proper UTF-8 encoding for Excel
       const buffer = XLSX.write(workbook, { 
         type: 'buffer', 
         bookType: 'xlsx',
-        compression: true 
+        compression: true
       });
       
       // Write buffer to file using Node.js fs
@@ -1365,11 +1369,13 @@ async function generateExcel(exportData: any, filePath: string, config: any): Pr
           console.error('Alternative 2 failed:', altError2);
           
           try {
-            // Approach 3: Try saving as CSV instead
+            // Approach 3: Try saving as CSV instead with UTF-8 BOM
             console.log('Tentative en CSV...');
             const csvFilePath = filePath.replace('.xlsx', '.csv');
             const csvContent = generateFallbackCSV(exportData, config);
-            fs.writeFileSync(csvFilePath, csvContent, 'utf8');
+            // Add UTF-8 BOM for proper Excel encoding
+            const csvWithBOM = '\ufeff' + csvContent;
+            fs.writeFileSync(csvFilePath, csvWithBOM, 'utf8');
             finalFilePath = csvFilePath;
             
           } catch (altError3) {

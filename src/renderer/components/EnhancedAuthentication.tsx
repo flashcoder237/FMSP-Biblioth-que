@@ -1,4 +1,4 @@
-// src/renderer/components/EnhancedAuthentication.tsx - Version redesignée
+// src/renderer/components/EnhancedAuthentication.tsx - Version redesignée moderne
 import React, { useState } from 'react';
 import { 
   Book, 
@@ -21,9 +21,12 @@ import {
   Mail,
   Phone,
   MapPin,
-  Sparkles,
   HardDrive,
-  Database
+  Database,
+  Library,
+  GraduationCap,
+  School,
+  Zap
 } from 'lucide-react';
 
 interface EnhancedAuthenticationProps {
@@ -133,49 +136,45 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
   };
 
   const institutionTypes = [
-    { value: 'school', label: 'École/Lycée', icon: Building, color: '#3E5C49' },
-    { value: 'university', label: 'Université', icon: BookOpen, color: '#C2571B' },
-    { value: 'library', label: 'Bibliothèque', icon: Book, color: '#2E453A' },
-    { value: 'other', label: 'Autre', icon: HardDrive, color: '#6E6E6E' }
+    { value: 'school', label: 'École/Lycée', icon: School, color: '#3E5C49', description: 'Établissement scolaire primaire ou secondaire' },
+    { value: 'university', label: 'Université', icon: GraduationCap, color: '#C2571B', description: 'Enseignement supérieur et recherche' },
+    { value: 'library', label: 'Bibliothèque', icon: Library, color: '#2E453A', description: 'Bibliothèque publique ou municipale' },
+    { value: 'other', label: 'Organisation', icon: Building, color: '#5A6B5D', description: 'Autre type d\'organisation' }
   ];
 
-  const defaultCredentials = [
-    { email: 'admin@local', password: 'admin', role: 'Administrateur' },
-    { email: 'bibliothecaire@local', password: 'biblio', role: 'Bibliothécaire' },
-    { email: 'test@local', password: 'test', role: 'Utilisateur' },
-    { email: 'demo@demo', password: 'demo', role: 'Démo' }
-  ];
-
-  const handleQuickLogin = (email: string, password: string) => {
-    setLoginData({ 
-      email, 
-      password, 
-      institutionCode: 'BIBLIO2024' // Code par défaut pour les connexions rapides
-    });
-    setError('');
-  };
 
   return (
     <div className="enhanced-auth-container">
+      {/* Background moderne avec dégradé animé */}
       <div className="auth-background">
-        <div className="pattern-overlay"></div>
-        <div className="floating-shapes">
-          <div className="shape shape-1"></div>
-          <div className="shape shape-2"></div>
-          <div className="shape shape-3"></div>
+        <div className="gradient-orb orb-1"></div>
+        <div className="gradient-orb orb-2"></div>
+        <div className="gradient-orb orb-3"></div>
+        <div className="floating-elements">
+          <div className="element element-1"><Book size={24} /></div>
+          <div className="element element-2"><BookOpen size={20} /></div>
+          <div className="element element-3"><Library size={28} /></div>
+          <div className="element element-4"><GraduationCap size={22} /></div>
         </div>
       </div>
 
       <div className="auth-content">
-        {/* Header simplifié */}
+        {/* Header avec logo moderne */}
         <div className="auth-header">
-          <h1 className="main-title">Bibliothèque Locale</h1>
-          <p className="main-subtitle">Connectez-vous ou créez votre établissement</p>
+          <div className="logo-container">
+            <div className="logo-icon">
+              <Library size={32} />
+            </div>
+            <div className="logo-text">
+              <h1>Bibliothèque</h1>
+              <span>Système de gestion local</span>
+            </div>
+          </div>
         </div>
 
-        {/* Contenu principal */}
+        {/* Contenu principal avec design glass */}
         <div className="main-content">
-          <div className="auth-card">
+          <div className="auth-card glass-effect">
             {/* Navigation des onglets */}
             <div className="auth-tabs">
               <button
@@ -209,13 +208,15 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
               </div>
             )}
 
-            {/* Formulaire de connexion */}
+            {/* Formulaire de connexion moderne */}
             {mode === 'login' && (
               <div className="login-section">
                 <div className="section-header">
-                  <HardDrive size={24} />
-                  <h2>Connexion Locale</h2>
-                  <p>Connectez-vous avec vos identifiants locaux</p>
+                  <div className="header-icon">
+                    <Zap size={24} />
+                  </div>
+                  <h2>Connexion Rapide</h2>
+                  <p>Accédez à votre bibliothèque en quelques secondes</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="auth-form">
@@ -290,39 +291,6 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
                   </button>
                 </form>
 
-                {/* Connexions rapides */}
-                <div className="quick-login-section">
-                  <div className="divider">
-                    <span>Connexions rapides</span>
-                  </div>
-                  
-                  <div className="quick-login-grid">
-                    {defaultCredentials.map((cred, index) => (
-                      <button
-                        key={index}
-                        className="quick-login-btn"
-                        onClick={() => handleQuickLogin(cred.email, cred.password)}
-                        disabled={isLoading}
-                      >
-                        <div className="credential-icon">
-                          {cred.role === 'Administrateur' && <Shield size={16} />}
-                          {cred.role === 'Bibliothécaire' && <Users size={16} />}
-                          {cred.role === 'Utilisateur' && <User size={16} />}
-                          {cred.role === 'Démo' && <Sparkles size={16} />}
-                        </div>
-                        <div className="credential-info">
-                          <span className="role">{cred.role}</span>
-                          <span className="email">{cred.email}</span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                  
-                  <div className="login-hint">
-                    <p>💡 <strong>Astuce :</strong> Cliquez sur une carte pour remplir automatiquement les champs</p>
-                    <p>🔐 Ou utilisez n'importe quel email avec le mot de passe "demo"</p>
-                  </div>
-                </div>
               </div>
             )}
 
@@ -392,7 +360,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
                       <div className="step-info-card">
                         <div className="info-icon">
-                          <Sparkles size={20} />
+                          <Zap size={20} />
                         </div>
                         <div className="info-content">
                           <h4>Conseils pour le nom</h4>
@@ -714,7 +682,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
                           ) : (
                             <>
                               <span>Créer l'établissement</span>
-                              <Sparkles size={16} />
+                              <Zap size={16} />
                             </>
                           )}
                         </button>
@@ -726,24 +694,67 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
             )}
           </div>
 
-          {/* Sidebar avec informations */}
-          <div className="info-sidebar">
-            <div className="feature-card">
-              <Database size={32} />
-              <h3>Base de données locale</h3>
-              <p>Vos données sont stockées en sécurité sur votre ordinateur</p>
+          {/* Sidebar moderne avec avantages */}
+          <div className="features-sidebar">
+            <div className="features-header">
+              <h3>Pourquoi choisir notre solution ?</h3>
             </div>
             
-            <div className="feature-card">
-              <WifiOff size={32} />
-              <h3>Fonctionne hors ligne</h3>
-              <p>Aucune connexion Internet requise pour utiliser l'application</p>
+            <div className="features-list">
+              <div className="feature-item">
+                <div className="feature-icon security">
+                  <Shield size={20} />
+                </div>
+                <div className="feature-content">
+                  <h4>100% Local</h4>
+                  <p>Vos données restent sur votre ordinateur, sécurisées et privées</p>
+                </div>
+              </div>
+              
+              <div className="feature-item">
+                <div className="feature-icon offline">
+                  <WifiOff size={20} />
+                </div>
+                <div className="feature-content">
+                  <h4>Hors ligne</h4>
+                  <p>Fonctionne sans Internet, disponible 24h/24</p>
+                </div>
+              </div>
+              
+              <div className="feature-item">
+                <div className="feature-icon management">
+                  <Users size={20} />
+                </div>
+                <div className="feature-content">
+                  <h4>Gestion complète</h4>
+                  <p>Documents, emprunts, utilisateurs et statistiques</p>
+                </div>
+              </div>
+              
+              <div className="feature-item">
+                <div className="feature-icon analytics">
+                  <BarChart3 size={20} />
+                </div>
+                <div className="feature-content">
+                  <h4>Rapports détaillés</h4>
+                  <p>Analyses et exports pour le suivi de votre bibliothèque</p>
+                </div>
+              </div>
             </div>
             
-            <div className="feature-card">
-              <BarChart3 size={32} />
-              <h3>Gestion complète</h3>
-              <p>Gérez vos livres, emprunts et utilisateurs facilement</p>
+            <div className="trust-indicators">
+              <div className="indicator">
+                <CheckCircle size={16} />
+                <span>Installation simple</span>
+              </div>
+              <div className="indicator">
+                <CheckCircle size={16} />
+                <span>Interface intuitive</span>
+              </div>
+              <div className="indicator">
+                <CheckCircle size={16} />
+                <span>Support français</span>
+              </div>
             </div>
           </div>
         </div>
@@ -751,12 +762,26 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
       <style>{`
         .enhanced-auth-container {
-          min-height: calc(100vh - 40px);
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          min-height: 100vh;
+          height: auto;
+          background: linear-gradient(135deg, 
+            #1a2e1f 0%, 
+            #2a3f2f 25%, 
+            #3E5C49 50%, 
+            #2E453A 75%, 
+            #1f3024 100%
+          );
+          background-size: 300% 300%;
+          animation: gradientShift 15s ease infinite;
           position: relative;
           overflow-y: auto;
           overflow-x: hidden;
-          padding: 20px 0;
+          padding: 20px;
+        }
+
+        @keyframes gradientShift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
         }
 
         .auth-background {
@@ -766,26 +791,46 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           right: 0;
           bottom: 0;
           overflow: hidden;
+          pointer-events: none;
         }
 
-        .pattern-overlay {
+        .gradient-orb {
           position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-image: 
-            radial-gradient(circle at 20% 80%, rgba(243, 238, 217, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(243, 238, 217, 0.05) 0%, transparent 50%);
-          animation: drift 20s ease-in-out infinite;
+          border-radius: 50%;
+          filter: blur(60px);
+          opacity: 0.3;
+          animation: float 8s ease-in-out infinite;
         }
 
-        @keyframes drift {
-          0%, 100% { transform: translate(0, 0) rotate(0deg); }
-          50% { transform: translate(20px, -20px) rotate(1deg); }
+        .orb-1 {
+          width: 400px;
+          height: 400px;
+          background: radial-gradient(circle, #C2571B 0%, transparent 70%);
+          top: -200px;
+          right: -200px;
+          animation-delay: 0s;
         }
 
-        .floating-shapes {
+        .orb-2 {
+          width: 300px;
+          height: 300px;
+          background: radial-gradient(circle, #3E5C49 0%, transparent 70%);
+          bottom: -150px;
+          left: -150px;
+          animation-delay: 4s;
+        }
+
+        .orb-3 {
+          width: 250px;
+          height: 250px;
+          background: radial-gradient(circle, #F3EED9 0%, transparent 70%);
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          animation-delay: 2s;
+        }
+
+        .floating-elements {
           position: absolute;
           top: 0;
           left: 0;
@@ -794,103 +839,171 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           pointer-events: none;
         }
 
-        .shape {
+        .element {
           position: absolute;
-          background: rgba(243, 238, 217, 0.05);
-          border-radius: 50%;
-          animation: float 6s ease-in-out infinite;
+          color: rgba(243, 238, 217, 0.1);
+          animation: drift 12s ease-in-out infinite;
         }
 
-        .shape-1 {
-          width: 100px;
-          height: 100px;
+        .element-1 {
           top: 20%;
-          left: 10%;
+          left: 15%;
           animation-delay: 0s;
         }
 
-        .shape-2 {
-          width: 60px;
-          height: 60px;
+        .element-2 {
           top: 60%;
-          right: 15%;
-          animation-delay: 2s;
+          right: 20%;
+          animation-delay: 3s;
         }
 
-        .shape-3 {
-          width: 80px;
-          height: 80px;
-          bottom: 30%;
-          left: 20%;
-          animation-delay: 4s;
+        .element-3 {
+          bottom: 25%;
+          left: 25%;
+          animation-delay: 6s;
+        }
+
+        .element-4 {
+          top: 40%;
+          right: 40%;
+          animation-delay: 9s;
         }
 
         @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-30px) rotate(5deg); }
+        }
+
+        @keyframes drift {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.1; }
+          50% { transform: translate(20px, -15px) rotate(3deg); opacity: 0.2; }
         }
 
         .auth-content {
           position: relative;
           z-index: 10;
           min-height: calc(100vh - 80px);
+          height: auto;
           display: flex;
           flex-direction: column;
           padding: 20px;
-          max-width: 1400px;
+          max-width: 1500px;
           margin: 0 auto;
           box-sizing: border-box;
         }
 
         .auth-header {
           text-align: center;
-          margin-bottom: 32px;
-          padding: 0 20px;
+          margin-bottom: 40px;
+          padding: 20px;
         }
 
-        .main-title {
-          margin: 0 0 8px 0;
+        .logo-container {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 16px;
+          margin-bottom: 20px;
+        }
+
+        .logo-icon {
+          width: 64px;
+          height: 64px;
+          background: linear-gradient(135deg, #C2571B 0%, #3E5C49 100%);
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           color: #F3EED9;
-          font-size: 32px;
-          font-weight: 800;
-          letter-spacing: -0.5px;
+          box-shadow: 
+            0 20px 40px rgba(194, 87, 27, 0.3),
+            inset 0 2px 0 rgba(255, 255, 255, 0.2);
+          position: relative;
+          overflow: hidden;
         }
 
-        .main-subtitle {
+        .logo-icon::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+          0% { left: -100%; }
+          100% { left: 100%; }
+        }
+
+        .logo-text h1 {
           margin: 0;
+          color: #F3EED9;
+          font-size: 36px;
+          font-weight: 800;
+          letter-spacing: -0.8px;
+          text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-text span {
           color: rgba(243, 238, 217, 0.8);
           font-size: 16px;
-          font-weight: 400;
-          line-height: 1.5;
+          font-weight: 500;
+          letter-spacing: 0.2px;
         }
 
         .main-content {
           display: flex;
-          gap: 40px;
+          gap: 48px;
           flex: 1;
           align-items: flex-start;
           min-height: 0;
+          width: 100%;
         }
 
-       .auth-card {
+        .auth-card {
           flex: 1;
-          background: white;
-          border-radius: 20px;
+          max-width: 750px;
+          height: auto;
+          position: relative;
+        }
+
+        .glass-effect {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 24px;
           overflow: hidden;
-          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-          max-width: 700px;
-          /* RETIRER: height: calc(100vh - 160px); */
-          /* RETIRER: display: flex; */
-          /* RETIRER: flex-direction: column; */
-          border: 1px solid rgba(229, 220, 194, 0.3);
-          /* Ajouter une hauteur minimale si nécessaire */
-          min-height: 600px;
+          box-shadow: 
+            0 32px 64px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+          position: relative;
+        }
+
+        .glass-effect::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, 
+            rgba(243, 238, 217, 0.1) 0%, 
+            rgba(194, 87, 27, 0.05) 50%, 
+            rgba(62, 92, 73, 0.1) 100%
+          );
+          pointer-events: none;
         }
 
         .auth-tabs {
           display: flex;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
-          flex-shrink: 0;
+          background: rgba(62, 92, 73, 0.3);
+          backdrop-filter: blur(10px);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          position: relative;
+          z-index: 2;
         }
 
         .tab {
@@ -898,36 +1011,57 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
-          padding: 24px;
+          gap: 12px;
+          padding: 20px 24px;
           background: none;
           border: none;
           cursor: pointer;
           font-size: 16px;
           font-weight: 600;
           color: rgba(243, 238, 217, 0.7);
-          transition: all 0.2s ease;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
+          overflow: hidden;
+        }
+
+        .tab::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, 
+            rgba(194, 87, 27, 0.2) 0%, 
+            rgba(62, 92, 73, 0.2) 100%
+          );
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+
+        .tab:hover::before {
+          opacity: 1;
         }
 
         .tab:hover {
           color: #F3EED9;
-          background: rgba(243, 238, 217, 0.1);
+          transform: translateY(-2px);
         }
 
         .tab.active {
           color: #F3EED9;
-          background: rgba(243, 238, 217, 0.15);
+          background: rgba(194, 87, 27, 0.2);
         }
 
         .tab.active::after {
           content: '';
           position: absolute;
           bottom: 0;
-          left: 0;
-          right: 0;
+          left: 20%;
+          right: 20%;
           height: 3px;
-          background: #C2571B;
+          background: linear-gradient(90deg, transparent, #C2571B, transparent);
+          border-radius: 2px;
         }
 
         .message {
@@ -951,100 +1085,128 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
         .section-header {
           text-align: center;
-          padding: 32px 32px 24px;
-          border-bottom: 1px solid rgba(229, 220, 194, 0.4);
-          background: #FAF9F6;
+          padding: 40px 32px 32px;
+          background: rgba(243, 238, 217, 0.05);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          position: relative;
+          z-index: 2;
+        }
+
+        .header-icon {
+          width: 56px;
+          height: 56px;
+          background: linear-gradient(135deg, #C2571B 0%, #3E5C49 100%);
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #F3EED9;
+          margin: 0 auto 20px;
+          box-shadow: 
+            0 10px 30px rgba(194, 87, 27, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .section-header h2 {
-          margin: 0 0 8px 0;
-          color: #3E5C49;
-          font-size: 24px;
+          margin: 0 0 12px 0;
+          color: #F3EED9;
+          font-size: 28px;
           font-weight: 700;
           line-height: 1.2;
+          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
 
         .section-header p {
           margin: 0;
-          color: #4A4A4A;
-          font-size: 14px;
+          color: rgba(243, 238, 217, 0.8);
+          font-size: 16px;
           line-height: 1.5;
+          font-weight: 400;
         }
 
         .auth-form {
-          padding: 32px;
-          /* RETIRER: flex: 1; */
-          /* RETIRER: overflow-y: auto; */
-          /* RETIRER: min-height: 0; */
+          padding: 40px;
+          position: relative;
+          z-index: 2;
         }
 
         .form-group {
-          margin-bottom: 24px;
+          margin-bottom: 28px;
         }
 
         .form-row {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 16px;
+          gap: 20px;
         }
 
         .form-group label {
           display: flex;
           align-items: center;
           gap: 8px;
-          margin-bottom: 8px;
+          margin-bottom: 12px;
           font-weight: 600;
-          color: #2E2E2E;
-          font-size: 14px;
+          color: #F3EED9;
+          font-size: 15px;
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
 
         .input-group {
           position: relative;
           display: flex;
           align-items: center;
-          border: 2px solid rgba(229, 220, 194, 0.4);
-          border-radius: 10px;
-          padding: 0 16px;
-          transition: all 0.2s ease;
-          background: white;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 16px;
+          padding: 0 20px;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
         }
 
         .input-group:focus-within {
-          outline: none;
-          border-color: #3E5C49;
-          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+          border-color: rgba(194, 87, 27, 0.6);
+          box-shadow: 
+            0 0 0 3px rgba(194, 87, 27, 0.2),
+            0 8px 25px rgba(194, 87, 27, 0.15);
+          transform: translateY(-2px);
         }
 
         .input-group svg {
-          color: #6E6E6E;
+          color: rgba(243, 238, 217, 0.7);
           margin-right: 12px;
           flex-shrink: 0;
+          transition: color 0.3s ease;
+        }
+
+        .input-group:focus-within svg {
+          color: #C2571B;
         }
 
         .input-group input {
           flex: 1;
           border: none;
-          padding: 12px 0;
-          font-size: 14px;
+          padding: 16px 0;
+          font-size: 15px;
           outline: none;
           background: transparent;
-          color: #2E2E2E;
+          color: #F3EED9;
+          font-weight: 500;
         }
 
         .input-group input::placeholder {
-          color: #9ca3af;
+          color: rgba(243, 238, 217, 0.5);
           opacity: 1;
         }
 
         .input-group input:disabled {
           background: transparent;
-          opacity: 0.7;
+          opacity: 0.6;
         }
 
         .toggle-password {
           background: none;
           border: none;
-          color: #6E6E6E;
+          color: rgba(243, 238, 217, 0.7);
           cursor: pointer;
           padding: 4px;
           margin-left: 8px;
@@ -1056,14 +1218,14 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         }
 
         .toggle-password:hover {
-          color: #3E5C49;
-          background: rgba(62, 92, 73, 0.1);
+          color: #F3EED9;
+          background: rgba(243, 238, 217, 0.1);
         }
 
         .form-group small {
           display: block;
           margin-top: 4px;
-          color: #4A4A4A;
+          color: rgba(243, 238, 217, 0.9);
           font-size: 12px;
           line-height: 1.4;
         }
@@ -1136,7 +1298,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
         .type-description {
           font-size: 12px;
-          color: #6E6E6E;
+          color: rgba(243, 238, 217, 0.8);
           line-height: 1.3;
         }
 
@@ -1164,27 +1326,52 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
-          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
+          gap: 12px;
+          background: linear-gradient(135deg, #C2571B 0%, #3E5C49 100%);
           color: #F3EED9;
           border: none;
-          padding: 12px 20px;
-          border-radius: 10px;
-          font-size: 14px;
+          padding: 18px 24px;
+          border-radius: 16px;
+          font-size: 16px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s ease;
-          min-width: 120px;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          min-width: 140px;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 
+            0 8px 25px rgba(194, 87, 27, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .submit-btn::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          transition: left 0.6s ease;
+        }
+
+        .submit-btn:hover::before {
+          left: 100%;
         }
 
         .submit-btn:hover:not(:disabled) {
-          background: linear-gradient(135deg, #2E453A 0%, #1F2F25 100%);
+          transform: translateY(-3px);
+          box-shadow: 
+            0 12px 35px rgba(194, 87, 27, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .submit-btn:active:not(:disabled) {
           transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(62, 92, 73, 0.3);
         }
 
         .submit-btn:disabled {
-          opacity: 0.6;
+          opacity: 0.5;
           cursor: not-allowed;
           transform: none;
         }
@@ -1286,7 +1473,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #6E6E6E;
+          color: rgba(243, 238, 217, 0.8);
           transition: all 0.3s ease;
         }
 
@@ -1334,7 +1521,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         .info-content p {
           font-size: 13px;
           margin: 0;
-          color: #4A4A4A;
+          color: rgba(243, 238, 217, 0.9);
           line-height: 1.4;
         }
 
@@ -1362,7 +1549,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         .step-info-card ul {
           margin: 0;
           padding-left: 16px;
-          color: #4A4A4A;
+          color: rgba(243, 238, 217, 0.9);
         }
 
         .step-info-card li {
@@ -1412,7 +1599,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
         .preview-label {
           font-size: 13px;
-          color: #6E6E6E;
+          color: rgba(243, 238, 217, 0.8);
           font-weight: 500;
         }
 
@@ -1456,7 +1643,7 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         .summary-section h5 {
           font-size: 12px;
           font-weight: 600;
-          color: #6E6E6E;
+          color: rgba(243, 238, 217, 0.8);
           text-transform: uppercase;
           letter-spacing: 0.5px;
           margin: 0 0 6px 0;
@@ -1488,153 +1675,129 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         }
 
 
-        /* Connexions rapides */
-        .quick-login-section {
-          margin-top: 32px;
-          padding-top: 24px;
-          border-top: 1px solid rgba(229, 220, 194, 0.3);
-        }
 
-        .divider {
-          text-align: center;
-          margin-bottom: 24px;
-          position: relative;
-        }
 
-        .divider span {
-          background: #FFFFFF;
-          padding: 0 16px;
-          color: #4A4A4A;
-          font-size: 14px;
-          font-weight: 600;
-        }
-
-        .divider::before {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: 0;
-          right: 0;
-          height: 1px;
-          background: #E5DCC2;
-          z-index: -1;
-        }
-
-        .quick-login-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 12px;
-          margin-bottom: 20px;
-        }
-
-        .quick-login-btn {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 16px;
-          background: rgba(248, 246, 240, 0.8);
-          border: 2px solid #E5DCC2;
-          border-radius: 12px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          text-align: left;
-        }
-
-        .quick-login-btn:hover:not(:disabled) {
-          border-color: #3E5C49;
-          background: rgba(62, 92, 73, 0.05);
-        }
-
-        .quick-login-btn:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-
-        .credential-icon {
-          width: 36px;
-          height: 36px;
-          background: #3E5C49;
-          color: #F3EED9;
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-
-        .credential-info {
+        /* Sidebar moderne */
+        .features-sidebar {
+          flex: 0 0 350px;
           display: flex;
           flex-direction: column;
-          gap: 2px;
+          gap: 32px;
         }
 
-        .credential-info .role {
-          font-weight: 600;
-          color: #3E5C49;
-          font-size: 14px;
+        .features-header h3 {
+          color: #F3EED9;
+          font-size: 20px;
+          font-weight: 700;
+          margin: 0 0 24px 0;
+          text-align: center;
+          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
 
-        .credential-info .email {
-          font-size: 12px;
-          color: #4A4A4A;
-        }
-
-        .login-hint {
-          background: rgba(62, 92, 73, 0.05);
-          border: 1px solid rgba(62, 92, 73, 0.1);
-          border-radius: 12px;
-          padding: 16px;
-          margin-top: 16px;
-        }
-
-        .login-hint p {
-          margin: 0 0 8px 0;
-          font-size: 14px;
-          color: #3E5C49;
-        }
-
-        .login-hint p:last-child {
-          margin-bottom: 0;
-        }
-
-        /* Sidebar d'informations */
-        .info-sidebar {
-          flex: 0 0 300px;
+        .features-list {
           display: flex;
           flex-direction: column;
           gap: 20px;
         }
 
-        .feature-card {
-          background: rgba(243, 238, 217, 0.1);
-          border: 1px solid rgba(243, 238, 217, 0.2);
-          border-radius: 16px;
+        .feature-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 16px;
           padding: 24px;
-          text-align: center;
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 20px;
+          backdrop-filter: blur(20px);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .feature-item:hover {
+          transform: translateY(-4px);
+          background: rgba(255, 255, 255, 0.12);
+          border-color: rgba(194, 87, 27, 0.3);
+          box-shadow: 
+            0 20px 40px rgba(0, 0, 0, 0.2),
+            0 0 0 1px rgba(194, 87, 27, 0.1);
+        }
+
+        .feature-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           color: #F3EED9;
-          backdrop-filter: blur(10px);
+          flex-shrink: 0;
+          position: relative;
+          overflow: hidden;
         }
 
-        .feature-card svg {
-          margin-bottom: 16px;
-          opacity: 0.9;
+        .feature-icon.security {
+          background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
         }
 
-        .feature-card h3 {
-          margin: 0 0 12px 0;
-          font-size: 18px;
+        .feature-icon.offline {
+          background: linear-gradient(135deg, #C2571B 0%, #A0471A 100%);
+        }
+
+        .feature-icon.management {
+          background: linear-gradient(135deg, #5A6B5D 0%, #3E5C49 100%);
+        }
+
+        .feature-icon.analytics {
+          background: linear-gradient(135deg, #8B6B47 0%, #C2571B 100%);
+        }
+
+        .feature-content h4 {
+          margin: 0 0 8px 0;
+          color: #F3EED9;
+          font-size: 16px;
           font-weight: 600;
+          line-height: 1.2;
         }
 
-        .feature-card p {
+        .feature-content p {
           margin: 0;
-          opacity: 0.8;
+          color: rgba(243, 238, 217, 0.8);
           font-size: 14px;
           line-height: 1.5;
         }
 
+        .trust-indicators {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          padding: 24px;
+          background: rgba(194, 87, 27, 0.1);
+          border: 1px solid rgba(194, 87, 27, 0.2);
+          border-radius: 20px;
+          backdrop-filter: blur(20px);
+        }
+
+        .indicator {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          color: #F3EED9;
+          font-size: 14px;
+          font-weight: 500;
+        }
+
+        .indicator svg {
+          color: #C2571B;
+          flex-shrink: 0;
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
+          .enhanced-auth-container {
+            padding: 16px;
+            height: auto;
+            min-height: 100vh;
+          }
+
           .main-content {
             flex-direction: column;
             align-items: center;
@@ -1654,8 +1817,15 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
         }
 
         @media (max-width: 768px) {
+          .enhanced-auth-container {
+            padding: 12px;
+            overflow-y: scroll;
+            -webkit-overflow-scrolling: touch;
+          }
+
           .auth-content {
             padding: 16px;
+            min-height: auto;
           }
 
           .auth-header {
@@ -1667,11 +1837,13 @@ export const EnhancedAuthentication: React.FC<EnhancedAuthenticationProps> = ({ 
 
           .main-content {
             gap: 24px;
+            flex-direction: column;
           }
 
           .auth-card {
             max-width: none;
-            min-height: auto; /* Permettre à la carte de s'adapter au contenu */
+            min-height: auto;
+            height: auto;
           }
 
           .form-row {

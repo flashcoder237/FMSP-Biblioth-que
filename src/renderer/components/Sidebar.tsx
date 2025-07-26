@@ -30,7 +30,7 @@ import { UnifiedUser, UnifiedInstitution } from '../types/UnifiedTypes';
 
 interface SidebarProps {
   currentView: string;
-  onNavigate: (view: 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'reports' | 'statistics' | 'app-settings' | 'user-profile' | 'donation' | 'about') => void;
+  onNavigate: (view: 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'reports' | 'statistics' | 'app-settings' | 'user-profile' | 'about-support') => void;
   onLogout?: () => void;
   stats: Stats;
   currentUser: UnifiedUser | null;
@@ -149,19 +149,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLog
       gradient: 'linear-gradient(135deg, #0891B2 0%, #0E7490 100%)'
     },
     {
-      id: 'donation',
-      label: 'Soutenir le projet',
+      id: 'about-support',
+      label: 'À propos & Soutien',
       icon: Heart,
-      description: 'Faire une donation',
-      gradient: 'linear-gradient(135deg, #E91E63 0%, #C2185B 100%)',
+      description: 'Projet, développeur & soutien',
+      gradient: 'linear-gradient(135deg, #E91E63 0%, #3E5C49 100%)',
       support: true
-    },
-    {
-      id: 'about',
-      label: 'À propos',
-      icon: Info,
-      description: 'Développeur & crédits',
-      gradient: 'linear-gradient(135deg, #607D8B 0%, #455A64 100%)'
     }
   ];
 

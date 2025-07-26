@@ -55,15 +55,41 @@ export interface ExportConfig {
     cniNumber: boolean;
   };
   historyFields: {
+    // Document fields
     documentTitle: boolean;
+    documentAuthor: boolean;
+    documentEditor: boolean;
+    documentYear: boolean;
+    documentType: boolean;
+    documentCote: boolean;
+    documentISBN: boolean;
+    
+    // Borrower fields
     borrowerName: boolean;
+    borrowerFirstName: boolean;
+    borrowerLastName: boolean;
+    borrowerMatricule: boolean;
+    borrowerType: boolean;
+    borrowerClass: boolean;
+    borrowerPosition: boolean;
+    borrowerEmail: boolean;
+    borrowerPhone: boolean;
+    borrowerCNI: boolean;
+    
+    // Loan details
     borrowDate: boolean;
+    borrowTime: boolean;
     expectedReturnDate: boolean;
     actualReturnDate: boolean;
+    actualReturnTime: boolean;
     status: boolean;
-    notes: boolean;
     duration: boolean;
     overdueDays: boolean;
+    isOverdue: boolean;
+    loanPeriod: boolean;
+    season: boolean;
+    schoolYear: boolean;
+    notes: boolean;
   };
   dateRange: {
     enabled: boolean;
@@ -135,15 +161,41 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
       cniNumber: false
     },
     historyFields: {
+      // Document fields - default selection
       documentTitle: true,
+      documentAuthor: true,
+      documentEditor: false,
+      documentYear: false,
+      documentType: true,
+      documentCote: false,
+      documentISBN: false,
+      
+      // Borrower fields - default selection
       borrowerName: true,
+      borrowerFirstName: false,
+      borrowerLastName: false,
+      borrowerMatricule: true,
+      borrowerType: true,
+      borrowerClass: true,
+      borrowerPosition: false,
+      borrowerEmail: false,
+      borrowerPhone: false,
+      borrowerCNI: false,
+      
+      // Loan details - default selection
       borrowDate: true,
+      borrowTime: false,
       expectedReturnDate: true,
       actualReturnDate: true,
+      actualReturnTime: false,
       status: true,
-      notes: false,
-      duration: false,
-      overdueDays: false
+      duration: true,
+      overdueDays: true,
+      isOverdue: true,
+      loanPeriod: false,
+      season: false,
+      schoolYear: false,
+      notes: false
     },
     dateRange: {
       enabled: false,
@@ -407,28 +459,90 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
           {/* History Fields */}
           {config.dataTypes.borrowHistory && (
             <div className="section">
-              <h3 className="section-title">Champs Historique</h3>
-              <div className="fields-grid">
-                {Object.entries({
-                  documentTitle: 'Titre du document',
-                  borrowerName: 'Nom emprunteur',
-                  borrowDate: 'Date emprunt',
-                  expectedReturnDate: 'Date retour prévue',
-                  actualReturnDate: 'Date retour effective',
-                  status: 'Statut',
-                  notes: 'Notes',
-                  duration: 'Durée (jours)',
-                  overdueDays: 'Retard (jours)'
-                }).map(([field, label]) => (
-                  <div 
-                    key={field}
-                    className={`field-checkbox ${config.historyFields[field as keyof ExportConfig['historyFields']] ? 'checked' : ''}`}
-                    onClick={() => updateHistoryField(field as keyof ExportConfig['historyFields'], !config.historyFields[field as keyof ExportConfig['historyFields']])}
-                  >
-                    {config.historyFields[field as keyof ExportConfig['historyFields']] ? <CheckCircle size={16} /> : <Circle size={16} />}
-                    <span>{label}</span>
-                  </div>
-                ))}
+              <h3 className="section-title">Champs Historique des Emprunts</h3>
+              
+              {/* Document Information */}
+              <div className="subsection">
+                <h4 className="subsection-title">Informations Document</h4>
+                <div className="fields-grid">
+                  {Object.entries({
+                    documentTitle: 'Titre du document',
+                    documentAuthor: 'Auteur',
+                    documentEditor: 'Éditeur',
+                    documentYear: 'Année',
+                    documentType: 'Type',
+                    documentCote: 'Cote',
+                    documentISBN: 'ISBN'
+                  }).map(([field, label]) => (
+                    <div 
+                      key={field}
+                      className={`field-checkbox ${config.historyFields[field as keyof ExportConfig['historyFields']] ? 'checked' : ''}`}
+                      onClick={() => updateHistoryField(field as keyof ExportConfig['historyFields'], !config.historyFields[field as keyof ExportConfig['historyFields']])}
+                    >
+                      {config.historyFields[field as keyof ExportConfig['historyFields']] ? <CheckCircle size={16} /> : <Circle size={16} />}
+                      <span>{label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Borrower Information */}
+              <div className="subsection">
+                <h4 className="subsection-title">Informations Emprunteur</h4>
+                <div className="fields-grid">
+                  {Object.entries({
+                    borrowerName: 'Nom complet',
+                    borrowerFirstName: 'Prénom',
+                    borrowerLastName: 'Nom',
+                    borrowerMatricule: 'Matricule',
+                    borrowerType: 'Type',
+                    borrowerClass: 'Classe',
+                    borrowerPosition: 'Position',
+                    borrowerEmail: 'Email',
+                    borrowerPhone: 'Téléphone',
+                    borrowerCNI: 'CNI'
+                  }).map(([field, label]) => (
+                    <div 
+                      key={field}
+                      className={`field-checkbox ${config.historyFields[field as keyof ExportConfig['historyFields']] ? 'checked' : ''}`}
+                      onClick={() => updateHistoryField(field as keyof ExportConfig['historyFields'], !config.historyFields[field as keyof ExportConfig['historyFields']])}
+                    >
+                      {config.historyFields[field as keyof ExportConfig['historyFields']] ? <CheckCircle size={16} /> : <Circle size={16} />}
+                      <span>{label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Loan Details */}
+              <div className="subsection">
+                <h4 className="subsection-title">Détails de l'Emprunt</h4>
+                <div className="fields-grid">
+                  {Object.entries({
+                    borrowDate: 'Date emprunt',
+                    borrowTime: 'Heure emprunt',
+                    expectedReturnDate: 'Date retour prévue',
+                    actualReturnDate: 'Date retour effective',
+                    actualReturnTime: 'Heure retour',
+                    status: 'Statut',
+                    duration: 'Durée (jours)',
+                    overdueDays: 'Jours de retard',
+                    isOverdue: 'En retard (Oui/Non)',
+                    loanPeriod: 'Période d\'emprunt',
+                    season: 'Saison',
+                    schoolYear: 'Année scolaire',
+                    notes: 'Notes'
+                  }).map(([field, label]) => (
+                    <div 
+                      key={field}
+                      className={`field-checkbox ${config.historyFields[field as keyof ExportConfig['historyFields']] ? 'checked' : ''}`}
+                      onClick={() => updateHistoryField(field as keyof ExportConfig['historyFields'], !config.historyFields[field as keyof ExportConfig['historyFields']])}
+                    >
+                      {config.historyFields[field as keyof ExportConfig['historyFields']] ? <CheckCircle size={16} /> : <Circle size={16} />}
+                      <span>{label}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -652,6 +766,21 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
           font-weight: 600;
           color: #2E2E2E;
           margin: 0 0 16px 0;
+        }
+
+        .subsection {
+          margin-bottom: 24px;
+          padding: 16px;
+          background: rgba(62, 92, 73, 0.02);
+          border-radius: 8px;
+          border-left: 3px solid #3E5C49;
+        }
+
+        .subsection-title {
+          font-size: 15px;
+          font-weight: 600;
+          color: #3E5C49;
+          margin: 0 0 12px 0;
         }
 
         .section-header {
