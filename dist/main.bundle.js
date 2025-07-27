@@ -233,14 +233,15 @@ const App = () => {
         try {
             setIsLoading(true);
             if (appMode === 'offline') {
-                // Mode offline - charger les données depuis SQLite via electronAPI
+                // Mode offline - charger les données depuis SQLite via electronAPI avec filtrage par institution
+                const institutionCode = currentInstitution?.code || '';
                 const [documentsData, authorsData, categoriesData, borrowersData, borrowedDocumentsData, recentActivityData] = await Promise.all([
-                    window.electronAPI.getDocuments(),
-                    window.electronAPI.getAuthors(),
-                    window.electronAPI.getCategories(),
-                    window.electronAPI.getBorrowers(),
-                    window.electronAPI.getBorrowHistory(),
-                    window.electronAPI.getRecentActivity(5)
+                    window.electronAPI.getDocuments(institutionCode),
+                    window.electronAPI.getAuthors(institutionCode),
+                    window.electronAPI.getCategories(institutionCode),
+                    window.electronAPI.getBorrowers(institutionCode),
+                    window.electronAPI.getBorrowHistory(undefined, institutionCode),
+                    window.electronAPI.getRecentActivity(5, institutionCode)
                 ]);
                 setDocuments(documentsData || []);
                 setAuthors(authorsData || []);
@@ -669,16 +670,17 @@ const App = () => {
     const handleAddDocument = async (document) => {
         try {
             if (appMode === 'offline') {
-                // Mode offline - utiliser l'API électron pour SQLite
+                // Mode offline - utiliser l'API électron pour SQLite avec filtrage par institution
+                const institutionCode = currentInstitution?.code || '';
                 if (editingDocument) {
                     // Modification d'un document existant
                     const documentToUpdate = { ...document, id: editingDocument.id };
-                    await window.electronAPI.updateDocument(documentToUpdate);
+                    await window.electronAPI.updateDocument(documentToUpdate, institutionCode);
                     console.log('Document modifié en mode offline:', editingDocument.id);
                 }
                 else {
                     // Ajout d'un nouveau document
-                    const documentId = await window.electronAPI.addDocument(document);
+                    const documentId = await window.electronAPI.addDocument(document, institutionCode);
                     console.log('Document ajouté en mode offline avec ID:', documentId);
                 }
                 // Ajouter l'auteur s'il n'existe pas
@@ -692,7 +694,7 @@ const App = () => {
                         lastModified: new Date().toISOString(),
                         version: 1,
                         createdAt: new Date().toISOString()
-                    });
+                    }, institutionCode);
                 }
                 // Ajouter la catégorie si elle n'existe pas (basée sur les descripteurs)
                 const categoryName = document.descripteurs.split(',')[0]?.trim();
@@ -705,7 +707,7 @@ const App = () => {
                         lastModified: new Date().toISOString(),
                         version: 1,
                         createdAt: new Date().toISOString()
-                    });
+                    }, institutionCode);
                 }
                 // Recharger les données pour mettre à jour l'interface
                 await loadData();
@@ -766,8 +768,9 @@ const App = () => {
         }
         try {
             if (appMode === 'offline') {
-                // Mode offline - utiliser l'API électron pour SQLite
-                await window.electronAPI.returnBook(borrowHistoryId, notes);
+                // Mode offline - utiliser l'API électron pour SQLite avec filtrage par institution
+                const institutionCode = currentInstitution?.code || '';
+                await window.electronAPI.returnBook(borrowHistoryId, notes, institutionCode);
                 console.log('Document retourné en mode offline:', borrowHistoryId);
             }
             else {
@@ -784,8 +787,9 @@ const App = () => {
     const handleDeleteDocument = async (documentId) => {
         try {
             if (appMode === 'offline') {
-                // Mode offline - utiliser l'API électron pour SQLite
-                await window.electronAPI.deleteDocument(documentId);
+                // Mode offline - utiliser l'API électron pour SQLite avec filtrage par institution
+                const institutionCode = currentInstitution?.code || '';
+                await window.electronAPI.deleteDocument(documentId, institutionCode);
                 console.log('Document supprimé en mode offline:', documentId);
                 // Recharger les données pour mettre à jour l'interface
                 await loadData();
@@ -828,8 +832,9 @@ const App = () => {
     const handleBorrow = async (documentId, borrowerId, returnDate) => {
         try {
             if (appMode === 'offline') {
-                // Mode offline - utiliser l'API électron pour SQLite
-                await window.electronAPI.borrowDocument(documentId, borrowerId, returnDate);
+                // Mode offline - utiliser l'API électron pour SQLite avec filtrage par institution
+                const institutionCode = currentInstitution?.code || '';
+                await window.electronAPI.borrowDocument(documentId, borrowerId, returnDate, institutionCode);
                 console.log('Document emprunté en mode offline:', { documentId, borrowerId, returnDate });
             }
             else if (isDemoMode) {
@@ -889,7 +894,8 @@ const App = () => {
                 // Mode offline - trouver l'emprunt actif et le retourner
                 const activeBorrow = borrowedDocuments.find(bh => bh.documentId === documentId && bh.status === 'active');
                 if (activeBorrow && activeBorrow.id) {
-                    await window.electronAPI.returnBook(activeBorrow.id);
+                    const institutionCode = currentInstitution?.code || '';
+                    await window.electronAPI.returnBook(activeBorrow.id, undefined, institutionCode);
                     console.log('Document retourné en mode offline:', documentId);
                 }
                 else {
@@ -931,8 +937,9 @@ const App = () => {
     const handleAddBorrower = async (borrower) => {
         try {
             if (appMode === 'offline') {
-                // Mode offline - utiliser l'API électron pour SQLite
-                const newId = await window.electronAPI.addBorrower(borrower);
+                // Mode offline - utiliser l'API électron pour SQLite avec filtrage par institution
+                const institutionCode = currentInstitution?.code || '';
+                const newId = await window.electronAPI.addBorrower(borrower, institutionCode);
                 await loadData(); // Refresh data
                 return newId;
             }

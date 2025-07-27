@@ -333,16 +333,16 @@ ipcMain.handle('window-controls:close', () => {
 });
 
 // Database Operations - Documents (API principale)
-ipcMain.handle('db:getDocuments', async () => {
+ipcMain.handle('db:getDocuments', async (_, institutionCode?: string) => {
   try {
-    return await dbService.getDocuments();
+    return await dbService.getDocuments(institutionCode);
   } catch (error) {
     console.error('Erreur getDocuments:', error);
     return [];
   }
 });
 
-ipcMain.handle('db:addDocument', async (_, document) => {
+ipcMain.handle('db:addDocument', async (_, document, institutionCode?: string) => {
   try {
     // Valider les données avant l'ajout
     const validation = validationService.validateDocument(document);
@@ -361,8 +361,8 @@ ipcMain.handle('db:addDocument', async (_, document) => {
       });
     }
 
-    const result = await dbService.addDocument(document);
-    logger.info('Document ajouté avec succès', 'IPC', { id: result });
+    const result = await dbService.addDocument(document, institutionCode);
+    logger.info('Document ajouté avec succès', 'IPC', { id: result, institution: institutionCode });
     return result;
   } catch (error) {
     logger.error('Erreur lors de l\'ajout de document', 'IPC', error as Error);
@@ -370,7 +370,7 @@ ipcMain.handle('db:addDocument', async (_, document) => {
   }
 });
 
-ipcMain.handle('db:updateDocument', async (_, document) => {
+ipcMain.handle('db:updateDocument', async (_, document, institutionCode?: string) => {
   try {
     // Valider les données avant la mise à jour
     const validation = validationService.validateDocument(document);
@@ -382,8 +382,8 @@ ipcMain.handle('db:updateDocument', async (_, document) => {
       throw new Error(`Données invalides: ${validation.errors.join(', ')}`);
     }
 
-    const result = await dbService.updateDocument(document);
-    logger.info('Document mis à jour avec succès', 'IPC', { id: document.id });
+    const result = await dbService.updateDocument(document, institutionCode);
+    logger.info('Document mis à jour avec succès', 'IPC', { id: document.id, institution: institutionCode });
     return result;
   } catch (error) {
     logger.error('Erreur lors de la mise à jour de document', 'IPC', error as Error);
@@ -391,18 +391,18 @@ ipcMain.handle('db:updateDocument', async (_, document) => {
   }
 });
 
-ipcMain.handle('db:deleteDocument', async (_, id) => {
+ipcMain.handle('db:deleteDocument', async (_, id, institutionCode?: string) => {
   try {
-    return await dbService.deleteDocument(id);
+    return await dbService.deleteDocument(id, institutionCode);
   } catch (error) {
     console.error('Erreur deleteDocument:', error);
     throw error;
   }
 });
 
-ipcMain.handle('db:searchDocuments', async (_, query) => {
+ipcMain.handle('db:searchDocuments', async (_, query, institutionCode?: string) => {
   try {
-    return await dbService.searchDocuments(query);
+    return await dbService.searchDocuments(query, institutionCode);
   } catch (error) {
     console.error('Erreur searchDocuments:', error);
     return [];
@@ -410,45 +410,45 @@ ipcMain.handle('db:searchDocuments', async (_, query) => {
 });
 
 // Database Operations - Books (Compatibilité legacy)
-ipcMain.handle('db:getBooks', async () => {
+ipcMain.handle('db:getBooks', async (_, institutionCode?: string) => {
   try {
-    return await dbService.getBooks();
+    return await dbService.getBooks(institutionCode);
   } catch (error) {
     console.error('Erreur getBooks:', error);
     return [];
   }
 });
 
-ipcMain.handle('db:addBook', async (_, book) => {
+ipcMain.handle('db:addBook', async (_, book, institutionCode?: string) => {
   try {
-    return await dbService.addDocument(book);
+    return await dbService.addDocument(book, institutionCode);
   } catch (error) {
     console.error('Erreur addBook:', error);
     throw error;
   }
 });
 
-ipcMain.handle('db:updateBook', async (_, book) => {
+ipcMain.handle('db:updateBook', async (_, book, institutionCode?: string) => {
   try {
-    return await dbService.updateDocument(book);
+    return await dbService.updateDocument(book, institutionCode);
   } catch (error) {
     console.error('Erreur updateBook:', error);
     throw error;
   }
 });
 
-ipcMain.handle('db:deleteBook', async (_, id) => {
+ipcMain.handle('db:deleteBook', async (_, id, institutionCode?: string) => {
   try {
-    return await dbService.deleteDocument(id);
+    return await dbService.deleteDocument(id, institutionCode);
   } catch (error) {
     console.error('Erreur deleteBook:', error);
     throw error;
   }
 });
 
-ipcMain.handle('db:searchBooks', async (_, query) => {
+ipcMain.handle('db:searchBooks', async (_, query, institutionCode?: string) => {
   try {
-    return await dbService.searchDocuments(query).then(docs => docs.map(createBookFromDocument));
+    return await dbService.searchDocuments(query, institutionCode).then(docs => docs.map(createBookFromDocument));
   } catch (error) {
     console.error('Erreur searchBooks:', error);
     return [];
@@ -456,18 +456,18 @@ ipcMain.handle('db:searchBooks', async (_, query) => {
 });
 
 // Database Operations - Authors
-ipcMain.handle('db:getAuthors', async () => {
+ipcMain.handle('db:getAuthors', async (_, institutionCode?: string) => {
   try {
-    return await dbService.getAuthors();
+    return await dbService.getAuthors(institutionCode);
   } catch (error) {
     console.error('Erreur getAuthors:', error);
     return [];
   }
 });
 
-ipcMain.handle('db:addAuthor', async (_, author) => {
+ipcMain.handle('db:addAuthor', async (_, author, institutionCode?: string) => {
   try {
-    return await dbService.addAuthor(author);
+    return await dbService.addAuthor(author, institutionCode);
   } catch (error) {
     console.error('Erreur addAuthor:', error);
     throw error;
@@ -475,18 +475,18 @@ ipcMain.handle('db:addAuthor', async (_, author) => {
 });
 
 // Database Operations - Categories
-ipcMain.handle('db:getCategories', async () => {
+ipcMain.handle('db:getCategories', async (_, institutionCode?: string) => {
   try {
-    return await dbService.getCategories();
+    return await dbService.getCategories(institutionCode);
   } catch (error) {
     console.error('Erreur getCategories:', error);
     return [];
   }
 });
 
-ipcMain.handle('db:addCategory', async (_, category) => {
+ipcMain.handle('db:addCategory', async (_, category, institutionCode?: string) => {
   try {
-    return await dbService.addCategory(category);
+    return await dbService.addCategory(category, institutionCode);
   } catch (error) {
     console.error('Erreur addCategory:', error);
     throw error;
@@ -494,45 +494,45 @@ ipcMain.handle('db:addCategory', async (_, category) => {
 });
 
 // Database Operations - Borrowers
-ipcMain.handle('db:getBorrowers', async () => {
+ipcMain.handle('db:getBorrowers', async (_, institutionCode?: string) => {
   try {
-    return await dbService.getBorrowers();
+    return await dbService.getBorrowers(institutionCode);
   } catch (error) {
     console.error('Erreur getBorrowers:', error);
     return [];
   }
 });
 
-ipcMain.handle('db:addBorrower', async (_, borrower) => {
+ipcMain.handle('db:addBorrower', async (_, borrower, institutionCode?: string) => {
   try {
-    return await dbService.addBorrower(borrower);
+    return await dbService.addBorrower(borrower, institutionCode);
   } catch (error) {
     console.error('Erreur addBorrower:', error);
     throw error;
   }
 });
 
-ipcMain.handle('db:updateBorrower', async (_, borrower) => {
+ipcMain.handle('db:updateBorrower', async (_, borrower, institutionCode?: string) => {
   try {
-    return await dbService.updateBorrower(borrower);
+    return await dbService.updateBorrower(borrower, institutionCode);
   } catch (error) {
     console.error('Erreur updateBorrower:', error);
     throw error;
   }
 });
 
-ipcMain.handle('db:deleteBorrower', async (_, id) => {
+ipcMain.handle('db:deleteBorrower', async (_, id, institutionCode?: string) => {
   try {
-    return await dbService.deleteBorrower(id);
+    return await dbService.deleteBorrower(id, institutionCode);
   } catch (error) {
     console.error('Erreur deleteBorrower:', error);
     throw error;
   }
 });
 
-ipcMain.handle('db:searchBorrowers', async (_, query) => {
+ipcMain.handle('db:searchBorrowers', async (_, query, institutionCode?: string) => {
   try {
-    return await dbService.searchBorrowers(query);
+    return await dbService.searchBorrowers(query, institutionCode);
   } catch (error) {
     console.error('Erreur searchBorrowers:', error);
     return [];
@@ -540,9 +540,9 @@ ipcMain.handle('db:searchBorrowers', async (_, query) => {
 });
 
 // Database Operations - Borrow Management
-ipcMain.handle('db:getBorrowedDocuments', async () => {
+ipcMain.handle('db:getBorrowedDocuments', async (_, institutionCode?: string) => {
   try {
-    return await dbService.getBorrowedDocuments();
+    return await dbService.getBorrowedDocuments(institutionCode);
   } catch (error) {
     console.error('Erreur getBorrowedDocuments:', error);
     return [];
@@ -550,18 +550,18 @@ ipcMain.handle('db:getBorrowedDocuments', async () => {
 });
 
 // Compatibility handler
-ipcMain.handle('db:getBorrowedBooks', async () => {
+ipcMain.handle('db:getBorrowedBooks', async (_, institutionCode?: string) => {
   try {
-    return await dbService.getBorrowedDocuments();
+    return await dbService.getBorrowedDocuments(institutionCode);
   } catch (error) {
     console.error('Erreur getBorrowedBooks:', error);
     return [];
   }
 });
 
-ipcMain.handle('db:borrowDocument', async (_, documentId, borrowerId, expectedReturnDate) => {
+ipcMain.handle('db:borrowDocument', async (_, documentId, borrowerId, expectedReturnDate, institutionCode?: string) => {
   try {
-    return await dbService.borrowDocument(documentId, borrowerId, expectedReturnDate);
+    return await dbService.borrowDocument(documentId, borrowerId, expectedReturnDate, institutionCode);
   } catch (error) {
     console.error('Erreur borrowDocument:', error);
     throw error;
@@ -569,36 +569,36 @@ ipcMain.handle('db:borrowDocument', async (_, documentId, borrowerId, expectedRe
 });
 
 // Compatibility handler
-ipcMain.handle('db:borrowBook', async (_, documentId, borrowerId, expectedReturnDate) => {
+ipcMain.handle('db:borrowBook', async (_, documentId, borrowerId, expectedReturnDate, institutionCode?: string) => {
   try {
-    return await dbService.borrowDocument(documentId, borrowerId, expectedReturnDate);
+    return await dbService.borrowDocument(documentId, borrowerId, expectedReturnDate, institutionCode);
   } catch (error) {
     console.error('Erreur borrowBook:', error);
     throw error;
   }
 });
 
-ipcMain.handle('db:returnBook', async (_, borrowHistoryId, notes) => {
+ipcMain.handle('db:returnBook', async (_, borrowHistoryId, notes, institutionCode?: string) => {
   try {
-    return await dbService.returnBook(borrowHistoryId, notes);
+    return await dbService.returnBook(borrowHistoryId, notes, institutionCode);
   } catch (error) {
     console.error('Erreur returnBook:', error);
     throw error;
   }
 });
 
-ipcMain.handle('db:getBorrowHistory', async (_, filter) => {
+ipcMain.handle('db:getBorrowHistory', async (_, filter, institutionCode?: string) => {
   try {
-    return await dbService.getBorrowHistory(filter);
+    return await dbService.getBorrowHistory(filter, institutionCode);
   } catch (error) {
     console.error('Erreur getBorrowHistory:', error);
     return [];
   }
 });
 
-ipcMain.handle('db:getStats', async () => {
+ipcMain.handle('db:getStats', async (_, institutionCode?: string) => {
   try {
-    return await dbService.getStats();
+    return await dbService.getStats(institutionCode);
   } catch (error) {
     console.error('Erreur getStats:', error);
     return {
@@ -616,9 +616,9 @@ ipcMain.handle('db:getStats', async () => {
 });
 
 // Recent Activity handler
-ipcMain.handle('db:getRecentActivity', async (_, limit: number = 10) => {
+ipcMain.handle('db:getRecentActivity', async (_, limit: number = 10, institutionCode?: string) => {
   try {
-    return await dbService.getRecentActivity(limit);
+    return await dbService.getRecentActivity(limit, institutionCode);
   } catch (error) {
     console.error('Erreur getRecentActivity:', error);
     return [];

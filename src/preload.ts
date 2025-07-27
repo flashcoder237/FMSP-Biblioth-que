@@ -400,69 +400,69 @@ const electronAPI = {
     ) || Promise.resolve([]),
   
   // Database operations - Documents (nouveau)
-  getDocuments: (): Promise<Document[]> => ipcRenderer?.invoke('db:getDocuments') || Promise.resolve([]),
-  addDocument: (document: Omit<Document, 'id'>): Promise<number> => ipcRenderer?.invoke('db:addDocument', document) || Promise.resolve(0),
-  updateDocument: (document: Document): Promise<boolean> => ipcRenderer?.invoke('db:updateDocument', document) || Promise.resolve(false),
-  deleteDocument: (id: number): Promise<boolean> => ipcRenderer?.invoke('db:deleteDocument', id) || Promise.resolve(false),
-  searchDocuments: (query: string): Promise<Document[]> => ipcRenderer?.invoke('db:searchDocuments', query) || Promise.resolve([]),
+  getDocuments: (institutionCode?: string): Promise<Document[]> => ipcRenderer?.invoke('db:getDocuments', institutionCode) || Promise.resolve([]),
+  addDocument: (document: Omit<Document, 'id'>, institutionCode?: string): Promise<number> => ipcRenderer?.invoke('db:addDocument', document, institutionCode) || Promise.resolve(0),
+  updateDocument: (document: Document, institutionCode?: string): Promise<boolean> => ipcRenderer?.invoke('db:updateDocument', document, institutionCode) || Promise.resolve(false),
+  deleteDocument: (id: number, institutionCode?: string): Promise<boolean> => ipcRenderer?.invoke('db:deleteDocument', id, institutionCode) || Promise.resolve(false),
+  searchDocuments: (query: string, institutionCode?: string): Promise<Document[]> => ipcRenderer?.invoke('db:searchDocuments', query, institutionCode) || Promise.resolve([]),
   
   // Database operations - Authors
-  getAuthors: (): Promise<Author[]> => ipcRenderer?.invoke('db:getAuthors') || Promise.resolve([]),
-  addAuthor: (author: Omit<Author, 'id'>): Promise<number> => ipcRenderer?.invoke('db:addAuthor', {
+  getAuthors: (institutionCode?: string): Promise<Author[]> => ipcRenderer?.invoke('db:getAuthors', institutionCode) || Promise.resolve([]),
+  addAuthor: (author: Omit<Author, 'id'>, institutionCode?: string): Promise<number> => ipcRenderer?.invoke('db:addAuthor', {
     ...author,
     localId: author.localId || `author_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     syncStatus: author.syncStatus || 'pending',
     lastModified: author.lastModified || new Date().toISOString(),
     version: author.version || 1,
     createdAt: author.createdAt || new Date().toISOString()
-  }) || Promise.resolve(0),
+  }, institutionCode) || Promise.resolve(0),
   
   // Database operations - Categories
-  getCategories: (): Promise<Category[]> => ipcRenderer?.invoke('db:getCategories') || Promise.resolve([]),
-  addCategory: (category: Omit<Category, 'id'>): Promise<number> => ipcRenderer?.invoke('db:addCategory', {
+  getCategories: (institutionCode?: string): Promise<Category[]> => ipcRenderer?.invoke('db:getCategories', institutionCode) || Promise.resolve([]),
+  addCategory: (category: Omit<Category, 'id'>, institutionCode?: string): Promise<number> => ipcRenderer?.invoke('db:addCategory', {
     ...category,
     localId: category.localId || `category_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     syncStatus: category.syncStatus || 'pending',
     lastModified: category.lastModified || new Date().toISOString(),
     version: category.version || 1,
     createdAt: category.createdAt || new Date().toISOString()
-  }) || Promise.resolve(0),
+  }, institutionCode) || Promise.resolve(0),
   
   // Database operations - Borrowers
-  getBorrowers: (): Promise<Borrower[]> => ipcRenderer?.invoke('db:getBorrowers') || Promise.resolve([]),
-  addBorrower: (borrower: Omit<Borrower, 'id'>): Promise<number> => ipcRenderer?.invoke('db:addBorrower', {
+  getBorrowers: (institutionCode?: string): Promise<Borrower[]> => ipcRenderer?.invoke('db:getBorrowers', institutionCode) || Promise.resolve([]),
+  addBorrower: (borrower: Omit<Borrower, 'id'>, institutionCode?: string): Promise<number> => ipcRenderer?.invoke('db:addBorrower', {
     ...borrower,
     localId: borrower.localId || `borrower_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     syncStatus: borrower.syncStatus || 'pending',
     lastModified: borrower.lastModified || new Date().toISOString(),
     version: borrower.version || 1,
     createdAt: borrower.createdAt || new Date().toISOString()
-  }) || Promise.resolve(0),
-  updateBorrower: (borrower: Borrower): Promise<boolean> => ipcRenderer?.invoke('db:updateBorrower', {
+  }, institutionCode) || Promise.resolve(0),
+  updateBorrower: (borrower: Borrower, institutionCode?: string): Promise<boolean> => ipcRenderer?.invoke('db:updateBorrower', {
     ...borrower,
     lastModified: new Date().toISOString(),
     version: (borrower.version || 1) + 1,
     syncStatus: 'pending'
-  }) || Promise.resolve(false),
-  deleteBorrower: (id: number): Promise<boolean> => ipcRenderer?.invoke('db:deleteBorrower', id) || Promise.resolve(false),
-  searchBorrowers: (query: string): Promise<Borrower[]> => ipcRenderer?.invoke('db:searchBorrowers', query) || Promise.resolve([]),
+  }, institutionCode) || Promise.resolve(false),
+  deleteBorrower: (id: number, institutionCode?: string): Promise<boolean> => ipcRenderer?.invoke('db:deleteBorrower', id, institutionCode) || Promise.resolve(false),
+  searchBorrowers: (query: string, institutionCode?: string): Promise<Borrower[]> => ipcRenderer?.invoke('db:searchBorrowers', query, institutionCode) || Promise.resolve([]),
   
   // Borrow operations
-  getBorrowedDocuments: (): Promise<BorrowHistory[]> => ipcRenderer?.invoke('db:getBorrowedDocuments') || Promise.resolve([]),
+  getBorrowedDocuments: (institutionCode?: string): Promise<BorrowHistory[]> => ipcRenderer?.invoke('db:getBorrowedDocuments', institutionCode) || Promise.resolve([]),
   // Compatibility method
-  getBorrowedBooks: (): Promise<BorrowHistory[]> => ipcRenderer?.invoke('db:getBorrowedDocuments') || Promise.resolve([]),
-  borrowDocument: (documentId: number, borrowerId: number, expectedReturnDate: string): Promise<number> => 
-    ipcRenderer?.invoke('db:borrowDocument', documentId, borrowerId, expectedReturnDate) || Promise.resolve(0),
+  getBorrowedBooks: (institutionCode?: string): Promise<BorrowHistory[]> => ipcRenderer?.invoke('db:getBorrowedDocuments', institutionCode) || Promise.resolve([]),
+  borrowDocument: (documentId: number, borrowerId: number, expectedReturnDate: string, institutionCode?: string): Promise<number> => 
+    ipcRenderer?.invoke('db:borrowDocument', documentId, borrowerId, expectedReturnDate, institutionCode) || Promise.resolve(0),
   // Compatibility method
-  borrowBook: (documentId: number, borrowerId: number, expectedReturnDate: string): Promise<number> => 
-    ipcRenderer?.invoke('db:borrowDocument', documentId, borrowerId, expectedReturnDate) || Promise.resolve(0),
-  returnBook: (borrowHistoryId: number, notes?: string): Promise<boolean> => 
-    ipcRenderer?.invoke('db:returnBook', borrowHistoryId, notes) || Promise.resolve(false),
-  getBorrowHistory: (filter?: HistoryFilter): Promise<BorrowHistory[]> => 
-    ipcRenderer?.invoke('db:getBorrowHistory', filter) || Promise.resolve([]),
+  borrowBook: (documentId: number, borrowerId: number, expectedReturnDate: string, institutionCode?: string): Promise<number> => 
+    ipcRenderer?.invoke('db:borrowDocument', documentId, borrowerId, expectedReturnDate, institutionCode) || Promise.resolve(0),
+  returnBook: (borrowHistoryId: number, notes?: string, institutionCode?: string): Promise<boolean> => 
+    ipcRenderer?.invoke('db:returnBook', borrowHistoryId, notes, institutionCode) || Promise.resolve(false),
+  getBorrowHistory: (filter?: HistoryFilter, institutionCode?: string): Promise<BorrowHistory[]> => 
+    ipcRenderer?.invoke('db:getBorrowHistory', filter, institutionCode) || Promise.resolve([]),
   
   // Statistics
-  getStats: (): Promise<Stats> => ipcRenderer?.invoke('db:getStats') || Promise.resolve({
+  getStats: (institutionCode?: string): Promise<Stats> => ipcRenderer?.invoke('db:getStats', institutionCode) || Promise.resolve({
     totalDocuments: 0,
     borrowedDocuments: 0,
     availableDocuments: 0,
@@ -473,11 +473,11 @@ const electronAPI = {
     totalStaff: 0,
     overdueBooks: 0
   }),
-  getAdvancedStats: (): Promise<any> => ipcRenderer?.invoke('stats:advanced') || Promise.resolve({}),
+  getAdvancedStats: (institutionCode?: string): Promise<any> => ipcRenderer?.invoke('stats:advanced', institutionCode) || Promise.resolve({}),
 
   // Recent Activity
-  getRecentActivity: (limit?: number): Promise<any[]> => 
-    ipcRenderer?.invoke('db:getRecentActivity', limit) || Promise.resolve([]),
+  getRecentActivity: (limit?: number, institutionCode?: string): Promise<any[]> => 
+    ipcRenderer?.invoke('db:getRecentActivity', limit, institutionCode) || Promise.resolve([]),
   
   // Settings management
   getSettings: (): Promise<ApplicationSettings | null> => ipcRenderer?.invoke('settings:get') || Promise.resolve(null),

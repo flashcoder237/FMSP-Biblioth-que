@@ -24960,16 +24960,16 @@ electron_1.ipcMain.handle('window-controls:close', () => {
     mainWindow.close();
 });
 // Database Operations - Documents (API principale)
-electron_1.ipcMain.handle('db:getDocuments', async () => {
+electron_1.ipcMain.handle('db:getDocuments', async (_, institutionCode) => {
     try {
-        return await dbService.getDocuments();
+        return await dbService.getDocuments(institutionCode);
     }
     catch (error) {
         console.error('Erreur getDocuments:', error);
         return [];
     }
 });
-electron_1.ipcMain.handle('db:addDocument', async (_, document) => {
+electron_1.ipcMain.handle('db:addDocument', async (_, document, institutionCode) => {
     try {
         // Valider les données avant l'ajout
         const validation = ValidationService_1.validationService.validateDocument(document);
@@ -24986,8 +24986,8 @@ electron_1.ipcMain.handle('db:addDocument', async (_, document) => {
                 warnings: validation.warnings
             });
         }
-        const result = await dbService.addDocument(document);
-        LoggerService_1.logger.info('Document ajouté avec succès', 'IPC', { id: result });
+        const result = await dbService.addDocument(document, institutionCode);
+        LoggerService_1.logger.info('Document ajouté avec succès', 'IPC', { id: result, institution: institutionCode });
         return result;
     }
     catch (error) {
@@ -24995,7 +24995,7 @@ electron_1.ipcMain.handle('db:addDocument', async (_, document) => {
         throw error;
     }
 });
-electron_1.ipcMain.handle('db:updateDocument', async (_, document) => {
+electron_1.ipcMain.handle('db:updateDocument', async (_, document, institutionCode) => {
     try {
         // Valider les données avant la mise à jour
         const validation = ValidationService_1.validationService.validateDocument(document);
@@ -25006,8 +25006,8 @@ electron_1.ipcMain.handle('db:updateDocument', async (_, document) => {
             });
             throw new Error(`Données invalides: ${validation.errors.join(', ')}`);
         }
-        const result = await dbService.updateDocument(document);
-        LoggerService_1.logger.info('Document mis à jour avec succès', 'IPC', { id: document.id });
+        const result = await dbService.updateDocument(document, institutionCode);
+        LoggerService_1.logger.info('Document mis à jour avec succès', 'IPC', { id: document.id, institution: institutionCode });
         return result;
     }
     catch (error) {
@@ -25015,18 +25015,18 @@ electron_1.ipcMain.handle('db:updateDocument', async (_, document) => {
         throw error;
     }
 });
-electron_1.ipcMain.handle('db:deleteDocument', async (_, id) => {
+electron_1.ipcMain.handle('db:deleteDocument', async (_, id, institutionCode) => {
     try {
-        return await dbService.deleteDocument(id);
+        return await dbService.deleteDocument(id, institutionCode);
     }
     catch (error) {
         console.error('Erreur deleteDocument:', error);
         throw error;
     }
 });
-electron_1.ipcMain.handle('db:searchDocuments', async (_, query) => {
+electron_1.ipcMain.handle('db:searchDocuments', async (_, query, institutionCode) => {
     try {
-        return await dbService.searchDocuments(query);
+        return await dbService.searchDocuments(query, institutionCode);
     }
     catch (error) {
         console.error('Erreur searchDocuments:', error);
@@ -25034,45 +25034,45 @@ electron_1.ipcMain.handle('db:searchDocuments', async (_, query) => {
     }
 });
 // Database Operations - Books (Compatibilité legacy)
-electron_1.ipcMain.handle('db:getBooks', async () => {
+electron_1.ipcMain.handle('db:getBooks', async (_, institutionCode) => {
     try {
-        return await dbService.getBooks();
+        return await dbService.getBooks(institutionCode);
     }
     catch (error) {
         console.error('Erreur getBooks:', error);
         return [];
     }
 });
-electron_1.ipcMain.handle('db:addBook', async (_, book) => {
+electron_1.ipcMain.handle('db:addBook', async (_, book, institutionCode) => {
     try {
-        return await dbService.addDocument(book);
+        return await dbService.addDocument(book, institutionCode);
     }
     catch (error) {
         console.error('Erreur addBook:', error);
         throw error;
     }
 });
-electron_1.ipcMain.handle('db:updateBook', async (_, book) => {
+electron_1.ipcMain.handle('db:updateBook', async (_, book, institutionCode) => {
     try {
-        return await dbService.updateDocument(book);
+        return await dbService.updateDocument(book, institutionCode);
     }
     catch (error) {
         console.error('Erreur updateBook:', error);
         throw error;
     }
 });
-electron_1.ipcMain.handle('db:deleteBook', async (_, id) => {
+electron_1.ipcMain.handle('db:deleteBook', async (_, id, institutionCode) => {
     try {
-        return await dbService.deleteDocument(id);
+        return await dbService.deleteDocument(id, institutionCode);
     }
     catch (error) {
         console.error('Erreur deleteBook:', error);
         throw error;
     }
 });
-electron_1.ipcMain.handle('db:searchBooks', async (_, query) => {
+electron_1.ipcMain.handle('db:searchBooks', async (_, query, institutionCode) => {
     try {
-        return await dbService.searchDocuments(query).then(docs => docs.map(preload_1.createBookFromDocument));
+        return await dbService.searchDocuments(query, institutionCode).then(docs => docs.map(preload_1.createBookFromDocument));
     }
     catch (error) {
         console.error('Erreur searchBooks:', error);
@@ -25080,18 +25080,18 @@ electron_1.ipcMain.handle('db:searchBooks', async (_, query) => {
     }
 });
 // Database Operations - Authors
-electron_1.ipcMain.handle('db:getAuthors', async () => {
+electron_1.ipcMain.handle('db:getAuthors', async (_, institutionCode) => {
     try {
-        return await dbService.getAuthors();
+        return await dbService.getAuthors(institutionCode);
     }
     catch (error) {
         console.error('Erreur getAuthors:', error);
         return [];
     }
 });
-electron_1.ipcMain.handle('db:addAuthor', async (_, author) => {
+electron_1.ipcMain.handle('db:addAuthor', async (_, author, institutionCode) => {
     try {
-        return await dbService.addAuthor(author);
+        return await dbService.addAuthor(author, institutionCode);
     }
     catch (error) {
         console.error('Erreur addAuthor:', error);
@@ -25099,18 +25099,18 @@ electron_1.ipcMain.handle('db:addAuthor', async (_, author) => {
     }
 });
 // Database Operations - Categories
-electron_1.ipcMain.handle('db:getCategories', async () => {
+electron_1.ipcMain.handle('db:getCategories', async (_, institutionCode) => {
     try {
-        return await dbService.getCategories();
+        return await dbService.getCategories(institutionCode);
     }
     catch (error) {
         console.error('Erreur getCategories:', error);
         return [];
     }
 });
-electron_1.ipcMain.handle('db:addCategory', async (_, category) => {
+electron_1.ipcMain.handle('db:addCategory', async (_, category, institutionCode) => {
     try {
-        return await dbService.addCategory(category);
+        return await dbService.addCategory(category, institutionCode);
     }
     catch (error) {
         console.error('Erreur addCategory:', error);
@@ -25118,45 +25118,45 @@ electron_1.ipcMain.handle('db:addCategory', async (_, category) => {
     }
 });
 // Database Operations - Borrowers
-electron_1.ipcMain.handle('db:getBorrowers', async () => {
+electron_1.ipcMain.handle('db:getBorrowers', async (_, institutionCode) => {
     try {
-        return await dbService.getBorrowers();
+        return await dbService.getBorrowers(institutionCode);
     }
     catch (error) {
         console.error('Erreur getBorrowers:', error);
         return [];
     }
 });
-electron_1.ipcMain.handle('db:addBorrower', async (_, borrower) => {
+electron_1.ipcMain.handle('db:addBorrower', async (_, borrower, institutionCode) => {
     try {
-        return await dbService.addBorrower(borrower);
+        return await dbService.addBorrower(borrower, institutionCode);
     }
     catch (error) {
         console.error('Erreur addBorrower:', error);
         throw error;
     }
 });
-electron_1.ipcMain.handle('db:updateBorrower', async (_, borrower) => {
+electron_1.ipcMain.handle('db:updateBorrower', async (_, borrower, institutionCode) => {
     try {
-        return await dbService.updateBorrower(borrower);
+        return await dbService.updateBorrower(borrower, institutionCode);
     }
     catch (error) {
         console.error('Erreur updateBorrower:', error);
         throw error;
     }
 });
-electron_1.ipcMain.handle('db:deleteBorrower', async (_, id) => {
+electron_1.ipcMain.handle('db:deleteBorrower', async (_, id, institutionCode) => {
     try {
-        return await dbService.deleteBorrower(id);
+        return await dbService.deleteBorrower(id, institutionCode);
     }
     catch (error) {
         console.error('Erreur deleteBorrower:', error);
         throw error;
     }
 });
-electron_1.ipcMain.handle('db:searchBorrowers', async (_, query) => {
+electron_1.ipcMain.handle('db:searchBorrowers', async (_, query, institutionCode) => {
     try {
-        return await dbService.searchBorrowers(query);
+        return await dbService.searchBorrowers(query, institutionCode);
     }
     catch (error) {
         console.error('Erreur searchBorrowers:', error);
@@ -25164,9 +25164,9 @@ electron_1.ipcMain.handle('db:searchBorrowers', async (_, query) => {
     }
 });
 // Database Operations - Borrow Management
-electron_1.ipcMain.handle('db:getBorrowedDocuments', async () => {
+electron_1.ipcMain.handle('db:getBorrowedDocuments', async (_, institutionCode) => {
     try {
-        return await dbService.getBorrowedDocuments();
+        return await dbService.getBorrowedDocuments(institutionCode);
     }
     catch (error) {
         console.error('Erreur getBorrowedDocuments:', error);
@@ -25174,18 +25174,18 @@ electron_1.ipcMain.handle('db:getBorrowedDocuments', async () => {
     }
 });
 // Compatibility handler
-electron_1.ipcMain.handle('db:getBorrowedBooks', async () => {
+electron_1.ipcMain.handle('db:getBorrowedBooks', async (_, institutionCode) => {
     try {
-        return await dbService.getBorrowedDocuments();
+        return await dbService.getBorrowedDocuments(institutionCode);
     }
     catch (error) {
         console.error('Erreur getBorrowedBooks:', error);
         return [];
     }
 });
-electron_1.ipcMain.handle('db:borrowDocument', async (_, documentId, borrowerId, expectedReturnDate) => {
+electron_1.ipcMain.handle('db:borrowDocument', async (_, documentId, borrowerId, expectedReturnDate, institutionCode) => {
     try {
-        return await dbService.borrowDocument(documentId, borrowerId, expectedReturnDate);
+        return await dbService.borrowDocument(documentId, borrowerId, expectedReturnDate, institutionCode);
     }
     catch (error) {
         console.error('Erreur borrowDocument:', error);
@@ -25193,36 +25193,36 @@ electron_1.ipcMain.handle('db:borrowDocument', async (_, documentId, borrowerId,
     }
 });
 // Compatibility handler
-electron_1.ipcMain.handle('db:borrowBook', async (_, documentId, borrowerId, expectedReturnDate) => {
+electron_1.ipcMain.handle('db:borrowBook', async (_, documentId, borrowerId, expectedReturnDate, institutionCode) => {
     try {
-        return await dbService.borrowDocument(documentId, borrowerId, expectedReturnDate);
+        return await dbService.borrowDocument(documentId, borrowerId, expectedReturnDate, institutionCode);
     }
     catch (error) {
         console.error('Erreur borrowBook:', error);
         throw error;
     }
 });
-electron_1.ipcMain.handle('db:returnBook', async (_, borrowHistoryId, notes) => {
+electron_1.ipcMain.handle('db:returnBook', async (_, borrowHistoryId, notes, institutionCode) => {
     try {
-        return await dbService.returnBook(borrowHistoryId, notes);
+        return await dbService.returnBook(borrowHistoryId, notes, institutionCode);
     }
     catch (error) {
         console.error('Erreur returnBook:', error);
         throw error;
     }
 });
-electron_1.ipcMain.handle('db:getBorrowHistory', async (_, filter) => {
+electron_1.ipcMain.handle('db:getBorrowHistory', async (_, filter, institutionCode) => {
     try {
-        return await dbService.getBorrowHistory(filter);
+        return await dbService.getBorrowHistory(filter, institutionCode);
     }
     catch (error) {
         console.error('Erreur getBorrowHistory:', error);
         return [];
     }
 });
-electron_1.ipcMain.handle('db:getStats', async () => {
+electron_1.ipcMain.handle('db:getStats', async (_, institutionCode) => {
     try {
-        return await dbService.getStats();
+        return await dbService.getStats(institutionCode);
     }
     catch (error) {
         console.error('Erreur getStats:', error);
@@ -25240,9 +25240,9 @@ electron_1.ipcMain.handle('db:getStats', async () => {
     }
 });
 // Recent Activity handler
-electron_1.ipcMain.handle('db:getRecentActivity', async (_, limit = 10) => {
+electron_1.ipcMain.handle('db:getRecentActivity', async (_, limit = 10, institutionCode) => {
     try {
-        return await dbService.getRecentActivity(limit);
+        return await dbService.getRecentActivity(limit, institutionCode);
     }
     catch (error) {
         console.error('Erreur getRecentActivity:', error);
@@ -26923,60 +26923,60 @@ const electronAPI = {
     deleteBook: (id) => electron_1.ipcRenderer?.invoke('db:deleteBook', id) || Promise.resolve(false),
     searchBooks: (query) => electron_1.ipcRenderer?.invoke('db:searchBooks', query).then((documents) => documents.map(exports.createBookFromDocument)) || Promise.resolve([]),
     // Database operations - Documents (nouveau)
-    getDocuments: () => electron_1.ipcRenderer?.invoke('db:getDocuments') || Promise.resolve([]),
-    addDocument: (document) => electron_1.ipcRenderer?.invoke('db:addDocument', document) || Promise.resolve(0),
-    updateDocument: (document) => electron_1.ipcRenderer?.invoke('db:updateDocument', document) || Promise.resolve(false),
-    deleteDocument: (id) => electron_1.ipcRenderer?.invoke('db:deleteDocument', id) || Promise.resolve(false),
-    searchDocuments: (query) => electron_1.ipcRenderer?.invoke('db:searchDocuments', query) || Promise.resolve([]),
+    getDocuments: (institutionCode) => electron_1.ipcRenderer?.invoke('db:getDocuments', institutionCode) || Promise.resolve([]),
+    addDocument: (document, institutionCode) => electron_1.ipcRenderer?.invoke('db:addDocument', document, institutionCode) || Promise.resolve(0),
+    updateDocument: (document, institutionCode) => electron_1.ipcRenderer?.invoke('db:updateDocument', document, institutionCode) || Promise.resolve(false),
+    deleteDocument: (id, institutionCode) => electron_1.ipcRenderer?.invoke('db:deleteDocument', id, institutionCode) || Promise.resolve(false),
+    searchDocuments: (query, institutionCode) => electron_1.ipcRenderer?.invoke('db:searchDocuments', query, institutionCode) || Promise.resolve([]),
     // Database operations - Authors
-    getAuthors: () => electron_1.ipcRenderer?.invoke('db:getAuthors') || Promise.resolve([]),
-    addAuthor: (author) => electron_1.ipcRenderer?.invoke('db:addAuthor', {
+    getAuthors: (institutionCode) => electron_1.ipcRenderer?.invoke('db:getAuthors', institutionCode) || Promise.resolve([]),
+    addAuthor: (author, institutionCode) => electron_1.ipcRenderer?.invoke('db:addAuthor', {
         ...author,
         localId: author.localId || `author_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         syncStatus: author.syncStatus || 'pending',
         lastModified: author.lastModified || new Date().toISOString(),
         version: author.version || 1,
         createdAt: author.createdAt || new Date().toISOString()
-    }) || Promise.resolve(0),
+    }, institutionCode) || Promise.resolve(0),
     // Database operations - Categories
-    getCategories: () => electron_1.ipcRenderer?.invoke('db:getCategories') || Promise.resolve([]),
-    addCategory: (category) => electron_1.ipcRenderer?.invoke('db:addCategory', {
+    getCategories: (institutionCode) => electron_1.ipcRenderer?.invoke('db:getCategories', institutionCode) || Promise.resolve([]),
+    addCategory: (category, institutionCode) => electron_1.ipcRenderer?.invoke('db:addCategory', {
         ...category,
         localId: category.localId || `category_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         syncStatus: category.syncStatus || 'pending',
         lastModified: category.lastModified || new Date().toISOString(),
         version: category.version || 1,
         createdAt: category.createdAt || new Date().toISOString()
-    }) || Promise.resolve(0),
+    }, institutionCode) || Promise.resolve(0),
     // Database operations - Borrowers
-    getBorrowers: () => electron_1.ipcRenderer?.invoke('db:getBorrowers') || Promise.resolve([]),
-    addBorrower: (borrower) => electron_1.ipcRenderer?.invoke('db:addBorrower', {
+    getBorrowers: (institutionCode) => electron_1.ipcRenderer?.invoke('db:getBorrowers', institutionCode) || Promise.resolve([]),
+    addBorrower: (borrower, institutionCode) => electron_1.ipcRenderer?.invoke('db:addBorrower', {
         ...borrower,
         localId: borrower.localId || `borrower_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         syncStatus: borrower.syncStatus || 'pending',
         lastModified: borrower.lastModified || new Date().toISOString(),
         version: borrower.version || 1,
         createdAt: borrower.createdAt || new Date().toISOString()
-    }) || Promise.resolve(0),
-    updateBorrower: (borrower) => electron_1.ipcRenderer?.invoke('db:updateBorrower', {
+    }, institutionCode) || Promise.resolve(0),
+    updateBorrower: (borrower, institutionCode) => electron_1.ipcRenderer?.invoke('db:updateBorrower', {
         ...borrower,
         lastModified: new Date().toISOString(),
         version: (borrower.version || 1) + 1,
         syncStatus: 'pending'
-    }) || Promise.resolve(false),
-    deleteBorrower: (id) => electron_1.ipcRenderer?.invoke('db:deleteBorrower', id) || Promise.resolve(false),
-    searchBorrowers: (query) => electron_1.ipcRenderer?.invoke('db:searchBorrowers', query) || Promise.resolve([]),
+    }, institutionCode) || Promise.resolve(false),
+    deleteBorrower: (id, institutionCode) => electron_1.ipcRenderer?.invoke('db:deleteBorrower', id, institutionCode) || Promise.resolve(false),
+    searchBorrowers: (query, institutionCode) => electron_1.ipcRenderer?.invoke('db:searchBorrowers', query, institutionCode) || Promise.resolve([]),
     // Borrow operations
-    getBorrowedDocuments: () => electron_1.ipcRenderer?.invoke('db:getBorrowedDocuments') || Promise.resolve([]),
+    getBorrowedDocuments: (institutionCode) => electron_1.ipcRenderer?.invoke('db:getBorrowedDocuments', institutionCode) || Promise.resolve([]),
     // Compatibility method
-    getBorrowedBooks: () => electron_1.ipcRenderer?.invoke('db:getBorrowedDocuments') || Promise.resolve([]),
-    borrowDocument: (documentId, borrowerId, expectedReturnDate) => electron_1.ipcRenderer?.invoke('db:borrowDocument', documentId, borrowerId, expectedReturnDate) || Promise.resolve(0),
+    getBorrowedBooks: (institutionCode) => electron_1.ipcRenderer?.invoke('db:getBorrowedDocuments', institutionCode) || Promise.resolve([]),
+    borrowDocument: (documentId, borrowerId, expectedReturnDate, institutionCode) => electron_1.ipcRenderer?.invoke('db:borrowDocument', documentId, borrowerId, expectedReturnDate, institutionCode) || Promise.resolve(0),
     // Compatibility method
-    borrowBook: (documentId, borrowerId, expectedReturnDate) => electron_1.ipcRenderer?.invoke('db:borrowDocument', documentId, borrowerId, expectedReturnDate) || Promise.resolve(0),
-    returnBook: (borrowHistoryId, notes) => electron_1.ipcRenderer?.invoke('db:returnBook', borrowHistoryId, notes) || Promise.resolve(false),
-    getBorrowHistory: (filter) => electron_1.ipcRenderer?.invoke('db:getBorrowHistory', filter) || Promise.resolve([]),
+    borrowBook: (documentId, borrowerId, expectedReturnDate, institutionCode) => electron_1.ipcRenderer?.invoke('db:borrowDocument', documentId, borrowerId, expectedReturnDate, institutionCode) || Promise.resolve(0),
+    returnBook: (borrowHistoryId, notes, institutionCode) => electron_1.ipcRenderer?.invoke('db:returnBook', borrowHistoryId, notes, institutionCode) || Promise.resolve(false),
+    getBorrowHistory: (filter, institutionCode) => electron_1.ipcRenderer?.invoke('db:getBorrowHistory', filter, institutionCode) || Promise.resolve([]),
     // Statistics
-    getStats: () => electron_1.ipcRenderer?.invoke('db:getStats') || Promise.resolve({
+    getStats: (institutionCode) => electron_1.ipcRenderer?.invoke('db:getStats', institutionCode) || Promise.resolve({
         totalDocuments: 0,
         borrowedDocuments: 0,
         availableDocuments: 0,
@@ -26987,9 +26987,9 @@ const electronAPI = {
         totalStaff: 0,
         overdueBooks: 0
     }),
-    getAdvancedStats: () => electron_1.ipcRenderer?.invoke('stats:advanced') || Promise.resolve({}),
+    getAdvancedStats: (institutionCode) => electron_1.ipcRenderer?.invoke('stats:advanced', institutionCode) || Promise.resolve({}),
     // Recent Activity
-    getRecentActivity: (limit) => electron_1.ipcRenderer?.invoke('db:getRecentActivity', limit) || Promise.resolve([]),
+    getRecentActivity: (limit, institutionCode) => electron_1.ipcRenderer?.invoke('db:getRecentActivity', limit, institutionCode) || Promise.resolve([]),
     // Settings management
     getSettings: () => electron_1.ipcRenderer?.invoke('settings:get') || Promise.resolve(null),
     saveSettings: (settings) => electron_1.ipcRenderer?.invoke('settings:save', settings) || Promise.resolve(false),
@@ -28468,14 +28468,15 @@ class DatabaseService {
     async initialize() {
         return new Promise((resolve, reject) => {
             this.db.serialize(() => {
-                // Table des auteurs avec support sync
+                // Table des auteurs avec support sync et isolation par institution
                 this.db.run(`
           CREATE TABLE IF NOT EXISTS authors (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL UNIQUE,
+            name TEXT NOT NULL,
             biography TEXT,
             birthDate TEXT,
             nationality TEXT,
+            institution_code TEXT NOT NULL DEFAULT '',
             -- Métadonnées de synchronisation
             localId TEXT UNIQUE,
             remoteId TEXT,
@@ -28483,16 +28484,18 @@ class DatabaseService {
             lastModified DATETIME DEFAULT CURRENT_TIMESTAMP,
             version INTEGER DEFAULT 1,
             deletedAt DATETIME,
-            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(name, institution_code)
           )
         `);
-                // Table des catégories avec support sync
+                // Table des catégories avec support sync et isolation par institution
                 this.db.run(`
           CREATE TABLE IF NOT EXISTS categories (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL UNIQUE,
+            name TEXT NOT NULL,
             description TEXT,
             color TEXT DEFAULT '#3E5C49',
+            institution_code TEXT NOT NULL DEFAULT '',
             -- Métadonnées de synchronisation
             localId TEXT UNIQUE,
             remoteId TEXT,
@@ -28500,22 +28503,24 @@ class DatabaseService {
             lastModified DATETIME DEFAULT CURRENT_TIMESTAMP,
             version INTEGER DEFAULT 1,
             deletedAt DATETIME,
-            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(name, institution_code)
           )
         `);
-                // Table des emprunteurs avec support sync
+                // Table des emprunteurs avec support sync et isolation par institution
                 this.db.run(`
           CREATE TABLE IF NOT EXISTS borrowers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             type TEXT NOT NULL CHECK (type IN ('student', 'staff')),
             firstName TEXT NOT NULL,
             lastName TEXT NOT NULL,
-            matricule TEXT NOT NULL UNIQUE,
+            matricule TEXT NOT NULL,
             classe TEXT,
             cniNumber TEXT,
             position TEXT,
             email TEXT,
             phone TEXT,
+            institution_code TEXT NOT NULL DEFAULT '',
             -- Métadonnées de synchronisation
             localId TEXT UNIQUE,
             remoteId TEXT,
@@ -28523,10 +28528,11 @@ class DatabaseService {
             lastModified DATETIME DEFAULT CURRENT_TIMESTAMP,
             version INTEGER DEFAULT 1,
             deletedAt DATETIME,
-            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(matricule, institution_code)
           )
         `);
-                // Table des documents (nouvelle structure)
+                // Table des documents (nouvelle structure) avec isolation par institution
                 this.db.run(`
           CREATE TABLE IF NOT EXISTS documents (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28538,7 +28544,8 @@ class DatabaseService {
             lieuEdition TEXT NOT NULL,
             annee TEXT NOT NULL,
             descripteurs TEXT NOT NULL,
-            cote TEXT NOT NULL UNIQUE,
+            cote TEXT NOT NULL,
+            institution_code TEXT NOT NULL DEFAULT '',
             
             -- Champs optionnels
             isbn TEXT,
@@ -28562,6 +28569,7 @@ class DatabaseService {
             deletedAt DATETIME,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
             
+            UNIQUE(cote, institution_code),
             FOREIGN KEY (emprunteurId) REFERENCES borrowers(id)
           )
         `);
@@ -28582,7 +28590,7 @@ class DatabaseService {
                     }
                     if (!row) {
                         console.log('Table borrow_history manquante, création...');
-                        // La table n'existe pas, la créer
+                        // La table n'existe pas, la créer avec isolation par institution
                         this.db.run(`
               CREATE TABLE borrow_history (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28593,6 +28601,7 @@ class DatabaseService {
                 actualReturnDate DATETIME,
                 status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'returned', 'overdue')),
                 notes TEXT,
+                institution_code TEXT NOT NULL DEFAULT '',
                 localId TEXT UNIQUE,
                 remoteId TEXT,
                 syncStatus TEXT DEFAULT 'pending' CHECK (syncStatus IN ('synced', 'pending', 'conflict', 'error')),
@@ -28713,13 +28722,34 @@ class DatabaseService {
             lastError TEXT,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
           )
-        `, (err) => {
-                    if (err) {
-                        reject(err);
+        `);
+                // Migrations pour ajouter institution_code aux tables existantes
+                this.db.run(`ALTER TABLE documents ADD COLUMN institution_code TEXT NOT NULL DEFAULT ''`, (err) => {
+                    if (err && !err.message.includes('duplicate column name')) {
+                        console.error('Erreur lors de l\'ajout de institution_code à documents:', err);
                     }
-                    else {
-                        this.seedInitialData().then(resolve).catch(reject);
+                });
+                this.db.run(`ALTER TABLE authors ADD COLUMN institution_code TEXT NOT NULL DEFAULT ''`, (err) => {
+                    if (err && !err.message.includes('duplicate column name')) {
+                        console.error('Erreur lors de l\'ajout de institution_code à authors:', err);
                     }
+                });
+                this.db.run(`ALTER TABLE categories ADD COLUMN institution_code TEXT NOT NULL DEFAULT ''`, (err) => {
+                    if (err && !err.message.includes('duplicate column name')) {
+                        console.error('Erreur lors de l\'ajout de institution_code à categories:', err);
+                    }
+                });
+                this.db.run(`ALTER TABLE borrowers ADD COLUMN institution_code TEXT NOT NULL DEFAULT ''`, (err) => {
+                    if (err && !err.message.includes('duplicate column name')) {
+                        console.error('Erreur lors de l\'ajout de institution_code à borrowers:', err);
+                    }
+                });
+                this.db.run(`ALTER TABLE borrow_history ADD COLUMN institution_code TEXT NOT NULL DEFAULT ''`, (err) => {
+                    if (err && !err.message.includes('duplicate column name')) {
+                        console.error('Erreur lors de l\'ajout de institution_code à borrow_history:', err);
+                    }
+                    // Dernière migration terminée, continuer avec l'initialisation
+                    this.seedInitialData().then(resolve).catch(reject);
                 });
             });
         });
@@ -28896,9 +28926,16 @@ class DatabaseService {
         }
     }
     // CRUD Borrowers
-    async getBorrowers() {
+    async getBorrowers(institutionCode) {
         return new Promise((resolve, reject) => {
-            this.db.all('SELECT * FROM borrowers ORDER BY lastName, firstName', (err, rows) => {
+            let query = 'SELECT * FROM borrowers WHERE deletedAt IS NULL';
+            let params = [];
+            if (institutionCode) {
+                query += ' AND institution_code = ?';
+                params.push(institutionCode);
+            }
+            query += ' ORDER BY lastName, firstName';
+            this.db.all(query, params, (err, rows) => {
                 if (err) {
                     reject(err);
                 }
@@ -28908,12 +28945,13 @@ class DatabaseService {
             });
         });
     }
-    async addBorrower(borrower) {
+    async addBorrower(borrower, institutionCode) {
         return new Promise((resolve, reject) => {
             const stmt = this.db.prepare(`
-        INSERT INTO borrowers (type, firstName, lastName, matricule, classe, cniNumber, position, email, phone)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO borrowers (type, firstName, lastName, matricule, classe, cniNumber, position, email, phone, institution_code, localId, syncStatus, lastModified, version, createdAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
+            const now = new Date().toISOString();
             stmt.run([
                 borrower.type,
                 borrower.firstName,
@@ -28923,7 +28961,13 @@ class DatabaseService {
                 borrower.cniNumber || null,
                 borrower.position || null,
                 borrower.email || null,
-                borrower.phone || null
+                borrower.phone || null,
+                institutionCode || '',
+                borrower.localId || `borrower_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                borrower.syncStatus || 'pending',
+                borrower.lastModified || now,
+                borrower.version || 1,
+                borrower.createdAt || now
             ], function (err) {
                 if (err) {
                     if (err.code === 'SQLITE_CONSTRAINT' && err.message && err.message.includes('UNIQUE constraint failed: borrowers.matricule')) {
@@ -29011,18 +29055,23 @@ class DatabaseService {
         });
     }
     // Documents CRUD mis à jour (méthodes Books pour compatibilité)
-    async getBooks() {
+    async getBooks(institutionCode) {
         return new Promise((resolve, reject) => {
-            this.db.all(`
+            let query = `
         SELECT 
           d.*,
           b.firstName as borrower_firstName,
           b.lastName as borrower_lastName
         FROM documents d
         LEFT JOIN borrowers b ON d.emprunteurId = b.id
-        WHERE d.deletedAt IS NULL
-        ORDER BY d.createdAt DESC
-      `, (err, rows) => {
+        WHERE d.deletedAt IS NULL`;
+            let params = [];
+            if (institutionCode) {
+                query += ` AND d.institution_code = ?`;
+                params.push(institutionCode);
+            }
+            query += ` ORDER BY d.createdAt DESC`;
+            this.db.all(query, params, (err, rows) => {
                 if (err) {
                     reject(err);
                 }
@@ -29360,9 +29409,16 @@ class DatabaseService {
         });
     }
     // Autres méthodes existantes
-    async getAuthors() {
+    async getAuthors(institutionCode) {
         return new Promise((resolve, reject) => {
-            this.db.all('SELECT * FROM authors ORDER BY name', (err, rows) => {
+            let query = 'SELECT * FROM authors WHERE deletedAt IS NULL';
+            let params = [];
+            if (institutionCode) {
+                query += ' AND institution_code = ?';
+                params.push(institutionCode);
+            }
+            query += ' ORDER BY name';
+            this.db.all(query, params, (err, rows) => {
                 if (err) {
                     reject(err);
                 }
@@ -29372,17 +29428,24 @@ class DatabaseService {
             });
         });
     }
-    async addAuthor(author) {
+    async addAuthor(author, institutionCode) {
         return new Promise((resolve, reject) => {
             const stmt = this.db.prepare(`
-        INSERT OR IGNORE INTO authors (name, biography, birthDate, nationality)
-        VALUES (?, ?, ?, ?)
+        INSERT OR IGNORE INTO authors (name, biography, birthDate, nationality, institution_code, localId, syncStatus, lastModified, version, createdAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
+            const now = new Date().toISOString();
             stmt.run([
                 author.name,
                 author.biography,
                 author.birthDate,
-                author.nationality
+                author.nationality,
+                institutionCode || '',
+                author.localId || `author_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                author.syncStatus || 'pending',
+                author.lastModified || now,
+                author.version || 1,
+                author.createdAt || now
             ], function (err) {
                 if (err) {
                     reject(err);
@@ -29394,9 +29457,16 @@ class DatabaseService {
             stmt.finalize();
         });
     }
-    async getCategories() {
+    async getCategories(institutionCode) {
         return new Promise((resolve, reject) => {
-            this.db.all('SELECT * FROM categories ORDER BY name', (err, rows) => {
+            let query = 'SELECT * FROM categories WHERE deletedAt IS NULL';
+            let params = [];
+            if (institutionCode) {
+                query += ' AND institution_code = ?';
+                params.push(institutionCode);
+            }
+            query += ' ORDER BY name';
+            this.db.all(query, params, (err, rows) => {
                 if (err) {
                     reject(err);
                 }
@@ -29406,16 +29476,23 @@ class DatabaseService {
             });
         });
     }
-    async addCategory(category) {
+    async addCategory(category, institutionCode) {
         return new Promise((resolve, reject) => {
             const stmt = this.db.prepare(`
-        INSERT OR IGNORE INTO categories (name, description, color)
-        VALUES (?, ?, ?)
+        INSERT OR IGNORE INTO categories (name, description, color, institution_code, localId, syncStatus, lastModified, version, createdAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
+            const now = new Date().toISOString();
             stmt.run([
                 category.name,
                 category.description,
-                category.color
+                category.color || '#3E5C49',
+                institutionCode || '',
+                category.localId || `category_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                category.syncStatus || 'pending',
+                category.lastModified || now,
+                category.version || 1,
+                category.createdAt || now
             ], function (err) {
                 if (err) {
                     reject(err);
@@ -29554,9 +29631,9 @@ class DatabaseService {
     // ===============================
     // NOUVELLES MÉTHODES POUR DOCUMENTS
     // ===============================
-    async getDocuments() {
+    async getDocuments(institutionCode) {
         return new Promise((resolve, reject) => {
-            this.db.all(`
+            let query = `
         SELECT 
           d.*,
           b.firstName as borrower_firstName,
@@ -29564,8 +29641,14 @@ class DatabaseService {
         FROM documents d
         LEFT JOIN borrowers b ON d.emprunteurId = b.id
         WHERE d.deletedAt IS NULL
-        ORDER BY d.lastModified DESC
-      `, (err, rows) => {
+      `;
+            let params = [];
+            if (institutionCode) {
+                query += ` AND d.institution_code = ?`;
+                params.push(institutionCode);
+            }
+            query += ` ORDER BY d.lastModified DESC`;
+            this.db.all(query, params, (err, rows) => {
                 if (err) {
                     reject(err);
                 }
@@ -29604,16 +29687,16 @@ class DatabaseService {
             });
         });
     }
-    async addDocument(document) {
+    async addDocument(document, institutionCode) {
         return new Promise((resolve, reject) => {
             const localId = `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             const now = new Date().toISOString();
             const stmt = this.db.prepare(`
         INSERT INTO documents (
           auteur, titre, editeur, lieuEdition, annee, descripteurs, cote, type,
-          isbn, description, couverture, estEmprunte,
+          isbn, description, couverture, estEmprunte, institution_code,
           localId, syncStatus, lastModified, version, createdAt
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
             stmt.run([
                 document.auteur,
@@ -29628,6 +29711,7 @@ class DatabaseService {
                 document.description || null,
                 document.couverture || null,
                 document.estEmprunte ? 1 : 0,
+                institutionCode || '',
                 localId,
                 'pending',
                 now,

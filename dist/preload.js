@@ -141,60 +141,60 @@ const electronAPI = {
     deleteBook: (id) => electron_1.ipcRenderer?.invoke('db:deleteBook', id) || Promise.resolve(false),
     searchBooks: (query) => electron_1.ipcRenderer?.invoke('db:searchBooks', query).then((documents) => documents.map(exports.createBookFromDocument)) || Promise.resolve([]),
     // Database operations - Documents (nouveau)
-    getDocuments: () => electron_1.ipcRenderer?.invoke('db:getDocuments') || Promise.resolve([]),
-    addDocument: (document) => electron_1.ipcRenderer?.invoke('db:addDocument', document) || Promise.resolve(0),
-    updateDocument: (document) => electron_1.ipcRenderer?.invoke('db:updateDocument', document) || Promise.resolve(false),
-    deleteDocument: (id) => electron_1.ipcRenderer?.invoke('db:deleteDocument', id) || Promise.resolve(false),
-    searchDocuments: (query) => electron_1.ipcRenderer?.invoke('db:searchDocuments', query) || Promise.resolve([]),
+    getDocuments: (institutionCode) => electron_1.ipcRenderer?.invoke('db:getDocuments', institutionCode) || Promise.resolve([]),
+    addDocument: (document, institutionCode) => electron_1.ipcRenderer?.invoke('db:addDocument', document, institutionCode) || Promise.resolve(0),
+    updateDocument: (document, institutionCode) => electron_1.ipcRenderer?.invoke('db:updateDocument', document, institutionCode) || Promise.resolve(false),
+    deleteDocument: (id, institutionCode) => electron_1.ipcRenderer?.invoke('db:deleteDocument', id, institutionCode) || Promise.resolve(false),
+    searchDocuments: (query, institutionCode) => electron_1.ipcRenderer?.invoke('db:searchDocuments', query, institutionCode) || Promise.resolve([]),
     // Database operations - Authors
-    getAuthors: () => electron_1.ipcRenderer?.invoke('db:getAuthors') || Promise.resolve([]),
-    addAuthor: (author) => electron_1.ipcRenderer?.invoke('db:addAuthor', {
+    getAuthors: (institutionCode) => electron_1.ipcRenderer?.invoke('db:getAuthors', institutionCode) || Promise.resolve([]),
+    addAuthor: (author, institutionCode) => electron_1.ipcRenderer?.invoke('db:addAuthor', {
         ...author,
         localId: author.localId || `author_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         syncStatus: author.syncStatus || 'pending',
         lastModified: author.lastModified || new Date().toISOString(),
         version: author.version || 1,
         createdAt: author.createdAt || new Date().toISOString()
-    }) || Promise.resolve(0),
+    }, institutionCode) || Promise.resolve(0),
     // Database operations - Categories
-    getCategories: () => electron_1.ipcRenderer?.invoke('db:getCategories') || Promise.resolve([]),
-    addCategory: (category) => electron_1.ipcRenderer?.invoke('db:addCategory', {
+    getCategories: (institutionCode) => electron_1.ipcRenderer?.invoke('db:getCategories', institutionCode) || Promise.resolve([]),
+    addCategory: (category, institutionCode) => electron_1.ipcRenderer?.invoke('db:addCategory', {
         ...category,
         localId: category.localId || `category_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         syncStatus: category.syncStatus || 'pending',
         lastModified: category.lastModified || new Date().toISOString(),
         version: category.version || 1,
         createdAt: category.createdAt || new Date().toISOString()
-    }) || Promise.resolve(0),
+    }, institutionCode) || Promise.resolve(0),
     // Database operations - Borrowers
-    getBorrowers: () => electron_1.ipcRenderer?.invoke('db:getBorrowers') || Promise.resolve([]),
-    addBorrower: (borrower) => electron_1.ipcRenderer?.invoke('db:addBorrower', {
+    getBorrowers: (institutionCode) => electron_1.ipcRenderer?.invoke('db:getBorrowers', institutionCode) || Promise.resolve([]),
+    addBorrower: (borrower, institutionCode) => electron_1.ipcRenderer?.invoke('db:addBorrower', {
         ...borrower,
         localId: borrower.localId || `borrower_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         syncStatus: borrower.syncStatus || 'pending',
         lastModified: borrower.lastModified || new Date().toISOString(),
         version: borrower.version || 1,
         createdAt: borrower.createdAt || new Date().toISOString()
-    }) || Promise.resolve(0),
-    updateBorrower: (borrower) => electron_1.ipcRenderer?.invoke('db:updateBorrower', {
+    }, institutionCode) || Promise.resolve(0),
+    updateBorrower: (borrower, institutionCode) => electron_1.ipcRenderer?.invoke('db:updateBorrower', {
         ...borrower,
         lastModified: new Date().toISOString(),
         version: (borrower.version || 1) + 1,
         syncStatus: 'pending'
-    }) || Promise.resolve(false),
-    deleteBorrower: (id) => electron_1.ipcRenderer?.invoke('db:deleteBorrower', id) || Promise.resolve(false),
-    searchBorrowers: (query) => electron_1.ipcRenderer?.invoke('db:searchBorrowers', query) || Promise.resolve([]),
+    }, institutionCode) || Promise.resolve(false),
+    deleteBorrower: (id, institutionCode) => electron_1.ipcRenderer?.invoke('db:deleteBorrower', id, institutionCode) || Promise.resolve(false),
+    searchBorrowers: (query, institutionCode) => electron_1.ipcRenderer?.invoke('db:searchBorrowers', query, institutionCode) || Promise.resolve([]),
     // Borrow operations
-    getBorrowedDocuments: () => electron_1.ipcRenderer?.invoke('db:getBorrowedDocuments') || Promise.resolve([]),
+    getBorrowedDocuments: (institutionCode) => electron_1.ipcRenderer?.invoke('db:getBorrowedDocuments', institutionCode) || Promise.resolve([]),
     // Compatibility method
-    getBorrowedBooks: () => electron_1.ipcRenderer?.invoke('db:getBorrowedDocuments') || Promise.resolve([]),
-    borrowDocument: (documentId, borrowerId, expectedReturnDate) => electron_1.ipcRenderer?.invoke('db:borrowDocument', documentId, borrowerId, expectedReturnDate) || Promise.resolve(0),
+    getBorrowedBooks: (institutionCode) => electron_1.ipcRenderer?.invoke('db:getBorrowedDocuments', institutionCode) || Promise.resolve([]),
+    borrowDocument: (documentId, borrowerId, expectedReturnDate, institutionCode) => electron_1.ipcRenderer?.invoke('db:borrowDocument', documentId, borrowerId, expectedReturnDate, institutionCode) || Promise.resolve(0),
     // Compatibility method
-    borrowBook: (documentId, borrowerId, expectedReturnDate) => electron_1.ipcRenderer?.invoke('db:borrowDocument', documentId, borrowerId, expectedReturnDate) || Promise.resolve(0),
-    returnBook: (borrowHistoryId, notes) => electron_1.ipcRenderer?.invoke('db:returnBook', borrowHistoryId, notes) || Promise.resolve(false),
-    getBorrowHistory: (filter) => electron_1.ipcRenderer?.invoke('db:getBorrowHistory', filter) || Promise.resolve([]),
+    borrowBook: (documentId, borrowerId, expectedReturnDate, institutionCode) => electron_1.ipcRenderer?.invoke('db:borrowDocument', documentId, borrowerId, expectedReturnDate, institutionCode) || Promise.resolve(0),
+    returnBook: (borrowHistoryId, notes, institutionCode) => electron_1.ipcRenderer?.invoke('db:returnBook', borrowHistoryId, notes, institutionCode) || Promise.resolve(false),
+    getBorrowHistory: (filter, institutionCode) => electron_1.ipcRenderer?.invoke('db:getBorrowHistory', filter, institutionCode) || Promise.resolve([]),
     // Statistics
-    getStats: () => electron_1.ipcRenderer?.invoke('db:getStats') || Promise.resolve({
+    getStats: (institutionCode) => electron_1.ipcRenderer?.invoke('db:getStats', institutionCode) || Promise.resolve({
         totalDocuments: 0,
         borrowedDocuments: 0,
         availableDocuments: 0,
@@ -205,9 +205,9 @@ const electronAPI = {
         totalStaff: 0,
         overdueBooks: 0
     }),
-    getAdvancedStats: () => electron_1.ipcRenderer?.invoke('stats:advanced') || Promise.resolve({}),
+    getAdvancedStats: (institutionCode) => electron_1.ipcRenderer?.invoke('stats:advanced', institutionCode) || Promise.resolve({}),
     // Recent Activity
-    getRecentActivity: (limit) => electron_1.ipcRenderer?.invoke('db:getRecentActivity', limit) || Promise.resolve([]),
+    getRecentActivity: (limit, institutionCode) => electron_1.ipcRenderer?.invoke('db:getRecentActivity', limit, institutionCode) || Promise.resolve([]),
     // Settings management
     getSettings: () => electron_1.ipcRenderer?.invoke('settings:get') || Promise.resolve(null),
     saveSettings: (settings) => electron_1.ipcRenderer?.invoke('settings:save', settings) || Promise.resolve(false),
