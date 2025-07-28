@@ -512,7 +512,8 @@ export class DatabaseService {
       let params: any[] = [];
       
       if (institutionCode) {
-        query += ' AND institution_code = ?';
+        // Inclure les emprunteurs avec institution_code vide ou correspondant au code fourni
+        query += ' AND (institution_code = ? OR institution_code = \'\')';
         params.push(institutionCode);
       }
       
@@ -616,7 +617,7 @@ export class DatabaseService {
     return new Promise((resolve, reject) => {
       // Vérifier s'il n'y a pas d'emprunts actifs
       let checkQuery = 'SELECT COUNT(*) as count FROM borrow_history WHERE borrowerId = ? AND status = "active" AND deletedAt IS NULL';
-      let checkParams = [id];
+      let checkParams: any[] = [id];
       
       if (institutionCode) {
         checkQuery += ' AND institution_code = ?';
@@ -1092,7 +1093,8 @@ export class DatabaseService {
       let params: any[] = [];
       
       if (institutionCode) {
-        query += ' AND institution_code = ?';
+        // Inclure les auteurs avec institution_code vide ou correspondant au code fourni
+        query += ' AND (institution_code = ? OR institution_code = \'\')';
         params.push(institutionCode);
       }
       
@@ -1145,7 +1147,8 @@ export class DatabaseService {
       let params: any[] = [];
       
       if (institutionCode) {
-        query += ' AND institution_code = ?';
+        // Inclure les catégories avec institution_code vide ou correspondant au code fourni
+        query += ' AND (institution_code = ? OR institution_code = \'\')';
         params.push(institutionCode);
       }
       
@@ -1353,7 +1356,8 @@ export class DatabaseService {
       
       let params: any[] = [];
       if (institutionCode) {
-        query += ` AND d.institution_code = ?`;
+        // Inclure les documents avec institution_code vide ou correspondant au code fourni
+        query += ` AND (d.institution_code = ? OR d.institution_code = '')`;
         params.push(institutionCode);
       }
       

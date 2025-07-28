@@ -28931,7 +28931,8 @@ class DatabaseService {
             let query = 'SELECT * FROM borrowers WHERE deletedAt IS NULL';
             let params = [];
             if (institutionCode) {
-                query += ' AND institution_code = ?';
+                // Inclure les emprunteurs avec institution_code vide ou correspondant au code fourni
+                query += ' AND (institution_code = ? OR institution_code = \'\')';
                 params.push(institutionCode);
             }
             query += ' ORDER BY lastName, firstName';
@@ -28984,15 +28985,16 @@ class DatabaseService {
             stmt.finalize();
         });
     }
-    async updateBorrower(borrower) {
+    async updateBorrower(borrower, institutionCode) {
         return new Promise((resolve, reject) => {
-            const stmt = this.db.prepare(`
+            const now = new Date().toISOString();
+            let query = `
         UPDATE borrowers SET 
           type = ?, firstName = ?, lastName = ?, matricule = ?, 
-          classe = ?, cniNumber = ?, position = ?, email = ?, phone = ?
-        WHERE id = ?
-      `);
-            stmt.run([
+          classe = ?, cniNumber = ?, position = ?, email = ?, phone = ?,
+          lastModified = ?, version = version + 1, syncStatus = 'pending'
+        WHERE id = ? AND deletedAt IS NULL`;
+            let params = [
                 borrower.type,
                 borrower.firstName,
                 borrower.lastName,
@@ -29002,8 +29004,15 @@ class DatabaseService {
                 borrower.position || null,
                 borrower.email || null,
                 borrower.phone || null,
+                now,
                 borrower.id
-            ], function (err) {
+            ];
+            if (institutionCode) {
+                query += ` AND institution_code = ?`;
+                params.push(institutionCode);
+            }
+            const stmt = this.db.prepare(query);
+            stmt.run(params, function (err) {
                 if (err) {
                     reject(err);
                 }
@@ -29014,10 +29023,16 @@ class DatabaseService {
             stmt.finalize();
         });
     }
-    async deleteBorrower(id) {
+    async deleteBorrower(id, institutionCode) {
         return new Promise((resolve, reject) => {
             // Vérifier s'il n'y a pas d'emprunts actifs
-            this.db.get('SELECT COUNT(*) as count FROM borrow_history WHERE borrowerId = ? AND status = "active"', [id], (err, row) => {
+            let checkQuery = 'SELECT COUNT(*) as count FROM borrow_history WHERE borrowerId = ? AND status = "active" AND deletedAt IS NULL';
+            let checkParams = [id];
+            if (institutionCode) {
+                checkQuery += ' AND institution_code = ?';
+                checkParams.push(institutionCode);
+            }
+            this.db.get(checkQuery, checkParams, (err, row) => {
                 if (err) {
                     reject(err);
                     return;
@@ -29026,7 +29041,13 @@ class DatabaseService {
                     reject(new Error('Impossible de supprimer : cet emprunteur a des documents non rendus'));
                     return;
                 }
-                this.db.run('DELETE FROM borrowers WHERE id = ?', [id], function (err) {
+                let deleteQuery = 'UPDATE borrowers SET deletedAt = ?, syncStatus = "pending", version = version + 1 WHERE id = ?';
+                let deleteParams = [new Date().toISOString(), id];
+                if (institutionCode) {
+                    deleteQuery += ' AND institution_code = ?';
+                    deleteParams.push(institutionCode);
+                }
+                this.db.run(deleteQuery, deleteParams, function (err) {
                     if (err) {
                         reject(err);
                     }
@@ -29037,14 +29058,20 @@ class DatabaseService {
             });
         });
     }
-    async searchBorrowers(query) {
+    async searchBorrowers(query, institutionCode) {
         return new Promise((resolve, reject) => {
             const searchQuery = `%${query}%`;
-            this.db.all(`
+            let sqlQuery = `
         SELECT * FROM borrowers 
-        WHERE firstName LIKE ? OR lastName LIKE ? OR matricule LIKE ? OR classe LIKE ? OR position LIKE ?
-        ORDER BY lastName, firstName
-      `, [searchQuery, searchQuery, searchQuery, searchQuery, searchQuery], (err, rows) => {
+        WHERE deletedAt IS NULL
+        AND (firstName LIKE ? OR lastName LIKE ? OR matricule LIKE ? OR classe LIKE ? OR position LIKE ?)`;
+            let params = [searchQuery, searchQuery, searchQuery, searchQuery, searchQuery];
+            if (institutionCode) {
+                sqlQuery += ` AND institution_code = ?`;
+                params.push(institutionCode);
+            }
+            sqlQuery += ` ORDER BY lastName, firstName`;
+            this.db.all(sqlQuery, params, (err, rows) => {
                 if (err) {
                     reject(err);
                 }
@@ -29083,17 +29110,19 @@ class DatabaseService {
         });
     }
     // Gestion des emprunts
-    async borrowDocument(documentId, borrowerId, expectedReturnDate) {
+    async borrowDocument(documentId, borrowerId, expectedReturnDate, institutionCode) {
         return new Promise((resolve, reject) => {
             const borrowDate = new Date().toISOString();
             const database = this.db; // Capturer this.db dans une variable locale
             database.serialize(() => {
                 database.run('BEGIN TRANSACTION');
                 const stmt1 = database.prepare(`
-        INSERT INTO borrow_history (documentId, borrowerId, borrowDate, expectedReturnDate, status)
-        VALUES (?, ?, ?, ?, 'active')
+        INSERT INTO borrow_history (documentId, borrowerId, borrowDate, expectedReturnDate, status, institution_code, localId, syncStatus, lastModified, version, createdAt)
+        VALUES (?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?)
       `);
-                stmt1.run([documentId, borrowerId, borrowDate, expectedReturnDate], function (err) {
+                const now = new Date().toISOString();
+                const localId = `borrow_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                stmt1.run([documentId, borrowerId, borrowDate, expectedReturnDate, institutionCode || '', localId, 'pending', now, 1, now], function (err) {
                     if (err) {
                         database.run('ROLLBACK');
                         reject(err);
@@ -29128,7 +29157,7 @@ class DatabaseService {
     async borrowBook(documentId, borrowerId, expectedReturnDate) {
         return this.borrowDocument(documentId, borrowerId, expectedReturnDate);
     }
-    async returnBook(borrowHistoryId, notes) {
+    async returnBook(borrowHistoryId, notes, institutionCode) {
         return new Promise((resolve, reject) => {
             const returnDate = new Date().toISOString();
             const database = this.db; // Capturer this.db dans une variable locale
@@ -29185,9 +29214,9 @@ class DatabaseService {
             });
         });
     }
-    async getBorrowedDocuments() {
+    async getBorrowedDocuments(institutionCode) {
         return new Promise((resolve, reject) => {
-            this.db.all(`
+            let query = `
         SELECT 
           bh.*,
           d.titre as title, d.auteur as author, d.descripteurs as category, d.couverture as coverUrl, 
@@ -29202,9 +29231,14 @@ class DatabaseService {
         FROM borrow_history bh
         JOIN documents d ON bh.documentId = d.id
         JOIN borrowers br ON bh.borrowerId = br.id
-        WHERE bh.status = 'active' AND d.deletedAt IS NULL
-        ORDER BY bh.borrowDate DESC
-      `, (err, rows) => {
+        WHERE bh.status = 'active' AND bh.deletedAt IS NULL AND d.deletedAt IS NULL`;
+            let params = [];
+            if (institutionCode) {
+                query += ` AND bh.institution_code = ?`;
+                params.push(institutionCode);
+            }
+            query += ` ORDER BY bh.borrowDate DESC`;
+            this.db.all(query, params, (err, rows) => {
                 if (err) {
                     reject(err);
                 }
@@ -29281,7 +29315,7 @@ class DatabaseService {
             });
         });
     }
-    async getBorrowHistory(filter) {
+    async getBorrowHistory(filter, institutionCode) {
         return new Promise((resolve, reject) => {
             let query = `
         SELECT 
@@ -29299,8 +29333,12 @@ class DatabaseService {
         JOIN documents d ON bh.documentId = d.id
         JOIN borrowers br ON bh.borrowerId = br.id
       `;
-            const conditions = ['d.deletedAt IS NULL'];
+            const conditions = ['bh.deletedAt IS NULL', 'd.deletedAt IS NULL'];
             const params = [];
+            if (institutionCode) {
+                conditions.push('bh.institution_code = ?');
+                params.push(institutionCode);
+            }
             if (filter) {
                 if (filter.startDate) {
                     conditions.push('bh.borrowDate >= ?');
@@ -29414,7 +29452,8 @@ class DatabaseService {
             let query = 'SELECT * FROM authors WHERE deletedAt IS NULL';
             let params = [];
             if (institutionCode) {
-                query += ' AND institution_code = ?';
+                // Inclure les auteurs avec institution_code vide ou correspondant au code fourni
+                query += ' AND (institution_code = ? OR institution_code = \'\')';
                 params.push(institutionCode);
             }
             query += ' ORDER BY name';
@@ -29462,7 +29501,8 @@ class DatabaseService {
             let query = 'SELECT * FROM categories WHERE deletedAt IS NULL';
             let params = [];
             if (institutionCode) {
-                query += ' AND institution_code = ?';
+                // Inclure les catégories avec institution_code vide ou correspondant au code fourni
+                query += ' AND (institution_code = ? OR institution_code = \'\')';
                 params.push(institutionCode);
             }
             query += ' ORDER BY name';
@@ -29504,59 +29544,64 @@ class DatabaseService {
             stmt.finalize();
         });
     }
-    async searchBooks(query) {
+    async searchBooks(query, institutionCode) {
         // Méthode de compatibilité - utilise searchDocuments() et convertit le résultat
         try {
-            const documents = await this.searchDocuments(query);
+            const documents = await this.searchDocuments(query, institutionCode);
             return documents.map(doc => (0, preload_1.createBookFromDocument)(doc));
         }
         catch (error) {
             throw error;
         }
     }
-    async getStats() {
+    async getStats(institutionCode) {
         return new Promise((resolve, reject) => {
             this.db.serialize(() => {
                 const stats = {};
+                let whereClause = institutionCode ? 'WHERE deletedAt IS NULL AND institution_code = ?' : 'WHERE deletedAt IS NULL';
+                let params = institutionCode ? [institutionCode] : [];
                 // Utiliser documents au lieu de books
-                this.db.get('SELECT COUNT(*) as count FROM documents WHERE deletedAt IS NULL', (err, row) => {
+                this.db.get(`SELECT COUNT(*) as count FROM documents ${whereClause}`, params, (err, row) => {
                     if (err) {
                         reject(err);
                         return;
                     }
                     stats.totalDocuments = row.count || 0;
-                    this.db.get('SELECT COUNT(*) as count FROM documents WHERE estEmprunte = 1 AND deletedAt IS NULL', (err, row) => {
+                    let borrowedWhereClause = institutionCode ? 'WHERE estEmprunte = 1 AND deletedAt IS NULL AND institution_code = ?' : 'WHERE estEmprunte = 1 AND deletedAt IS NULL';
+                    this.db.get(`SELECT COUNT(*) as count FROM documents ${borrowedWhereClause}`, params, (err, row) => {
                         if (err) {
                             reject(err);
                             return;
                         }
                         stats.borrowedDocuments = row.count || 0;
                         stats.availableDocuments = (stats.totalDocuments || 0) - (stats.borrowedDocuments || 0);
-                        this.db.get('SELECT COUNT(*) as count FROM authors WHERE deletedAt IS NULL', (err, row) => {
+                        this.db.get(`SELECT COUNT(*) as count FROM authors ${whereClause}`, params, (err, row) => {
                             if (err) {
                                 reject(err);
                                 return;
                             }
                             stats.totalAuthors = row.count || 0;
-                            this.db.get('SELECT COUNT(*) as count FROM categories WHERE deletedAt IS NULL', (err, row) => {
+                            this.db.get(`SELECT COUNT(*) as count FROM categories ${whereClause}`, params, (err, row) => {
                                 if (err) {
                                     reject(err);
                                     return;
                                 }
                                 stats.totalCategories = row.count || 0;
-                                this.db.get('SELECT COUNT(*) as count FROM borrowers WHERE deletedAt IS NULL', (err, row) => {
+                                this.db.get(`SELECT COUNT(*) as count FROM borrowers ${whereClause}`, params, (err, row) => {
                                     if (err) {
                                         reject(err);
                                         return;
                                     }
                                     stats.totalBorrowers = row.count || 0;
-                                    this.db.get('SELECT COUNT(*) as count FROM borrowers WHERE type = "student" AND deletedAt IS NULL', (err, row) => {
+                                    let studentWhereClause = institutionCode ? 'WHERE type = "student" AND deletedAt IS NULL AND institution_code = ?' : 'WHERE type = "student" AND deletedAt IS NULL';
+                                    this.db.get(`SELECT COUNT(*) as count FROM borrowers ${studentWhereClause}`, params, (err, row) => {
                                         if (err) {
                                             reject(err);
                                             return;
                                         }
                                         stats.totalStudents = row.count || 0;
-                                        this.db.get('SELECT COUNT(*) as count FROM borrowers WHERE type = "staff" AND deletedAt IS NULL', (err, row) => {
+                                        let staffWhereClause = institutionCode ? 'WHERE type = "staff" AND deletedAt IS NULL AND institution_code = ?' : 'WHERE type = "staff" AND deletedAt IS NULL';
+                                        this.db.get(`SELECT COUNT(*) as count FROM borrowers ${staffWhereClause}`, params, (err, row) => {
                                             if (err) {
                                                 reject(err);
                                                 return;
@@ -29564,10 +29609,12 @@ class DatabaseService {
                                             stats.totalStaff = row.count || 0;
                                             // Compter les documents en retard
                                             const now = new Date().toISOString();
+                                            let overdueWhereClause = institutionCode ? 'WHERE status = \'active\' AND expectedReturnDate < ? AND deletedAt IS NULL AND institution_code = ?' : 'WHERE status = \'active\' AND expectedReturnDate < ? AND deletedAt IS NULL';
+                                            let overdueParams = institutionCode ? [now, institutionCode] : [now];
                                             this.db.get(`
                       SELECT COUNT(*) as count FROM borrow_history 
-                      WHERE status = 'active' AND expectedReturnDate < ? AND deletedAt IS NULL
-                    `, [now], (err, row) => {
+                      ${overdueWhereClause}
+                    `, overdueParams, (err, row) => {
                                                 if (err) {
                                                     reject(err);
                                                     return;
@@ -29644,7 +29691,8 @@ class DatabaseService {
       `;
             let params = [];
             if (institutionCode) {
-                query += ` AND d.institution_code = ?`;
+                // Inclure les documents avec institution_code vide ou correspondant au code fourni
+                query += ` AND (d.institution_code = ? OR d.institution_code = '')`;
                 params.push(institutionCode);
             }
             query += ` ORDER BY d.lastModified DESC`;
@@ -29733,17 +29781,16 @@ class DatabaseService {
             stmt.finalize();
         });
     }
-    async updateDocument(document) {
+    async updateDocument(document, institutionCode) {
         return new Promise((resolve, reject) => {
             const now = new Date().toISOString();
-            const stmt = this.db.prepare(`
+            let query = `
         UPDATE documents SET 
           auteur = ?, titre = ?, editeur = ?, lieuEdition = ?, annee = ?, 
           descripteurs = ?, cote = ?, type = ?, isbn = ?, description = ?, couverture = ?,
           lastModified = ?, version = version + 1, syncStatus = 'pending'
-        WHERE id = ? AND deletedAt IS NULL
-      `);
-            stmt.run([
+        WHERE id = ? AND deletedAt IS NULL`;
+            let params = [
                 document.auteur,
                 document.titre,
                 document.editeur,
@@ -29757,7 +29804,13 @@ class DatabaseService {
                 document.couverture || null,
                 now,
                 document.id
-            ], function (err) {
+            ];
+            if (institutionCode) {
+                query += ` AND institution_code = ?`;
+                params.push(institutionCode);
+            }
+            const stmt = this.db.prepare(query);
+            stmt.run(params, function (err) {
                 if (err) {
                     if (err.code === 'SQLITE_CONSTRAINT' && err.message && err.message.includes('UNIQUE constraint failed: documents.cote')) {
                         reject(new Error('Un autre document avec cette cote existe déjà'));
@@ -29773,16 +29826,20 @@ class DatabaseService {
             stmt.finalize();
         });
     }
-    async deleteDocument(id) {
+    async deleteDocument(id, institutionCode) {
         return new Promise((resolve, reject) => {
             const now = new Date().toISOString();
-            // Soft delete
-            const stmt = this.db.prepare(`
+            let query = `
         UPDATE documents 
         SET deletedAt = ?, lastModified = ?, syncStatus = 'pending', version = version + 1
-        WHERE id = ? AND deletedAt IS NULL
-      `);
-            stmt.run([now, now, id], function (err) {
+        WHERE id = ? AND deletedAt IS NULL`;
+            let params = [now, now, id];
+            if (institutionCode) {
+                query += ` AND institution_code = ?`;
+                params.push(institutionCode);
+            }
+            const stmt = this.db.prepare(query);
+            stmt.run(params, function (err) {
                 if (err) {
                     reject(err);
                 }
@@ -29793,10 +29850,10 @@ class DatabaseService {
             stmt.finalize();
         });
     }
-    async searchDocuments(query) {
+    async searchDocuments(query, institutionCode) {
         return new Promise((resolve, reject) => {
             const searchTerm = `%${query.toLowerCase()}%`;
-            this.db.all(`
+            let sqlQuery = `
         SELECT 
           d.*,
           b.firstName as borrower_firstName,
@@ -29811,9 +29868,14 @@ class DatabaseService {
           LOWER(d.descripteurs) LIKE ? OR
           LOWER(d.cote) LIKE ? OR
           LOWER(d.isbn) LIKE ?
-        )
-        ORDER BY d.lastModified DESC
-      `, [searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm], (err, rows) => {
+        )`;
+            let params = [searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm];
+            if (institutionCode) {
+                sqlQuery += ` AND d.institution_code = ?`;
+                params.push(institutionCode);
+            }
+            sqlQuery += ` ORDER BY d.lastModified DESC`;
+            this.db.all(sqlQuery, params, (err, rows) => {
                 if (err) {
                     reject(err);
                 }
@@ -30042,7 +30104,7 @@ class DatabaseService {
     // ===============================
     // MÉTHODE POUR ACTIVITÉ RÉCENTE
     // ===============================
-    async getRecentActivity(limit = 10) {
+    async getRecentActivity(limit = 10, institutionCode) {
         return new Promise((resolve, reject) => {
             // Combiner trois requêtes pour l'activité récente :
             // 1. Documents récemment ajoutés
@@ -30062,16 +30124,20 @@ class DatabaseService {
             // 1. Documents récemment ajoutés (dernières 7 jours)
             const sevenDaysAgo = new Date();
             sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-            this.db.all(`
+            let documentsQuery = `
         SELECT 
           d.titre, d.auteur, d.createdAt,
           'add' as type
         FROM documents d
         WHERE d.deletedAt IS NULL 
-        AND d.createdAt >= ?
-        ORDER BY d.createdAt DESC
-        LIMIT 5
-      `, [sevenDaysAgo.toISOString()], (err, rows) => {
+        AND d.createdAt >= ?`;
+            let documentsParams = [sevenDaysAgo.toISOString()];
+            if (institutionCode) {
+                documentsQuery += ` AND d.institution_code = ?`;
+                documentsParams.push(institutionCode);
+            }
+            documentsQuery += ` ORDER BY d.createdAt DESC LIMIT 5`;
+            this.db.all(documentsQuery, documentsParams, (err, rows) => {
                 if (err) {
                     console.error('Erreur lors de la récupération des documents récents:', err);
                 }
@@ -30091,7 +30157,7 @@ class DatabaseService {
             // 2. Emprunts récents (dernières 48 heures)
             const twoDaysAgo = new Date();
             twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
-            this.db.all(`
+            let borrowsQuery = `
         SELECT 
           bh.borrowDate,
           d.titre, d.auteur,
@@ -30100,10 +30166,14 @@ class DatabaseService {
         JOIN documents d ON bh.documentId = d.id
         JOIN borrowers br ON bh.borrowerId = br.id
         WHERE bh.borrowDate >= ?
-        AND bh.deletedAt IS NULL
-        ORDER BY bh.borrowDate DESC
-        LIMIT 5
-      `, [twoDaysAgo.toISOString()], (err, rows) => {
+        AND bh.deletedAt IS NULL`;
+            let borrowsParams = [twoDaysAgo.toISOString()];
+            if (institutionCode) {
+                borrowsQuery += ` AND bh.institution_code = ?`;
+                borrowsParams.push(institutionCode);
+            }
+            borrowsQuery += ` ORDER BY bh.borrowDate DESC LIMIT 5`;
+            this.db.all(borrowsQuery, borrowsParams, (err, rows) => {
                 if (err) {
                     console.error('Erreur lors de la récupération des emprunts récents:', err);
                 }
@@ -30121,7 +30191,7 @@ class DatabaseService {
                 checkComplete();
             });
             // 3. Retours récents (dernières 48 heures)
-            this.db.all(`
+            let returnsQuery = `
         SELECT 
           bh.actualReturnDate,
           d.titre, d.auteur,
@@ -30131,10 +30201,14 @@ class DatabaseService {
         JOIN borrowers br ON bh.borrowerId = br.id
         WHERE bh.actualReturnDate >= ?
         AND bh.actualReturnDate IS NOT NULL
-        AND bh.deletedAt IS NULL
-        ORDER BY bh.actualReturnDate DESC
-        LIMIT 5
-      `, [twoDaysAgo.toISOString()], (err, rows) => {
+        AND bh.deletedAt IS NULL`;
+            let returnsParams = [twoDaysAgo.toISOString()];
+            if (institutionCode) {
+                returnsQuery += ` AND bh.institution_code = ?`;
+                returnsParams.push(institutionCode);
+            }
+            returnsQuery += ` ORDER BY bh.actualReturnDate DESC LIMIT 5`;
+            this.db.all(returnsQuery, returnsParams, (err, rows) => {
                 if (err) {
                     console.error('Erreur lors de la récupération des retours récents:', err);
                 }
