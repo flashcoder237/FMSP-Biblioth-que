@@ -25249,6 +25249,37 @@ electron_1.ipcMain.handle('db:getRecentActivity', async (_, limit = 10, institut
         return [];
     }
 });
+// Handlers pour la gestion des données orphelines
+electron_1.ipcMain.handle('db:getOrphanDataCount', async () => {
+    try {
+        return await dbService.getOrphanDataCount();
+    }
+    catch (error) {
+        console.error('Erreur getOrphanDataCount:', error);
+        return {
+            documents: 0,
+            authors: 0,
+            categories: 0,
+            borrowers: 0,
+            borrowHistory: 0
+        };
+    }
+});
+electron_1.ipcMain.handle('db:assignOrphanDataToInstitution', async (_, institutionCode) => {
+    try {
+        return await dbService.assignOrphanDataToInstitution(institutionCode);
+    }
+    catch (error) {
+        console.error('Erreur assignOrphanDataToInstitution:', error);
+        return {
+            documents: 0,
+            authors: 0,
+            categories: 0,
+            borrowers: 0,
+            borrowHistory: 0
+        };
+    }
+});
 // Nouvelles opérations de base de données
 electron_1.ipcMain.handle('db:clearAll', async () => {
     try {
@@ -25573,7 +25604,7 @@ electron_1.ipcMain.handle('print:borrow-history', async (_, data) => {
     }
 });
 // Advanced export handler with Excel support
-electron_1.ipcMain.handle('export:advanced', async (_, config) => {
+electron_1.ipcMain.handle('export:advanced', async (_, config, institutionCode) => {
     try {
         const fileExtension = config.format === 'excel' ? 'xlsx' : 'csv';
         const fileName = `bibliotheque_export_${new Date().toISOString().split('T')[0]}.${fileExtension}`;
@@ -25594,7 +25625,8 @@ electron_1.ipcMain.handle('export:advanced', async (_, config) => {
             return { success: false, cancelled: true };
         }
         // Fetch data based on configuration
-        const exportData = await gatherExportData(config);
+        console.log('🔍 DEBUG EXPORT - Using institutionCode:', institutionCode);
+        const exportData = await gatherExportData(config, institutionCode);
         // Validate that we have some data to export
         const hasData = Object.values(exportData).some(data => Array.isArray(data) && data.length > 0);
         if (!hasData) {
@@ -25643,12 +25675,13 @@ electron_1.ipcMain.handle('export:csv', async (_, data) => {
     }
 });
 // Advanced export data gathering function
-async function gatherExportData(config) {
+async function gatherExportData(config, institutionCode) {
     const exportData = {};
     try {
         // Gather documents data
         if (config.dataTypes.documents) {
-            const documents = await dbService.getDocuments();
+            console.log('🔍 DEBUG EXPORT - Getting documents with institutionCode:', institutionCode);
+            const documents = await dbService.getDocuments(institutionCode);
             // Apply document status filter
             let filteredDocuments = documents;
             if (config.filters.documentStatus !== 'all') {
@@ -25664,7 +25697,8 @@ async function gatherExportData(config) {
         }
         // Gather borrowers data
         if (config.dataTypes.borrowers) {
-            const borrowers = await dbService.getBorrowers();
+            console.log('🔍 DEBUG EXPORT - Getting borrowers with institutionCode:', institutionCode);
+            const borrowers = await dbService.getBorrowers(institutionCode);
             // Apply borrower type filter
             let filteredBorrowers = borrowers;
             if (config.filters.borrowerType !== 'all') {
@@ -25674,7 +25708,8 @@ async function gatherExportData(config) {
         }
         // Gather borrow history data
         if (config.dataTypes.borrowHistory) {
-            const borrowHistory = await dbService.getBorrowHistory();
+            console.log('🔍 DEBUG EXPORT - Getting borrow history with institutionCode:', institutionCode);
+            const borrowHistory = await dbService.getBorrowHistory(undefined, institutionCode);
             // Apply history status filter
             let filteredHistory = borrowHistory;
             if (config.filters.historyStatus !== 'all') {
@@ -25693,12 +25728,14 @@ async function gatherExportData(config) {
         }
         // Gather authors data
         if (config.dataTypes.authors) {
-            const authors = await dbService.getAuthors();
+            console.log('🔍 DEBUG EXPORT - Getting authors with institutionCode:', institutionCode);
+            const authors = await dbService.getAuthors(institutionCode);
             exportData.authors = authors;
         }
         // Gather categories data
         if (config.dataTypes.categories) {
-            const categories = await dbService.getCategories();
+            console.log('🔍 DEBUG EXPORT - Getting categories with institutionCode:', institutionCode);
+            const categories = await dbService.getCategories(institutionCode);
             exportData.categories = categories;
         }
         // Generate statistics
@@ -26990,6 +27027,9 @@ const electronAPI = {
     getAdvancedStats: (institutionCode) => electron_1.ipcRenderer?.invoke('stats:advanced', institutionCode) || Promise.resolve({}),
     // Recent Activity
     getRecentActivity: (limit, institutionCode) => electron_1.ipcRenderer?.invoke('db:getRecentActivity', limit, institutionCode) || Promise.resolve([]),
+    // Database operations - Orphan data management
+    getOrphanDataCount: () => electron_1.ipcRenderer?.invoke('db:getOrphanDataCount') || Promise.resolve({ documents: 0, authors: 0, categories: 0, borrowers: 0, borrowHistory: 0 }),
+    assignOrphanDataToInstitution: (institutionCode) => electron_1.ipcRenderer?.invoke('db:assignOrphanDataToInstitution', institutionCode) || Promise.resolve({ documents: 0, authors: 0, categories: 0, borrowers: 0, borrowHistory: 0 }),
     // Settings management
     getSettings: () => electron_1.ipcRenderer?.invoke('settings:get') || Promise.resolve(null),
     saveSettings: (settings) => electron_1.ipcRenderer?.invoke('settings:save', settings) || Promise.resolve(false),
@@ -27013,7 +27053,7 @@ const electronAPI = {
     printBorrowHistory: (data) => electron_1.ipcRenderer?.invoke('print:borrow-history', data) || Promise.resolve(false),
     // Export operations
     exportCSV: (data) => electron_1.ipcRenderer?.invoke('export:csv', data) || Promise.resolve(null),
-    exportAdvanced: (config) => electron_1.ipcRenderer?.invoke('export:advanced', config) || Promise.resolve({ success: false, error: 'IPC not available' }),
+    exportAdvanced: (config, institutionCode) => electron_1.ipcRenderer?.invoke('export:advanced', config, institutionCode) || Promise.resolve({ success: false, error: 'IPC not available' }),
     // File operations
     selectFile: (options) => electron_1.ipcRenderer?.invoke('file:select', options) || Promise.resolve(null),
     selectDirectory: () => electron_1.ipcRenderer?.invoke('file:selectDirectory') || Promise.resolve(null),
@@ -28930,9 +28970,8 @@ class DatabaseService {
         return new Promise((resolve, reject) => {
             let query = 'SELECT * FROM borrowers WHERE deletedAt IS NULL';
             let params = [];
-            if (institutionCode) {
-                // Inclure les emprunteurs avec institution_code vide ou correspondant au code fourni
-                query += ' AND (institution_code = ? OR institution_code = \'\')';
+            if (institutionCode && institutionCode.trim() !== '') {
+                query += ' AND institution_code = ?';
                 params.push(institutionCode);
             }
             query += ' ORDER BY lastName, firstName';
@@ -29007,7 +29046,7 @@ class DatabaseService {
                 now,
                 borrower.id
             ];
-            if (institutionCode) {
+            if (institutionCode && institutionCode.trim() !== '') {
                 query += ` AND institution_code = ?`;
                 params.push(institutionCode);
             }
@@ -29028,7 +29067,7 @@ class DatabaseService {
             // Vérifier s'il n'y a pas d'emprunts actifs
             let checkQuery = 'SELECT COUNT(*) as count FROM borrow_history WHERE borrowerId = ? AND status = "active" AND deletedAt IS NULL';
             let checkParams = [id];
-            if (institutionCode) {
+            if (institutionCode && institutionCode.trim() !== '') {
                 checkQuery += ' AND institution_code = ?';
                 checkParams.push(institutionCode);
             }
@@ -29043,7 +29082,7 @@ class DatabaseService {
                 }
                 let deleteQuery = 'UPDATE borrowers SET deletedAt = ?, syncStatus = "pending", version = version + 1 WHERE id = ?';
                 let deleteParams = [new Date().toISOString(), id];
-                if (institutionCode) {
+                if (institutionCode && institutionCode.trim() !== '') {
                     deleteQuery += ' AND institution_code = ?';
                     deleteParams.push(institutionCode);
                 }
@@ -29066,7 +29105,7 @@ class DatabaseService {
         WHERE deletedAt IS NULL
         AND (firstName LIKE ? OR lastName LIKE ? OR matricule LIKE ? OR classe LIKE ? OR position LIKE ?)`;
             let params = [searchQuery, searchQuery, searchQuery, searchQuery, searchQuery];
-            if (institutionCode) {
+            if (institutionCode && institutionCode.trim() !== '') {
                 sqlQuery += ` AND institution_code = ?`;
                 params.push(institutionCode);
             }
@@ -29093,7 +29132,7 @@ class DatabaseService {
         LEFT JOIN borrowers b ON d.emprunteurId = b.id
         WHERE d.deletedAt IS NULL`;
             let params = [];
-            if (institutionCode) {
+            if (institutionCode && institutionCode.trim() !== '') {
                 query += ` AND d.institution_code = ?`;
                 params.push(institutionCode);
             }
@@ -29233,7 +29272,7 @@ class DatabaseService {
         JOIN borrowers br ON bh.borrowerId = br.id
         WHERE bh.status = 'active' AND bh.deletedAt IS NULL AND d.deletedAt IS NULL`;
             let params = [];
-            if (institutionCode) {
+            if (institutionCode && institutionCode.trim() !== '') {
                 query += ` AND bh.institution_code = ?`;
                 params.push(institutionCode);
             }
@@ -29335,7 +29374,7 @@ class DatabaseService {
       `;
             const conditions = ['bh.deletedAt IS NULL', 'd.deletedAt IS NULL'];
             const params = [];
-            if (institutionCode) {
+            if (institutionCode && institutionCode.trim() !== '') {
                 conditions.push('bh.institution_code = ?');
                 params.push(institutionCode);
             }
@@ -29451,9 +29490,8 @@ class DatabaseService {
         return new Promise((resolve, reject) => {
             let query = 'SELECT * FROM authors WHERE deletedAt IS NULL';
             let params = [];
-            if (institutionCode) {
-                // Inclure les auteurs avec institution_code vide ou correspondant au code fourni
-                query += ' AND (institution_code = ? OR institution_code = \'\')';
+            if (institutionCode && institutionCode.trim() !== '') {
+                query += ' AND institution_code = ?';
                 params.push(institutionCode);
             }
             query += ' ORDER BY name';
@@ -29500,9 +29538,8 @@ class DatabaseService {
         return new Promise((resolve, reject) => {
             let query = 'SELECT * FROM categories WHERE deletedAt IS NULL';
             let params = [];
-            if (institutionCode) {
-                // Inclure les catégories avec institution_code vide ou correspondant au code fourni
-                query += ' AND (institution_code = ? OR institution_code = \'\')';
+            if (institutionCode && institutionCode.trim() !== '') {
+                query += ' AND institution_code = ?';
                 params.push(institutionCode);
             }
             query += ' ORDER BY name';
@@ -29690,12 +29727,14 @@ class DatabaseService {
         WHERE d.deletedAt IS NULL
       `;
             let params = [];
-            if (institutionCode) {
-                // Inclure les documents avec institution_code vide ou correspondant au code fourni
-                query += ` AND (d.institution_code = ? OR d.institution_code = '')`;
+            if (institutionCode && institutionCode.trim() !== '') {
+                query += ` AND d.institution_code = ?`;
                 params.push(institutionCode);
             }
             query += ` ORDER BY d.lastModified DESC`;
+            console.log('🔍 DEBUG getDocuments - institutionCode:', institutionCode);
+            console.log('🔍 DEBUG getDocuments - query:', query);
+            console.log('🔍 DEBUG getDocuments - params:', params);
             this.db.all(query, params, (err, rows) => {
                 if (err) {
                     reject(err);
@@ -29805,7 +29844,7 @@ class DatabaseService {
                 now,
                 document.id
             ];
-            if (institutionCode) {
+            if (institutionCode && institutionCode.trim() !== '') {
                 query += ` AND institution_code = ?`;
                 params.push(institutionCode);
             }
@@ -29834,7 +29873,7 @@ class DatabaseService {
         SET deletedAt = ?, lastModified = ?, syncStatus = 'pending', version = version + 1
         WHERE id = ? AND deletedAt IS NULL`;
             let params = [now, now, id];
-            if (institutionCode) {
+            if (institutionCode && institutionCode.trim() !== '') {
                 query += ` AND institution_code = ?`;
                 params.push(institutionCode);
             }
@@ -29870,7 +29909,7 @@ class DatabaseService {
           LOWER(d.isbn) LIKE ?
         )`;
             let params = [searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm];
-            if (institutionCode) {
+            if (institutionCode && institutionCode.trim() !== '') {
                 sqlQuery += ` AND d.institution_code = ?`;
                 params.push(institutionCode);
             }
@@ -30102,6 +30141,142 @@ class DatabaseService {
         });
     }
     // ===============================
+    // MÉTHODES DE MIGRATION DES DONNÉES
+    // ===============================
+    async assignOrphanDataToInstitution(institutionCode) {
+        return new Promise((resolve, reject) => {
+            const results = {
+                documents: 0,
+                authors: 0,
+                categories: 0,
+                borrowers: 0,
+                borrowHistory: 0
+            };
+            this.db.serialize(() => {
+                this.db.run('BEGIN TRANSACTION');
+                // Assigner les documents orphelins
+                this.db.run(`UPDATE documents SET institution_code = ?, lastModified = ?, syncStatus = 'pending' WHERE institution_code = '' OR institution_code IS NULL`, [institutionCode, new Date().toISOString()], function (err) {
+                    if (err) {
+                        console.error('Erreur lors de l\'assignation des documents:', err);
+                    }
+                    else {
+                        results.documents = this.changes || 0;
+                    }
+                });
+                // Assigner les auteurs orphelins
+                this.db.run(`UPDATE authors SET institution_code = ?, lastModified = ?, syncStatus = 'pending' WHERE institution_code = '' OR institution_code IS NULL`, [institutionCode, new Date().toISOString()], function (err) {
+                    if (err) {
+                        console.error('Erreur lors de l\'assignation des auteurs:', err);
+                    }
+                    else {
+                        results.authors = this.changes || 0;
+                    }
+                });
+                // Assigner les catégories orphelines
+                this.db.run(`UPDATE categories SET institution_code = ?, lastModified = ?, syncStatus = 'pending' WHERE institution_code = '' OR institution_code IS NULL`, [institutionCode, new Date().toISOString()], function (err) {
+                    if (err) {
+                        console.error('Erreur lors de l\'assignation des catégories:', err);
+                    }
+                    else {
+                        results.categories = this.changes || 0;
+                    }
+                });
+                // Assigner les emprunteurs orphelins
+                this.db.run(`UPDATE borrowers SET institution_code = ?, lastModified = ?, syncStatus = 'pending' WHERE institution_code = '' OR institution_code IS NULL`, [institutionCode, new Date().toISOString()], function (err) {
+                    if (err) {
+                        console.error('Erreur lors de l\'assignation des emprunteurs:', err);
+                    }
+                    else {
+                        results.borrowers = this.changes || 0;
+                    }
+                });
+                // Assigner l'historique d'emprunts orphelin
+                const db = this.db; // Capturer la référence pour le callback
+                db.run(`UPDATE borrow_history SET institution_code = ?, lastModified = ?, syncStatus = 'pending' WHERE institution_code = '' OR institution_code IS NULL`, [institutionCode, new Date().toISOString()], function (err) {
+                    if (err) {
+                        console.error('Erreur lors de l\'assignation de l\'historique:', err);
+                        db.run('ROLLBACK');
+                        reject(err);
+                    }
+                    else {
+                        results.borrowHistory = this.changes || 0;
+                        db.run('COMMIT');
+                        resolve(results);
+                    }
+                });
+            });
+        });
+    }
+    async getOrphanDataCount() {
+        return new Promise((resolve, reject) => {
+            const results = {
+                documents: 0,
+                authors: 0,
+                categories: 0,
+                borrowers: 0,
+                borrowHistory: 0
+            };
+            let completedQueries = 0;
+            const totalQueries = 5;
+            const checkComplete = () => {
+                completedQueries++;
+                if (completedQueries === totalQueries) {
+                    resolve(results);
+                }
+            };
+            // Compter les documents orphelins
+            this.db.get(`SELECT COUNT(*) as count FROM documents WHERE (institution_code = '' OR institution_code IS NULL) AND deletedAt IS NULL`, (err, row) => {
+                if (err) {
+                    console.error('Erreur lors du comptage des documents:', err);
+                }
+                else {
+                    results.documents = row.count || 0;
+                }
+                checkComplete();
+            });
+            // Compter les auteurs orphelins
+            this.db.get(`SELECT COUNT(*) as count FROM authors WHERE (institution_code = '' OR institution_code IS NULL) AND deletedAt IS NULL`, (err, row) => {
+                if (err) {
+                    console.error('Erreur lors du comptage des auteurs:', err);
+                }
+                else {
+                    results.authors = row.count || 0;
+                }
+                checkComplete();
+            });
+            // Compter les catégories orphelines
+            this.db.get(`SELECT COUNT(*) as count FROM categories WHERE (institution_code = '' OR institution_code IS NULL) AND deletedAt IS NULL`, (err, row) => {
+                if (err) {
+                    console.error('Erreur lors du comptage des catégories:', err);
+                }
+                else {
+                    results.categories = row.count || 0;
+                }
+                checkComplete();
+            });
+            // Compter les emprunteurs orphelins
+            this.db.get(`SELECT COUNT(*) as count FROM borrowers WHERE (institution_code = '' OR institution_code IS NULL) AND deletedAt IS NULL`, (err, row) => {
+                if (err) {
+                    console.error('Erreur lors du comptage des emprunteurs:', err);
+                }
+                else {
+                    results.borrowers = row.count || 0;
+                }
+                checkComplete();
+            });
+            // Compter l'historique orphelin
+            this.db.get(`SELECT COUNT(*) as count FROM borrow_history WHERE (institution_code = '' OR institution_code IS NULL) AND deletedAt IS NULL`, (err, row) => {
+                if (err) {
+                    console.error('Erreur lors du comptage de l\'historique:', err);
+                }
+                else {
+                    results.borrowHistory = row.count || 0;
+                }
+                checkComplete();
+            });
+        });
+    }
+    // ===============================
     // MÉTHODE POUR ACTIVITÉ RÉCENTE
     // ===============================
     async getRecentActivity(limit = 10, institutionCode) {
@@ -30132,7 +30307,7 @@ class DatabaseService {
         WHERE d.deletedAt IS NULL 
         AND d.createdAt >= ?`;
             let documentsParams = [sevenDaysAgo.toISOString()];
-            if (institutionCode) {
+            if (institutionCode && institutionCode.trim() !== '') {
                 documentsQuery += ` AND d.institution_code = ?`;
                 documentsParams.push(institutionCode);
             }
@@ -30168,7 +30343,7 @@ class DatabaseService {
         WHERE bh.borrowDate >= ?
         AND bh.deletedAt IS NULL`;
             let borrowsParams = [twoDaysAgo.toISOString()];
-            if (institutionCode) {
+            if (institutionCode && institutionCode.trim() !== '') {
                 borrowsQuery += ` AND bh.institution_code = ?`;
                 borrowsParams.push(institutionCode);
             }
@@ -30203,7 +30378,7 @@ class DatabaseService {
         AND bh.actualReturnDate IS NOT NULL
         AND bh.deletedAt IS NULL`;
             let returnsParams = [twoDaysAgo.toISOString()];
-            if (institutionCode) {
+            if (institutionCode && institutionCode.trim() !== '') {
                 returnsQuery += ` AND bh.institution_code = ?`;
                 returnsParams.push(institutionCode);
             }

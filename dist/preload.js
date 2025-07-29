@@ -208,6 +208,9 @@ const electronAPI = {
     getAdvancedStats: (institutionCode) => electron_1.ipcRenderer?.invoke('stats:advanced', institutionCode) || Promise.resolve({}),
     // Recent Activity
     getRecentActivity: (limit, institutionCode) => electron_1.ipcRenderer?.invoke('db:getRecentActivity', limit, institutionCode) || Promise.resolve([]),
+    // Database operations - Orphan data management
+    getOrphanDataCount: () => electron_1.ipcRenderer?.invoke('db:getOrphanDataCount') || Promise.resolve({ documents: 0, authors: 0, categories: 0, borrowers: 0, borrowHistory: 0 }),
+    assignOrphanDataToInstitution: (institutionCode) => electron_1.ipcRenderer?.invoke('db:assignOrphanDataToInstitution', institutionCode) || Promise.resolve({ documents: 0, authors: 0, categories: 0, borrowers: 0, borrowHistory: 0 }),
     // Settings management
     getSettings: () => electron_1.ipcRenderer?.invoke('settings:get') || Promise.resolve(null),
     saveSettings: (settings) => electron_1.ipcRenderer?.invoke('settings:save', settings) || Promise.resolve(false),
@@ -231,7 +234,7 @@ const electronAPI = {
     printBorrowHistory: (data) => electron_1.ipcRenderer?.invoke('print:borrow-history', data) || Promise.resolve(false),
     // Export operations
     exportCSV: (data) => electron_1.ipcRenderer?.invoke('export:csv', data) || Promise.resolve(null),
-    exportAdvanced: (config) => electron_1.ipcRenderer?.invoke('export:advanced', config) || Promise.resolve({ success: false, error: 'IPC not available' }),
+    exportAdvanced: (config, institutionCode) => electron_1.ipcRenderer?.invoke('export:advanced', config, institutionCode) || Promise.resolve({ success: false, error: 'IPC not available' }),
     // File operations
     selectFile: (options) => electron_1.ipcRenderer?.invoke('file:select', options) || Promise.resolve(null),
     selectDirectory: () => electron_1.ipcRenderer?.invoke('file:selectDirectory') || Promise.resolve(null),

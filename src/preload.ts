@@ -479,6 +479,13 @@ const electronAPI = {
   getRecentActivity: (limit?: number, institutionCode?: string): Promise<any[]> => 
     ipcRenderer?.invoke('db:getRecentActivity', limit, institutionCode) || Promise.resolve([]),
   
+  // Database operations - Orphan data management
+  getOrphanDataCount: (): Promise<{ documents: number; authors: number; categories: number; borrowers: number; borrowHistory: number }> => 
+    ipcRenderer?.invoke('db:getOrphanDataCount') || Promise.resolve({ documents: 0, authors: 0, categories: 0, borrowers: 0, borrowHistory: 0 }),
+  
+  assignOrphanDataToInstitution: (institutionCode: string): Promise<{ documents: number; authors: number; categories: number; borrowers: number; borrowHistory: number }> => 
+    ipcRenderer?.invoke('db:assignOrphanDataToInstitution', institutionCode) || Promise.resolve({ documents: 0, authors: 0, categories: 0, borrowers: 0, borrowHistory: 0 }),
+  
   // Settings management
   getSettings: (): Promise<ApplicationSettings | null> => ipcRenderer?.invoke('settings:get') || Promise.resolve(null),
   saveSettings: (settings: ApplicationSettings): Promise<boolean> => ipcRenderer?.invoke('settings:save', settings) || Promise.resolve(false),
@@ -516,8 +523,8 @@ const electronAPI = {
   
   // Export operations
   exportCSV: (data: any): Promise<string | null> => ipcRenderer?.invoke('export:csv', data) || Promise.resolve(null),
-  exportAdvanced: (config: any): Promise<{ success: boolean; path?: string; error?: string; cancelled?: boolean }> => 
-    ipcRenderer?.invoke('export:advanced', config) || Promise.resolve({ success: false, error: 'IPC not available' }),
+  exportAdvanced: (config: any, institutionCode?: string): Promise<{ success: boolean; path?: string; error?: string; cancelled?: boolean }> => 
+    ipcRenderer?.invoke('export:advanced', config, institutionCode) || Promise.resolve({ success: false, error: 'IPC not available' }),
   
   // File operations
   selectFile: (options?: any): Promise<string | null> => ipcRenderer?.invoke('file:select', options) || Promise.resolve(null),

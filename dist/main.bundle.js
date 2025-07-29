@@ -35,14 +35,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./services/LocalAuthService */ "./src/renderer/services/LocalAuthService.ts");
 /* harmony import */ var _components_AppSettings__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./components/AppSettings */ "./src/renderer/components/AppSettings.tsx");
 /* harmony import */ var _components_UserProfile__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./components/UserProfile */ "./src/renderer/components/UserProfile.tsx");
-/* harmony import */ var _components_BackupManager__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./components/BackupManager */ "./src/renderer/components/BackupManager.tsx");
-/* harmony import */ var _components_ReportsManager__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./components/ReportsManager */ "./src/renderer/components/ReportsManager.tsx");
-/* harmony import */ var _components_StatisticsManager__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./components/StatisticsManager */ "./src/renderer/components/StatisticsManager.tsx");
-/* harmony import */ var _components_ToastSystem__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./components/ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
-/* harmony import */ var _components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./components/KeyboardShortcuts */ "./src/renderer/components/KeyboardShortcuts.tsx");
-/* harmony import */ var _types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./types/UnifiedTypes */ "./src/renderer/types/UnifiedTypes.ts");
+/* harmony import */ var _components_InstitutionUserManagement__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./components/InstitutionUserManagement */ "./src/renderer/components/InstitutionUserManagement.tsx");
+/* harmony import */ var _components_BackupManager__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./components/BackupManager */ "./src/renderer/components/BackupManager.tsx");
+/* harmony import */ var _components_ReportsManager__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./components/ReportsManager */ "./src/renderer/components/ReportsManager.tsx");
+/* harmony import */ var _components_StatisticsManager__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./components/StatisticsManager */ "./src/renderer/components/StatisticsManager.tsx");
+/* harmony import */ var _components_ToastSystem__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./components/ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
+/* harmony import */ var _components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./components/KeyboardShortcuts */ "./src/renderer/components/KeyboardShortcuts.tsx");
+/* harmony import */ var _types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./types/UnifiedTypes */ "./src/renderer/types/UnifiedTypes.ts");
 
 // src/renderer/App.tsx - Version modifiée pour Supabase
+
 
 
 
@@ -109,8 +111,11 @@ const App = () => {
     const [editingDocument, setEditingDocument] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
     const [showReportsModal, setShowReportsModal] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [showStatisticsModal, setShowStatisticsModal] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [showUserManagementModal, setShowUserManagementModal] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     const [error, setError] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
+    const [showOrphanDataDialog, setShowOrphanDataDialog] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [orphanDataCount, setOrphanDataCount] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({ documents: 0, authors: 0, categories: 0, borrowers: 0, borrowHistory: 0 });
     (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
         checkAppSecurity();
     }, []);
@@ -234,7 +239,10 @@ const App = () => {
             setIsLoading(true);
             if (appMode === 'offline') {
                 // Mode offline - charger les données depuis SQLite via electronAPI avec filtrage par institution
-                const institutionCode = currentInstitution?.code || '';
+                const institutionCode = supabaseService.getCurrentInstitution()?.code || '';
+                console.log('🔍 DEBUG App.tsx loadData - currentInstitution from state:', currentInstitution);
+                console.log('🔍 DEBUG App.tsx loadData - currentInstitution from service:', supabaseService.getCurrentInstitution());
+                console.log('🔍 DEBUG App.tsx loadData - institutionCode:', institutionCode);
                 const [documentsData, authorsData, categoriesData, borrowersData, borrowedDocumentsData, recentActivityData] = await Promise.all([
                     window.electronAPI.getDocuments(institutionCode),
                     window.electronAPI.getAuthors(institutionCode),
@@ -277,14 +285,16 @@ const App = () => {
                 });
             }
             else {
-                // Mode online - utiliser Supabase
+                // Mode online - utiliser Supabase avec filtrage par institution
+                const institutionCode = supabaseService.getCurrentInstitution()?.code || '';
+                console.log('🔍 DEBUG App.tsx loadData ONLINE - institutionCode:', institutionCode);
                 const [documentsData, authorsData, categoriesData, borrowersData, borrowedDocumentsData, statsData] = await Promise.all([
-                    supabaseService.getDocuments(),
-                    supabaseService.getAuthors(),
-                    supabaseService.getCategories(),
-                    supabaseService.getBorrowers(),
-                    supabaseService.getBorrowedDocuments(),
-                    supabaseService.getStats()
+                    supabaseService.getDocuments(institutionCode),
+                    supabaseService.getAuthors(institutionCode),
+                    supabaseService.getCategories(institutionCode),
+                    supabaseService.getBorrowers(institutionCode),
+                    supabaseService.getBorrowedDocuments(institutionCode),
+                    supabaseService.getStats(institutionCode)
                 ]);
                 setDocuments(documentsData);
                 setAuthors(authorsData);
@@ -305,7 +315,10 @@ const App = () => {
     const loadDemoData = async () => {
         try {
             setIsLoading(true);
-            // Données de démonstration
+            // Obtenir le code d'institution courant pour les données démo
+            const institutionCode = supabaseService.getCurrentInstitution()?.code || 'DEMO';
+            console.log('🔍 DEBUG loadDemoData - Using institutionCode:', institutionCode);
+            // Données de démonstration avec isolation par institution
             const demoDocuments = [
                 {
                     id: 1,
@@ -318,6 +331,7 @@ const App = () => {
                     cote: "004.01 KNU",
                     couverture: "",
                     estEmprunte: false,
+                    institution_code: institutionCode,
                     syncStatus: 'synced',
                     lastModified: new Date().toISOString(),
                     version: 1,
@@ -334,6 +348,7 @@ const App = () => {
                     cote: "005.1 MAR",
                     couverture: "",
                     estEmprunte: false,
+                    institution_code: institutionCode,
                     syncStatus: 'synced',
                     lastModified: new Date().toISOString(),
                     version: 1,
@@ -350,6 +365,7 @@ const App = () => {
                     cote: "005.1 GAM",
                     couverture: "",
                     estEmprunte: false,
+                    institution_code: institutionCode,
                     syncStatus: 'synced',
                     lastModified: new Date().toISOString(),
                     version: 1,
@@ -360,6 +376,7 @@ const App = () => {
                 {
                     id: 1,
                     name: "Donald Knuth",
+                    institution_code: institutionCode,
                     syncStatus: 'synced',
                     lastModified: new Date().toISOString(),
                     version: 1,
@@ -368,6 +385,7 @@ const App = () => {
                 {
                     id: 2,
                     name: "Robert C. Martin",
+                    institution_code: institutionCode,
                     syncStatus: 'synced',
                     lastModified: new Date().toISOString(),
                     version: 1,
@@ -376,6 +394,7 @@ const App = () => {
                 {
                     id: 3,
                     name: "Gang of Four",
+                    institution_code: institutionCode,
                     syncStatus: 'synced',
                     lastModified: new Date().toISOString(),
                     version: 1,
@@ -386,6 +405,7 @@ const App = () => {
                 {
                     id: 1,
                     name: "Informatique",
+                    institution_code: institutionCode,
                     syncStatus: 'synced',
                     lastModified: new Date().toISOString(),
                     version: 1,
@@ -394,6 +414,7 @@ const App = () => {
                 {
                     id: 2,
                     name: "Programmation",
+                    institution_code: institutionCode,
                     syncStatus: 'synced',
                     lastModified: new Date().toISOString(),
                     version: 1,
@@ -402,6 +423,7 @@ const App = () => {
                 {
                     id: 3,
                     name: "Architecture logicielle",
+                    institution_code: institutionCode,
                     syncStatus: 'synced',
                     lastModified: new Date().toISOString(),
                     version: 1,
@@ -420,6 +442,7 @@ const App = () => {
                     position: '',
                     email: 'jean.dupont@demo.local',
                     phone: '+33 6 12 34 56 78',
+                    institution_code: institutionCode,
                     syncStatus: 'synced',
                     lastModified: new Date().toISOString(),
                     version: 1,
@@ -436,6 +459,7 @@ const App = () => {
                     position: 'Professeur',
                     email: 'marie.martin@demo.local',
                     phone: '+33 6 87 65 43 21',
+                    institution_code: institutionCode,
                     syncStatus: 'synced',
                     lastModified: new Date().toISOString(),
                     version: 1,
@@ -477,7 +501,12 @@ const App = () => {
                 if (appMode === 'offline') {
                     console.log('Mode offline - authentification avec LocalAuthService');
                     // Utiliser le service d'authentification local
+                    console.log('🔍 DEBUG App.tsx - Authentication attempt with:', {
+                        email: credentials.email,
+                        institutionCode: credentials.institutionCode || ''
+                    });
                     const authResult = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_19__.LocalAuthService.authenticate(credentials.email, credentials.password, credentials.institutionCode || '');
+                    console.log('🔍 DEBUG App.tsx - Authentication result:', authResult);
                     if (!authResult.success) {
                         throw new Error(authResult.message || 'Échec de l\'authentification');
                     }
@@ -495,7 +524,9 @@ const App = () => {
                             role: localUser.role
                         };
                         // Chercher l'institution correspondante ou créer une par défaut
+                        console.log('🔍 DEBUG App.tsx - Looking for institution with code:', localUser.institutionCode);
                         const institution = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_19__.LocalAuthService.findInstitutionByCode(localUser.institutionCode);
+                        console.log('🔍 DEBUG App.tsx - Found institution:', institution);
                         const appInstitution = institution ? {
                             id: institution.id,
                             name: institution.name,
@@ -537,9 +568,12 @@ const App = () => {
                         };
                         setCurrentUser(appUser);
                         setCurrentInstitution(appInstitution);
+                        // CRITICAL: Switch the SupabaseService to the correct institution
+                        console.log('🔍 DEBUG App.tsx - Switching SupabaseService institution to:', appInstitution.code);
+                        await supabaseService.switchInstitution(appInstitution.code);
                         // Créer les versions unifiées
-                        setUnifiedUser((0,_types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_27__.convertToUnifiedUser)(localUser, 'offline'));
-                        setUnifiedInstitution((0,_types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_27__.convertToUnifiedInstitution)(institution || {
+                        setUnifiedUser((0,_types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_28__.convertToUnifiedUser)(localUser, 'offline'));
+                        setUnifiedInstitution((0,_types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_28__.convertToUnifiedInstitution)(institution || {
                             id: 'default-offline',
                             name: 'Ma Bibliothèque',
                             code: localUser.institutionCode,
@@ -559,6 +593,8 @@ const App = () => {
                         setIsDemoMode(false);
                         setCurrentView('dashboard');
                         await loadData();
+                        // Vérifier s'il y a des données orphelines à assigner
+                        setTimeout(() => checkForOrphanData(), 1000);
                         return;
                     }
                 }
@@ -671,7 +707,10 @@ const App = () => {
         try {
             if (appMode === 'offline') {
                 // Mode offline - utiliser l'API électron pour SQLite avec filtrage par institution
-                const institutionCode = currentInstitution?.code || '';
+                const institutionCode = supabaseService.getCurrentInstitution()?.code;
+                if (!institutionCode) {
+                    throw new Error('Code d\'institution manquant. Veuillez vous reconnecter.');
+                }
                 if (editingDocument) {
                     // Modification d'un document existant
                     const documentToUpdate = { ...document, id: editingDocument.id };
@@ -748,8 +787,12 @@ const App = () => {
                 console.log('Document ajouté en mode démo:', newDocument);
             }
             else {
-                // Mode online - utiliser Supabase
-                await supabaseService.addDocument(document);
+                // Mode online - utiliser Supabase avec filtrage par institution
+                const institutionCode = supabaseService.getCurrentInstitution()?.code;
+                if (!institutionCode) {
+                    throw new Error('Code d\'institution manquant. Veuillez vous reconnecter.');
+                }
+                await supabaseService.addDocument(document, institutionCode);
                 await loadData();
             }
             // Nettoyer l'état d'édition et retourner à la liste des documents
@@ -769,12 +812,13 @@ const App = () => {
         try {
             if (appMode === 'offline') {
                 // Mode offline - utiliser l'API électron pour SQLite avec filtrage par institution
-                const institutionCode = currentInstitution?.code || '';
+                const institutionCode = supabaseService.getCurrentInstitution()?.code || '';
                 await window.electronAPI.returnBook(borrowHistoryId, notes, institutionCode);
                 console.log('Document retourné en mode offline:', borrowHistoryId);
             }
             else {
                 // Mode online - utiliser Supabase
+                // Note: returnBook ne nécessite pas institutionCode car il utilise l'ID d'historique
                 await supabaseService.returnBook(borrowHistoryId.toString(), notes);
             }
             await loadData();
@@ -788,7 +832,10 @@ const App = () => {
         try {
             if (appMode === 'offline') {
                 // Mode offline - utiliser l'API électron pour SQLite avec filtrage par institution
-                const institutionCode = currentInstitution?.code || '';
+                const institutionCode = supabaseService.getCurrentInstitution()?.code;
+                if (!institutionCode) {
+                    throw new Error('Code d\'institution manquant. Veuillez vous reconnecter.');
+                }
                 await window.electronAPI.deleteDocument(documentId, institutionCode);
                 console.log('Document supprimé en mode offline:', documentId);
                 // Recharger les données pour mettre à jour l'interface
@@ -807,8 +854,9 @@ const App = () => {
                 console.log('Document supprimé en mode démo:', documentId);
             }
             else {
-                // Mode online - utiliser Supabase
-                await supabaseService.deleteDocument(documentId.toString());
+                // Mode online - utiliser Supabase avec filtrage par institution
+                const institutionCode = supabaseService.getCurrentInstitution()?.code || '';
+                await supabaseService.deleteDocument(documentId.toString(), institutionCode);
                 await loadData();
             }
         }
@@ -833,7 +881,10 @@ const App = () => {
         try {
             if (appMode === 'offline') {
                 // Mode offline - utiliser l'API électron pour SQLite avec filtrage par institution
-                const institutionCode = currentInstitution?.code || '';
+                const institutionCode = supabaseService.getCurrentInstitution()?.code;
+                if (!institutionCode) {
+                    throw new Error('Code d\'institution manquant. Veuillez vous reconnecter.');
+                }
                 await window.electronAPI.borrowDocument(documentId, borrowerId, returnDate, institutionCode);
                 console.log('Document emprunté en mode offline:', { documentId, borrowerId, returnDate });
             }
@@ -872,12 +923,16 @@ const App = () => {
                 }
             }
             else {
-                // Mode online - utiliser Supabase
+                // Mode online - utiliser Supabase avec filtrage par institution
+                const institutionCode = supabaseService.getCurrentInstitution()?.code;
+                if (!institutionCode) {
+                    throw new Error('Code d\'institution manquant. Veuillez vous reconnecter.');
+                }
                 await supabaseService.borrowDocument({
                     documentId: documentId.toString(),
                     borrowerId: borrowerId.toString(),
                     expectedReturnDate: returnDate
-                });
+                }, institutionCode);
             }
             // Recharger les données après l'opération
             await loadData();
@@ -894,7 +949,7 @@ const App = () => {
                 // Mode offline - trouver l'emprunt actif et le retourner
                 const activeBorrow = borrowedDocuments.find(bh => bh.documentId === documentId && bh.status === 'active');
                 if (activeBorrow && activeBorrow.id) {
-                    const institutionCode = currentInstitution?.code || '';
+                    const institutionCode = supabaseService.getCurrentInstitution()?.code || '';
                     await window.electronAPI.returnBook(activeBorrow.id, undefined, institutionCode);
                     console.log('Document retourné en mode offline:', documentId);
                 }
@@ -938,7 +993,10 @@ const App = () => {
         try {
             if (appMode === 'offline') {
                 // Mode offline - utiliser l'API électron pour SQLite avec filtrage par institution
-                const institutionCode = currentInstitution?.code || '';
+                const institutionCode = supabaseService.getCurrentInstitution()?.code;
+                if (!institutionCode) {
+                    throw new Error('Code d\'institution manquant. Veuillez vous reconnecter.');
+                }
                 const newId = await window.electronAPI.addBorrower(borrower, institutionCode);
                 await loadData(); // Refresh data
                 return newId;
@@ -958,8 +1016,12 @@ const App = () => {
                 return newId;
             }
             else {
-                // Mode online - utiliser Supabase
-                const newId = await supabaseService.addBorrower(borrower);
+                // Mode online - utiliser Supabase avec filtrage par institution
+                const institutionCode = supabaseService.getCurrentInstitution()?.code;
+                if (!institutionCode) {
+                    throw new Error('Code d\'institution manquant. Veuillez vous reconnecter.');
+                }
+                const newId = await supabaseService.addBorrower(borrower, institutionCode);
                 await loadData(); // Refresh data
                 return newId;
             }
@@ -975,6 +1037,43 @@ const App = () => {
         }
         else {
             await loadData();
+        }
+    };
+    const checkForOrphanData = async () => {
+        try {
+            if (appMode === 'offline' && supabaseService.getCurrentInstitution()?.code) {
+                const count = await window.electronAPI.getOrphanDataCount();
+                const totalOrphans = count.documents + count.authors + count.categories + count.borrowers + count.borrowHistory;
+                if (totalOrphans > 0) {
+                    setOrphanDataCount(count);
+                    setShowOrphanDataDialog(true);
+                }
+            }
+        }
+        catch (error) {
+            console.error('Erreur lors de la vérification des données orphelines:', error);
+        }
+    };
+    const handleAssignOrphanData = async () => {
+        try {
+            if (!supabaseService.getCurrentInstitution()?.code)
+                return;
+            setIsLoading(true);
+            const result = await window.electronAPI.assignOrphanDataToInstitution(supabaseService.getCurrentInstitution()?.code || '');
+            const totalAssigned = result.documents + result.authors + result.categories + result.borrowers + result.borrowHistory;
+            if (totalAssigned > 0) {
+                await loadData(); // Recharger les données
+                setError(''); // Effacer les erreurs précédentes
+                console.log(`${totalAssigned} éléments assignés à l'établissement ${supabaseService.getCurrentInstitution()?.code}`);
+            }
+            setShowOrphanDataDialog(false);
+        }
+        catch (error) {
+            console.error('Erreur lors de l\'assignation des données:', error);
+            setError('Erreur lors de l\'assignation des données à l\'établissement');
+        }
+        finally {
+            setIsLoading(false);
         }
     };
     // Gérer l'affichage avec TitleBar toujours visible
@@ -1006,8 +1105,18 @@ const App = () => {
             case 'documents':
                 return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_DocumentList__WEBPACK_IMPORTED_MODULE_5__.DocumentList, { documents: documents, onAdd: () => setCurrentView('add-document'), onEdit: handleEditDocument, onBorrow: handleBorrowDocument, onDelete: handleDeleteDocument, onRefresh: refreshData, syncStatus: {}, networkStatus: {} }));
             case 'borrowed':
-                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowedDocuments__WEBPACK_IMPORTED_MODULE_6__.BorrowedDocuments, { documents: borrowedDocuments
-                        .filter(bh => bh.status === 'active') // Seulement les emprunts actifs
+                // Debug: vérifier l'isolation des emprunts actifs
+                const currentInstitutionCode = supabaseService.getCurrentInstitution()?.code;
+                const activeBorrows = borrowedDocuments.filter(bh => bh.status === 'active');
+                console.log('🔍 DEBUG EMPRUNTS ACTIFS - Institution courante:', currentInstitutionCode);
+                console.log('🔍 DEBUG EMPRUNTS ACTIFS - Nombre total d\'emprunts actifs:', activeBorrows.length);
+                console.log('🔍 DEBUG EMPRUNTS ACTIFS - Détails des emprunts:', activeBorrows.map(bh => ({
+                    id: bh.id,
+                    documentTitle: bh.document?.titre,
+                    borrowerName: `${bh.borrower?.firstName} ${bh.borrower?.lastName}`,
+                    institutionCode: bh.institution_code || 'VIDE'
+                })));
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowedDocuments__WEBPACK_IMPORTED_MODULE_6__.BorrowedDocuments, { documents: activeBorrows
                         .map(bh => ({
                         ...bh.document,
                         nomEmprunteur: `${bh.borrower?.firstName} ${bh.borrower?.lastName}`,
@@ -1025,7 +1134,7 @@ const App = () => {
                         setCurrentView('documents');
                     }, editingDocument: editingDocument || undefined }));
             case 'borrowers':
-                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Borrowers__WEBPACK_IMPORTED_MODULE_9__["default"], { onClose: () => setCurrentView('dashboard'), onRefreshData: refreshData }));
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Borrowers__WEBPACK_IMPORTED_MODULE_9__["default"], { onClose: () => setCurrentView('dashboard'), onRefreshData: refreshData, supabaseService: supabaseService }));
             case 'history':
                 return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowHistory__WEBPACK_IMPORTED_MODULE_10__.BorrowHistory, { onClose: () => setCurrentView('dashboard'), supabaseService: supabaseService }));
             case 'settings':
@@ -1036,8 +1145,10 @@ const App = () => {
                 return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_AppSettings__WEBPACK_IMPORTED_MODULE_20__.AppSettings, { onClose: () => setCurrentView('dashboard') }));
             case 'user-profile':
                 return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_UserProfile__WEBPACK_IMPORTED_MODULE_21__.UserProfile, { currentUser: unifiedUser, currentInstitution: unifiedInstitution, appMode: appMode, onClose: () => setCurrentView('dashboard'), onUserUpdate: handleUserUpdate }));
+            case 'user-management':
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_InstitutionUserManagement__WEBPACK_IMPORTED_MODULE_22__.InstitutionUserManagement, { currentUser: unifiedUser, currentInstitution: unifiedInstitution, appMode: appMode, onClose: () => setCurrentView('dashboard') }));
             case 'backup-manager':
-                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BackupManager__WEBPACK_IMPORTED_MODULE_22__.BackupManager, { onClose: () => setCurrentView('dashboard') }));
+                return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BackupManager__WEBPACK_IMPORTED_MODULE_23__.BackupManager, { onClose: () => setCurrentView('dashboard') }));
             default:
                 return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Dashboard__WEBPACK_IMPORTED_MODULE_4__.Dashboard, { stats: stats, onNavigate: setCurrentView, documents: documents, categories: categories, recentActivity: recentActivity }));
         }
@@ -1049,12 +1160,12 @@ const App = () => {
     // Vérifier si on doit afficher l'écran de configuration initiale sans TitleBar
     const initialSetupContent = renderAuthenticatedContent();
     if (initialSetupContent) {
-        return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_25__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_26__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app", children: initialSetupContent }) }) }));
+        return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_26__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_27__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app", children: initialSetupContent }) }) }));
     }
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_25__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_26__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, { onRefresh: refreshData, isAuthenticated: isAuthenticated }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-container", children: isAuthenticated ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(AppContent, { isDemoMode: isDemoMode, currentView: currentView, setCurrentView: setCurrentView, isLoading: isLoading, error: error, setError: setError, renderCurrentView: renderCurrentView, showBorrowModal: showBorrowModal, selectedDocumentForBorrow: selectedDocumentForBorrow, closeBorrowModal: closeBorrowModal, handleBorrow: handleBorrow, handleReturn: handleReturn, handleAddBorrower: handleAddBorrower, refreshData: refreshData, supabaseService: supabaseService, borrowers: borrowers, documents: documents, borrowedDocuments: borrowedDocuments, showReportsModal: showReportsModal, setShowReportsModal: setShowReportsModal, showStatisticsModal: showStatisticsModal, setShowStatisticsModal: setShowStatisticsModal, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution, unifiedUser: unifiedUser, unifiedInstitution: unifiedInstitution, isAuthenticated: isAuthenticated, onLogout: handleLogout })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-container", children: renderMainContent() })) })] }) }) }));
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_26__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_27__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, { onRefresh: refreshData, isAuthenticated: isAuthenticated }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-container", children: isAuthenticated ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(AppContent, { isDemoMode: isDemoMode, currentView: currentView, setCurrentView: setCurrentView, isLoading: isLoading, error: error, setError: setError, renderCurrentView: renderCurrentView, showBorrowModal: showBorrowModal, selectedDocumentForBorrow: selectedDocumentForBorrow, closeBorrowModal: closeBorrowModal, handleBorrow: handleBorrow, handleReturn: handleReturn, handleAddBorrower: handleAddBorrower, refreshData: refreshData, supabaseService: supabaseService, borrowers: borrowers, documents: documents, borrowedDocuments: borrowedDocuments, showReportsModal: showReportsModal, setShowReportsModal: setShowReportsModal, showStatisticsModal: showStatisticsModal, setShowStatisticsModal: setShowStatisticsModal, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution, unifiedUser: unifiedUser, unifiedInstitution: unifiedInstitution, isAuthenticated: isAuthenticated, onLogout: handleLogout, showOrphanDataDialog: showOrphanDataDialog, setShowOrphanDataDialog: setShowOrphanDataDialog, orphanDataCount: orphanDataCount, handleAssignOrphanData: handleAssignOrphanData, showUserManagementModal: showUserManagementModal, setShowUserManagementModal: setShowUserManagementModal })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-container", children: renderMainContent() })) })] }), showUserManagementModal && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_InstitutionUserManagement__WEBPACK_IMPORTED_MODULE_22__.InstitutionUserManagement, { currentUser: unifiedUser, currentInstitution: unifiedInstitution, appMode: appMode, onClose: () => setShowUserManagementModal(false) }))] }) }));
 };
-const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error, setError, renderCurrentView, showBorrowModal, selectedDocumentForBorrow, closeBorrowModal, handleBorrow, handleReturn, handleAddBorrower, refreshData, supabaseService, borrowers, documents, borrowedDocuments, showReportsModal, setShowReportsModal, showStatisticsModal, setShowStatisticsModal, stats, currentUser, currentInstitution, unifiedUser, unifiedInstitution, isAuthenticated, onLogout }) => {
-    const { info } = (0,_components_ToastSystem__WEBPACK_IMPORTED_MODULE_25__.useQuickToast)();
+const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error, setError, renderCurrentView, showBorrowModal, selectedDocumentForBorrow, closeBorrowModal, handleBorrow, handleReturn, handleAddBorrower, refreshData, supabaseService, borrowers, documents, borrowedDocuments, showReportsModal, setShowReportsModal, showStatisticsModal, setShowStatisticsModal, stats, currentUser, currentInstitution, unifiedUser, unifiedInstitution, isAuthenticated, onLogout, showOrphanDataDialog, setShowOrphanDataDialog, orphanDataCount, handleAssignOrphanData, showUserManagementModal, setShowUserManagementModal }) => {
+    const { info } = (0,_components_ToastSystem__WEBPACK_IMPORTED_MODULE_26__.useQuickToast)();
     const [demoNotificationShown, setDemoNotificationShown] = react__WEBPACK_IMPORTED_MODULE_1___default().useState(false);
     react__WEBPACK_IMPORTED_MODULE_1___default().useEffect(() => {
         if (isDemoMode && !demoNotificationShown) {
@@ -1072,10 +1183,71 @@ const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error,
                     else if (view === 'statistics') {
                         setShowStatisticsModal(true);
                     }
+                    else if (view === 'user-management') {
+                        setShowUserManagementModal(true);
+                    }
                     else {
                         setCurrentView(view);
                     }
-                }, stats: stats, currentUser: unifiedUser, currentInstitution: unifiedInstitution, onLogout: onLogout }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("main", { className: "main-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-wrapper", children: [isLoading && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Chargement..." })] })), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "error-banner", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => setError(''), children: "\u00D7" })] })), renderCurrentView()] }) }), showBorrowModal && selectedDocumentForBorrow && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowDocument__WEBPACK_IMPORTED_MODULE_8__.BorrowDocument, { document: selectedDocumentForBorrow, borrowers: borrowers, onBorrow: handleBorrow, onReturn: handleReturn, onCancel: closeBorrowModal, onAddBorrower: handleAddBorrower })), showReportsModal && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ReportsManager__WEBPACK_IMPORTED_MODULE_23__.ReportsManager, { documents: documents, borrowers: borrowers, borrowHistory: borrowedDocuments, onClose: () => setShowReportsModal(false) })), showStatisticsModal && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_StatisticsManager__WEBPACK_IMPORTED_MODULE_24__.StatisticsManager, { documents: documents, borrowers: borrowers, borrowHistory: borrowedDocuments, onClose: () => setShowStatisticsModal(false) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+                }, stats: stats, currentUser: unifiedUser, currentInstitution: unifiedInstitution, onLogout: onLogout }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("main", { className: "main-content", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "content-wrapper", children: [isLoading && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: "Chargement..." })] })), error && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "error-banner", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: error }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => setError(''), children: "\u00D7" })] })), renderCurrentView()] }) }), showBorrowModal && selectedDocumentForBorrow && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_BorrowDocument__WEBPACK_IMPORTED_MODULE_8__.BorrowDocument, { document: selectedDocumentForBorrow, borrowers: borrowers, onBorrow: handleBorrow, onReturn: handleReturn, onCancel: closeBorrowModal, onAddBorrower: handleAddBorrower })), showReportsModal && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ReportsManager__WEBPACK_IMPORTED_MODULE_24__.ReportsManager, { documents: documents, borrowers: borrowers, borrowHistory: borrowedDocuments, onClose: () => setShowReportsModal(false) })), showStatisticsModal && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_StatisticsManager__WEBPACK_IMPORTED_MODULE_25__.StatisticsManager, { documents: documents, borrowers: borrowers, borrowHistory: borrowedDocuments, onClose: () => setShowStatisticsModal(false) })), showOrphanDataDialog && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { style: {
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 2000
+                }, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { style: {
+                        backgroundColor: '#FAF9F6',
+                        padding: '32px',
+                        borderRadius: '12px',
+                        maxWidth: '500px',
+                        width: '90%',
+                        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)'
+                    }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { style: {
+                                margin: '0 0 16px 0',
+                                color: '#3E5C49',
+                                fontSize: '20px',
+                                fontWeight: '600'
+                            }, children: "Donn\u00E9es existantes d\u00E9tect\u00E9es" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { style: {
+                                color: '#6E6E6E',
+                                marginBottom: '20px',
+                                lineHeight: '1.5'
+                            }, children: "Nous avons d\u00E9tect\u00E9 des donn\u00E9es qui ne sont pas encore assign\u00E9es \u00E0 votre \u00E9tablissement :" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { style: {
+                                backgroundColor: '#F5F5F5',
+                                padding: '16px',
+                                borderRadius: '8px',
+                                marginBottom: '20px'
+                            }, children: [orphanDataCount.documents > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { style: { marginBottom: '8px', color: '#3E5C49' }, children: ["\uD83D\uDCDA ", orphanDataCount.documents, " document(s)"] })), orphanDataCount.authors > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { style: { marginBottom: '8px', color: '#3E5C49' }, children: ["\uD83D\uDC64 ", orphanDataCount.authors, " auteur(s)"] })), orphanDataCount.categories > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { style: { marginBottom: '8px', color: '#3E5C49' }, children: ["\uD83C\uDFF7\uFE0F ", orphanDataCount.categories, " cat\u00E9gorie(s)"] })), orphanDataCount.borrowers > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { style: { marginBottom: '8px', color: '#3E5C49' }, children: ["\uD83D\uDC65 ", orphanDataCount.borrowers, " emprunteur(s)"] })), orphanDataCount.borrowHistory > 0 && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { style: { color: '#3E5C49' }, children: ["\uD83D\uDCCA ", orphanDataCount.borrowHistory, " historique(s) d'emprunt"] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { style: {
+                                color: '#6E6E6E',
+                                marginBottom: '24px',
+                                fontSize: '14px'
+                            }, children: ["Voulez-vous assigner ces donn\u00E9es \u00E0 votre \u00E9tablissement \"", (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("strong", { children: currentInstitution?.name }), "\" ?"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { style: {
+                                display: 'flex',
+                                gap: '12px',
+                                justifyContent: 'flex-end'
+                            }, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: () => setShowOrphanDataDialog(false), style: {
+                                        padding: '10px 20px',
+                                        backgroundColor: '#E5DCC2',
+                                        color: '#6E6E6E',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        fontSize: '14px',
+                                        fontWeight: '500'
+                                    }, children: "Plus tard" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { onClick: handleAssignOrphanData, disabled: isLoading, style: {
+                                        padding: '10px 20px',
+                                        backgroundColor: isLoading ? '#C2571B80' : '#C2571B',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        cursor: isLoading ? 'not-allowed' : 'pointer',
+                                        fontSize: '14px',
+                                        fontWeight: '500'
+                                    }, children: isLoading ? 'Assignation...' : 'Assigner maintenant' })] })] }) })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
         .app {
           height: 100vh;
           display: flex;
@@ -6879,7 +7051,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const BorrowHistory = ({ onClose }) => {
+const BorrowHistory = ({ onClose, supabaseService }) => {
     const [history, setHistory] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
     const [filteredHistory, setFilteredHistory] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
     const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
@@ -6900,7 +7072,11 @@ const BorrowHistory = ({ onClose }) => {
     const loadHistory = async () => {
         setIsLoading(true);
         try {
-            const data = await window.electronAPI.getBorrowHistory();
+            // Obtenir le code d'institution courant pour l'isolation
+            const institutionCode = supabaseService.getCurrentInstitution()?.code;
+            console.log('🔍 DEBUG BorrowHistory - Loading with institutionCode:', institutionCode);
+            const data = await window.electronAPI.getBorrowHistory(undefined, institutionCode);
+            console.log('🔍 DEBUG BorrowHistory - Loaded', data.length, 'records');
             setHistory(data);
         }
         catch (error) {
@@ -6964,7 +7140,10 @@ const BorrowHistory = ({ onClose }) => {
     };
     const handleExport = async (config) => {
         try {
-            const result = await window.electronAPI.exportAdvanced(config);
+            // Obtenir le code d'institution courant pour l'export
+            const institutionCode = supabaseService.getCurrentInstitution()?.code;
+            console.log('🔍 DEBUG BorrowHistory EXPORT - Using institutionCode:', institutionCode);
+            const result = await window.electronAPI.exportAdvanced(config, institutionCode);
             if (result.success && result.path) {
                 const fileName = result.path.split(/[/\\]/).pop();
                 alert(`Fichier exporté avec succès : ${fileName}`);
@@ -9022,7 +9201,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-function Borrowers({ onClose, onRefreshData }) {
+function Borrowers({ onClose, onRefreshData, supabaseService }) {
     const [borrowers, setBorrowers] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
     const [searchQuery, setSearchQuery] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
     const [filterType, setFilterType] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('all');
@@ -9042,7 +9221,11 @@ function Borrowers({ onClose, onRefreshData }) {
     const loadBorrowers = async () => {
         setDataLoading(true);
         try {
-            const borrowersList = await window.electronAPI.getBorrowers();
+            // Obtenir le code d'institution courant pour l'isolation
+            const institutionCode = supabaseService.getCurrentInstitution()?.code;
+            console.log('🔍 DEBUG Borrowers - Loading with institutionCode:', institutionCode);
+            const borrowersList = await window.electronAPI.getBorrowers(institutionCode);
+            console.log('🔍 DEBUG Borrowers - Loaded', borrowersList?.length || 0, 'borrowers');
             setBorrowers(borrowersList || []);
         }
         catch (error) {
@@ -16337,6 +16520,205 @@ L'équipe de ${institution?.name}
 
 /***/ }),
 
+/***/ "./src/renderer/components/InstitutionUserManagement.tsx":
+/*!***************************************************************!*\
+  !*** ./src/renderer/components/InstitutionUserManagement.tsx ***!
+  \***************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   InstitutionUserManagement: () => (/* binding */ InstitutionUserManagement)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/shield.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye-off.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/mail.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user-x.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user-check.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trash-2.mjs");
+/* harmony import */ var _MicroInteractions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MicroInteractions */ "./src/renderer/components/MicroInteractions.tsx");
+/* harmony import */ var _ToastSystem__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
+/* harmony import */ var _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../services/LocalAuthService */ "./src/renderer/services/LocalAuthService.ts");
+
+
+
+
+
+
+const InstitutionUserManagement = ({ currentUser, currentInstitution, appMode, onClose }) => {
+    const { success, error } = (0,_ToastSystem__WEBPACK_IMPORTED_MODULE_3__.useQuickToast)();
+    const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [users, setUsers] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
+    const [showCreateForm, setShowCreateForm] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [editingUser, setEditingUser] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+    const [showPassword, setShowPassword] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [newUserForm, setNewUserForm] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({
+        firstName: '',
+        lastName: '',
+        email: '',
+        role: 'user',
+        password: '',
+        confirmPassword: ''
+    });
+    // Charger les utilisateurs de l'institution
+    (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+        loadInstitutionUsers();
+    }, []);
+    const loadInstitutionUsers = () => {
+        if (appMode === 'offline' && currentInstitution?.code) {
+            try {
+                const allUsers = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.getUsers();
+                const institutionUsers = allUsers
+                    .filter(user => user.institutionCode === currentInstitution.code)
+                    .map(user => ({
+                    id: user.id,
+                    email: user.email,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    role: user.role,
+                    institutionCode: user.institutionCode,
+                    isActive: true, // Par défaut, tous les utilisateurs sont actifs
+                    createdAt: new Date().toISOString(), // Valeur par défaut
+                    lastLogin: user.lastLogin
+                }));
+                setUsers(institutionUsers);
+            }
+            catch (err) {
+                console.error('Erreur lors du chargement des utilisateurs:', err);
+                error('Erreur de chargement', 'Erreur lors du chargement des utilisateurs');
+            }
+        }
+    };
+    const handleCreateUser = async () => {
+        if (!currentInstitution?.code) {
+            error('Erreur', 'Code d\'institution manquant');
+            return;
+        }
+        // Validation
+        if (!newUserForm.firstName.trim() || !newUserForm.lastName.trim() || !newUserForm.email.trim()) {
+            error('Champs manquants', 'Veuillez remplir tous les champs obligatoires');
+            return;
+        }
+        if (newUserForm.password.length < 4) {
+            error('Mot de passe trop court', 'Le mot de passe doit contenir au moins 4 caractères');
+            return;
+        }
+        if (newUserForm.password !== newUserForm.confirmPassword) {
+            error('Mots de passe différents', 'Les mots de passe ne correspondent pas');
+            return;
+        }
+        // Vérifier si l'email existe déjà
+        const existingUsers = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.getUsers();
+        if (existingUsers.some(user => user.email.toLowerCase() === newUserForm.email.toLowerCase())) {
+            error('Email déjà utilisé', 'Un utilisateur avec cet email existe déjà');
+            return;
+        }
+        setIsLoading(true);
+        try {
+            const newUser = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.addUser({
+                email: newUserForm.email,
+                password: newUserForm.password,
+                firstName: newUserForm.firstName,
+                lastName: newUserForm.lastName,
+                role: newUserForm.role,
+                institutionCode: currentInstitution.code,
+                preferences: {
+                    rememberMe: false,
+                    autoLogin: false,
+                    theme: 'light'
+                }
+            });
+            if (newUser) {
+                success('Utilisateur créé', `Utilisateur ${newUserForm.firstName} ${newUserForm.lastName} créé avec succès`);
+                setNewUserForm({
+                    firstName: '',
+                    lastName: '',
+                    email: '',
+                    role: 'user',
+                    password: '',
+                    confirmPassword: ''
+                });
+                setShowCreateForm(false);
+                loadInstitutionUsers();
+            }
+        }
+        catch (err) {
+            console.error('Erreur lors de la création de l\'utilisateur:', err);
+            error('Erreur de création', 'Erreur lors de la création de l\'utilisateur');
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    const handleToggleUserStatus = async (user) => {
+        // Fonctionnalité simplifiée - pour l'instant, on ne peut que désactiver visuellement
+        setIsLoading(true);
+        try {
+            // Mise à jour locale de l'état de l'utilisateur
+            const updatedUsers = users.map(u => u.id === user.id ? { ...u, isActive: !u.isActive } : u);
+            setUsers(updatedUsers);
+            success('Statut modifié', `Utilisateur ${user.firstName} ${user.lastName} ${!user.isActive ? 'activé' : 'désactivé'}`);
+        }
+        catch (err) {
+            console.error('Erreur lors de la modification du statut:', err);
+            error('Erreur de modification', 'Erreur lors de la modification du statut');
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    const handleDeleteUser = async (user) => {
+        if (!window.confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.firstName} ${user.lastName} ?`)) {
+            return;
+        }
+        if (user.id === currentUser?.id) {
+            error('Action interdite', 'Vous ne pouvez pas supprimer votre propre compte');
+            return;
+        }
+        setIsLoading(true);
+        try {
+            const allUsers = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.getUsers();
+            const updatedUsers = allUsers.filter(u => u.id !== user.id);
+            _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.saveUsers(updatedUsers);
+            success('Utilisateur supprimé', `Utilisateur ${user.firstName} ${user.lastName} supprimé`);
+            loadInstitutionUsers();
+        }
+        catch (err) {
+            console.error('Erreur lors de la suppression:', err);
+            error('Erreur de suppression', 'Erreur lors de la suppression');
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    const getRoleIcon = (role) => {
+        switch (role) {
+            case 'admin': return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 16, className: "text-red-500" });
+            case 'librarian': return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 16, className: "text-blue-500" });
+            default: return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 16, className: "text-gray-500" });
+        }
+    };
+    const getRoleLabel = (role) => {
+        switch (role) {
+            case 'admin': return 'Administrateur';
+            case 'librarian': return 'Bibliothécaire';
+            default: return 'Utilisateur';
+        }
+    };
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroCard, { className: "w-full max-w-6xl max-h-[90vh] overflow-hidden", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center justify-between p-6 border-b border-gray-200", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center space-x-3", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 20, className: "text-white" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "text-xl font-bold text-gray-900", children: "Gestion des Utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "text-sm text-gray-600", children: [currentInstitution?.name, " \u2022 ", users.length, " utilisateur", users.length > 1 ? 's' : ''] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "secondary", size: "small", onClick: onClose, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "p-6 overflow-y-auto max-h-[70vh]", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "mb-6", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { onClick: () => setShowCreateForm(!showCreateForm), className: "bg-blue-500 hover:bg-blue-600 text-white", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), "Cr\u00E9er un nouvel utilisateur"] }) }), showCreateForm && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroCard, { className: "mb-6 p-4 bg-blue-50 border border-blue-200", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { className: "font-semibold text-gray-900 mb-4 flex items-center", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16, className: "mr-2" }), "Cr\u00E9er un nouvel utilisateur"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Pr\u00E9nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newUserForm.firstName, onChange: (e) => setNewUserForm(prev => ({ ...prev, firstName: e.target.value })), className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "Jean" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newUserForm.lastName, onChange: (e) => setNewUserForm(prev => ({ ...prev, lastName: e.target.value })), className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "Dupont" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Email *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: newUserForm.email, onChange: (e) => setNewUserForm(prev => ({ ...prev, email: e.target.value })), className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "jean.dupont@email.com" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "R\u00F4le *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: newUserForm.role, onChange: (e) => setNewUserForm(prev => ({ ...prev, role: e.target.value })), className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "user", children: "Utilisateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "librarian", children: "Biblioth\u00E9caire" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "admin", children: "Administrateur" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Mot de passe *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "relative", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? "text" : "password", value: newUserForm.password, onChange: (e) => setNewUserForm(prev => ({ ...prev, password: e.target.value })), className: "w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "Minimum 4 caract\u00E8res" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: () => setShowPassword(!showPassword), className: "absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600", children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Confirmer le mot de passe *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? "text" : "password", value: newUserForm.confirmPassword, onChange: (e) => setNewUserForm(prev => ({ ...prev, confirmPassword: e.target.value })), className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "Confirmer le mot de passe" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex justify-end space-x-3 mt-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "secondary", onClick: () => setShowCreateForm(false), children: "Annuler" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { onClick: handleCreateUser, disabled: isLoading, className: "bg-blue-500 hover:bg-blue-600 text-white", children: isLoading ? 'Création...' : 'Créer l\'utilisateur' })] })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "space-y-4", children: users.length === 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "text-center py-8 text-gray-500", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 48, className: "mx-auto mb-4 text-gray-300" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Aucun utilisateur dans cette institution" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-sm", children: "Cr\u00E9ez le premier utilisateur en cliquant sur le bouton ci-dessus" })] })) : (users.map((user) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroCard, { className: "p-4", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center justify-between", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center space-x-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `w-10 h-10 rounded-full flex items-center justify-center ${user.isActive ? 'bg-green-100' : 'bg-gray-100'}`, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 20, className: user.isActive ? 'text-green-600' : 'text-gray-400' }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center space-x-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { className: "font-medium text-gray-900", children: [user.firstName, " ", user.lastName] }), user.id === currentUser?.id && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full", children: "Vous" })), !user.isActive && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full", children: "D\u00E9sactiv\u00E9" }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center space-x-4 text-sm text-gray-600", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "flex items-center space-x-1", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: user.email })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "flex items-center space-x-1", children: [getRoleIcon(user.role), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: getRoleLabel(user.role) })] })] }), user.lastLogin && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "text-xs text-gray-500 mt-1", children: ["Derni\u00E8re connexion: ", new Date(user.lastLogin).toLocaleDateString('fr-FR')] }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center space-x-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "secondary", size: "small", onClick: () => handleToggleUserStatus(user), disabled: user.id === currentUser?.id, children: user.isActive ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }) }), user.id !== currentUser?.id && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "danger", size: "small", onClick: () => handleDeleteUser(user), className: "text-red-600 hover:text-red-800 hover:bg-red-50", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 }) }))] })] }) }, user.id)))) })] })] }) }));
+};
+
+
+/***/ }),
+
 /***/ "./src/renderer/components/KeyboardShortcuts.tsx":
 /*!*******************************************************!*\
   !*** ./src/renderer/components/KeyboardShortcuts.tsx ***!
@@ -20684,6 +21066,13 @@ const Sidebar = ({ currentView, onNavigate, onLogout, stats, currentUser, curren
             description: 'Configuration de l\'application',
             gradient: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)'
         },
+        ...(currentUser?.role === 'admin' ? [{
+                id: 'user-management',
+                label: 'Gestion des Utilisateurs',
+                icon: lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"],
+                description: 'Créer et gérer les comptes de votre institution',
+                gradient: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)'
+            }] : []),
         {
             id: 'backup-manager',
             label: 'Sauvegardes',
@@ -20791,19 +21180,33 @@ const Sidebar = ({ currentView, onNavigate, onLogout, stats, currentUser, curren
           border-bottom: 1px solid rgba(243, 238, 217, 0.1);
           position: relative;
           z-index: 1;
+          width: 100%;
+          box-sizing: border-box;
+          display: block;
+        }
+        
+        .collapsed .sidebar-header {
+          padding: 16px 12px;
         }
         
         .sidebar-toggle {
           display: flex;
           justify-content: flex-end;
           margin-bottom: 16px;
+          position: relative;
+          z-index: 20;
+        }
+        
+        .collapsed .sidebar-toggle {
+          justify-content: center;
+          margin-bottom: 20px;
         }
         
         .toggle-button {
           width: 40px;
           height: 40px;
           border: none;
-          background: rgba(243, 238, 217, 0.1);
+          background: rgba(243, 238, 217, 0.15);
           color: #F3EED9;
           border-radius: 12px;
           cursor: pointer;
@@ -20812,12 +21215,22 @@ const Sidebar = ({ currentView, onNavigate, onLogout, stats, currentUser, curren
           justify-content: center;
           transition: all 0.2s ease;
           backdrop-filter: blur(10px);
-          border: 1px solid rgba(243, 238, 217, 0.2);
+          border: 1px solid rgba(243, 238, 217, 0.3);
+          position: relative;
+          z-index: 10;
+          opacity: 1;
+          visibility: visible;
         }
         
         .toggle-button:hover {
-          background: rgba(243, 238, 217, 0.2);
+          background: rgba(243, 238, 217, 0.25);
           transform: scale(1.05);
+          border: 1px solid rgba(243, 238, 217, 0.4);
+        }
+        
+        .toggle-button svg {
+          display: block;
+          flex-shrink: 0;
         }
         
         .sidebar-brand {
@@ -21480,7 +21893,12 @@ const Sidebar = ({ currentView, onNavigate, onLogout, stats, currentUser, curren
           }
           
           .sidebar-header {
-            display: none;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(243, 238, 217, 0.1);
+          }
+          
+          .sidebar-toggle {
+            justify-content: center;
           }
           
           .sidebar-content {
@@ -26247,10 +26665,10 @@ class SupabaseRendererService {
         }
     }
     // Document management methods
-    async getDocuments() {
+    async getDocuments(institutionCode) {
         try {
             if (window.electronAPI && window.electronAPI.getDocuments) {
-                return await window.electronAPI.getDocuments();
+                return await window.electronAPI.getDocuments(institutionCode);
             }
             return [];
         }
@@ -26259,10 +26677,10 @@ class SupabaseRendererService {
             return [];
         }
     }
-    async addDocument(document) {
+    async addDocument(document, institutionCode) {
         try {
             if (window.electronAPI && window.electronAPI.addDocument) {
-                return await window.electronAPI.addDocument(document);
+                return await window.electronAPI.addDocument(document, institutionCode);
             }
             throw new Error('Add document API not available');
         }
@@ -26271,10 +26689,10 @@ class SupabaseRendererService {
             throw error;
         }
     }
-    async deleteDocument(id) {
+    async deleteDocument(id, institutionCode) {
         try {
             if (window.electronAPI && window.electronAPI.deleteDocument) {
-                return await window.electronAPI.deleteDocument(parseInt(id, 10));
+                return await window.electronAPI.deleteDocument(parseInt(id, 10), institutionCode);
             }
             return false;
         }
@@ -26284,10 +26702,10 @@ class SupabaseRendererService {
         }
     }
     // Author and category methods
-    async getAuthors() {
+    async getAuthors(institutionCode) {
         try {
             if (window.electronAPI && window.electronAPI.getAuthors) {
-                return await window.electronAPI.getAuthors();
+                return await window.electronAPI.getAuthors(institutionCode);
             }
             return [];
         }
@@ -26296,10 +26714,10 @@ class SupabaseRendererService {
             return [];
         }
     }
-    async getCategories() {
+    async getCategories(institutionCode) {
         try {
             if (window.electronAPI && window.electronAPI.getCategories) {
-                return await window.electronAPI.getCategories();
+                return await window.electronAPI.getCategories(institutionCode);
             }
             return [];
         }
@@ -26346,15 +26764,12 @@ class SupabaseRendererService {
     }
     async switchInstitution(institutionCode) {
         try {
-            // Simulation locale - toujours réussir pour simplifier
-            if (this.currentInstitution) {
-                return true;
-            }
-            // Créer une institution par défaut si aucune n'existe
+            console.log('🔍 DEBUG switchInstitution - institutionCode:', institutionCode);
+            // Toujours créer/mettre à jour l'institution avec le bon code
             const institution = {
-                id: '1',
+                id: institutionCode,
                 code: institutionCode,
-                name: 'Institution par défaut',
+                name: `Institution ${institutionCode}`,
                 address: '',
                 city: '',
                 country: '',
@@ -26372,6 +26787,7 @@ class SupabaseRendererService {
                 updated_at: new Date().toISOString()
             };
             this.currentInstitution = institution;
+            console.log('🔍 DEBUG switchInstitution - currentInstitution set:', this.currentInstitution);
             return true;
         }
         catch (error) {
@@ -26380,10 +26796,10 @@ class SupabaseRendererService {
         }
     }
     // Borrowing system methods
-    async borrowDocument(borrowData) {
+    async borrowDocument(borrowData, institutionCode) {
         try {
             if (window.electronAPI && window.electronAPI.borrowDocument) {
-                return await window.electronAPI.borrowDocument(parseInt(borrowData.documentId, 10), parseInt(borrowData.borrowerId, 10), borrowData.expectedReturnDate);
+                return await window.electronAPI.borrowDocument(parseInt(borrowData.documentId, 10), parseInt(borrowData.borrowerId, 10), borrowData.expectedReturnDate, institutionCode);
             }
             throw new Error('Borrow document API not available');
         }
@@ -26420,10 +26836,10 @@ class SupabaseRendererService {
         }
     }
     // Additional methods needed by the application
-    async getBorrowers() {
+    async getBorrowers(institutionCode) {
         try {
             if (window.electronAPI && window.electronAPI.getBorrowers) {
-                return await window.electronAPI.getBorrowers();
+                return await window.electronAPI.getBorrowers(institutionCode);
             }
             return [];
         }
@@ -26432,10 +26848,10 @@ class SupabaseRendererService {
             return [];
         }
     }
-    async addBorrower(borrowerData) {
+    async addBorrower(borrowerData, institutionCode) {
         try {
             if (window.electronAPI && window.electronAPI.addBorrower) {
-                return await window.electronAPI.addBorrower(borrowerData);
+                return await window.electronAPI.addBorrower(borrowerData, institutionCode);
             }
             throw new Error('Add borrower API not available');
         }
@@ -26444,10 +26860,10 @@ class SupabaseRendererService {
             throw error;
         }
     }
-    async getBorrowedDocuments() {
+    async getBorrowedDocuments(institutionCode) {
         try {
             if (window.electronAPI && window.electronAPI.getBorrowedDocuments) {
-                return await window.electronAPI.getBorrowedDocuments();
+                return await window.electronAPI.getBorrowedDocuments(institutionCode);
             }
             return [];
         }
@@ -26456,10 +26872,10 @@ class SupabaseRendererService {
             return [];
         }
     }
-    async getStats() {
+    async getStats(institutionCode) {
         try {
             if (window.electronAPI && window.electronAPI.getStats) {
-                return await window.electronAPI.getStats();
+                return await window.electronAPI.getStats(institutionCode);
             }
             return {
                 totalDocuments: 0,

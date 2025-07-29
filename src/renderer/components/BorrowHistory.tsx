@@ -27,7 +27,7 @@ interface BorrowHistoryProps {
   supabaseService: SupabaseService;
 }
 
-export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
+export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose, supabaseService }) => {
   const [history, setHistory] = useState<BorrowHistoryType[]>([]);
   const [filteredHistory, setFilteredHistory] = useState<BorrowHistoryType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,7 +53,12 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
   const loadHistory = async () => {
     setIsLoading(true);
     try {
-      const data = await window.electronAPI.getBorrowHistory();
+      // Obtenir le code d'institution courant pour l'isolation
+      const institutionCode = supabaseService.getCurrentInstitution()?.code;
+      console.log('🔍 DEBUG BorrowHistory - Loading with institutionCode:', institutionCode);
+      
+      const data = await window.electronAPI.getBorrowHistory(undefined, institutionCode);
+      console.log('🔍 DEBUG BorrowHistory - Loaded', data.length, 'records');
       setHistory(data);
     } catch (error) {
       console.error('Erreur lors du chargement de l\'historique:', error);
@@ -133,7 +138,11 @@ export const BorrowHistory: React.FC<BorrowHistoryProps> = ({ onClose }) => {
 
   const handleExport = async (config: ExportConfig) => {
     try {
-      const result = await window.electronAPI.exportAdvanced(config);
+      // Obtenir le code d'institution courant pour l'export
+      const institutionCode = supabaseService.getCurrentInstitution()?.code;
+      console.log('🔍 DEBUG BorrowHistory EXPORT - Using institutionCode:', institutionCode);
+      
+      const result = await window.electronAPI.exportAdvanced(config, institutionCode);
       if (result.success && result.path) {
         const fileName = result.path.split(/[/\\]/).pop();
         alert(`Fichier exporté avec succès : ${fileName}`);

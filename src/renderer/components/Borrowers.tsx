@@ -21,13 +21,15 @@ import {
 } from 'lucide-react';
 
 import { Borrower } from '../../types';
+import { SupabaseRendererService } from '../services/SupabaseClient';
 
 interface BorrowersProps {
   onClose: () => void;
   onRefreshData?: () => Promise<void>;
+  supabaseService: SupabaseRendererService;
 }
 
-export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
+export default function Borrowers({ onClose, onRefreshData, supabaseService }: BorrowersProps) {
   const [borrowers, setBorrowers] = useState<Borrower[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'student' | 'staff'>('all');
@@ -49,7 +51,12 @@ export default function Borrowers({ onClose, onRefreshData }: BorrowersProps) {
   const loadBorrowers = async () => {
     setDataLoading(true);
     try {
-      const borrowersList = await window.electronAPI.getBorrowers();
+      // Obtenir le code d'institution courant pour l'isolation
+      const institutionCode = supabaseService.getCurrentInstitution()?.code;
+      console.log('🔍 DEBUG Borrowers - Loading with institutionCode:', institutionCode);
+      
+      const borrowersList = await window.electronAPI.getBorrowers(institutionCode);
+      console.log('🔍 DEBUG Borrowers - Loaded', borrowersList?.length || 0, 'borrowers');
       setBorrowers(borrowersList || []);
     } catch (error) {
       console.error('Erreur lors du chargement des emprunteurs:', error);

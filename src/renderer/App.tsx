@@ -21,6 +21,7 @@ import { ConfigService } from './services/ConfigService';
 import { LocalAuthService } from './services/LocalAuthService';
 import { AppSettings } from './components/AppSettings';
 import { UserProfile } from './components/UserProfile';
+import { InstitutionUserManagement } from './components/InstitutionUserManagement';
 import { BackupManager } from './components/BackupManager';
 import { ReportsManager } from './components/ReportsManager';
 import { StatisticsManager } from './components/StatisticsManager';
@@ -28,7 +29,7 @@ import { ToastProvider, useQuickToast } from './components/ToastSystem';
 import { KeyboardShortcutsProvider } from './components/KeyboardShortcuts';
 import { UnifiedUser, UnifiedInstitution, convertToUnifiedUser, convertToUnifiedInstitution } from './types/UnifiedTypes';
 
-type ViewType = 'initial_setup' | 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'reports' | 'statistics' | 'settings' | 'app-settings' | 'user-profile' | 'backup-manager' | 'about-support' | 'auth' | 'institution_setup';
+type ViewType = 'initial_setup' | 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'reports' | 'statistics' | 'settings' | 'app-settings' | 'user-profile' | 'user-management' | 'backup-manager' | 'about-support' | 'auth' | 'institution_setup';
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewType>('initial_setup');
@@ -72,8 +73,11 @@ export const App: React.FC = () => {
   const [editingDocument, setEditingDocument] = useState<Document | null>(null);
   const [showReportsModal, setShowReportsModal] = useState(false);
   const [showStatisticsModal, setShowStatisticsModal] = useState(false);
+  const [showUserManagementModal, setShowUserManagementModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
+  const [showOrphanDataDialog, setShowOrphanDataDialog] = useState(false);
+  const [orphanDataCount, setOrphanDataCount] = useState({ documents: 0, authors: 0, categories: 0, borrowers: 0, borrowHistory: 0 });
 
   useEffect(() => {
     checkAppSecurity();
@@ -211,7 +215,10 @@ export const App: React.FC = () => {
       
       if (appMode === 'offline') {
         // Mode offline - charger les données depuis SQLite via electronAPI avec filtrage par institution
-        const institutionCode = currentInstitution?.code || '';
+        const institutionCode = supabaseService.getCurrentInstitution()?.code || '';
+        console.log('🔍 DEBUG App.tsx loadData - currentInstitution from state:', currentInstitution);
+        console.log('🔍 DEBUG App.tsx loadData - currentInstitution from service:', supabaseService.getCurrentInstitution());
+        console.log('🔍 DEBUG App.tsx loadData - institutionCode:', institutionCode);
         const [
           documentsData, 
           authorsData, 
@@ -262,7 +269,9 @@ export const App: React.FC = () => {
           overdueDocuments
         });
       } else {
-        // Mode online - utiliser Supabase
+        // Mode online - utiliser Supabase avec filtrage par institution
+        const institutionCode = supabaseService.getCurrentInstitution()?.code || '';
+        console.log('🔍 DEBUG App.tsx loadData ONLINE - institutionCode:', institutionCode);
         const [
           documentsData, 
           authorsData, 
@@ -271,12 +280,12 @@ export const App: React.FC = () => {
           borrowedDocumentsData,
           statsData
         ] = await Promise.all([
-          supabaseService.getDocuments(),
-          supabaseService.getAuthors(),
-          supabaseService.getCategories(),
-          supabaseService.getBorrowers(),
-          supabaseService.getBorrowedDocuments(),
-          supabaseService.getStats()
+          supabaseService.getDocuments(institutionCode),
+          supabaseService.getAuthors(institutionCode),
+          supabaseService.getCategories(institutionCode),
+          supabaseService.getBorrowers(institutionCode),
+          supabaseService.getBorrowedDocuments(institutionCode),
+          supabaseService.getStats(institutionCode)
         ]);
 
         setDocuments(documentsData);
@@ -298,7 +307,11 @@ export const App: React.FC = () => {
     try {
       setIsLoading(true);
       
-      // Données de démonstration
+      // Obtenir le code d'institution courant pour les données démo
+      const institutionCode = supabaseService.getCurrentInstitution()?.code || 'DEMO';
+      console.log('🔍 DEBUG loadDemoData - Using institutionCode:', institutionCode);
+      
+      // Données de démonstration avec isolation par institution
       const demoDocuments: Document[] = [
         {
           id: 1,
@@ -311,6 +324,7 @@ export const App: React.FC = () => {
           cote: "004.01 KNU",
           couverture: "",
           estEmprunte: false,
+          institution_code: institutionCode,
           syncStatus: 'synced',
           lastModified: new Date().toISOString(),
           version: 1,
@@ -327,6 +341,7 @@ export const App: React.FC = () => {
           cote: "005.1 MAR",
           couverture: "",
           estEmprunte: false,
+          institution_code: institutionCode,
           syncStatus: 'synced',
           lastModified: new Date().toISOString(),
           version: 1,
@@ -343,6 +358,7 @@ export const App: React.FC = () => {
           cote: "005.1 GAM",
           couverture: "",
           estEmprunte: false,
+          institution_code: institutionCode,
           syncStatus: 'synced',
           lastModified: new Date().toISOString(),
           version: 1,
@@ -354,6 +370,7 @@ export const App: React.FC = () => {
         { 
           id: 1, 
           name: "Donald Knuth",
+          institution_code: institutionCode,
           syncStatus: 'synced',
           lastModified: new Date().toISOString(),
           version: 1,
@@ -362,6 +379,7 @@ export const App: React.FC = () => {
         { 
           id: 2, 
           name: "Robert C. Martin",
+          institution_code: institutionCode,
           syncStatus: 'synced',
           lastModified: new Date().toISOString(),
           version: 1,
@@ -370,6 +388,7 @@ export const App: React.FC = () => {
         { 
           id: 3, 
           name: "Gang of Four",
+          institution_code: institutionCode,
           syncStatus: 'synced',
           lastModified: new Date().toISOString(),
           version: 1,
@@ -381,6 +400,7 @@ export const App: React.FC = () => {
         { 
           id: 1, 
           name: "Informatique",
+          institution_code: institutionCode,
           syncStatus: 'synced',
           lastModified: new Date().toISOString(),
           version: 1,
@@ -389,6 +409,7 @@ export const App: React.FC = () => {
         { 
           id: 2, 
           name: "Programmation",
+          institution_code: institutionCode,
           syncStatus: 'synced',
           lastModified: new Date().toISOString(),
           version: 1,
@@ -397,6 +418,7 @@ export const App: React.FC = () => {
         { 
           id: 3, 
           name: "Architecture logicielle",
+          institution_code: institutionCode,
           syncStatus: 'synced',
           lastModified: new Date().toISOString(),
           version: 1,
@@ -416,6 +438,7 @@ export const App: React.FC = () => {
           position: '',
           email: 'jean.dupont@demo.local',
           phone: '+33 6 12 34 56 78',
+          institution_code: institutionCode,
           syncStatus: 'synced',
           lastModified: new Date().toISOString(),
           version: 1,
@@ -432,6 +455,7 @@ export const App: React.FC = () => {
           position: 'Professeur',
           email: 'marie.martin@demo.local',
           phone: '+33 6 87 65 43 21',
+          institution_code: institutionCode,
           syncStatus: 'synced',
           lastModified: new Date().toISOString(),
           version: 1,
@@ -482,11 +506,16 @@ export const App: React.FC = () => {
           console.log('Mode offline - authentification avec LocalAuthService');
           
           // Utiliser le service d'authentification local
+          console.log('🔍 DEBUG App.tsx - Authentication attempt with:', {
+            email: credentials.email,
+            institutionCode: credentials.institutionCode || ''
+          });
           const authResult = LocalAuthService.authenticate(
             credentials.email,
             credentials.password,
             credentials.institutionCode || ''
           );
+          console.log('🔍 DEBUG App.tsx - Authentication result:', authResult);
           
           if (!authResult.success) {
             throw new Error(authResult.message || 'Échec de l\'authentification');
@@ -513,7 +542,9 @@ export const App: React.FC = () => {
             };
 
             // Chercher l'institution correspondante ou créer une par défaut
+            console.log('🔍 DEBUG App.tsx - Looking for institution with code:', localUser.institutionCode);
             const institution = LocalAuthService.findInstitutionByCode(localUser.institutionCode);
+            console.log('🔍 DEBUG App.tsx - Found institution:', institution);
             const appInstitution: Institution = institution ? {
               id: institution.id,
               name: institution.name,
@@ -557,6 +588,10 @@ export const App: React.FC = () => {
             setCurrentUser(appUser);
             setCurrentInstitution(appInstitution);
             
+            // CRITICAL: Switch the SupabaseService to the correct institution
+            console.log('🔍 DEBUG App.tsx - Switching SupabaseService institution to:', appInstitution.code);
+            await supabaseService.switchInstitution(appInstitution.code);
+            
             // Créer les versions unifiées
             setUnifiedUser(convertToUnifiedUser(localUser, 'offline'));
             setUnifiedInstitution(convertToUnifiedInstitution(institution || {
@@ -580,6 +615,9 @@ export const App: React.FC = () => {
             setIsDemoMode(false);
             setCurrentView('dashboard');
             await loadData();
+            
+            // Vérifier s'il y a des données orphelines à assigner
+            setTimeout(() => checkForOrphanData(), 1000);
             return;
           }
         }
@@ -707,7 +745,10 @@ export const App: React.FC = () => {
     try {
       if (appMode === 'offline') {
         // Mode offline - utiliser l'API électron pour SQLite avec filtrage par institution
-        const institutionCode = currentInstitution?.code || '';
+        const institutionCode = supabaseService.getCurrentInstitution()?.code;
+        if (!institutionCode) {
+          throw new Error('Code d\'institution manquant. Veuillez vous reconnecter.');
+        }
         if (editingDocument) {
           // Modification d'un document existant
           const documentToUpdate = { ...document, id: editingDocument.id } as Document;
@@ -790,8 +831,12 @@ export const App: React.FC = () => {
         console.log('Document ajouté en mode démo:', newDocument);
         
       } else {
-        // Mode online - utiliser Supabase
-        await supabaseService.addDocument(document);
+        // Mode online - utiliser Supabase avec filtrage par institution
+        const institutionCode = supabaseService.getCurrentInstitution()?.code;
+        if (!institutionCode) {
+          throw new Error('Code d\'institution manquant. Veuillez vous reconnecter.');
+        }
+        await supabaseService.addDocument(document, institutionCode);
         await loadData();
       }
       
@@ -813,11 +858,12 @@ export const App: React.FC = () => {
     try {
       if (appMode === 'offline') {
         // Mode offline - utiliser l'API électron pour SQLite avec filtrage par institution
-        const institutionCode = currentInstitution?.code || '';
+        const institutionCode = supabaseService.getCurrentInstitution()?.code || '';
         await window.electronAPI.returnBook(borrowHistoryId, notes, institutionCode);
         console.log('Document retourné en mode offline:', borrowHistoryId);
       } else {
         // Mode online - utiliser Supabase
+        // Note: returnBook ne nécessite pas institutionCode car il utilise l'ID d'historique
         await supabaseService.returnBook(borrowHistoryId.toString(), notes);
       }
       await loadData();
@@ -831,7 +877,10 @@ export const App: React.FC = () => {
     try {
       if (appMode === 'offline') {
         // Mode offline - utiliser l'API électron pour SQLite avec filtrage par institution
-        const institutionCode = currentInstitution?.code || '';
+        const institutionCode = supabaseService.getCurrentInstitution()?.code;
+        if (!institutionCode) {
+          throw new Error('Code d\'institution manquant. Veuillez vous reconnecter.');
+        }
         await window.electronAPI.deleteDocument(documentId, institutionCode);
         console.log('Document supprimé en mode offline:', documentId);
         
@@ -852,8 +901,9 @@ export const App: React.FC = () => {
         
         console.log('Document supprimé en mode démo:', documentId);
       } else {
-        // Mode online - utiliser Supabase
-        await supabaseService.deleteDocument(documentId.toString());
+        // Mode online - utiliser Supabase avec filtrage par institution
+        const institutionCode = supabaseService.getCurrentInstitution()?.code || '';
+        await supabaseService.deleteDocument(documentId.toString(), institutionCode);
         await loadData();
       }
     } catch (error: any) {
@@ -881,7 +931,10 @@ export const App: React.FC = () => {
     try {
       if (appMode === 'offline') {
         // Mode offline - utiliser l'API électron pour SQLite avec filtrage par institution
-        const institutionCode = currentInstitution?.code || '';
+        const institutionCode = supabaseService.getCurrentInstitution()?.code;
+        if (!institutionCode) {
+          throw new Error('Code d\'institution manquant. Veuillez vous reconnecter.');
+        }
         await window.electronAPI.borrowDocument(documentId, borrowerId, returnDate, institutionCode);
         console.log('Document emprunté en mode offline:', { documentId, borrowerId, returnDate });
       } else if (isDemoMode) {
@@ -924,12 +977,16 @@ export const App: React.FC = () => {
           }));
         }
       } else {
-        // Mode online - utiliser Supabase
+        // Mode online - utiliser Supabase avec filtrage par institution
+        const institutionCode = supabaseService.getCurrentInstitution()?.code;
+        if (!institutionCode) {
+          throw new Error('Code d\'institution manquant. Veuillez vous reconnecter.');
+        }
         await supabaseService.borrowDocument({
           documentId: documentId.toString(),
           borrowerId: borrowerId.toString(),
           expectedReturnDate: returnDate
-        });
+        }, institutionCode);
       }
       
       // Recharger les données après l'opération
@@ -950,7 +1007,7 @@ export const App: React.FC = () => {
         );
         
         if (activeBorrow && activeBorrow.id) {
-          const institutionCode = currentInstitution?.code || '';
+          const institutionCode = supabaseService.getCurrentInstitution()?.code || '';
           await window.electronAPI.returnBook(activeBorrow.id, undefined, institutionCode);
           console.log('Document retourné en mode offline:', documentId);
         } else {
@@ -998,7 +1055,10 @@ export const App: React.FC = () => {
     try {
       if (appMode === 'offline') {
         // Mode offline - utiliser l'API électron pour SQLite avec filtrage par institution
-        const institutionCode = currentInstitution?.code || '';
+        const institutionCode = supabaseService.getCurrentInstitution()?.code;
+        if (!institutionCode) {
+          throw new Error('Code d\'institution manquant. Veuillez vous reconnecter.');
+        }
         const newId = await window.electronAPI.addBorrower(borrower, institutionCode);
         await loadData(); // Refresh data
         return newId;
@@ -1018,8 +1078,12 @@ export const App: React.FC = () => {
         
         return newId;
       } else {
-        // Mode online - utiliser Supabase
-        const newId = await supabaseService.addBorrower(borrower);
+        // Mode online - utiliser Supabase avec filtrage par institution
+        const institutionCode = supabaseService.getCurrentInstitution()?.code;
+        if (!institutionCode) {
+          throw new Error('Code d\'institution manquant. Veuillez vous reconnecter.');
+        }
+        const newId = await supabaseService.addBorrower(borrower, institutionCode);
         await loadData(); // Refresh data
         return newId;
       }
@@ -1034,6 +1098,46 @@ export const App: React.FC = () => {
       await loadDemoData();
     } else {
       await loadData();
+    }
+  };
+
+  const checkForOrphanData = async () => {
+    try {
+      if (appMode === 'offline' && supabaseService.getCurrentInstitution()?.code) {
+        const count = await window.electronAPI.getOrphanDataCount();
+        const totalOrphans = count.documents + count.authors + count.categories + count.borrowers + count.borrowHistory;
+        
+        if (totalOrphans > 0) {
+          setOrphanDataCount(count);
+          setShowOrphanDataDialog(true);
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors de la vérification des données orphelines:', error);
+    }
+  };
+
+  const handleAssignOrphanData = async () => {
+    try {
+      if (!supabaseService.getCurrentInstitution()?.code) return;
+      
+      setIsLoading(true);
+      const result = await window.electronAPI.assignOrphanDataToInstitution(supabaseService.getCurrentInstitution()?.code || '');
+      
+      const totalAssigned = result.documents + result.authors + result.categories + result.borrowers + result.borrowHistory;
+      
+      if (totalAssigned > 0) {
+        await loadData(); // Recharger les données
+        setError(''); // Effacer les erreurs précédentes
+        console.log(`${totalAssigned} éléments assignés à l'établissement ${supabaseService.getCurrentInstitution()?.code}`);
+      }
+      
+      setShowOrphanDataDialog(false);
+    } catch (error) {
+      console.error('Erreur lors de l\'assignation des données:', error);
+      setError('Erreur lors de l\'assignation des données à l\'établissement');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -1097,10 +1201,21 @@ export const App: React.FC = () => {
           />
         );
       case 'borrowed':
+        // Debug: vérifier l'isolation des emprunts actifs
+        const currentInstitutionCode = supabaseService.getCurrentInstitution()?.code;
+        const activeBorrows = borrowedDocuments.filter(bh => bh.status === 'active');
+        console.log('🔍 DEBUG EMPRUNTS ACTIFS - Institution courante:', currentInstitutionCode);
+        console.log('🔍 DEBUG EMPRUNTS ACTIFS - Nombre total d\'emprunts actifs:', activeBorrows.length);
+        console.log('🔍 DEBUG EMPRUNTS ACTIFS - Détails des emprunts:', activeBorrows.map(bh => ({
+          id: bh.id,
+          documentTitle: bh.document?.titre,
+          borrowerName: `${bh.borrower?.firstName} ${bh.borrower?.lastName}`,
+          institutionCode: bh.institution_code || 'VIDE'
+        })));
+        
         return (
           <BorrowedDocuments
-            documents={borrowedDocuments
-              .filter(bh => bh.status === 'active') // Seulement les emprunts actifs
+            documents={activeBorrows
               .map(bh => ({
                 ...bh.document!,
                 nomEmprunteur: `${bh.borrower?.firstName} ${bh.borrower?.lastName}`,
@@ -1131,6 +1246,7 @@ export const App: React.FC = () => {
           <Borrowers 
             onClose={() => setCurrentView('dashboard')} 
             onRefreshData={refreshData}
+            supabaseService={supabaseService}
           />
         );
       case 'history':
@@ -1166,6 +1282,15 @@ export const App: React.FC = () => {
             appMode={appMode}
             onClose={() => setCurrentView('dashboard')}
             onUserUpdate={handleUserUpdate}
+          />
+        );
+      case 'user-management':
+        return (
+          <InstitutionUserManagement
+            currentUser={unifiedUser}
+            currentInstitution={unifiedInstitution}
+            appMode={appMode}
+            onClose={() => setCurrentView('dashboard')}
           />
         );
       case 'backup-manager':
@@ -1258,6 +1383,12 @@ export const App: React.FC = () => {
                 unifiedInstitution={unifiedInstitution}
                 isAuthenticated={isAuthenticated}
                 onLogout={handleLogout}
+                showOrphanDataDialog={showOrphanDataDialog}
+                setShowOrphanDataDialog={setShowOrphanDataDialog}
+                orphanDataCount={orphanDataCount}
+                handleAssignOrphanData={handleAssignOrphanData}
+                showUserManagementModal={showUserManagementModal}
+                setShowUserManagementModal={setShowUserManagementModal}
               />
             ) : (
               <div className="auth-container">
@@ -1266,6 +1397,15 @@ export const App: React.FC = () => {
             )}
           </div>
         </div>
+        {/* User Management Modal */}
+        {showUserManagementModal && (
+          <InstitutionUserManagement
+            currentUser={unifiedUser}
+            currentInstitution={unifiedInstitution}
+            appMode={appMode}
+            onClose={() => setShowUserManagementModal(false)}
+          />
+        )}
       </KeyboardShortcutsProvider>
     </ToastProvider>
   );
@@ -1301,6 +1441,12 @@ interface AppContentProps {
   unifiedInstitution: UnifiedInstitution | null;
   isAuthenticated: boolean;
   onLogout: () => Promise<void>;
+  showOrphanDataDialog: boolean;
+  setShowOrphanDataDialog: (show: boolean) => void;
+  orphanDataCount: { documents: number; authors: number; categories: number; borrowers: number; borrowHistory: number };
+  handleAssignOrphanData: () => Promise<void>;
+  showUserManagementModal: boolean;
+  setShowUserManagementModal: (show: boolean) => void;
 }
 
 const AppContent: React.FC<AppContentProps> = ({
@@ -1332,7 +1478,13 @@ const AppContent: React.FC<AppContentProps> = ({
   unifiedUser,
   unifiedInstitution,
   isAuthenticated,
-  onLogout
+  onLogout,
+  showOrphanDataDialog,
+  setShowOrphanDataDialog,
+  orphanDataCount,
+  handleAssignOrphanData,
+  showUserManagementModal,
+  setShowUserManagementModal
 }) => {
   const { info } = useQuickToast();
   const [demoNotificationShown, setDemoNotificationShown] = React.useState(false);
@@ -1359,6 +1511,8 @@ const AppContent: React.FC<AppContentProps> = ({
             setShowReportsModal(true);
           } else if (view === 'statistics') {
             setShowStatisticsModal(true);
+          } else if (view === 'user-management') {
+            setShowUserManagementModal(true);
           } else {
             setCurrentView(view);
           }
@@ -1416,6 +1570,128 @@ const AppContent: React.FC<AppContentProps> = ({
           borrowHistory={borrowedDocuments}
           onClose={() => setShowStatisticsModal(false)}
         />
+      )}
+
+      {/* Dialogue pour les données orphelines */}
+      {showOrphanDataDialog && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2000
+        }}>
+          <div style={{
+            backgroundColor: '#FAF9F6',
+            padding: '32px',
+            borderRadius: '12px',
+            maxWidth: '500px',
+            width: '90%',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)'
+          }}>
+            <h3 style={{ 
+              margin: '0 0 16px 0', 
+              color: '#3E5C49',
+              fontSize: '20px',
+              fontWeight: '600'
+            }}>
+              Données existantes détectées
+            </h3>
+            
+            <p style={{ 
+              color: '#6E6E6E', 
+              marginBottom: '20px',
+              lineHeight: '1.5'
+            }}>
+              Nous avons détecté des données qui ne sont pas encore assignées à votre établissement :
+            </p>
+            
+            <div style={{
+              backgroundColor: '#F5F5F5',
+              padding: '16px',
+              borderRadius: '8px',
+              marginBottom: '20px'
+            }}>
+              {orphanDataCount.documents > 0 && (
+                <div style={{ marginBottom: '8px', color: '#3E5C49' }}>
+                  📚 {orphanDataCount.documents} document(s)
+                </div>
+              )}
+              {orphanDataCount.authors > 0 && (
+                <div style={{ marginBottom: '8px', color: '#3E5C49' }}>
+                  👤 {orphanDataCount.authors} auteur(s)
+                </div>
+              )}
+              {orphanDataCount.categories > 0 && (
+                <div style={{ marginBottom: '8px', color: '#3E5C49' }}>
+                  🏷️ {orphanDataCount.categories} catégorie(s)
+                </div>
+              )}
+              {orphanDataCount.borrowers > 0 && (
+                <div style={{ marginBottom: '8px', color: '#3E5C49' }}>
+                  👥 {orphanDataCount.borrowers} emprunteur(s)
+                </div>
+              )}
+              {orphanDataCount.borrowHistory > 0 && (
+                <div style={{ color: '#3E5C49' }}>
+                  📊 {orphanDataCount.borrowHistory} historique(s) d'emprunt
+                </div>
+              )}
+            </div>
+            
+            <p style={{ 
+              color: '#6E6E6E', 
+              marginBottom: '24px',
+              fontSize: '14px'
+            }}>
+              Voulez-vous assigner ces données à votre établissement "<strong>{currentInstitution?.name}</strong>" ?
+            </p>
+            
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+              justifyContent: 'flex-end'
+            }}>
+              <button
+                onClick={() => setShowOrphanDataDialog(false)}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#E5DCC2',
+                  color: '#6E6E6E',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                Plus tard
+              </button>
+              
+              <button
+                onClick={handleAssignOrphanData}
+                disabled={isLoading}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: isLoading ? '#C2571B80' : '#C2571B',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                {isLoading ? 'Assignation...' : 'Assigner maintenant'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
       
       <style>{`

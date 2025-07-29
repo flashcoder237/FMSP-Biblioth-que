@@ -224,10 +224,10 @@ export class SupabaseRendererService {
   }
 
   // Document management methods
-  async getDocuments(): Promise<any[]> {
+  async getDocuments(institutionCode?: string): Promise<any[]> {
     try {
       if (window.electronAPI && window.electronAPI.getDocuments) {
-        return await window.electronAPI.getDocuments();
+        return await window.electronAPI.getDocuments(institutionCode);
       }
       return [];
     } catch (error) {
@@ -236,10 +236,10 @@ export class SupabaseRendererService {
     }
   }
 
-  async addDocument(document: any): Promise<any> {
+  async addDocument(document: any, institutionCode?: string): Promise<any> {
     try {
       if (window.electronAPI && window.electronAPI.addDocument) {
-        return await window.electronAPI.addDocument(document);
+        return await window.electronAPI.addDocument(document, institutionCode);
       }
       throw new Error('Add document API not available');
     } catch (error) {
@@ -248,10 +248,10 @@ export class SupabaseRendererService {
     }
   }
 
-  async deleteDocument(id: string): Promise<boolean> {
+  async deleteDocument(id: string, institutionCode?: string): Promise<boolean> {
     try {
       if (window.electronAPI && window.electronAPI.deleteDocument) {
-        return await window.electronAPI.deleteDocument(parseInt(id, 10));
+        return await window.electronAPI.deleteDocument(parseInt(id, 10), institutionCode);
       }
       return false;
     } catch (error) {
@@ -261,10 +261,10 @@ export class SupabaseRendererService {
   }
 
   // Author and category methods
-  async getAuthors(): Promise<any[]> { // Returns Author[] interface objects
+  async getAuthors(institutionCode?: string): Promise<any[]> { // Returns Author[] interface objects
     try {
       if (window.electronAPI && window.electronAPI.getAuthors) {
-        return await window.electronAPI.getAuthors();
+        return await window.electronAPI.getAuthors(institutionCode);
       }
       return [];
     } catch (error) {
@@ -273,10 +273,10 @@ export class SupabaseRendererService {
     }
   }
 
-  async getCategories(): Promise<any[]> { // Returns Category[] interface objects
+  async getCategories(institutionCode?: string): Promise<any[]> { // Returns Category[] interface objects
     try {
       if (window.electronAPI && window.electronAPI.getCategories) {
-        return await window.electronAPI.getCategories();
+        return await window.electronAPI.getCategories(institutionCode);
       }
       return [];
     } catch (error) {
@@ -324,16 +324,13 @@ export class SupabaseRendererService {
 
   async switchInstitution(institutionCode: string): Promise<boolean> {
     try {
-      // Simulation locale - toujours réussir pour simplifier
-      if (this.currentInstitution) {
-        return true;
-      }
+      console.log('🔍 DEBUG switchInstitution - institutionCode:', institutionCode);
       
-      // Créer une institution par défaut si aucune n'existe
+      // Toujours créer/mettre à jour l'institution avec le bon code
       const institution: Institution = {
-        id: '1',
+        id: institutionCode,
         code: institutionCode,
-        name: 'Institution par défaut',
+        name: `Institution ${institutionCode}`,
         address: '',
         city: '',
         country: '',
@@ -352,6 +349,7 @@ export class SupabaseRendererService {
       };
       
       this.currentInstitution = institution;
+      console.log('🔍 DEBUG switchInstitution - currentInstitution set:', this.currentInstitution);
       return true;
     } catch (error) {
       console.error('Error switching institution:', error);
@@ -360,13 +358,14 @@ export class SupabaseRendererService {
   }
 
   // Borrowing system methods
-  async borrowDocument(borrowData: any): Promise<any> {
+  async borrowDocument(borrowData: any, institutionCode?: string): Promise<any> {
     try {
       if (window.electronAPI && window.electronAPI.borrowDocument) {
         return await window.electronAPI.borrowDocument(
           parseInt(borrowData.documentId, 10),
           parseInt(borrowData.borrowerId, 10), 
-          borrowData.expectedReturnDate
+          borrowData.expectedReturnDate,
+          institutionCode
         );
       }
       throw new Error('Borrow document API not available');
@@ -404,10 +403,10 @@ export class SupabaseRendererService {
   }
 
   // Additional methods needed by the application
-  async getBorrowers(): Promise<any[]> {
+  async getBorrowers(institutionCode?: string): Promise<any[]> {
     try {
       if (window.electronAPI && window.electronAPI.getBorrowers) {
-        return await window.electronAPI.getBorrowers();
+        return await window.electronAPI.getBorrowers(institutionCode);
       }
       return [];
     } catch (error) {
@@ -416,10 +415,10 @@ export class SupabaseRendererService {
     }
   }
 
-  async addBorrower(borrowerData: any): Promise<any> {
+  async addBorrower(borrowerData: any, institutionCode?: string): Promise<any> {
     try {
       if (window.electronAPI && window.electronAPI.addBorrower) {
-        return await window.electronAPI.addBorrower(borrowerData);
+        return await window.electronAPI.addBorrower(borrowerData, institutionCode);
       }
       throw new Error('Add borrower API not available');
     } catch (error) {
@@ -428,10 +427,10 @@ export class SupabaseRendererService {
     }
   }
 
-  async getBorrowedDocuments(): Promise<any[]> {
+  async getBorrowedDocuments(institutionCode?: string): Promise<any[]> {
     try {
       if (window.electronAPI && window.electronAPI.getBorrowedDocuments) {
-        return await window.electronAPI.getBorrowedDocuments();
+        return await window.electronAPI.getBorrowedDocuments(institutionCode);
       }
       return [];
     } catch (error) {
@@ -440,10 +439,10 @@ export class SupabaseRendererService {
     }
   }
 
-  async getStats(): Promise<any> {
+  async getStats(institutionCode?: string): Promise<any> {
     try {
       if (window.electronAPI && window.electronAPI.getStats) {
-        return await window.electronAPI.getStats();
+        return await window.electronAPI.getStats(institutionCode);
       }
       return {
         totalDocuments: 0,

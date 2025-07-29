@@ -625,6 +625,37 @@ ipcMain.handle('db:getRecentActivity', async (_, limit: number = 10, institution
   }
 });
 
+// Handlers pour la gestion des données orphelines
+ipcMain.handle('db:getOrphanDataCount', async () => {
+  try {
+    return await dbService.getOrphanDataCount();
+  } catch (error) {
+    console.error('Erreur getOrphanDataCount:', error);
+    return {
+      documents: 0,
+      authors: 0,
+      categories: 0,
+      borrowers: 0,
+      borrowHistory: 0
+    };
+  }
+});
+
+ipcMain.handle('db:assignOrphanDataToInstitution', async (_, institutionCode: string) => {
+  try {
+    return await dbService.assignOrphanDataToInstitution(institutionCode);
+  } catch (error) {
+    console.error('Erreur assignOrphanDataToInstitution:', error);
+    return {
+      documents: 0,
+      authors: 0,
+      categories: 0,
+      borrowers: 0,
+      borrowHistory: 0
+    };
+  }
+});
+
 // Nouvelles opérations de base de données
 ipcMain.handle('db:clearAll', async () => {
   try {
@@ -968,7 +999,7 @@ ipcMain.handle('print:borrow-history', async (_, data) => {
 });
 
 // Advanced export handler with Excel support
-ipcMain.handle('export:advanced', async (_, config) => {
+ipcMain.handle('export:advanced', async (_, config, institutionCode) => {
   try {
     const fileExtension = config.format === 'excel' ? 'xlsx' : 'csv';
     const fileName = `bibliotheque_export_${new Date().toISOString().split('T')[0]}.${fileExtension}`;
@@ -992,7 +1023,8 @@ ipcMain.handle('export:advanced', async (_, config) => {
     }
 
     // Fetch data based on configuration
-    const exportData = await gatherExportData(config);
+    console.log('🔍 DEBUG EXPORT - Using institutionCode:', institutionCode);
+    const exportData = await gatherExportData(config, institutionCode);
     
     // Validate that we have some data to export
     const hasData = Object.values(exportData).some(data => 
@@ -1051,13 +1083,14 @@ ipcMain.handle('export:csv', async (_, data) => {
 });
 
 // Advanced export data gathering function
-async function gatherExportData(config: any): Promise<any> {
+async function gatherExportData(config: any, institutionCode?: string): Promise<any> {
   const exportData: any = {};
 
   try {
     // Gather documents data
     if (config.dataTypes.documents) {
-      const documents = await dbService.getDocuments();
+      console.log('🔍 DEBUG EXPORT - Getting documents with institutionCode:', institutionCode);
+      const documents = await dbService.getDocuments(institutionCode);
       
       // Apply document status filter
       let filteredDocuments = documents;
@@ -1074,7 +1107,8 @@ async function gatherExportData(config: any): Promise<any> {
 
     // Gather borrowers data
     if (config.dataTypes.borrowers) {
-      const borrowers = await dbService.getBorrowers();
+      console.log('🔍 DEBUG EXPORT - Getting borrowers with institutionCode:', institutionCode);
+      const borrowers = await dbService.getBorrowers(institutionCode);
       
       // Apply borrower type filter
       let filteredBorrowers = borrowers;
@@ -1089,7 +1123,8 @@ async function gatherExportData(config: any): Promise<any> {
 
     // Gather borrow history data
     if (config.dataTypes.borrowHistory) {
-      const borrowHistory = await dbService.getBorrowHistory();
+      console.log('🔍 DEBUG EXPORT - Getting borrow history with institutionCode:', institutionCode);
+      const borrowHistory = await dbService.getBorrowHistory(undefined, institutionCode);
       
       // Apply history status filter
       let filteredHistory = borrowHistory;
@@ -1114,13 +1149,15 @@ async function gatherExportData(config: any): Promise<any> {
 
     // Gather authors data
     if (config.dataTypes.authors) {
-      const authors = await dbService.getAuthors();
+      console.log('🔍 DEBUG EXPORT - Getting authors with institutionCode:', institutionCode);
+      const authors = await dbService.getAuthors(institutionCode);
       exportData.authors = authors;
     }
 
     // Gather categories data
     if (config.dataTypes.categories) {
-      const categories = await dbService.getCategories();
+      console.log('🔍 DEBUG EXPORT - Getting categories with institutionCode:', institutionCode);
+      const categories = await dbService.getCategories(institutionCode);
       exportData.categories = categories;
     }
 

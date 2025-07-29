@@ -30,7 +30,7 @@ import { UnifiedUser, UnifiedInstitution } from '../types/UnifiedTypes';
 
 interface SidebarProps {
   currentView: string;
-  onNavigate: (view: 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'reports' | 'statistics' | 'app-settings' | 'user-profile' | 'about-support') => void;
+  onNavigate: (view: 'dashboard' | 'documents' | 'borrowed' | 'add-document' | 'borrowers' | 'history' | 'reports' | 'statistics' | 'app-settings' | 'user-profile' | 'user-management' | 'about-support') => void;
   onLogout?: () => void;
   stats: Stats;
   currentUser: UnifiedUser | null;
@@ -141,6 +141,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLog
       description: 'Configuration de l\'application',
       gradient: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)'
     },
+    ...(currentUser?.role === 'admin' ? [{
+      id: 'user-management',
+      label: 'Gestion des Utilisateurs',
+      icon: Users,
+      description: 'Créer et gérer les comptes de votre institution',
+      gradient: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)'
+    }] : []),
     {
       id: 'backup-manager',
       label: 'Sauvegardes',
@@ -551,19 +558,33 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLog
           border-bottom: 1px solid rgba(243, 238, 217, 0.1);
           position: relative;
           z-index: 1;
+          width: 100%;
+          box-sizing: border-box;
+          display: block;
+        }
+        
+        .collapsed .sidebar-header {
+          padding: 16px 12px;
         }
         
         .sidebar-toggle {
           display: flex;
           justify-content: flex-end;
           margin-bottom: 16px;
+          position: relative;
+          z-index: 20;
+        }
+        
+        .collapsed .sidebar-toggle {
+          justify-content: center;
+          margin-bottom: 20px;
         }
         
         .toggle-button {
           width: 40px;
           height: 40px;
           border: none;
-          background: rgba(243, 238, 217, 0.1);
+          background: rgba(243, 238, 217, 0.15);
           color: #F3EED9;
           border-radius: 12px;
           cursor: pointer;
@@ -572,12 +593,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLog
           justify-content: center;
           transition: all 0.2s ease;
           backdrop-filter: blur(10px);
-          border: 1px solid rgba(243, 238, 217, 0.2);
+          border: 1px solid rgba(243, 238, 217, 0.3);
+          position: relative;
+          z-index: 10;
+          opacity: 1;
+          visibility: visible;
         }
         
         .toggle-button:hover {
-          background: rgba(243, 238, 217, 0.2);
+          background: rgba(243, 238, 217, 0.25);
           transform: scale(1.05);
+          border: 1px solid rgba(243, 238, 217, 0.4);
+        }
+        
+        .toggle-button svg {
+          display: block;
+          flex-shrink: 0;
         }
         
         .sidebar-brand {
@@ -1240,7 +1271,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLog
           }
           
           .sidebar-header {
-            display: none;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(243, 238, 217, 0.1);
+          }
+          
+          .sidebar-toggle {
+            justify-content: center;
           }
           
           .sidebar-content {

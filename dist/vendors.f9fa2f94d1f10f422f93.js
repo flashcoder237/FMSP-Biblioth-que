@@ -176,6 +176,37 @@ const AlertTriangle = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["def
 
 /***/ }),
 
+/***/ "./node_modules/lucide-react/dist/esm/icons/arrow-down-wide-narrow.mjs":
+/*!*****************************************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/icons/arrow-down-wide-narrow.mjs ***!
+  \*****************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ ArrowDownWideNarrow)
+/* harmony export */ });
+/* harmony import */ var _createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.mjs */ "./node_modules/lucide-react/dist/esm/createLucideIcon.mjs");
+/**
+ * lucide-react v0.0.1 - ISC
+ */
+
+
+
+const ArrowDownWideNarrow = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("ArrowDownWideNarrow", [
+  ["path", { d: "m3 16 4 4 4-4", key: "1co6wj" }],
+  ["path", { d: "M7 20V4", key: "1yoxec" }],
+  ["path", { d: "M11 4h10", key: "1w87gc" }],
+  ["path", { d: "M11 8h7", key: "djye34" }],
+  ["path", { d: "M11 12h4", key: "q8tih4" }]
+]);
+
+
+//# sourceMappingURL=arrow-down-wide-narrow.mjs.map
+
+
+/***/ }),
+
 /***/ "./node_modules/lucide-react/dist/esm/icons/arrow-left.mjs":
 /*!*****************************************************************!*\
   !*** ./node_modules/lucide-react/dist/esm/icons/arrow-left.mjs ***!
@@ -228,6 +259,37 @@ const ArrowRight = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["defaul
 
 
 //# sourceMappingURL=arrow-right.mjs.map
+
+
+/***/ }),
+
+/***/ "./node_modules/lucide-react/dist/esm/icons/arrow-up-narrow-wide.mjs":
+/*!***************************************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/icons/arrow-up-narrow-wide.mjs ***!
+  \***************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ ArrowUpNarrowWide)
+/* harmony export */ });
+/* harmony import */ var _createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.mjs */ "./node_modules/lucide-react/dist/esm/createLucideIcon.mjs");
+/**
+ * lucide-react v0.0.1 - ISC
+ */
+
+
+
+const ArrowUpNarrowWide = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("ArrowUpNarrowWide", [
+  ["path", { d: "m3 8 4-4 4 4", key: "11wl7u" }],
+  ["path", { d: "M7 4v16", key: "1glfcx" }],
+  ["path", { d: "M11 12h4", key: "q8tih4" }],
+  ["path", { d: "M11 16h7", key: "uosisv" }],
+  ["path", { d: "M11 20h10", key: "jvxblo" }]
+]);
+
+
+//# sourceMappingURL=arrow-up-narrow-wide.mjs.map
 
 
 /***/ }),
@@ -286,6 +348,34 @@ const BarChart3 = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default
 
 
 //# sourceMappingURL=bar-chart-3.mjs.map
+
+
+/***/ }),
+
+/***/ "./node_modules/lucide-react/dist/esm/icons/bell.mjs":
+/*!***********************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/icons/bell.mjs ***!
+  \***********************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Bell)
+/* harmony export */ });
+/* harmony import */ var _createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.mjs */ "./node_modules/lucide-react/dist/esm/createLucideIcon.mjs");
+/**
+ * lucide-react v0.0.1 - ISC
+ */
+
+
+
+const Bell = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("Bell", [
+  ["path", { d: "M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9", key: "1qo2s2" }],
+  ["path", { d: "M10.3 21a1.94 1.94 0 0 0 3.4 0", key: "qgo35s" }]
+]);
+
+
+//# sourceMappingURL=bell.mjs.map
 
 
 /***/ }),
@@ -844,37 +934,6 @@ const Copy = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("
 
 /***/ }),
 
-/***/ "./node_modules/lucide-react/dist/esm/icons/credit-card.mjs":
-/*!******************************************************************!*\
-  !*** ./node_modules/lucide-react/dist/esm/icons/credit-card.mjs ***!
-  \******************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ CreditCard)
-/* harmony export */ });
-/* harmony import */ var _createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.mjs */ "./node_modules/lucide-react/dist/esm/createLucideIcon.mjs");
-/**
- * lucide-react v0.0.1 - ISC
- */
-
-
-
-const CreditCard = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("CreditCard", [
-  [
-    "rect",
-    { width: "20", height: "14", x: "2", y: "5", rx: "2", key: "ynyp8z" }
-  ],
-  ["line", { x1: "2", x2: "22", y1: "10", y2: "10", key: "1b3vmo" }]
-]);
-
-
-//# sourceMappingURL=credit-card.mjs.map
-
-
-/***/ }),
-
 /***/ "./node_modules/lucide-react/dist/esm/icons/database.mjs":
 /*!***************************************************************!*\
   !*** ./node_modules/lucide-react/dist/esm/icons/database.mjs ***!
@@ -1277,6 +1336,48 @@ const GraduationCap = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["def
 
 /***/ }),
 
+/***/ "./node_modules/lucide-react/dist/esm/icons/grid.mjs":
+/*!***********************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/icons/grid.mjs ***!
+  \***********************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Grid)
+/* harmony export */ });
+/* harmony import */ var _createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.mjs */ "./node_modules/lucide-react/dist/esm/createLucideIcon.mjs");
+/**
+ * lucide-react v0.0.1 - ISC
+ */
+
+
+
+const Grid = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("Grid", [
+  [
+    "rect",
+    {
+      width: "18",
+      height: "18",
+      x: "3",
+      y: "3",
+      rx: "2",
+      ry: "2",
+      key: "1m3agn"
+    }
+  ],
+  ["line", { x1: "3", x2: "21", y1: "9", y2: "9", key: "1vqk6q" }],
+  ["line", { x1: "3", x2: "21", y1: "15", y2: "15", key: "o2sbyz" }],
+  ["line", { x1: "9", x2: "9", y1: "3", y2: "21", key: "13tij5" }],
+  ["line", { x1: "15", x2: "15", y1: "3", y2: "21", key: "1hpv9i" }]
+]);
+
+
+//# sourceMappingURL=grid.mjs.map
+
+
+/***/ }),
+
 /***/ "./node_modules/lucide-react/dist/esm/icons/hard-drive.mjs":
 /*!*****************************************************************!*\
   !*** ./node_modules/lucide-react/dist/esm/icons/hard-drive.mjs ***!
@@ -1584,6 +1685,142 @@ const Keyboard = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"
 
 
 //# sourceMappingURL=keyboard.mjs.map
+
+
+/***/ }),
+
+/***/ "./node_modules/lucide-react/dist/esm/icons/layout-grid.mjs":
+/*!******************************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/icons/layout-grid.mjs ***!
+  \******************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ LayoutGrid)
+/* harmony export */ });
+/* harmony import */ var _createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.mjs */ "./node_modules/lucide-react/dist/esm/createLucideIcon.mjs");
+/**
+ * lucide-react v0.0.1 - ISC
+ */
+
+
+
+const LayoutGrid = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("LayoutGrid", [
+  ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
+  [
+    "rect",
+    { width: "7", height: "7", x: "14", y: "3", rx: "1", key: "6d4xhi" }
+  ],
+  [
+    "rect",
+    { width: "7", height: "7", x: "14", y: "14", rx: "1", key: "nxv5o0" }
+  ],
+  [
+    "rect",
+    { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }
+  ]
+]);
+
+
+//# sourceMappingURL=layout-grid.mjs.map
+
+
+/***/ }),
+
+/***/ "./node_modules/lucide-react/dist/esm/icons/library.mjs":
+/*!**************************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/icons/library.mjs ***!
+  \**************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Library)
+/* harmony export */ });
+/* harmony import */ var _createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.mjs */ "./node_modules/lucide-react/dist/esm/createLucideIcon.mjs");
+/**
+ * lucide-react v0.0.1 - ISC
+ */
+
+
+
+const Library = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("Library", [
+  ["path", { d: "m16 6 4 14", key: "ji33uf" }],
+  ["path", { d: "M12 6v14", key: "1n7gus" }],
+  ["path", { d: "M8 8v12", key: "1gg7y9" }],
+  ["path", { d: "M4 4v16", key: "6qkkli" }]
+]);
+
+
+//# sourceMappingURL=library.mjs.map
+
+
+/***/ }),
+
+/***/ "./node_modules/lucide-react/dist/esm/icons/lightbulb.mjs":
+/*!****************************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/icons/lightbulb.mjs ***!
+  \****************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Lightbulb)
+/* harmony export */ });
+/* harmony import */ var _createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.mjs */ "./node_modules/lucide-react/dist/esm/createLucideIcon.mjs");
+/**
+ * lucide-react v0.0.1 - ISC
+ */
+
+
+
+const Lightbulb = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("Lightbulb", [
+  [
+    "path",
+    {
+      d: "M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5",
+      key: "1gvzjb"
+    }
+  ],
+  ["path", { d: "M9 18h6", key: "x1upvd" }],
+  ["path", { d: "M10 22h4", key: "ceow96" }]
+]);
+
+
+//# sourceMappingURL=lightbulb.mjs.map
+
+
+/***/ }),
+
+/***/ "./node_modules/lucide-react/dist/esm/icons/list.mjs":
+/*!***********************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/icons/list.mjs ***!
+  \***********************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ List)
+/* harmony export */ });
+/* harmony import */ var _createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.mjs */ "./node_modules/lucide-react/dist/esm/createLucideIcon.mjs");
+/**
+ * lucide-react v0.0.1 - ISC
+ */
+
+
+
+const List = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("List", [
+  ["line", { x1: "8", x2: "21", y1: "6", y2: "6", key: "7ey8pc" }],
+  ["line", { x1: "8", x2: "21", y1: "12", y2: "12", key: "rjfblc" }],
+  ["line", { x1: "8", x2: "21", y1: "18", y2: "18", key: "c3b1m8" }],
+  ["line", { x1: "3", x2: "3.01", y1: "6", y2: "6", key: "1g7gq3" }],
+  ["line", { x1: "3", x2: "3.01", y1: "12", y2: "12", key: "1pjlvk" }],
+  ["line", { x1: "3", x2: "3.01", y1: "18", y2: "18", key: "28t2mc" }]
+]);
+
+
+//# sourceMappingURL=list.mjs.map
 
 
 /***/ }),
@@ -1971,6 +2208,34 @@ const Phone = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])(
 
 /***/ }),
 
+/***/ "./node_modules/lucide-react/dist/esm/icons/pie-chart.mjs":
+/*!****************************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/icons/pie-chart.mjs ***!
+  \****************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ PieChart)
+/* harmony export */ });
+/* harmony import */ var _createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.mjs */ "./node_modules/lucide-react/dist/esm/createLucideIcon.mjs");
+/**
+ * lucide-react v0.0.1 - ISC
+ */
+
+
+
+const PieChart = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("PieChart", [
+  ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }],
+  ["path", { d: "M22 12A10 10 0 0 0 12 2v10z", key: "1rfc4y" }]
+]);
+
+
+//# sourceMappingURL=pie-chart.mjs.map
+
+
+/***/ }),
+
 /***/ "./node_modules/lucide-react/dist/esm/icons/plus.mjs":
 /*!***********************************************************!*\
   !*** ./node_modules/lucide-react/dist/esm/icons/plus.mjs ***!
@@ -2066,6 +2331,48 @@ const RefreshCw = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default
 
 
 //# sourceMappingURL=refresh-cw.mjs.map
+
+
+/***/ }),
+
+/***/ "./node_modules/lucide-react/dist/esm/icons/rocket.mjs":
+/*!*************************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/icons/rocket.mjs ***!
+  \*************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Rocket)
+/* harmony export */ });
+/* harmony import */ var _createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.mjs */ "./node_modules/lucide-react/dist/esm/createLucideIcon.mjs");
+/**
+ * lucide-react v0.0.1 - ISC
+ */
+
+
+
+const Rocket = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("Rocket", [
+  [
+    "path",
+    {
+      d: "M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z",
+      key: "m3kijz"
+    }
+  ],
+  [
+    "path",
+    {
+      d: "m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z",
+      key: "1fmvmk"
+    }
+  ],
+  ["path", { d: "M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0", key: "1f8sc4" }],
+  ["path", { d: "M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5", key: "qeys4" }]
+]);
+
+
+//# sourceMappingURL=rocket.mjs.map
 
 
 /***/ }),
@@ -2260,45 +2567,6 @@ const Shield = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])
 
 /***/ }),
 
-/***/ "./node_modules/lucide-react/dist/esm/icons/smartphone.mjs":
-/*!*****************************************************************!*\
-  !*** ./node_modules/lucide-react/dist/esm/icons/smartphone.mjs ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ Smartphone)
-/* harmony export */ });
-/* harmony import */ var _createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.mjs */ "./node_modules/lucide-react/dist/esm/createLucideIcon.mjs");
-/**
- * lucide-react v0.0.1 - ISC
- */
-
-
-
-const Smartphone = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("Smartphone", [
-  [
-    "rect",
-    {
-      width: "14",
-      height: "20",
-      x: "5",
-      y: "2",
-      rx: "2",
-      ry: "2",
-      key: "1yt0o3"
-    }
-  ],
-  ["path", { d: "M12 18h.01", key: "mhygvu" }]
-]);
-
-
-//# sourceMappingURL=smartphone.mjs.map
-
-
-/***/ }),
-
 /***/ "./node_modules/lucide-react/dist/esm/icons/sparkles.mjs":
 /*!***************************************************************!*\
   !*** ./node_modules/lucide-react/dist/esm/icons/sparkles.mjs ***!
@@ -2399,6 +2667,39 @@ const Star = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("
 
 /***/ }),
 
+/***/ "./node_modules/lucide-react/dist/esm/icons/table.mjs":
+/*!************************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/icons/table.mjs ***!
+  \************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Table)
+/* harmony export */ });
+/* harmony import */ var _createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.mjs */ "./node_modules/lucide-react/dist/esm/createLucideIcon.mjs");
+/**
+ * lucide-react v0.0.1 - ISC
+ */
+
+
+
+const Table = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("Table", [
+  ["path", { d: "M12 3v18", key: "108xh3" }],
+  [
+    "rect",
+    { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }
+  ],
+  ["path", { d: "M3 9h18", key: "1pudct" }],
+  ["path", { d: "M3 15h18", key: "5xshup" }]
+]);
+
+
+//# sourceMappingURL=table.mjs.map
+
+
+/***/ }),
+
 /***/ "./node_modules/lucide-react/dist/esm/icons/tag.mjs":
 /*!**********************************************************!*\
   !*** ./node_modules/lucide-react/dist/esm/icons/tag.mjs ***!
@@ -2489,6 +2790,34 @@ const Trash2 = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])
 
 
 //# sourceMappingURL=trash-2.mjs.map
+
+
+/***/ }),
+
+/***/ "./node_modules/lucide-react/dist/esm/icons/trending-down.mjs":
+/*!********************************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/icons/trending-down.mjs ***!
+  \********************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ TrendingDown)
+/* harmony export */ });
+/* harmony import */ var _createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.mjs */ "./node_modules/lucide-react/dist/esm/createLucideIcon.mjs");
+/**
+ * lucide-react v0.0.1 - ISC
+ */
+
+
+
+const TrendingDown = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("TrendingDown", [
+  ["polyline", { points: "22 17 13.5 8.5 8.5 13.5 2 7", key: "1r2t7k" }],
+  ["polyline", { points: "16 17 22 17 22 11", key: "11uiuu" }]
+]);
+
+
+//# sourceMappingURL=trending-down.mjs.map
 
 
 /***/ }),
@@ -2590,6 +2919,95 @@ const Upload = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])
 
 
 //# sourceMappingURL=upload.mjs.map
+
+
+/***/ }),
+
+/***/ "./node_modules/lucide-react/dist/esm/icons/user-check.mjs":
+/*!*****************************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/icons/user-check.mjs ***!
+  \*****************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ UserCheck)
+/* harmony export */ });
+/* harmony import */ var _createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.mjs */ "./node_modules/lucide-react/dist/esm/createLucideIcon.mjs");
+/**
+ * lucide-react v0.0.1 - ISC
+ */
+
+
+
+const UserCheck = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("UserCheck", [
+  ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }],
+  ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }],
+  ["polyline", { points: "16 11 18 13 22 9", key: "1pwet4" }]
+]);
+
+
+//# sourceMappingURL=user-check.mjs.map
+
+
+/***/ }),
+
+/***/ "./node_modules/lucide-react/dist/esm/icons/user-plus.mjs":
+/*!****************************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/icons/user-plus.mjs ***!
+  \****************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ UserPlus)
+/* harmony export */ });
+/* harmony import */ var _createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.mjs */ "./node_modules/lucide-react/dist/esm/createLucideIcon.mjs");
+/**
+ * lucide-react v0.0.1 - ISC
+ */
+
+
+
+const UserPlus = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("UserPlus", [
+  ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }],
+  ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }],
+  ["line", { x1: "19", x2: "19", y1: "8", y2: "14", key: "1bvyxn" }],
+  ["line", { x1: "22", x2: "16", y1: "11", y2: "11", key: "1shjgl" }]
+]);
+
+
+//# sourceMappingURL=user-plus.mjs.map
+
+
+/***/ }),
+
+/***/ "./node_modules/lucide-react/dist/esm/icons/user-x.mjs":
+/*!*************************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/icons/user-x.mjs ***!
+  \*************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ UserX)
+/* harmony export */ });
+/* harmony import */ var _createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.mjs */ "./node_modules/lucide-react/dist/esm/createLucideIcon.mjs");
+/**
+ * lucide-react v0.0.1 - ISC
+ */
+
+
+
+const UserX = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("UserX", [
+  ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }],
+  ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }],
+  ["line", { x1: "17", x2: "22", y1: "8", y2: "13", key: "3nzzx3" }],
+  ["line", { x1: "22", x2: "17", y1: "8", y2: "13", key: "1swrse" }]
+]);
+
+
+//# sourceMappingURL=user-x.mjs.map
 
 
 /***/ }),
@@ -2711,35 +3129,6 @@ const Wifi = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("
 
 
 //# sourceMappingURL=wifi.mjs.map
-
-
-/***/ }),
-
-/***/ "./node_modules/lucide-react/dist/esm/icons/x-circle.mjs":
-/*!***************************************************************!*\
-  !*** ./node_modules/lucide-react/dist/esm/icons/x-circle.mjs ***!
-  \***************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ XCircle)
-/* harmony export */ });
-/* harmony import */ var _createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.mjs */ "./node_modules/lucide-react/dist/esm/createLucideIcon.mjs");
-/**
- * lucide-react v0.0.1 - ISC
- */
-
-
-
-const XCircle = (0,_createLucideIcon_mjs__WEBPACK_IMPORTED_MODULE_0__["default"])("XCircle", [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
-  ["path", { d: "m9 9 6 6", key: "z0biqf" }]
-]);
-
-
-//# sourceMappingURL=x-circle.mjs.map
 
 
 /***/ }),
@@ -37589,4 +37978,4 @@ if (false) // removed by dead control flow
 /***/ })
 
 }]);
-//# sourceMappingURL=vendors.dcd4bfd9f32dae2c9a24.js.map
+//# sourceMappingURL=vendors.f9fa2f94d1f10f422f93.js.map

@@ -15,6 +15,7 @@ export interface Document {
   isbn?: string;
   description?: string;
   couverture?: string;      // URL de la couverture
+  institution_code?: string; // Isolation par institution
   
   // Statut d'emprunt
   estEmprunte: boolean;
@@ -56,6 +57,7 @@ export interface Author {
   biography?: string;
   birthDate?: string;
   nationality?: string;
+  institution_code?: string; // Isolation par institution
   // Synchronisation
   localId?: string;
   remoteId?: string;
@@ -71,6 +73,7 @@ export interface Category {
   name: string;
   description?: string;
   color?: string;
+  institution_code?: string; // Isolation par institution
   // Synchronisation
   localId?: string;
   remoteId?: string;
@@ -92,6 +95,7 @@ export interface Borrower {
   position?: string;
   email?: string;
   phone?: string;
+  institution_code?: string; // Isolation par institution
   // Synchronisation
   localId?: string;
   remoteId?: string;
@@ -111,6 +115,7 @@ export interface BorrowHistory {
   actualReturnDate?: string;
   status: 'active' | 'returned' | 'overdue';
   notes?: string;
+  institution_code?: string;  // Isolation par institution
   // Données jointes
   document?: Document;
   borrower?: Borrower;
