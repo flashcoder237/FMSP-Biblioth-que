@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  User, 
   Users,
   Plus,
   X, 
@@ -16,7 +15,10 @@ import {
   AlertCircle,
   Trash2,
   UserCheck,
-  UserX
+  UserX,
+  Search,
+  Filter,
+  MoreVertical
 } from 'lucide-react';
 import { MicroButton, MicroCard } from './MicroInteractions';
 import { useQuickToast } from './ToastSystem';
@@ -30,7 +32,6 @@ interface InstitutionUserManagementProps {
   onClose: () => void;
 }
 
-// Utilisons le type LocalUser existant mais avec des propriétés étendues pour l'affichage
 interface DisplayUser {
   id: string;
   email: string;
@@ -43,174 +44,198 @@ interface DisplayUser {
   lastLogin?: string;
 }
 
+interface NewUserForm {
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  confirmPassword: string;
+  role: 'admin' | 'librarian' | 'user';
+}
+
 export const InstitutionUserManagement: React.FC<InstitutionUserManagementProps> = ({ 
   currentUser,
   currentInstitution,
   appMode,
   onClose
 }) => {
-  const { success, error } = useQuickToast();
-  const [isLoading, setIsLoading] = useState(false);
+  const { success, error, info } = useQuickToast();
   const [users, setUsers] = useState<DisplayUser[]>([]);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingUser, setEditingUser] = useState<DisplayUser | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentView, setCurrentView] = useState<'list' | 'add' | 'edit'>('list');
+  const [selectedUser, setSelectedUser] = useState<DisplayUser | null>(null);
+  const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'librarian' | 'user'>('all');
   
-  const [newUserForm, setNewUserForm] = useState({
+  const [newUserForm, setNewUserForm] = useState<NewUserForm>({
+    email: '',
     firstName: '',
     lastName: '',
-    email: '',
-    role: 'user' as 'admin' | 'librarian' | 'user',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: 'user'
   });
+  
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Charger les utilisateurs de l'institution
   useEffect(() => {
-    loadInstitutionUsers();
+    loadUsers();
   }, []);
 
-  const loadInstitutionUsers = () => {
-    if (appMode === 'offline' && currentInstitution?.code) {
-      try {
+  const loadUsers = async () => {
+    try {
+      setIsLoading(true);
+      
+      if (appMode === 'offline' && currentInstitution?.code) {
         const allUsers = LocalAuthService.getUsers();
-        const institutionUsers = allUsers
-          .filter(user => user.institutionCode === currentInstitution.code)
-          .map(user => ({
-            id: user.id,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            role: user.role as 'admin' | 'librarian' | 'user',
-            institutionCode: user.institutionCode,
-            isActive: true, // Par défaut, tous les utilisateurs sont actifs
-            createdAt: new Date().toISOString(), // Valeur par défaut
-            lastLogin: user.lastLogin
-          }));
-        setUsers(institutionUsers);
-      } catch (err) {
-        console.error('Erreur lors du chargement des utilisateurs:', err);
-        error('Erreur de chargement', 'Erreur lors du chargement des utilisateurs');
+        const localUsers = allUsers.filter(user => user.institutionCode === currentInstitution.code);
+        const displayUsers: DisplayUser[] = localUsers.map((user: any) => ({
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName || '',
+          lastName: user.lastName || '',
+          role: user.role,
+          institutionCode: user.institutionCode,
+          isActive: user.isActive !== undefined ? user.isActive : true,
+          createdAt: user.createdAt || new Date().toISOString(),
+          lastLogin: user.lastLogin
+        }));
+        setUsers(displayUsers);
       }
+    } catch (err) {
+      console.error('Erreur lors du chargement des utilisateurs:', err);
+      error('Erreur', 'Impossible de charger les utilisateurs');
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+    
+    if (!newUserForm.email.trim()) {
+      errors.email = 'Email obligatoire';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newUserForm.email)) {
+      errors.email = 'Format email invalide';
+    }
+    
+    if (!newUserForm.firstName.trim()) {
+      errors.firstName = 'Prénom obligatoire';
+    }
+    
+    if (!newUserForm.lastName.trim()) {
+      errors.lastName = 'Nom obligatoire';
+    }
+    
+    if (!newUserForm.password) {
+      errors.password = 'Mot de passe obligatoire';
+    } else if (newUserForm.password.length < 6) {
+      errors.password = 'Minimum 6 caractères';
+    }
+    
+    if (newUserForm.password !== newUserForm.confirmPassword) {
+      errors.confirmPassword = 'Les mots de passe ne correspondent pas';
+    }
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleCreateUser = async () => {
-    if (!currentInstitution?.code) {
-      error('Erreur', 'Code d\'institution manquant');
-      return;
-    }
-
-    // Validation
-    if (!newUserForm.firstName.trim() || !newUserForm.lastName.trim() || !newUserForm.email.trim()) {
-      error('Champs manquants', 'Veuillez remplir tous les champs obligatoires');
-      return;
-    }
-
-    if (newUserForm.password.length < 4) {
-      error('Mot de passe trop court', 'Le mot de passe doit contenir au moins 4 caractères');
-      return;
-    }
-
-    if (newUserForm.password !== newUserForm.confirmPassword) {
-      error('Mots de passe différents', 'Les mots de passe ne correspondent pas');
-      return;
-    }
-
-    // Vérifier si l'email existe déjà
-    const existingUsers = LocalAuthService.getUsers();
-    if (existingUsers.some(user => user.email.toLowerCase() === newUserForm.email.toLowerCase())) {
-      error('Email déjà utilisé', 'Un utilisateur avec cet email existe déjà');
-      return;
-    }
-
-    setIsLoading(true);
+    if (!validateForm() || !currentInstitution?.code) return;
+    
     try {
-      const newUser = LocalAuthService.addUser({
-        email: newUserForm.email,
-        password: newUserForm.password,
-        firstName: newUserForm.firstName,
-        lastName: newUserForm.lastName,
-        role: newUserForm.role,
-        institutionCode: currentInstitution.code,
-        preferences: {
-          rememberMe: false,
-          autoLogin: false,
-          theme: 'light'
-        }
-      });
-
-      if (newUser) {
-        success('Utilisateur créé', `Utilisateur ${newUserForm.firstName} ${newUserForm.lastName} créé avec succès`);
-        setNewUserForm({
-          firstName: '',
-          lastName: '',
-          email: '',
-          role: 'user',
-          password: '',
-          confirmPassword: ''
+      setIsLoading(true);
+      
+      if (appMode === 'offline') {
+        const newUser = LocalAuthService.addUser({
+          email: newUserForm.email,
+          password: newUserForm.password,
+          firstName: newUserForm.firstName,
+          lastName: newUserForm.lastName,
+          role: newUserForm.role,
+          institutionCode: currentInstitution.code
         });
-        setShowCreateForm(false);
-        loadInstitutionUsers();
+        
+        if (newUser) {
+          success('Utilisateur créé', `${newUserForm.firstName} ${newUserForm.lastName} a été ajouté avec succès`);
+          setNewUserForm({
+            email: '',
+            firstName: '',
+            lastName: '',
+            password: '',
+            confirmPassword: '',
+            role: 'user'
+          });
+          setCurrentView('list');
+          await loadUsers();
+        } else {
+          error('Erreur', 'Impossible de créer l\'utilisateur');
+        }
       }
     } catch (err) {
-      console.error('Erreur lors de la création de l\'utilisateur:', err);
-      error('Erreur de création', 'Erreur lors de la création de l\'utilisateur');
+      console.error('Erreur lors de la création:', err);
+      error('Erreur', 'Erreur lors de la création de l\'utilisateur');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleToggleUserStatus = async (user: DisplayUser) => {
-    // Fonctionnalité simplifiée - pour l'instant, on ne peut que désactiver visuellement
-    setIsLoading(true);
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer ${userName} ?`)) return;
+    
     try {
-      // Mise à jour locale de l'état de l'utilisateur
-      const updatedUsers = users.map(u => 
-        u.id === user.id ? { ...u, isActive: !u.isActive } : u
-      );
-      setUsers(updatedUsers);
-      
-      success('Statut modifié', `Utilisateur ${user.firstName} ${user.lastName} ${!user.isActive ? 'activé' : 'désactivé'}`);
-    } catch (err) {
-      console.error('Erreur lors de la modification du statut:', err);
-      error('Erreur de modification', 'Erreur lors de la modification du statut');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDeleteUser = async (user: DisplayUser) => {
-    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.firstName} ${user.lastName} ?`)) {
-      return;
-    }
-
-    if (user.id === currentUser?.id) {
-      error('Action interdite', 'Vous ne pouvez pas supprimer votre propre compte');
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const allUsers = LocalAuthService.getUsers();
-      const updatedUsers = allUsers.filter(u => u.id !== user.id);
-      LocalAuthService.saveUsers(updatedUsers);
-      
-      success('Utilisateur supprimé', `Utilisateur ${user.firstName} ${user.lastName} supprimé`);
-      loadInstitutionUsers();
+      if (appMode === 'offline') {
+        // Simulation de suppression en filtrant l'utilisateur
+        const users = LocalAuthService.getUsers();
+        const filteredUsers = users.filter(u => u.id !== userId);
+        LocalAuthService.saveUsers(filteredUsers);
+        success('Utilisateur supprimé', `${userName} a été supprimé avec succès`);
+        await loadUsers();
+      }
     } catch (err) {
       console.error('Erreur lors de la suppression:', err);
-      error('Erreur de suppression', 'Erreur lors de la suppression');
-    } finally {
-      setIsLoading(false);
+      error('Erreur', 'Erreur lors de la suppression');
     }
   };
 
-  const getRoleIcon = (role: string) => {
+  const handleToggleUserStatus = async (userId: string, currentStatus: boolean) => {
+    try {
+      if (appMode === 'offline') {
+        // Simulation de modification du statut
+        const users = LocalAuthService.getUsers();
+        const updatedUsers = users.map(u => 
+          u.id === userId ? { ...u, isActive: !currentStatus } : u
+        );
+        LocalAuthService.saveUsers(updatedUsers as any);
+        const action = !currentStatus ? 'activé' : 'désactivé';
+        success('Statut modifié', `Utilisateur ${action} avec succès`);
+        await loadUsers();
+      }
+    } catch (err) {
+      console.error('Erreur lors de la modification du statut:', err);
+      error('Erreur', 'Erreur lors de la modification du statut');
+    }
+  };
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = 
+      user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+    
+    return matchesSearch && matchesRole;
+  });
+
+  const getRoleColor = (role: string) => {
     switch (role) {
-      case 'admin': return <Shield size={16} className="text-red-500" />;
-      case 'librarian': return <User size={16} className="text-blue-500" />;
-      default: return <User size={16} className="text-gray-500" />;
+      case 'admin': return '#C2571B';
+      case 'librarian': return '#3E5C49';
+      case 'user': return '#6B7280';
+      default: return '#6B7280';
     }
   };
 
@@ -218,246 +243,888 @@ export const InstitutionUserManagement: React.FC<InstitutionUserManagementProps>
     switch (role) {
       case 'admin': return 'Administrateur';
       case 'librarian': return 'Bibliothécaire';
-      default: return 'Utilisateur';
+      case 'user': return 'Utilisateur';
+      default: return role;
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <MicroCard className="w-full max-w-6xl max-h-[90vh] overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-              <Users size={20} className="text-white" />
+  const renderUserList = () => (
+    <div className="users-section">
+      {/* Barre de recherche et filtres */}
+      <div className="search-filters">
+        <div className="search-box">
+          <Search size={20} />
+          <input
+            type="text"
+            placeholder="Rechercher un utilisateur..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        
+        <div className="filter-group">
+          <Filter size={18} />
+          <select 
+            value={roleFilter} 
+            onChange={(e) => setRoleFilter(e.target.value as any)}
+            className="role-filter"
+          >
+            <option value="all">Tous les rôles</option>
+            <option value="admin">Administrateurs</option>
+            <option value="librarian">Bibliothécaires</option>
+            <option value="user">Utilisateurs</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Stats rapides */}
+      <div className="users-stats">
+        <div className="stat-card">
+          <Users size={20} />
+          <div>
+            <div className="stat-number">{users.length}</div>
+            <div className="stat-label">Total</div>
+          </div>
+        </div>
+        <div className="stat-card">
+          <UserCheck size={20} />
+          <div>
+            <div className="stat-number">{users.filter(u => u.isActive).length}</div>
+            <div className="stat-label">Actifs</div>
+          </div>
+        </div>
+        <div className="stat-card">
+          <Shield size={20} />
+          <div>
+            <div className="stat-number">{users.filter(u => u.role === 'admin').length}</div>
+            <div className="stat-label">Admins</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Liste des utilisateurs */}
+      <div className="users-list">
+        {filteredUsers.length === 0 ? (
+          <div className="empty-state">
+            <Users size={48} />
+            <h3>Aucun utilisateur trouvé</h3>
+            <p>
+              {searchTerm || roleFilter !== 'all' 
+                ? 'Aucun utilisateur ne correspond aux critères de recherche'
+                : 'Commencez par ajouter votre premier utilisateur'
+              }
+            </p>
+          </div>
+        ) : (
+          filteredUsers.map(user => (
+            <div key={user.id} className="user-card">
+              <div className="user-info">
+                <div className="user-avatar">
+                  {user.firstName[0]}{user.lastName[0]}
+                </div>
+                <div className="user-details">
+                  <div className="user-name">
+                    {user.firstName} {user.lastName}
+                    {!user.isActive && <span className="inactive-badge">Inactif</span>}
+                  </div>
+                  <div className="user-email">{user.email}</div>
+                  <div className="user-meta">
+                    <span className="role-badge" style={{ backgroundColor: getRoleColor(user.role) }}>
+                      {getRoleLabel(user.role)}
+                    </span>
+                    <span className="join-date">
+                      Créé le {new Date(user.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="user-actions">
+                <MicroButton
+                  variant="secondary"
+                  size="small"
+                  onClick={() => handleToggleUserStatus(user.id, user.isActive)}
+                  disabled={user.id === currentUser?.id}
+                >
+                  {user.isActive ? <UserX size={16} /> : <UserCheck size={16} />}
+                </MicroButton>
+                
+                <MicroButton
+                  variant="danger"
+                  size="small"
+                  onClick={() => handleDeleteUser(user.id, `${user.firstName} ${user.lastName}`)}
+                  disabled={user.id === currentUser?.id}
+                >
+                  <Trash2 size={16} />
+                </MicroButton>
+              </div>
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">
-                Gestion des Utilisateurs
-              </h2>
-              <p className="text-sm text-gray-600">
-                {currentInstitution?.name} • {users.length} utilisateur{users.length > 1 ? 's' : ''}
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+  const renderAddUserForm = () => (
+    <div className="add-user-form">
+      <div className="form-section">
+        <h3>Informations personnelles</h3>
+        
+        <div className="form-row">
+          <div className="form-group">
+            <label>Prénom *</label>
+            <input
+              type="text"
+              value={newUserForm.firstName}
+              onChange={(e) => setNewUserForm(prev => ({ ...prev, firstName: e.target.value }))}
+              className={formErrors.firstName ? 'error' : ''}
+              placeholder="Jean"
+            />
+            {formErrors.firstName && <span className="error-text">{formErrors.firstName}</span>}
+          </div>
+          
+          <div className="form-group">
+            <label>Nom *</label>
+            <input
+              type="text"
+              value={newUserForm.lastName}
+              onChange={(e) => setNewUserForm(prev => ({ ...prev, lastName: e.target.value }))}
+              className={formErrors.lastName ? 'error' : ''}
+              placeholder="Dupont"
+            />
+            {formErrors.lastName && <span className="error-text">{formErrors.lastName}</span>}
+          </div>
+        </div>
+        
+        <div className="form-group">
+          <label>Email *</label>
+          <div className="input-with-icon">
+            <Mail size={18} />
+            <input
+              type="email"
+              value={newUserForm.email}
+              onChange={(e) => setNewUserForm(prev => ({ ...prev, email: e.target.value }))}
+              className={formErrors.email ? 'error' : ''}
+              placeholder="jean.dupont@example.com"
+            />
+          </div>
+          {formErrors.email && <span className="error-text">{formErrors.email}</span>}
+        </div>
+      </div>
+
+      <div className="form-section">
+        <h3>Sécurité et permissions</h3>
+        
+        <div className="form-group">
+          <label>Rôle</label>
+          <div className="input-with-icon">
+            <Shield size={18} />
+            <select
+              value={newUserForm.role}
+              onChange={(e) => setNewUserForm(prev => ({ ...prev, role: e.target.value as any }))}
+            >
+              <option value="user">Utilisateur</option>
+              <option value="librarian">Bibliothécaire</option>
+              <option value="admin">Administrateur</option>
+            </select>
+          </div>
+        </div>
+        
+        <div className="form-row">
+          <div className="form-group">
+            <label>Mot de passe *</label>
+            <div className="input-with-icon">
+              <Lock size={18} />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={newUserForm.password}
+                onChange={(e) => setNewUserForm(prev => ({ ...prev, password: e.target.value }))}
+                className={formErrors.password ? 'error' : ''}
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+            {formErrors.password && <span className="error-text">{formErrors.password}</span>}
+          </div>
+          
+          <div className="form-group">
+            <label>Confirmer le mot de passe *</label>
+            <div className="input-with-icon">
+              <Lock size={18} />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={newUserForm.confirmPassword}
+                onChange={(e) => setNewUserForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                className={formErrors.confirmPassword ? 'error' : ''}
+                placeholder="••••••••"
+              />
+            </div>
+            {formErrors.confirmPassword && <span className="error-text">{formErrors.confirmPassword}</span>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-container user-management-modal">
+        {/* Header */}
+        <div className="modal-header">
+          <div className="header-content">
+            <div className="header-icon">
+              <Users size={24} />
+            </div>
+            <div className="header-text">
+              <h2 className="modal-title">Gestion des utilisateurs</h2>
+              <p className="modal-subtitle">
+                {currentInstitution?.name || 'Institution'} • {users.length} utilisateur{users.length !== 1 ? 's' : ''}
               </p>
             </div>
           </div>
-          <MicroButton
-            variant="secondary"
-            size="small"
-            onClick={onClose}
-          >
+          <button className="close-btn" onClick={onClose}>
             <X size={20} />
-          </MicroButton>
+          </button>
         </div>
 
-        <div className="p-6 overflow-y-auto max-h-[70vh]">
-          {/* Bouton Créer un nouvel utilisateur */}
-          <div className="mb-6">
-            <MicroButton
-              onClick={() => setShowCreateForm(!showCreateForm)}
-              className="bg-blue-500 hover:bg-blue-600 text-white"
+        {/* Navigation */}
+        <div className="modal-nav">
+          <div className="nav-buttons">
+            <button 
+              className={`nav-button ${currentView === 'list' ? 'active' : ''}`}
+              onClick={() => setCurrentView('list')}
             >
-              <Plus size={16} />
-              Créer un nouvel utilisateur
+              <Users size={18} />
+              Liste des utilisateurs
+            </button>
+            <button 
+              className={`nav-button ${currentView === 'add' ? 'active' : ''}`}
+              onClick={() => setCurrentView('add')}
+            >
+              <Plus size={18} />
+              Nouvel utilisateur
+            </button>
+          </div>
+        </div>
+        
+        {/* Content */}
+        <div className="modal-content">
+          {isLoading ? (
+            <div className="loading-state">
+              <div className="loading-spinner"></div>
+              <p>Chargement des utilisateurs...</p>
+            </div>
+          ) : currentView === 'list' ? (
+            renderUserList()
+          ) : (
+            renderAddUserForm()
+          )}
+        </div>
+        
+        {/* Actions */}
+        {currentView === 'add' && (
+          <div className="modal-actions">
+            <MicroButton
+              variant="secondary"
+              onClick={() => setCurrentView('list')}
+              disabled={isLoading}
+            >
+              Annuler
+            </MicroButton>
+            <MicroButton
+              variant="primary"
+              onClick={handleCreateUser}
+              disabled={isLoading}
+            >
+              <Save size={16} />
+              Créer l'utilisateur
             </MicroButton>
           </div>
+        )}
+      </div>
+      
+      <style>{`
+        .user-management-modal {
+          max-width: 900px;
+          height: 80vh;
+          display: flex;
+          flex-direction: column;
+        }
 
-          {/* Formulaire de création */}
-          {showCreateForm && (
-            <MicroCard className="mb-6 p-4 bg-blue-50 border border-blue-200">
-              <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
-                <Plus size={16} className="mr-2" />
-                Créer un nouvel utilisateur
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Prénom *
-                  </label>
-                  <input
-                    type="text"
-                    value={newUserForm.firstName}
-                    onChange={(e) => setNewUserForm(prev => ({ ...prev, firstName: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Jean"
-                  />
-                </div>
+        .modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.75);
+          backdrop-filter: blur(8px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 50;
+          padding: 20px;
+        }
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nom *
-                  </label>
-                  <input
-                    type="text"
-                    value={newUserForm.lastName}
-                    onChange={(e) => setNewUserForm(prev => ({ ...prev, lastName: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Dupont"
-                  />
-                </div>
+        .modal-container {
+          background: white;
+          border-radius: 20px;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+          width: 100%;
+          max-height: 95vh;
+          overflow: hidden;
+          animation: modalSlideIn 0.3s ease-out;
+        }
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    value={newUserForm.email}
-                    onChange={(e) => setNewUserForm(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="jean.dupont@email.com"
-                  />
-                </div>
+        @keyframes modalSlideIn {
+          from {
+            opacity: 0;
+            transform: scale(0.95) translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Rôle *
-                  </label>
-                  <select
-                    value={newUserForm.role}
-                    onChange={(e) => setNewUserForm(prev => ({ ...prev, role: e.target.value as 'admin' | 'librarian' | 'user' }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="user">Utilisateur</option>
-                    <option value="librarian">Bibliothécaire</option>
-                    <option value="admin">Administrateur</option>
-                  </select>
-                </div>
+        .modal-header {
+          background: linear-gradient(135deg, #3E5C49 0%, #C2571B 100%);
+          color: #F3EED9;
+          padding: 24px 32px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          position: relative;
+          overflow: hidden;
+        }
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Mot de passe *
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      value={newUserForm.password}
-                      onChange={(e) => setNewUserForm(prev => ({ ...prev, password: e.target.value }))}
-                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Minimum 4 caractères"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  </div>
-                </div>
+        .modal-header::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='7' cy='7' r='7'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+          opacity: 0.6;
+        }
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Confirmer le mot de passe *
-                  </label>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={newUserForm.confirmPassword}
-                    onChange={(e) => setNewUserForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Confirmer le mot de passe"
-                  />
-                </div>
-              </div>
+        .header-content {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          position: relative;
+          z-index: 1;
+        }
 
-              <div className="flex justify-end space-x-3 mt-4">
-                <MicroButton
-                  variant="secondary"
-                  onClick={() => setShowCreateForm(false)}
-                >
-                  Annuler
-                </MicroButton>
-                <MicroButton
-                  onClick={handleCreateUser}
-                  disabled={isLoading}
-                  className="bg-blue-500 hover:bg-blue-600 text-white"
-                >
-                  {isLoading ? 'Création...' : 'Créer l\'utilisateur'}
-                </MicroButton>
-              </div>
-            </MicroCard>
-          )}
+        .header-icon {
+          width: 48px;
+          height: 48px;
+          background: rgba(243, 238, 217, 0.2);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
 
-          {/* Liste des utilisateurs */}
-          <div className="space-y-4">
-            {users.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <Users size={48} className="mx-auto mb-4 text-gray-300" />
-                <p>Aucun utilisateur dans cette institution</p>
-                <p className="text-sm">Créez le premier utilisateur en cliquant sur le bouton ci-dessus</p>
-              </div>
-            ) : (
-              users.map((user) => (
-                <MicroCard key={user.id} className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        user.isActive ? 'bg-green-100' : 'bg-gray-100'
-                      }`}>
-                        <User size={20} className={user.isActive ? 'text-green-600' : 'text-gray-400'} />
-                      </div>
-                      
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <h3 className="font-medium text-gray-900">
-                            {user.firstName} {user.lastName}
-                          </h3>
-                          {user.id === currentUser?.id && (
-                            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                              Vous
-                            </span>
-                          )}
-                          {!user.isActive && (
-                            <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">
-                              Désactivé
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center space-x-4 text-sm text-gray-600">
-                          <span className="flex items-center space-x-1">
-                            <Mail size={14} />
-                            <span>{user.email}</span>
-                          </span>
-                          <span className="flex items-center space-x-1">
-                            {getRoleIcon(user.role)}
-                            <span>{getRoleLabel(user.role)}</span>
-                          </span>
-                        </div>
-                        {user.lastLogin && (
-                          <p className="text-xs text-gray-500 mt-1">
-                            Dernière connexion: {new Date(user.lastLogin).toLocaleDateString('fr-FR')}
-                          </p>
-                        )}
-                      </div>
-                    </div>
+        .header-text {
+          flex: 1;
+        }
 
-                    <div className="flex items-center space-x-2">
-                      <MicroButton
-                        variant="secondary"
-                        size="small"
-                        onClick={() => handleToggleUserStatus(user)}
-                        disabled={user.id === currentUser?.id}
-                      >
-                        {user.isActive ? <UserX size={16} /> : <UserCheck size={16} />}
-                      </MicroButton>
+        .modal-title {
+          font-size: 24px;
+          font-weight: 700;
+          margin: 0 0 2px 0;
+          color: #F3EED9;
+        }
 
-                      {user.id !== currentUser?.id && (
-                        <MicroButton
-                          variant="danger"
-                          size="small"
-                          onClick={() => handleDeleteUser(user)}
-                          className="text-red-600 hover:text-red-800 hover:bg-red-50"
-                        >
-                          <Trash2 size={16} />
-                        </MicroButton>
-                      )}
-                    </div>
-                  </div>
-                </MicroCard>
-              ))
-            )}
-          </div>
-        </div>
-      </MicroCard>
+        .modal-subtitle {
+          font-size: 14px;
+          margin: 0;
+          opacity: 0.9;
+          color: #F3EED9;
+        }
+
+        .close-btn {
+          background: rgba(243, 238, 217, 0.15);
+          border: 1px solid rgba(243, 238, 217, 0.3);
+          color: #F3EED9;
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          position: relative;
+          z-index: 1;
+        }
+
+        .close-btn:hover {
+          background: rgba(255, 255, 255, 0.2);
+          transform: scale(1.05);
+        }
+
+        .modal-nav {
+          background: #FAF9F6;
+          border-bottom: 1px solid rgba(229, 220, 194, 0.4);
+          padding: 16px 32px;
+        }
+
+        .nav-buttons {
+          display: flex;
+          gap: 8px;
+        }
+
+        .nav-button {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 16px;
+          border: none;
+          background: transparent;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 14px;
+          font-weight: 500;
+          color: #6E6E6E;
+        }
+
+        .nav-button:hover {
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+        }
+
+        .nav-button.active {
+          background: #3E5C49;
+          color: #F3EED9;
+        }
+
+        .modal-content {
+          flex: 1;
+          overflow-y: auto;
+          padding: 32px;
+        }
+
+        .modal-actions {
+          padding: 24px 32px;
+          border-top: 1px solid rgba(229, 220, 194, 0.4);
+          display: flex;
+          justify-content: flex-end;
+          gap: 12px;
+          background: #FAF9F6;
+        }
+
+        /* Search and Filters */
+        .search-filters {
+          display: flex;
+          gap: 16px;
+          margin-bottom: 24px;
+          align-items: center;
+        }
+
+        .search-box {
+          position: relative;
+          flex: 1;
+        }
+
+        .search-box svg {
+          position: absolute;
+          left: 16px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #9CA3AF;
+        }
+
+        .search-box input {
+          width: 100%;
+          padding: 12px 16px 12px 48px;
+          border: 2px solid rgba(229, 220, 194, 0.6);
+          border-radius: 12px;
+          background: white;
+          font-size: 14px;
+          transition: all 0.2s ease;
+        }
+
+        .search-box input:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+
+        .filter-group {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          background: white;
+          border: 2px solid rgba(229, 220, 194, 0.6);
+          border-radius: 12px;
+        }
+
+        .role-filter {
+          border: none;
+          background: transparent;
+          font-size: 14px;
+          cursor: pointer;
+          outline: none;
+        }
+
+        /* User Stats */
+        .users-stats {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+          gap: 16px;
+          margin-bottom: 32px;
+        }
+
+        .stat-card {
+          background: white;
+          padding: 20px;
+          border-radius: 12px;
+          border: 2px solid rgba(229, 220, 194, 0.3);
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+          border-color: rgba(62, 92, 73, 0.3);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card svg {
+          color: #3E5C49;
+        }
+
+        .stat-number {
+          font-size: 20px;
+          font-weight: 700;
+          color: #2E2E2E;
+          line-height: 1;
+        }
+
+        .stat-label {
+          font-size: 12px;
+          color: #6E6E6E;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        /* Users List */
+        .users-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .user-card {
+          background: white;
+          border: 2px solid rgba(229, 220, 194, 0.3);
+          border-radius: 12px;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          transition: all 0.2s ease;
+        }
+
+        .user-card:hover {
+          border-color: rgba(62, 92, 73, 0.3);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .user-info {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          flex: 1;
+        }
+
+        .user-avatar {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #3E5C49, #C2571B);
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+          font-size: 16px;
+        }
+
+        .user-details {
+          flex: 1;
+        }
+
+        .user-name {
+          font-size: 16px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin-bottom: 4px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .inactive-badge {
+          background: #EF4444;
+          color: white;
+          font-size: 11px;
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-weight: 500;
+        }
+
+        .user-email {
+          font-size: 14px;
+          color: #6E6E6E;
+          margin-bottom: 8px;
+        }
+
+        .user-meta {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+
+        .role-badge {
+          color: white;
+          font-size: 11px;
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .join-date {
+          font-size: 12px;
+          color: #9CA3AF;
+        }
+
+        .user-actions {
+          display: flex;
+          gap: 8px;
+        }
+
+        /* Empty State */
+        .empty-state {
+          text-align: center;
+          padding: 60px 20px;
+          color: #6E6E6E;
+        }
+
+        .empty-state svg {
+          color: #D1D5DB;
+          margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+          font-size: 18px;
+          font-weight: 600;
+          margin: 0 0 8px 0;
+          color: #4B5563;
+        }
+
+        .empty-state p {
+          font-size: 14px;
+          margin: 0;
+          max-width: 300px;
+          margin: 0 auto;
+          line-height: 1.5;
+        }
+
+        /* Add User Form */
+        .add-user-form {
+          max-width: 600px;
+          margin: 0 auto;
+        }
+
+        .form-section {
+          margin-bottom: 32px;
+        }
+
+        .form-section h3 {
+          font-size: 18px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0 0 20px 0;
+          padding-bottom: 8px;
+          border-bottom: 2px solid rgba(229, 220, 194, 0.4);
+        }
+
+        .form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+        }
+
+        .form-group {
+          margin-bottom: 20px;
+        }
+
+        .form-group label {
+          display: block;
+          font-size: 14px;
+          font-weight: 600;
+          color: #374151;
+          margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select {
+          width: 100%;
+          padding: 12px 16px;
+          border: 2px solid rgba(229, 220, 194, 0.6);
+          border-radius: 8px;
+          font-size: 14px;
+          transition: all 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+
+        .form-group input.error {
+          border-color: #EF4444;
+        }
+
+        .input-with-icon {
+          position: relative;
+        }
+
+        .input-with-icon svg {
+          position: absolute;
+          left: 16px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #9CA3AF;
+          z-index: 1;
+        }
+
+        .input-with-icon input,
+        .input-with-icon select {
+          padding-left: 48px;
+        }
+
+        .password-toggle {
+          position: absolute;
+          right: 16px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          color: #9CA3AF;
+          cursor: pointer;
+          transition: color 0.2s ease;
+        }
+
+        .password-toggle:hover {
+          color: #6B7280;
+        }
+
+        .error-text {
+          display: block;
+          color: #EF4444;
+          font-size: 12px;
+          margin-top: 4px;
+        }
+
+        /* Loading State */
+        .loading-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 60px 20px;
+        }
+
+        .loading-spinner {
+          width: 40px;
+          height: 40px;
+          border: 3px solid rgba(62, 92, 73, 0.2);
+          border-top: 3px solid #3E5C49;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+          .modal-overlay {
+            padding: 16px;
+          }
+
+          .user-management-modal {
+            height: 90vh;
+          }
+
+          .modal-header {
+            padding: 20px 24px;
+          }
+
+          .modal-title {
+            font-size: 20px;
+          }
+
+          .modal-content {
+            padding: 24px;
+          }
+
+          .modal-actions {
+            padding: 20px 24px;
+          }
+
+          .search-filters {
+            flex-direction: column;
+            align-items: stretch;
+          }
+
+          .users-stats {
+            grid-template-columns: 1fr;
+          }
+
+          .user-card {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+          }
+
+          .user-info {
+            width: 100%;
+          }
+
+          .user-actions {
+            align-self: flex-end;
+          }
+
+          .form-row {
+            grid-template-columns: 1fr;
+          }
+
+          .add-user-form {
+            max-width: none;
+          }
+        }
+      `}</style>
     </div>
   );
 };

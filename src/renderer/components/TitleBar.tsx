@@ -97,7 +97,10 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onRefresh, isAuthenticated =
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           border-bottom: 1px solid rgba(46, 69, 58, 0.2);
           -webkit-app-region: drag;
-          position: relative;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
           z-index: 1000;
         }
         

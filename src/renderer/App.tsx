@@ -39,7 +39,7 @@ export const App: React.FC = () => {
   const [unifiedUser, setUnifiedUser] = useState<UnifiedUser | null>(null);
   const [unifiedInstitution, setUnifiedInstitution] = useState<UnifiedInstitution | null>(null);
   const [institutionCode, setInstitutionCode] = useState<string>('');
-  const [isDemoMode, setIsDemoMode] = useState(false);
+  // Mode démo supprimé - plus d'initialisation de données
   const [appMode, setAppMode] = useState<AppMode>('offline');
   const [isAppConfigured, setIsAppConfigured] = useState(false);
   
@@ -170,10 +170,7 @@ export const App: React.FC = () => {
       // Rediriger vers l'authentification
       setCurrentView('auth');
       
-      // Si mode offline, charger les données de démo par défaut
-      if (mode === 'offline') {
-        setIsDemoMode(false); // Mode offline avec vraies données locales
-      }
+      // Mode offline avec vraies données locales - plus de mode démo
       
     } catch (error) {
       console.error('Erreur lors de la configuration initiale:', error);
@@ -242,6 +239,20 @@ export const App: React.FC = () => {
         setBorrowedDocuments(borrowedDocumentsData || []);
         setRecentActivity(recentActivityData || []);
         
+        // DEBUG: Log borrowed documents for institution isolation verification
+        console.log('🔍 DEBUG App.tsx loadData - Borrowed documents loaded:', {
+          institutionCode,
+          count: borrowedDocumentsData?.length || 0,
+          activeEmprunts: borrowedDocumentsData?.filter(bh => bh.status === 'active').length || 0,
+          borrowedDocuments: borrowedDocumentsData?.map(bh => ({
+            id: bh.id,
+            documentId: bh.documentId,
+            status: bh.status,
+            institution_code: (bh as any).institution_code,
+            borrowDate: bh.borrowDate
+          })) || []
+        });
+        
         // Calculer les statistiques manuellement pour le mode offline
         const totalDocuments = documentsData?.length || 0;
         const borrowedCount = borrowedDocumentsData?.filter(bh => bh.status === 'active').length || 0;
@@ -303,191 +314,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const loadDemoData = async () => {
-    try {
-      setIsLoading(true);
-      
-      // Obtenir le code d'institution courant pour les données démo
-      const institutionCode = supabaseService.getCurrentInstitution()?.code || 'DEMO';
-      console.log('🔍 DEBUG loadDemoData - Using institutionCode:', institutionCode);
-      
-      // Données de démonstration avec isolation par institution
-      const demoDocuments: Document[] = [
-        {
-          id: 1,
-          titre: "L'Art de la Programmation",
-          auteur: "Donald Knuth",
-          editeur: "Addison-Wesley",
-          lieuEdition: "Reading, MA",
-          annee: "1968",
-          descripteurs: "Informatique, Programmation",
-          cote: "004.01 KNU",
-          couverture: "",
-          estEmprunte: false,
-          institution_code: institutionCode,
-          syncStatus: 'synced',
-          lastModified: new Date().toISOString(),
-          version: 1,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 2,
-          titre: "Clean Code",
-          auteur: "Robert C. Martin",
-          editeur: "Prentice Hall",
-          lieuEdition: "Upper Saddle River, NJ",
-          annee: "2008",
-          descripteurs: "Développement, Bonnes pratiques",
-          cote: "005.1 MAR",
-          couverture: "",
-          estEmprunte: false,
-          institution_code: institutionCode,
-          syncStatus: 'synced',
-          lastModified: new Date().toISOString(),
-          version: 1,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 3,
-          titre: "Design Patterns",
-          auteur: "Gang of Four",
-          editeur: "Addison-Wesley",
-          lieuEdition: "Reading, MA",
-          annee: "1994",
-          descripteurs: "Architecture logicielle",
-          cote: "005.1 GAM",
-          couverture: "",
-          estEmprunte: false,
-          institution_code: institutionCode,
-          syncStatus: 'synced',
-          lastModified: new Date().toISOString(),
-          version: 1,
-          createdAt: new Date().toISOString()
-        }
-      ];
-
-      const demoAuthors: Author[] = [
-        { 
-          id: 1, 
-          name: "Donald Knuth",
-          institution_code: institutionCode,
-          syncStatus: 'synced',
-          lastModified: new Date().toISOString(),
-          version: 1,
-          createdAt: new Date().toISOString()
-        },
-        { 
-          id: 2, 
-          name: "Robert C. Martin",
-          institution_code: institutionCode,
-          syncStatus: 'synced',
-          lastModified: new Date().toISOString(),
-          version: 1,
-          createdAt: new Date().toISOString()
-        },
-        { 
-          id: 3, 
-          name: "Gang of Four",
-          institution_code: institutionCode,
-          syncStatus: 'synced',
-          lastModified: new Date().toISOString(),
-          version: 1,
-          createdAt: new Date().toISOString()
-        }
-      ];
-
-      const demoCategories: Category[] = [
-        { 
-          id: 1, 
-          name: "Informatique",
-          institution_code: institutionCode,
-          syncStatus: 'synced',
-          lastModified: new Date().toISOString(),
-          version: 1,
-          createdAt: new Date().toISOString()
-        },
-        { 
-          id: 2, 
-          name: "Programmation",
-          institution_code: institutionCode,
-          syncStatus: 'synced',
-          lastModified: new Date().toISOString(),
-          version: 1,
-          createdAt: new Date().toISOString()
-        },
-        { 
-          id: 3, 
-          name: "Architecture logicielle",
-          institution_code: institutionCode,
-          syncStatus: 'synced',
-          lastModified: new Date().toISOString(),
-          version: 1,
-          createdAt: new Date().toISOString()
-        }
-      ];
-
-      const demoBorrowers: Borrower[] = [
-        {
-          id: 1,
-          type: 'student',
-          firstName: 'Jean',
-          lastName: 'Dupont',
-          matricule: 'ETU001',
-          classe: 'Master 2 Info',
-          cniNumber: '',
-          position: '',
-          email: 'jean.dupont@demo.local',
-          phone: '+33 6 12 34 56 78',
-          institution_code: institutionCode,
-          syncStatus: 'synced',
-          lastModified: new Date().toISOString(),
-          version: 1,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 2,
-          type: 'staff',
-          firstName: 'Marie',
-          lastName: 'Martin',
-          matricule: 'PROF001',
-          classe: '',
-          cniNumber: '',
-          position: 'Professeur',
-          email: 'marie.martin@demo.local',
-          phone: '+33 6 87 65 43 21',
-          institution_code: institutionCode,
-          syncStatus: 'synced',
-          lastModified: new Date().toISOString(),
-          version: 1,
-          createdAt: new Date().toISOString()
-        }
-      ];
-
-      const demoStats: Stats = {
-        totalDocuments: demoDocuments.length,
-        borrowedDocuments: 0,
-        availableDocuments: demoDocuments.length,
-        totalAuthors: demoAuthors.length,
-        totalCategories: demoCategories.length,
-        totalBorrowers: demoBorrowers.length,
-        totalStudents: 1,
-        totalStaff: 1,
-        overdueDocuments: 0
-      };
-
-      setDocuments(demoDocuments);
-      setAuthors(demoAuthors);
-      setCategories(demoCategories);
-      setBorrowers(demoBorrowers);
-      setBorrowedDocuments([]);
-      setStats(demoStats);
-    } catch (error) {
-      console.error('Erreur lors du chargement des données démo:', error);
-      setError('Erreur lors du chargement des données démo');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Fonction loadDemoData supprimée - plus d'initialisation de données
 
   const handleAuthentication = async (credentials: {
     email: string;
@@ -592,6 +419,25 @@ export const App: React.FC = () => {
             console.log('🔍 DEBUG App.tsx - Switching SupabaseService institution to:', appInstitution.code);
             await supabaseService.switchInstitution(appInstitution.code);
             
+            // CRITICAL: Clear previous data to ensure institution isolation
+            setDocuments([]);
+            setBorrowedDocuments([]);
+            setAuthors([]);
+            setCategories([]);
+            setBorrowers([]);
+            setStats({
+              totalDocuments: 0,
+              borrowedDocuments: 0,
+              availableDocuments: 0,
+              totalAuthors: 0,
+              totalCategories: 0,
+              totalBorrowers: 0,
+              totalStudents: 0,
+              totalStaff: 0,
+              overdueDocuments: 0
+            });
+            console.log('🔍 DEBUG App.tsx - Cleared previous institution data');
+            
             // Créer les versions unifiées
             setUnifiedUser(convertToUnifiedUser(localUser, 'offline'));
             setUnifiedInstitution(convertToUnifiedInstitution(institution || {
@@ -612,8 +458,10 @@ export const App: React.FC = () => {
             }, 'offline'));
             
             setIsAuthenticated(true);
-            setIsDemoMode(false);
             setCurrentView('dashboard');
+            
+            // CRITICAL: Load data for the new institution
+            console.log('🔍 DEBUG App.tsx - Loading data for institution:', appInstitution.code);
             await loadData();
             
             // Vérifier s'il y a des données orphelines à assigner
@@ -701,14 +549,15 @@ export const App: React.FC = () => {
       setIsAuthenticated(false);
       setCurrentUser(null);
       setCurrentInstitution(null);
-      setCurrentView('auth');
+      setUnifiedUser(null);
+      setUnifiedInstitution(null);
       
-      // Réinitialiser les données
+      // Clear all data when logging out to ensure fresh start for next user
       setDocuments([]);
+      setBorrowedDocuments([]);
       setAuthors([]);
       setCategories([]);
       setBorrowers([]);
-      setBorrowedDocuments([]);
       setStats({
         totalDocuments: 0,
         borrowedDocuments: 0,
@@ -720,6 +569,8 @@ export const App: React.FC = () => {
         totalStaff: 0,
         overdueDocuments: 0
       });
+      console.log('🔍 DEBUG App.tsx - Cleared all data on logout');
+      setCurrentView('auth');
     } catch (error) {
       console.error('Erreur lors de la déconnexion:', error);
     }
@@ -791,45 +642,6 @@ export const App: React.FC = () => {
         // Recharger les données pour mettre à jour l'interface
         await loadData();
         
-      } else if (isDemoMode) {
-        // Mode démo - ajouter localement en mémoire
-        const newId = Math.max(...documents.map(d => d.id || 0)) + 1;
-        const newDocument: Document = {
-          ...document,
-          id: newId,
-          syncStatus: 'synced',
-          lastModified: new Date().toISOString(),
-          version: 1,
-          createdAt: new Date().toISOString()
-        };
-        
-        const updatedDocuments = [...documents, newDocument];
-        setDocuments(updatedDocuments);
-        
-        // Mettre à jour les statistiques
-        setStats(prev => ({
-          ...prev,
-          totalDocuments: updatedDocuments.length,
-          availableDocuments: updatedDocuments.length - prev.borrowedDocuments
-        }));
-        
-        // Ajouter l'auteur s'il n'existe pas
-        if (!authors.find(a => a.name === document.auteur)) {
-          const newAuthorId = Math.max(...authors.map(a => a.id || 0)) + 1;
-          const newAuthor: Author = {
-            id: newAuthorId, 
-            name: document.auteur,
-            syncStatus: 'synced',
-            lastModified: new Date().toISOString(),
-            version: 1,
-            createdAt: new Date().toISOString()
-          };
-          setAuthors(prev => [...prev, newAuthor]);
-          setStats(prev => ({ ...prev, totalAuthors: prev.totalAuthors + 1 }));
-        }
-        
-        console.log('Document ajouté en mode démo:', newDocument);
-        
       } else {
         // Mode online - utiliser Supabase avec filtrage par institution
         const institutionCode = supabaseService.getCurrentInstitution()?.code;
@@ -887,25 +699,13 @@ export const App: React.FC = () => {
         // Recharger les données pour mettre à jour l'interface
         await loadData();
         
-      } else if (isDemoMode) {
-        // Mode démo - supprimer localement en mémoire
-        const updatedDocuments = documents.filter(d => d.id !== documentId);
-        setDocuments(updatedDocuments);
-        
-        // Mettre à jour les statistiques
-        setStats(prev => ({
-          ...prev,
-          totalDocuments: updatedDocuments.length,
-          availableDocuments: updatedDocuments.length - prev.borrowedDocuments
-        }));
-        
-        console.log('Document supprimé en mode démo:', documentId);
       } else {
-        // Mode online - utiliser Supabase avec filtrage par institution
-        const institutionCode = supabaseService.getCurrentInstitution()?.code || '';
-        await supabaseService.deleteDocument(documentId.toString(), institutionCode);
-        await loadData();
+        // Mode online - utiliser Supabase
+        await supabaseService.deleteDocument(documentId.toString());
       }
+      
+      // Recharger les données après l'opération
+      await loadData();
     } catch (error: any) {
       console.error('Erreur lors de la suppression:', error);
       throw error;
@@ -937,45 +737,6 @@ export const App: React.FC = () => {
         }
         await window.electronAPI.borrowDocument(documentId, borrowerId, returnDate, institutionCode);
         console.log('Document emprunté en mode offline:', { documentId, borrowerId, returnDate });
-      } else if (isDemoMode) {
-        // Mode démo - simuler l'emprunt
-        const updatedDocuments = documents.map(doc => 
-          doc.id === documentId 
-            ? { ...doc, estEmprunte: true, syncStatus: 'synced' as const }
-            : doc
-        );
-        setDocuments(updatedDocuments);
-        
-        // Créer l'entrée d'historique d'emprunt
-        const borrower = borrowers.find(b => b.id === borrowerId);
-        const document = documents.find(d => d.id === documentId);
-        
-        if (borrower && document) {
-          const newBorrowHistory: typeof borrowedDocuments[0] = {
-            id: Math.max(...borrowedDocuments.map(b => b.id || 0)) + 1,
-            documentId: documentId,
-            borrowerId,
-            borrowDate: new Date().toISOString(),
-            expectedReturnDate: returnDate,
-            actualReturnDate: undefined,
-            status: 'active' as const,
-            document: document,
-            borrower,
-            syncStatus: 'synced' as const,
-            lastModified: new Date().toISOString(),
-            version: 1,
-            createdAt: new Date().toISOString()
-          };
-          
-          setBorrowedDocuments(prev => [...prev, newBorrowHistory]);
-          
-          // Mettre à jour les statistiques
-          setStats(prev => ({
-            ...prev,
-            borrowedDocuments: prev.borrowedDocuments + 1,
-            availableDocuments: prev.availableDocuments - 1
-          }));
-        }
       } else {
         // Mode online - utiliser Supabase avec filtrage par institution
         const institutionCode = supabaseService.getCurrentInstitution()?.code;
@@ -1014,29 +775,6 @@ export const App: React.FC = () => {
           console.error('Aucun emprunt actif trouvé pour le document:', documentId);
           return;
         }
-      } else if (isDemoMode) {
-        // Mode démo - simuler le retour
-        const updatedDocuments = documents.map(doc => 
-          doc.id === documentId 
-            ? { ...doc, estEmprunte: false, syncStatus: 'synced' as const }
-            : doc
-        );
-        setDocuments(updatedDocuments);
-        
-        // Marquer comme retourné dans l'historique
-        const updatedBorrowHistory = borrowedDocuments.map(bh => 
-          bh.documentId === documentId && bh.status === 'active'
-            ? { ...bh, actualReturnDate: new Date().toISOString(), status: 'returned' as const }
-            : bh
-        );
-        setBorrowedDocuments(updatedBorrowHistory);
-        
-        // Mettre à jour les statistiques
-        setStats(prev => ({
-          ...prev,
-          borrowedDocuments: prev.borrowedDocuments - 1,
-          availableDocuments: prev.availableDocuments + 1
-        }));
       } else {
         // Mode online - utiliser Supabase
         await supabaseService.returnDocument(documentId.toString());
@@ -1062,30 +800,11 @@ export const App: React.FC = () => {
         const newId = await window.electronAPI.addBorrower(borrower, institutionCode);
         await loadData(); // Refresh data
         return newId;
-      } else if (isDemoMode) {
-        // Mode démo - simuler l'ajout
-        const newId = Math.max(...borrowers.map(b => b.id || 0), 0) + 1;
-        const newBorrower = { ...borrower, id: newId };
-        setBorrowers((prev: Borrower[]) => [...prev, newBorrower]);
-        
-        // Mettre à jour les statistiques
-        setStats((prev: Stats) => ({
-          ...prev,
-          totalBorrowers: prev.totalBorrowers + 1,
-          totalStudents: borrower.type === 'student' ? prev.totalStudents + 1 : prev.totalStudents,
-          totalStaff: borrower.type === 'staff' ? prev.totalStaff + 1 : prev.totalStaff
-        }));
-        
-        return newId;
       } else {
-        // Mode online - utiliser Supabase avec filtrage par institution
-        const institutionCode = supabaseService.getCurrentInstitution()?.code;
-        if (!institutionCode) {
-          throw new Error('Code d\'institution manquant. Veuillez vous reconnecter.');
-        }
-        const newId = await supabaseService.addBorrower(borrower, institutionCode);
+        // Mode online - utiliser Supabase
+        const result = await supabaseService.addBorrower(borrower);
         await loadData(); // Refresh data
-        return newId;
+        return result ? parseInt(result.id!) : Date.now();
       }
     } catch (error) {
       console.error('Erreur lors de l\'ajout de l\'emprunteur:', error);
@@ -1094,11 +813,7 @@ export const App: React.FC = () => {
   };
 
   const refreshData = async () => {
-    if (isDemoMode) {
-      await loadDemoData();
-    } else {
-      await loadData();
-    }
+    await loadData();
   };
 
   const checkForOrphanData = async () => {
@@ -1324,7 +1039,7 @@ export const App: React.FC = () => {
     );
   }
 
-  // Vérifier si on doit afficher l'écran de configuration initiale sans TitleBar
+  // Configuration initiale - avec TitleBar aussi
   const initialSetupContent = renderAuthenticatedContent();
   if (initialSetupContent) {
     return (
@@ -1335,7 +1050,12 @@ export const App: React.FC = () => {
           onOpenSettings={() => setCurrentView('settings')}
         >
           <div className="app">
-            {initialSetupContent}
+            <TitleBar onRefresh={refreshData} isAuthenticated={isAuthenticated} />
+            <div className="app-container">
+              <div className="auth-container">
+                {initialSetupContent}
+              </div>
+            </div>
           </div>
         </KeyboardShortcutsProvider>
       </ToastProvider>
@@ -1354,7 +1074,7 @@ export const App: React.FC = () => {
           <div className="app-container">
             {isAuthenticated ? (
               <AppContent 
-                isDemoMode={isDemoMode}
+                // Mode démo supprimé
                 currentView={currentView}
                 setCurrentView={setCurrentView}
                 isLoading={isLoading}
@@ -1407,12 +1127,85 @@ export const App: React.FC = () => {
           />
         )}
       </KeyboardShortcutsProvider>
+      
+      {/* Styles globaux pour fix TitleBar et problèmes de saisie */}
+      <style>{`
+        * {
+          box-sizing: border-box;
+        }
+        
+        body, html, #root {
+          margin: 0;
+          padding: 0;
+          height: 100vh;
+          overflow: hidden;
+        }
+        
+        .app {
+          height: 100vh;
+          display: flex;
+          flex-direction: column;
+          background: #FAF9F6;
+        }
+        
+        .app-container {
+          flex: 1;
+          margin-top: 48px; /* Height of fixed TitleBar */
+          overflow: hidden;
+          display: flex;
+        }
+        
+        .auth-container {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          overflow: auto;
+        }
+        
+        /* Fix pour les problèmes de saisie dans les formulaires */
+        input, textarea, select {
+          -webkit-user-select: text !important;
+          user-select: text !important;
+          pointer-events: auto !important;
+          -webkit-app-region: no-drag !important;
+          position: relative;
+          z-index: 1;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+          outline: none;
+          -webkit-user-select: text !important;
+          user-select: text !important;
+        }
+        
+        /* Fix pour les modals */
+        .modal-overlay {
+          -webkit-app-region: no-drag !important;
+        }
+        
+        .modal-container input,
+        .modal-container textarea,
+        .modal-container select {
+          -webkit-app-region: no-drag !important;
+          pointer-events: auto !important;
+        }
+        
+        /* Fix pour les boutons dans les formulaires */
+        button {
+          -webkit-app-region: no-drag !important;
+        }
+        
+        /* Fix pour les formulaires en général */
+        form, form * {
+          -webkit-app-region: no-drag !important;
+        }
+      `}</style>
     </ToastProvider>
   );
 };
 
 interface AppContentProps {
-  isDemoMode: boolean;
+  // Mode démo supprimé - boolean;
   currentView: ViewType;
   setCurrentView: (view: ViewType) => void;
   isLoading: boolean;
@@ -1450,7 +1243,7 @@ interface AppContentProps {
 }
 
 const AppContent: React.FC<AppContentProps> = ({
-  isDemoMode,
+  // Mode démo supprimé,
   currentView,
   setCurrentView,
   isLoading,
@@ -1489,18 +1282,10 @@ const AppContent: React.FC<AppContentProps> = ({
   const { info } = useQuickToast();
   const [demoNotificationShown, setDemoNotificationShown] = React.useState(false);
 
+  // Notification de mode démo supprimée
   React.useEffect(() => {
-    if (isDemoMode && !demoNotificationShown) {
-      // Afficher une notification pour informer que c'est le mode démo
-      setTimeout(() => {
-        info(
-          "Mode Démonstration",
-          "Vous êtes en mode démo. Toutes les modifications sont temporaires et ne seront pas sauvegardées."
-        );
-        setDemoNotificationShown(true);
-      }, 1000);
-    }
-  }, [isDemoMode, demoNotificationShown, info]);
+    // Plus de notification de mode démo
+  }, [info]);
 
   return (
     <>

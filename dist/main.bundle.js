@@ -80,7 +80,7 @@ const App = () => {
     const [unifiedUser, setUnifiedUser] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
     const [unifiedInstitution, setUnifiedInstitution] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
     const [institutionCode, setInstitutionCode] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
-    const [isDemoMode, setIsDemoMode] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    // Mode démo supprimé - plus d'initialisation de données
     const [appMode, setAppMode] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('offline');
     const [isAppConfigured, setIsAppConfigured] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     // App security states
@@ -197,10 +197,7 @@ const App = () => {
             setIsAppConfigured(true);
             // Rediriger vers l'authentification
             setCurrentView('auth');
-            // Si mode offline, charger les données de démo par défaut
-            if (mode === 'offline') {
-                setIsDemoMode(false); // Mode offline avec vraies données locales
-            }
+            // Mode offline avec vraies données locales - plus de mode démo
         }
         catch (error) {
             console.error('Erreur lors de la configuration initiale:', error);
@@ -257,6 +254,19 @@ const App = () => {
                 setBorrowers(borrowersData || []);
                 setBorrowedDocuments(borrowedDocumentsData || []);
                 setRecentActivity(recentActivityData || []);
+                // DEBUG: Log borrowed documents for institution isolation verification
+                console.log('🔍 DEBUG App.tsx loadData - Borrowed documents loaded:', {
+                    institutionCode,
+                    count: borrowedDocumentsData?.length || 0,
+                    activeEmprunts: borrowedDocumentsData?.filter(bh => bh.status === 'active').length || 0,
+                    borrowedDocuments: borrowedDocumentsData?.map(bh => ({
+                        id: bh.id,
+                        documentId: bh.documentId,
+                        status: bh.status,
+                        institution_code: bh.institution_code,
+                        borrowDate: bh.borrowDate
+                    })) || []
+                });
                 // Calculer les statistiques manuellement pour le mode offline
                 const totalDocuments = documentsData?.length || 0;
                 const borrowedCount = borrowedDocumentsData?.filter(bh => bh.status === 'active').length || 0;
@@ -312,186 +322,7 @@ const App = () => {
             setIsLoading(false);
         }
     };
-    const loadDemoData = async () => {
-        try {
-            setIsLoading(true);
-            // Obtenir le code d'institution courant pour les données démo
-            const institutionCode = supabaseService.getCurrentInstitution()?.code || 'DEMO';
-            console.log('🔍 DEBUG loadDemoData - Using institutionCode:', institutionCode);
-            // Données de démonstration avec isolation par institution
-            const demoDocuments = [
-                {
-                    id: 1,
-                    titre: "L'Art de la Programmation",
-                    auteur: "Donald Knuth",
-                    editeur: "Addison-Wesley",
-                    lieuEdition: "Reading, MA",
-                    annee: "1968",
-                    descripteurs: "Informatique, Programmation",
-                    cote: "004.01 KNU",
-                    couverture: "",
-                    estEmprunte: false,
-                    institution_code: institutionCode,
-                    syncStatus: 'synced',
-                    lastModified: new Date().toISOString(),
-                    version: 1,
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 2,
-                    titre: "Clean Code",
-                    auteur: "Robert C. Martin",
-                    editeur: "Prentice Hall",
-                    lieuEdition: "Upper Saddle River, NJ",
-                    annee: "2008",
-                    descripteurs: "Développement, Bonnes pratiques",
-                    cote: "005.1 MAR",
-                    couverture: "",
-                    estEmprunte: false,
-                    institution_code: institutionCode,
-                    syncStatus: 'synced',
-                    lastModified: new Date().toISOString(),
-                    version: 1,
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 3,
-                    titre: "Design Patterns",
-                    auteur: "Gang of Four",
-                    editeur: "Addison-Wesley",
-                    lieuEdition: "Reading, MA",
-                    annee: "1994",
-                    descripteurs: "Architecture logicielle",
-                    cote: "005.1 GAM",
-                    couverture: "",
-                    estEmprunte: false,
-                    institution_code: institutionCode,
-                    syncStatus: 'synced',
-                    lastModified: new Date().toISOString(),
-                    version: 1,
-                    createdAt: new Date().toISOString()
-                }
-            ];
-            const demoAuthors = [
-                {
-                    id: 1,
-                    name: "Donald Knuth",
-                    institution_code: institutionCode,
-                    syncStatus: 'synced',
-                    lastModified: new Date().toISOString(),
-                    version: 1,
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 2,
-                    name: "Robert C. Martin",
-                    institution_code: institutionCode,
-                    syncStatus: 'synced',
-                    lastModified: new Date().toISOString(),
-                    version: 1,
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 3,
-                    name: "Gang of Four",
-                    institution_code: institutionCode,
-                    syncStatus: 'synced',
-                    lastModified: new Date().toISOString(),
-                    version: 1,
-                    createdAt: new Date().toISOString()
-                }
-            ];
-            const demoCategories = [
-                {
-                    id: 1,
-                    name: "Informatique",
-                    institution_code: institutionCode,
-                    syncStatus: 'synced',
-                    lastModified: new Date().toISOString(),
-                    version: 1,
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 2,
-                    name: "Programmation",
-                    institution_code: institutionCode,
-                    syncStatus: 'synced',
-                    lastModified: new Date().toISOString(),
-                    version: 1,
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 3,
-                    name: "Architecture logicielle",
-                    institution_code: institutionCode,
-                    syncStatus: 'synced',
-                    lastModified: new Date().toISOString(),
-                    version: 1,
-                    createdAt: new Date().toISOString()
-                }
-            ];
-            const demoBorrowers = [
-                {
-                    id: 1,
-                    type: 'student',
-                    firstName: 'Jean',
-                    lastName: 'Dupont',
-                    matricule: 'ETU001',
-                    classe: 'Master 2 Info',
-                    cniNumber: '',
-                    position: '',
-                    email: 'jean.dupont@demo.local',
-                    phone: '+33 6 12 34 56 78',
-                    institution_code: institutionCode,
-                    syncStatus: 'synced',
-                    lastModified: new Date().toISOString(),
-                    version: 1,
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 2,
-                    type: 'staff',
-                    firstName: 'Marie',
-                    lastName: 'Martin',
-                    matricule: 'PROF001',
-                    classe: '',
-                    cniNumber: '',
-                    position: 'Professeur',
-                    email: 'marie.martin@demo.local',
-                    phone: '+33 6 87 65 43 21',
-                    institution_code: institutionCode,
-                    syncStatus: 'synced',
-                    lastModified: new Date().toISOString(),
-                    version: 1,
-                    createdAt: new Date().toISOString()
-                }
-            ];
-            const demoStats = {
-                totalDocuments: demoDocuments.length,
-                borrowedDocuments: 0,
-                availableDocuments: demoDocuments.length,
-                totalAuthors: demoAuthors.length,
-                totalCategories: demoCategories.length,
-                totalBorrowers: demoBorrowers.length,
-                totalStudents: 1,
-                totalStaff: 1,
-                overdueDocuments: 0
-            };
-            setDocuments(demoDocuments);
-            setAuthors(demoAuthors);
-            setCategories(demoCategories);
-            setBorrowers(demoBorrowers);
-            setBorrowedDocuments([]);
-            setStats(demoStats);
-        }
-        catch (error) {
-            console.error('Erreur lors du chargement des données démo:', error);
-            setError('Erreur lors du chargement des données démo');
-        }
-        finally {
-            setIsLoading(false);
-        }
-    };
+    // Fonction loadDemoData supprimée - plus d'initialisation de données
     const handleAuthentication = async (credentials) => {
         try {
             setIsLoading(true);
@@ -571,6 +402,24 @@ const App = () => {
                         // CRITICAL: Switch the SupabaseService to the correct institution
                         console.log('🔍 DEBUG App.tsx - Switching SupabaseService institution to:', appInstitution.code);
                         await supabaseService.switchInstitution(appInstitution.code);
+                        // CRITICAL: Clear previous data to ensure institution isolation
+                        setDocuments([]);
+                        setBorrowedDocuments([]);
+                        setAuthors([]);
+                        setCategories([]);
+                        setBorrowers([]);
+                        setStats({
+                            totalDocuments: 0,
+                            borrowedDocuments: 0,
+                            availableDocuments: 0,
+                            totalAuthors: 0,
+                            totalCategories: 0,
+                            totalBorrowers: 0,
+                            totalStudents: 0,
+                            totalStaff: 0,
+                            overdueDocuments: 0
+                        });
+                        console.log('🔍 DEBUG App.tsx - Cleared previous institution data');
                         // Créer les versions unifiées
                         setUnifiedUser((0,_types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_28__.convertToUnifiedUser)(localUser, 'offline'));
                         setUnifiedInstitution((0,_types_UnifiedTypes__WEBPACK_IMPORTED_MODULE_28__.convertToUnifiedInstitution)(institution || {
@@ -590,8 +439,9 @@ const App = () => {
                             created_at: new Date().toISOString()
                         }, 'offline'));
                         setIsAuthenticated(true);
-                        setIsDemoMode(false);
                         setCurrentView('dashboard');
+                        // CRITICAL: Load data for the new institution
+                        console.log('🔍 DEBUG App.tsx - Loading data for institution:', appInstitution.code);
                         await loadData();
                         // Vérifier s'il y a des données orphelines à assigner
                         setTimeout(() => checkForOrphanData(), 1000);
@@ -666,13 +516,14 @@ const App = () => {
             setIsAuthenticated(false);
             setCurrentUser(null);
             setCurrentInstitution(null);
-            setCurrentView('auth');
-            // Réinitialiser les données
+            setUnifiedUser(null);
+            setUnifiedInstitution(null);
+            // Clear all data when logging out to ensure fresh start for next user
             setDocuments([]);
+            setBorrowedDocuments([]);
             setAuthors([]);
             setCategories([]);
             setBorrowers([]);
-            setBorrowedDocuments([]);
             setStats({
                 totalDocuments: 0,
                 borrowedDocuments: 0,
@@ -684,6 +535,8 @@ const App = () => {
                 totalStaff: 0,
                 overdueDocuments: 0
             });
+            console.log('🔍 DEBUG App.tsx - Cleared all data on logout');
+            setCurrentView('auth');
         }
         catch (error) {
             console.error('Erreur lors de la déconnexion:', error);
@@ -751,41 +604,6 @@ const App = () => {
                 // Recharger les données pour mettre à jour l'interface
                 await loadData();
             }
-            else if (isDemoMode) {
-                // Mode démo - ajouter localement en mémoire
-                const newId = Math.max(...documents.map(d => d.id || 0)) + 1;
-                const newDocument = {
-                    ...document,
-                    id: newId,
-                    syncStatus: 'synced',
-                    lastModified: new Date().toISOString(),
-                    version: 1,
-                    createdAt: new Date().toISOString()
-                };
-                const updatedDocuments = [...documents, newDocument];
-                setDocuments(updatedDocuments);
-                // Mettre à jour les statistiques
-                setStats(prev => ({
-                    ...prev,
-                    totalDocuments: updatedDocuments.length,
-                    availableDocuments: updatedDocuments.length - prev.borrowedDocuments
-                }));
-                // Ajouter l'auteur s'il n'existe pas
-                if (!authors.find(a => a.name === document.auteur)) {
-                    const newAuthorId = Math.max(...authors.map(a => a.id || 0)) + 1;
-                    const newAuthor = {
-                        id: newAuthorId,
-                        name: document.auteur,
-                        syncStatus: 'synced',
-                        lastModified: new Date().toISOString(),
-                        version: 1,
-                        createdAt: new Date().toISOString()
-                    };
-                    setAuthors(prev => [...prev, newAuthor]);
-                    setStats(prev => ({ ...prev, totalAuthors: prev.totalAuthors + 1 }));
-                }
-                console.log('Document ajouté en mode démo:', newDocument);
-            }
             else {
                 // Mode online - utiliser Supabase avec filtrage par institution
                 const institutionCode = supabaseService.getCurrentInstitution()?.code;
@@ -841,24 +659,12 @@ const App = () => {
                 // Recharger les données pour mettre à jour l'interface
                 await loadData();
             }
-            else if (isDemoMode) {
-                // Mode démo - supprimer localement en mémoire
-                const updatedDocuments = documents.filter(d => d.id !== documentId);
-                setDocuments(updatedDocuments);
-                // Mettre à jour les statistiques
-                setStats(prev => ({
-                    ...prev,
-                    totalDocuments: updatedDocuments.length,
-                    availableDocuments: updatedDocuments.length - prev.borrowedDocuments
-                }));
-                console.log('Document supprimé en mode démo:', documentId);
-            }
             else {
-                // Mode online - utiliser Supabase avec filtrage par institution
-                const institutionCode = supabaseService.getCurrentInstitution()?.code || '';
-                await supabaseService.deleteDocument(documentId.toString(), institutionCode);
-                await loadData();
+                // Mode online - utiliser Supabase
+                await supabaseService.deleteDocument(documentId.toString());
             }
+            // Recharger les données après l'opération
+            await loadData();
         }
         catch (error) {
             console.error('Erreur lors de la suppression:', error);
@@ -887,40 +693,6 @@ const App = () => {
                 }
                 await window.electronAPI.borrowDocument(documentId, borrowerId, returnDate, institutionCode);
                 console.log('Document emprunté en mode offline:', { documentId, borrowerId, returnDate });
-            }
-            else if (isDemoMode) {
-                // Mode démo - simuler l'emprunt
-                const updatedDocuments = documents.map(doc => doc.id === documentId
-                    ? { ...doc, estEmprunte: true, syncStatus: 'synced' }
-                    : doc);
-                setDocuments(updatedDocuments);
-                // Créer l'entrée d'historique d'emprunt
-                const borrower = borrowers.find(b => b.id === borrowerId);
-                const document = documents.find(d => d.id === documentId);
-                if (borrower && document) {
-                    const newBorrowHistory = {
-                        id: Math.max(...borrowedDocuments.map(b => b.id || 0)) + 1,
-                        documentId: documentId,
-                        borrowerId,
-                        borrowDate: new Date().toISOString(),
-                        expectedReturnDate: returnDate,
-                        actualReturnDate: undefined,
-                        status: 'active',
-                        document: document,
-                        borrower,
-                        syncStatus: 'synced',
-                        lastModified: new Date().toISOString(),
-                        version: 1,
-                        createdAt: new Date().toISOString()
-                    };
-                    setBorrowedDocuments(prev => [...prev, newBorrowHistory]);
-                    // Mettre à jour les statistiques
-                    setStats(prev => ({
-                        ...prev,
-                        borrowedDocuments: prev.borrowedDocuments + 1,
-                        availableDocuments: prev.availableDocuments - 1
-                    }));
-                }
             }
             else {
                 // Mode online - utiliser Supabase avec filtrage par institution
@@ -958,24 +730,6 @@ const App = () => {
                     return;
                 }
             }
-            else if (isDemoMode) {
-                // Mode démo - simuler le retour
-                const updatedDocuments = documents.map(doc => doc.id === documentId
-                    ? { ...doc, estEmprunte: false, syncStatus: 'synced' }
-                    : doc);
-                setDocuments(updatedDocuments);
-                // Marquer comme retourné dans l'historique
-                const updatedBorrowHistory = borrowedDocuments.map(bh => bh.documentId === documentId && bh.status === 'active'
-                    ? { ...bh, actualReturnDate: new Date().toISOString(), status: 'returned' }
-                    : bh);
-                setBorrowedDocuments(updatedBorrowHistory);
-                // Mettre à jour les statistiques
-                setStats(prev => ({
-                    ...prev,
-                    borrowedDocuments: prev.borrowedDocuments - 1,
-                    availableDocuments: prev.availableDocuments + 1
-                }));
-            }
             else {
                 // Mode online - utiliser Supabase
                 await supabaseService.returnDocument(documentId.toString());
@@ -1001,29 +755,11 @@ const App = () => {
                 await loadData(); // Refresh data
                 return newId;
             }
-            else if (isDemoMode) {
-                // Mode démo - simuler l'ajout
-                const newId = Math.max(...borrowers.map(b => b.id || 0), 0) + 1;
-                const newBorrower = { ...borrower, id: newId };
-                setBorrowers((prev) => [...prev, newBorrower]);
-                // Mettre à jour les statistiques
-                setStats((prev) => ({
-                    ...prev,
-                    totalBorrowers: prev.totalBorrowers + 1,
-                    totalStudents: borrower.type === 'student' ? prev.totalStudents + 1 : prev.totalStudents,
-                    totalStaff: borrower.type === 'staff' ? prev.totalStaff + 1 : prev.totalStaff
-                }));
-                return newId;
-            }
             else {
-                // Mode online - utiliser Supabase avec filtrage par institution
-                const institutionCode = supabaseService.getCurrentInstitution()?.code;
-                if (!institutionCode) {
-                    throw new Error('Code d\'institution manquant. Veuillez vous reconnecter.');
-                }
-                const newId = await supabaseService.addBorrower(borrower, institutionCode);
+                // Mode online - utiliser Supabase
+                const result = await supabaseService.addBorrower(borrower);
                 await loadData(); // Refresh data
-                return newId;
+                return result ? parseInt(result.id) : Date.now();
             }
         }
         catch (error) {
@@ -1032,12 +768,7 @@ const App = () => {
         }
     };
     const refreshData = async () => {
-        if (isDemoMode) {
-            await loadDemoData();
-        }
-        else {
-            await loadData();
-        }
+        await loadData();
     };
     const checkForOrphanData = async () => {
         try {
@@ -1157,25 +888,96 @@ const App = () => {
     if (isAppLocked || needsPasswordSetup) {
         return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_AppPasswordScreen__WEBPACK_IMPORTED_MODULE_16__.AppPasswordScreen, { onUnlock: handleAppUnlock, onSkip: needsPasswordSetup ? handlePasswordSetup : undefined, onClose: () => window.electronAPI?.closeWindow?.(), isSetup: needsPasswordSetup }));
     }
-    // Vérifier si on doit afficher l'écran de configuration initiale sans TitleBar
+    // Configuration initiale - avec TitleBar aussi
     const initialSetupContent = renderAuthenticatedContent();
     if (initialSetupContent) {
-        return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_26__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_27__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app", children: initialSetupContent }) }) }));
+        return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_26__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_27__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, { onRefresh: refreshData, isAuthenticated: isAuthenticated }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-container", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-container", children: initialSetupContent }) })] }) }) }));
     }
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_26__.ToastProvider, { children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_27__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, { onRefresh: refreshData, isAuthenticated: isAuthenticated }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-container", children: isAuthenticated ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(AppContent, { isDemoMode: isDemoMode, currentView: currentView, setCurrentView: setCurrentView, isLoading: isLoading, error: error, setError: setError, renderCurrentView: renderCurrentView, showBorrowModal: showBorrowModal, selectedDocumentForBorrow: selectedDocumentForBorrow, closeBorrowModal: closeBorrowModal, handleBorrow: handleBorrow, handleReturn: handleReturn, handleAddBorrower: handleAddBorrower, refreshData: refreshData, supabaseService: supabaseService, borrowers: borrowers, documents: documents, borrowedDocuments: borrowedDocuments, showReportsModal: showReportsModal, setShowReportsModal: setShowReportsModal, showStatisticsModal: showStatisticsModal, setShowStatisticsModal: setShowStatisticsModal, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution, unifiedUser: unifiedUser, unifiedInstitution: unifiedInstitution, isAuthenticated: isAuthenticated, onLogout: handleLogout, showOrphanDataDialog: showOrphanDataDialog, setShowOrphanDataDialog: setShowOrphanDataDialog, orphanDataCount: orphanDataCount, handleAssignOrphanData: handleAssignOrphanData, showUserManagementModal: showUserManagementModal, setShowUserManagementModal: setShowUserManagementModal })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-container", children: renderMainContent() })) })] }), showUserManagementModal && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_InstitutionUserManagement__WEBPACK_IMPORTED_MODULE_22__.InstitutionUserManagement, { currentUser: unifiedUser, currentInstitution: unifiedInstitution, appMode: appMode, onClose: () => setShowUserManagementModal(false) }))] }) }));
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(_components_ToastSystem__WEBPACK_IMPORTED_MODULE_26__.ToastProvider, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(_components_KeyboardShortcuts__WEBPACK_IMPORTED_MODULE_27__.KeyboardShortcutsProvider, { onNavigate: setCurrentView, onOpenAddDocument: () => setCurrentView('add-document'), onOpenSettings: () => setCurrentView('settings'), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "app", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_TitleBar__WEBPACK_IMPORTED_MODULE_2__.TitleBar, { onRefresh: refreshData, isAuthenticated: isAuthenticated }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "app-container", children: isAuthenticated ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(AppContent
+                                // Mode démo supprimé
+                                , { 
+                                    // Mode démo supprimé
+                                    currentView: currentView, setCurrentView: setCurrentView, isLoading: isLoading, error: error, setError: setError, renderCurrentView: renderCurrentView, showBorrowModal: showBorrowModal, selectedDocumentForBorrow: selectedDocumentForBorrow, closeBorrowModal: closeBorrowModal, handleBorrow: handleBorrow, handleReturn: handleReturn, handleAddBorrower: handleAddBorrower, refreshData: refreshData, supabaseService: supabaseService, borrowers: borrowers, documents: documents, borrowedDocuments: borrowedDocuments, showReportsModal: showReportsModal, setShowReportsModal: setShowReportsModal, showStatisticsModal: showStatisticsModal, setShowStatisticsModal: setShowStatisticsModal, stats: stats, currentUser: currentUser, currentInstitution: currentInstitution, unifiedUser: unifiedUser, unifiedInstitution: unifiedInstitution, isAuthenticated: isAuthenticated, onLogout: handleLogout, showOrphanDataDialog: showOrphanDataDialog, setShowOrphanDataDialog: setShowOrphanDataDialog, orphanDataCount: orphanDataCount, handleAssignOrphanData: handleAssignOrphanData, showUserManagementModal: showUserManagementModal, setShowUserManagementModal: setShowUserManagementModal })) : ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "auth-container", children: renderMainContent() })) })] }), showUserManagementModal && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_InstitutionUserManagement__WEBPACK_IMPORTED_MODULE_22__.InstitutionUserManagement, { currentUser: unifiedUser, currentInstitution: unifiedInstitution, appMode: appMode, onClose: () => setShowUserManagementModal(false) }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+        * {
+          box-sizing: border-box;
+        }
+        
+        body, html, #root {
+          margin: 0;
+          padding: 0;
+          height: 100vh;
+          overflow: hidden;
+        }
+        
+        .app {
+          height: 100vh;
+          display: flex;
+          flex-direction: column;
+          background: #FAF9F6;
+        }
+        
+        .app-container {
+          flex: 1;
+          margin-top: 48px; /* Height of fixed TitleBar */
+          overflow: hidden;
+          display: flex;
+        }
+        
+        .auth-container {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          overflow: auto;
+        }
+        
+        /* Fix pour les problèmes de saisie dans les formulaires */
+        input, textarea, select {
+          -webkit-user-select: text !important;
+          user-select: text !important;
+          pointer-events: auto !important;
+          -webkit-app-region: no-drag !important;
+          position: relative;
+          z-index: 1;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+          outline: none;
+          -webkit-user-select: text !important;
+          user-select: text !important;
+        }
+        
+        /* Fix pour les modals */
+        .modal-overlay {
+          -webkit-app-region: no-drag !important;
+        }
+        
+        .modal-container input,
+        .modal-container textarea,
+        .modal-container select {
+          -webkit-app-region: no-drag !important;
+          pointer-events: auto !important;
+        }
+        
+        /* Fix pour les boutons dans les formulaires */
+        button {
+          -webkit-app-region: no-drag !important;
+        }
+        
+        /* Fix pour les formulaires en général */
+        form, form * {
+          -webkit-app-region: no-drag !important;
+        }
+      ` })] }));
 };
-const AppContent = ({ isDemoMode, currentView, setCurrentView, isLoading, error, setError, renderCurrentView, showBorrowModal, selectedDocumentForBorrow, closeBorrowModal, handleBorrow, handleReturn, handleAddBorrower, refreshData, supabaseService, borrowers, documents, borrowedDocuments, showReportsModal, setShowReportsModal, showStatisticsModal, setShowStatisticsModal, stats, currentUser, currentInstitution, unifiedUser, unifiedInstitution, isAuthenticated, onLogout, showOrphanDataDialog, setShowOrphanDataDialog, orphanDataCount, handleAssignOrphanData, showUserManagementModal, setShowUserManagementModal }) => {
+const AppContent = ({ 
+// Mode démo supprimé,
+currentView, setCurrentView, isLoading, error, setError, renderCurrentView, showBorrowModal, selectedDocumentForBorrow, closeBorrowModal, handleBorrow, handleReturn, handleAddBorrower, refreshData, supabaseService, borrowers, documents, borrowedDocuments, showReportsModal, setShowReportsModal, showStatisticsModal, setShowStatisticsModal, stats, currentUser, currentInstitution, unifiedUser, unifiedInstitution, isAuthenticated, onLogout, showOrphanDataDialog, setShowOrphanDataDialog, orphanDataCount, handleAssignOrphanData, showUserManagementModal, setShowUserManagementModal }) => {
     const { info } = (0,_components_ToastSystem__WEBPACK_IMPORTED_MODULE_26__.useQuickToast)();
     const [demoNotificationShown, setDemoNotificationShown] = react__WEBPACK_IMPORTED_MODULE_1___default().useState(false);
+    // Notification de mode démo supprimée
     react__WEBPACK_IMPORTED_MODULE_1___default().useEffect(() => {
-        if (isDemoMode && !demoNotificationShown) {
-            // Afficher une notification pour informer que c'est le mode démo
-            setTimeout(() => {
-                info("Mode Démonstration", "Vous êtes en mode démo. Toutes les modifications sont temporaires et ne seront pas sauvegardées.");
-                setDemoNotificationShown(true);
-            }, 1000);
-        }
-    }, [isDemoMode, demoNotificationShown, info]);
+        // Plus de notification de mode démo
+    }, [info]);
     return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_components_Sidebar__WEBPACK_IMPORTED_MODULE_3__.Sidebar, { currentView: currentView, onNavigate: (view) => {
                     if (view === 'reports') {
                         setShowReportsModal(true);
@@ -16533,17 +16335,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/shield.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/search.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/filter.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/users.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye-off.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user-check.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/shield.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user-x.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trash-2.mjs");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/mail.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user-x.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/user-check.mjs");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/trash-2.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/lock.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye-off.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/eye.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/x.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.mjs");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/save.mjs");
 /* harmony import */ var _MicroInteractions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MicroInteractions */ "./src/renderer/components/MicroInteractions.tsx");
 /* harmony import */ var _ToastSystem__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ToastSystem */ "./src/renderer/components/ToastSystem.tsx");
 /* harmony import */ var _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../services/LocalAuthService */ "./src/renderer/services/LocalAuthService.ts");
@@ -16554,166 +16359,758 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const InstitutionUserManagement = ({ currentUser, currentInstitution, appMode, onClose }) => {
-    const { success, error } = (0,_ToastSystem__WEBPACK_IMPORTED_MODULE_3__.useQuickToast)();
-    const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const { success, error, info } = (0,_ToastSystem__WEBPACK_IMPORTED_MODULE_3__.useQuickToast)();
     const [users, setUsers] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
-    const [showCreateForm, setShowCreateForm] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
-    const [editingUser, setEditingUser] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
-    const [showPassword, setShowPassword] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+    const [isLoading, setIsLoading] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(true);
+    const [searchTerm, setSearchTerm] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('');
+    const [currentView, setCurrentView] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('list');
+    const [selectedUser, setSelectedUser] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+    const [roleFilter, setRoleFilter] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)('all');
     const [newUserForm, setNewUserForm] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({
+        email: '',
         firstName: '',
         lastName: '',
-        email: '',
-        role: 'user',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        role: 'user'
     });
-    // Charger les utilisateurs de l'institution
+    const [formErrors, setFormErrors] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)({});
+    const [showPassword, setShowPassword] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
     (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
-        loadInstitutionUsers();
+        loadUsers();
     }, []);
-    const loadInstitutionUsers = () => {
-        if (appMode === 'offline' && currentInstitution?.code) {
-            try {
+    const loadUsers = async () => {
+        try {
+            setIsLoading(true);
+            if (appMode === 'offline' && currentInstitution?.code) {
                 const allUsers = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.getUsers();
-                const institutionUsers = allUsers
-                    .filter(user => user.institutionCode === currentInstitution.code)
-                    .map(user => ({
+                const localUsers = allUsers.filter(user => user.institutionCode === currentInstitution.code);
+                const displayUsers = localUsers.map((user) => ({
                     id: user.id,
                     email: user.email,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
+                    firstName: user.firstName || '',
+                    lastName: user.lastName || '',
                     role: user.role,
                     institutionCode: user.institutionCode,
-                    isActive: true, // Par défaut, tous les utilisateurs sont actifs
-                    createdAt: new Date().toISOString(), // Valeur par défaut
+                    isActive: user.isActive !== undefined ? user.isActive : true,
+                    createdAt: user.createdAt || new Date().toISOString(),
                     lastLogin: user.lastLogin
                 }));
-                setUsers(institutionUsers);
+                setUsers(displayUsers);
             }
-            catch (err) {
-                console.error('Erreur lors du chargement des utilisateurs:', err);
-                error('Erreur de chargement', 'Erreur lors du chargement des utilisateurs');
-            }
+        }
+        catch (err) {
+            console.error('Erreur lors du chargement des utilisateurs:', err);
+            error('Erreur', 'Impossible de charger les utilisateurs');
+        }
+        finally {
+            setIsLoading(false);
         }
     };
-    const handleCreateUser = async () => {
-        if (!currentInstitution?.code) {
-            error('Erreur', 'Code d\'institution manquant');
-            return;
+    const validateForm = () => {
+        const errors = {};
+        if (!newUserForm.email.trim()) {
+            errors.email = 'Email obligatoire';
         }
-        // Validation
-        if (!newUserForm.firstName.trim() || !newUserForm.lastName.trim() || !newUserForm.email.trim()) {
-            error('Champs manquants', 'Veuillez remplir tous les champs obligatoires');
-            return;
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newUserForm.email)) {
+            errors.email = 'Format email invalide';
         }
-        if (newUserForm.password.length < 4) {
-            error('Mot de passe trop court', 'Le mot de passe doit contenir au moins 4 caractères');
-            return;
+        if (!newUserForm.firstName.trim()) {
+            errors.firstName = 'Prénom obligatoire';
+        }
+        if (!newUserForm.lastName.trim()) {
+            errors.lastName = 'Nom obligatoire';
+        }
+        if (!newUserForm.password) {
+            errors.password = 'Mot de passe obligatoire';
+        }
+        else if (newUserForm.password.length < 6) {
+            errors.password = 'Minimum 6 caractères';
         }
         if (newUserForm.password !== newUserForm.confirmPassword) {
-            error('Mots de passe différents', 'Les mots de passe ne correspondent pas');
-            return;
+            errors.confirmPassword = 'Les mots de passe ne correspondent pas';
         }
-        // Vérifier si l'email existe déjà
-        const existingUsers = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.getUsers();
-        if (existingUsers.some(user => user.email.toLowerCase() === newUserForm.email.toLowerCase())) {
-            error('Email déjà utilisé', 'Un utilisateur avec cet email existe déjà');
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+    const handleCreateUser = async () => {
+        if (!validateForm() || !currentInstitution?.code)
             return;
-        }
-        setIsLoading(true);
         try {
-            const newUser = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.addUser({
-                email: newUserForm.email,
-                password: newUserForm.password,
-                firstName: newUserForm.firstName,
-                lastName: newUserForm.lastName,
-                role: newUserForm.role,
-                institutionCode: currentInstitution.code,
-                preferences: {
-                    rememberMe: false,
-                    autoLogin: false,
-                    theme: 'light'
-                }
-            });
-            if (newUser) {
-                success('Utilisateur créé', `Utilisateur ${newUserForm.firstName} ${newUserForm.lastName} créé avec succès`);
-                setNewUserForm({
-                    firstName: '',
-                    lastName: '',
-                    email: '',
-                    role: 'user',
-                    password: '',
-                    confirmPassword: ''
+            setIsLoading(true);
+            if (appMode === 'offline') {
+                const newUser = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.addUser({
+                    email: newUserForm.email,
+                    password: newUserForm.password,
+                    firstName: newUserForm.firstName,
+                    lastName: newUserForm.lastName,
+                    role: newUserForm.role,
+                    institutionCode: currentInstitution.code
                 });
-                setShowCreateForm(false);
-                loadInstitutionUsers();
+                if (newUser) {
+                    success('Utilisateur créé', `${newUserForm.firstName} ${newUserForm.lastName} a été ajouté avec succès`);
+                    setNewUserForm({
+                        email: '',
+                        firstName: '',
+                        lastName: '',
+                        password: '',
+                        confirmPassword: '',
+                        role: 'user'
+                    });
+                    setCurrentView('list');
+                    await loadUsers();
+                }
+                else {
+                    error('Erreur', 'Impossible de créer l\'utilisateur');
+                }
             }
         }
         catch (err) {
-            console.error('Erreur lors de la création de l\'utilisateur:', err);
-            error('Erreur de création', 'Erreur lors de la création de l\'utilisateur');
+            console.error('Erreur lors de la création:', err);
+            error('Erreur', 'Erreur lors de la création de l\'utilisateur');
         }
         finally {
             setIsLoading(false);
         }
     };
-    const handleToggleUserStatus = async (user) => {
-        // Fonctionnalité simplifiée - pour l'instant, on ne peut que désactiver visuellement
-        setIsLoading(true);
-        try {
-            // Mise à jour locale de l'état de l'utilisateur
-            const updatedUsers = users.map(u => u.id === user.id ? { ...u, isActive: !u.isActive } : u);
-            setUsers(updatedUsers);
-            success('Statut modifié', `Utilisateur ${user.firstName} ${user.lastName} ${!user.isActive ? 'activé' : 'désactivé'}`);
-        }
-        catch (err) {
-            console.error('Erreur lors de la modification du statut:', err);
-            error('Erreur de modification', 'Erreur lors de la modification du statut');
-        }
-        finally {
-            setIsLoading(false);
-        }
-    };
-    const handleDeleteUser = async (user) => {
-        if (!window.confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.firstName} ${user.lastName} ?`)) {
+    const handleDeleteUser = async (userId, userName) => {
+        if (!confirm(`Êtes-vous sûr de vouloir supprimer ${userName} ?`))
             return;
-        }
-        if (user.id === currentUser?.id) {
-            error('Action interdite', 'Vous ne pouvez pas supprimer votre propre compte');
-            return;
-        }
-        setIsLoading(true);
         try {
-            const allUsers = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.getUsers();
-            const updatedUsers = allUsers.filter(u => u.id !== user.id);
-            _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.saveUsers(updatedUsers);
-            success('Utilisateur supprimé', `Utilisateur ${user.firstName} ${user.lastName} supprimé`);
-            loadInstitutionUsers();
+            if (appMode === 'offline') {
+                // Simulation de suppression en filtrant l'utilisateur
+                const users = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.getUsers();
+                const filteredUsers = users.filter(u => u.id !== userId);
+                _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.saveUsers(filteredUsers);
+                success('Utilisateur supprimé', `${userName} a été supprimé avec succès`);
+                await loadUsers();
+            }
         }
         catch (err) {
             console.error('Erreur lors de la suppression:', err);
-            error('Erreur de suppression', 'Erreur lors de la suppression');
-        }
-        finally {
-            setIsLoading(false);
+            error('Erreur', 'Erreur lors de la suppression');
         }
     };
-    const getRoleIcon = (role) => {
+    const handleToggleUserStatus = async (userId, currentStatus) => {
+        try {
+            if (appMode === 'offline') {
+                // Simulation de modification du statut
+                const users = _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.getUsers();
+                const updatedUsers = users.map(u => u.id === userId ? { ...u, isActive: !currentStatus } : u);
+                _services_LocalAuthService__WEBPACK_IMPORTED_MODULE_4__.LocalAuthService.saveUsers(updatedUsers);
+                const action = !currentStatus ? 'activé' : 'désactivé';
+                success('Statut modifié', `Utilisateur ${action} avec succès`);
+                await loadUsers();
+            }
+        }
+        catch (err) {
+            console.error('Erreur lors de la modification du statut:', err);
+            error('Erreur', 'Erreur lors de la modification du statut');
+        }
+    };
+    const filteredUsers = users.filter(user => {
+        const matchesSearch = user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.email.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+        return matchesSearch && matchesRole;
+    });
+    const getRoleColor = (role) => {
         switch (role) {
-            case 'admin': return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 16, className: "text-red-500" });
-            case 'librarian': return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 16, className: "text-blue-500" });
-            default: return (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 16, className: "text-gray-500" });
+            case 'admin': return '#C2571B';
+            case 'librarian': return '#3E5C49';
+            case 'user': return '#6B7280';
+            default: return '#6B7280';
         }
     };
     const getRoleLabel = (role) => {
         switch (role) {
             case 'admin': return 'Administrateur';
             case 'librarian': return 'Bibliothécaire';
-            default: return 'Utilisateur';
+            case 'user': return 'Utilisateur';
+            default: return role;
         }
     };
-    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroCard, { className: "w-full max-w-6xl max-h-[90vh] overflow-hidden", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center justify-between p-6 border-b border-gray-200", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center space-x-3", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 20, className: "text-white" }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "text-xl font-bold text-gray-900", children: "Gestion des Utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "text-sm text-gray-600", children: [currentInstitution?.name, " \u2022 ", users.length, " utilisateur", users.length > 1 ? 's' : ''] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "secondary", size: "small", onClick: onClose, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "p-6 overflow-y-auto max-h-[70vh]", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "mb-6", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { onClick: () => setShowCreateForm(!showCreateForm), className: "bg-blue-500 hover:bg-blue-600 text-white", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16 }), "Cr\u00E9er un nouvel utilisateur"] }) }), showCreateForm && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroCard, { className: "mb-6 p-4 bg-blue-50 border border-blue-200", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { className: "font-semibold text-gray-900 mb-4 flex items-center", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 16, className: "mr-2" }), "Cr\u00E9er un nouvel utilisateur"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Pr\u00E9nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newUserForm.firstName, onChange: (e) => setNewUserForm(prev => ({ ...prev, firstName: e.target.value })), className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "Jean" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newUserForm.lastName, onChange: (e) => setNewUserForm(prev => ({ ...prev, lastName: e.target.value })), className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "Dupont" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Email *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: newUserForm.email, onChange: (e) => setNewUserForm(prev => ({ ...prev, email: e.target.value })), className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "jean.dupont@email.com" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "R\u00F4le *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: newUserForm.role, onChange: (e) => setNewUserForm(prev => ({ ...prev, role: e.target.value })), className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "user", children: "Utilisateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "librarian", children: "Biblioth\u00E9caire" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "admin", children: "Administrateur" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Mot de passe *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "relative", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? "text" : "password", value: newUserForm.password, onChange: (e) => setNewUserForm(prev => ({ ...prev, password: e.target.value })), className: "w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "Minimum 4 caract\u00E8res" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", onClick: () => setShowPassword(!showPassword), className: "absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600", children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }) })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Confirmer le mot de passe *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? "text" : "password", value: newUserForm.confirmPassword, onChange: (e) => setNewUserForm(prev => ({ ...prev, confirmPassword: e.target.value })), className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "Confirmer le mot de passe" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex justify-end space-x-3 mt-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "secondary", onClick: () => setShowCreateForm(false), children: "Annuler" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { onClick: handleCreateUser, disabled: isLoading, className: "bg-blue-500 hover:bg-blue-600 text-white", children: isLoading ? 'Création...' : 'Créer l\'utilisateur' })] })] })), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "space-y-4", children: users.length === 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "text-center py-8 text-gray-500", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 48, className: "mx-auto mb-4 text-gray-300" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Aucun utilisateur dans cette institution" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { className: "text-sm", children: "Cr\u00E9ez le premier utilisateur en cliquant sur le bouton ci-dessus" })] })) : (users.map((user) => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroCard, { className: "p-4", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center justify-between", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center space-x-4", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: `w-10 h-10 rounded-full flex items-center justify-center ${user.isActive ? 'bg-green-100' : 'bg-gray-100'}`, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 20, className: user.isActive ? 'text-green-600' : 'text-gray-400' }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center space-x-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("h3", { className: "font-medium text-gray-900", children: [user.firstName, " ", user.lastName] }), user.id === currentUser?.id && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full", children: "Vous" })), !user.isActive && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full", children: "D\u00E9sactiv\u00E9" }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center space-x-4 text-sm text-gray-600", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "flex items-center space-x-1", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 14 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: user.email })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "flex items-center space-x-1", children: [getRoleIcon(user.role), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { children: getRoleLabel(user.role) })] })] }), user.lastLogin && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "text-xs text-gray-500 mt-1", children: ["Derni\u00E8re connexion: ", new Date(user.lastLogin).toLocaleDateString('fr-FR')] }))] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "flex items-center space-x-2", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "secondary", size: "small", onClick: () => handleToggleUserStatus(user), disabled: user.id === currentUser?.id, children: user.isActive ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }) }), user.id !== currentUser?.id && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "danger", size: "small", onClick: () => handleDeleteUser(user), className: "text-red-600 hover:text-red-800 hover:bg-red-50", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 }) }))] })] }) }, user.id)))) })] })] }) }));
+    const renderUserList = () => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "users-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-filters", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "search-box", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", placeholder: "Rechercher un utilisateur...", value: searchTerm, onChange: (e) => setSearchTerm(e.target.value) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "filter-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: roleFilter, onChange: (e) => setRoleFilter(e.target.value), className: "role-filter", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "all", children: "Tous les r\u00F4les" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "admin", children: "Administrateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "librarian", children: "Biblioth\u00E9caires" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "user", children: "Utilisateurs" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "users-stats", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-number", children: users.length }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-label", children: "Total" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-number", children: users.filter(u => u.isActive).length }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-label", children: "Actifs" })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "stat-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 20 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-number", children: users.filter(u => u.role === 'admin').length }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "stat-label", children: "Admins" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "users-list", children: filteredUsers.length === 0 ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "empty-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 48 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Aucun utilisateur trouv\u00E9" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: searchTerm || roleFilter !== 'all'
+                                ? 'Aucun utilisateur ne correspond aux critères de recherche'
+                                : 'Commencez par ajouter votre premier utilisateur' })] })) : (filteredUsers.map(user => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-card", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-info", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-avatar", children: [user.firstName[0], user.lastName[0]] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-details", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-name", children: [user.firstName, " ", user.lastName, !user.isActive && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "inactive-badge", children: "Inactif" })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "user-email", children: user.email }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-meta", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "role-badge", style: { backgroundColor: getRoleColor(user.role) }, children: getRoleLabel(user.role) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("span", { className: "join-date", children: ["Cr\u00E9\u00E9 le ", new Date(user.createdAt).toLocaleDateString()] })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "user-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "secondary", size: "small", onClick: () => handleToggleUserStatus(user.id, user.isActive), disabled: user.id === currentUser?.id, children: user.isActive ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_10__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_8__["default"], { size: 16 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "danger", size: "small", onClick: () => handleDeleteUser(user.id, `${user.firstName} ${user.lastName}`), disabled: user.id === currentUser?.id, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_11__["default"], { size: 16 }) })] })] }, user.id)))) })] }));
+    const renderAddUserForm = () => ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "add-user-form", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "Informations personnelles" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Pr\u00E9nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newUserForm.firstName, onChange: (e) => setNewUserForm(prev => ({ ...prev, firstName: e.target.value })), className: formErrors.firstName ? 'error' : '', placeholder: "Jean" }), formErrors.firstName && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "error-text", children: formErrors.firstName })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Nom *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "text", value: newUserForm.lastName, onChange: (e) => setNewUserForm(prev => ({ ...prev, lastName: e.target.value })), className: formErrors.lastName ? 'error' : '', placeholder: "Dupont" }), formErrors.lastName && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "error-text", children: formErrors.lastName })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Email *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-with-icon", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_12__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: "email", value: newUserForm.email, onChange: (e) => setNewUserForm(prev => ({ ...prev, email: e.target.value })), className: formErrors.email ? 'error' : '', placeholder: "jean.dupont@example.com" })] }), formErrors.email && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "error-text", children: formErrors.email })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-section", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h3", { children: "S\u00E9curit\u00E9 et permissions" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "R\u00F4le" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-with-icon", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_9__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("select", { value: newUserForm.role, onChange: (e) => setNewUserForm(prev => ({ ...prev, role: e.target.value })), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "user", children: "Utilisateur" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "librarian", children: "Biblioth\u00E9caire" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("option", { value: "admin", children: "Administrateur" })] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-row", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Mot de passe *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-with-icon", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: newUserForm.password, onChange: (e) => setNewUserForm(prev => ({ ...prev, password: e.target.value })), className: formErrors.password ? 'error' : '', placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { type: "button", className: "password-toggle", onClick: () => setShowPassword(!showPassword), children: showPassword ? (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_14__["default"], { size: 16 }) : (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_15__["default"], { size: 16 }) })] }), formErrors.password && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "error-text", children: formErrors.password })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "form-group", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("label", { children: "Confirmer le mot de passe *" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "input-with-icon", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_13__["default"], { size: 18 }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("input", { type: showPassword ? 'text' : 'password', value: newUserForm.confirmPassword, onChange: (e) => setNewUserForm(prev => ({ ...prev, confirmPassword: e.target.value })), className: formErrors.confirmPassword ? 'error' : '', placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" })] }), formErrors.confirmPassword && (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", { className: "error-text", children: formErrors.confirmPassword })] })] })] })] }));
+    return ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-overlay", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-container user-management-modal", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-header", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-content", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "header-icon", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 24 }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "header-text", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("h2", { className: "modal-title", children: "Gestion des utilisateurs" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("p", { className: "modal-subtitle", children: [currentInstitution?.name || 'Institution', " \u2022 ", users.length, " utilisateur", users.length !== 1 ? 's' : ''] })] })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("button", { className: "close-btn", onClick: onClose, children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_16__["default"], { size: 20 }) })] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "modal-nav", children: (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "nav-buttons", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === 'list' ? 'active' : ''}`, onClick: () => setCurrentView('list'), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_7__["default"], { size: 18 }), "Liste des utilisateurs"] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("button", { className: `nav-button ${currentView === 'add' ? 'active' : ''}`, onClick: () => setCurrentView('add'), children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_17__["default"], { size: 18 }), "Nouvel utilisateur"] })] }) }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "modal-content", children: isLoading ? ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "loading-state", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("div", { className: "loading-spinner" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("p", { children: "Chargement des utilisateurs..." })] })) : currentView === 'list' ? (renderUserList()) : (renderAddUserForm()) }), currentView === 'add' && ((0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)("div", { className: "modal-actions", children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "secondary", onClick: () => setCurrentView('list'), disabled: isLoading, children: "Annuler" }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(_MicroInteractions__WEBPACK_IMPORTED_MODULE_2__.MicroButton, { variant: "primary", onClick: handleCreateUser, disabled: isLoading, children: [(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_18__["default"], { size: 16 }), "Cr\u00E9er l'utilisateur"] })] }))] }), (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("style", { children: `
+        .user-management-modal {
+          max-width: 900px;
+          height: 80vh;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.75);
+          backdrop-filter: blur(8px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 50;
+          padding: 20px;
+        }
+
+        .modal-container {
+          background: white;
+          border-radius: 20px;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+          width: 100%;
+          max-height: 95vh;
+          overflow: hidden;
+          animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+          from {
+            opacity: 0;
+            transform: scale(0.95) translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+
+        .modal-header {
+          background: linear-gradient(135deg, #3E5C49 0%, #C2571B 100%);
+          color: #F3EED9;
+          padding: 24px 32px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .modal-header::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='7' cy='7' r='7'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+          opacity: 0.6;
+        }
+
+        .header-content {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          position: relative;
+          z-index: 1;
+        }
+
+        .header-icon {
+          width: 48px;
+          height: 48px;
+          background: rgba(243, 238, 217, 0.2);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .header-text {
+          flex: 1;
+        }
+
+        .modal-title {
+          font-size: 24px;
+          font-weight: 700;
+          margin: 0 0 2px 0;
+          color: #F3EED9;
+        }
+
+        .modal-subtitle {
+          font-size: 14px;
+          margin: 0;
+          opacity: 0.9;
+          color: #F3EED9;
+        }
+
+        .close-btn {
+          background: rgba(243, 238, 217, 0.15);
+          border: 1px solid rgba(243, 238, 217, 0.3);
+          color: #F3EED9;
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          position: relative;
+          z-index: 1;
+        }
+
+        .close-btn:hover {
+          background: rgba(255, 255, 255, 0.2);
+          transform: scale(1.05);
+        }
+
+        .modal-nav {
+          background: #FAF9F6;
+          border-bottom: 1px solid rgba(229, 220, 194, 0.4);
+          padding: 16px 32px;
+        }
+
+        .nav-buttons {
+          display: flex;
+          gap: 8px;
+        }
+
+        .nav-button {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 16px;
+          border: none;
+          background: transparent;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 14px;
+          font-weight: 500;
+          color: #6E6E6E;
+        }
+
+        .nav-button:hover {
+          background: rgba(62, 92, 73, 0.1);
+          color: #3E5C49;
+        }
+
+        .nav-button.active {
+          background: #3E5C49;
+          color: #F3EED9;
+        }
+
+        .modal-content {
+          flex: 1;
+          overflow-y: auto;
+          padding: 32px;
+        }
+
+        .modal-actions {
+          padding: 24px 32px;
+          border-top: 1px solid rgba(229, 220, 194, 0.4);
+          display: flex;
+          justify-content: flex-end;
+          gap: 12px;
+          background: #FAF9F6;
+        }
+
+        /* Search and Filters */
+        .search-filters {
+          display: flex;
+          gap: 16px;
+          margin-bottom: 24px;
+          align-items: center;
+        }
+
+        .search-box {
+          position: relative;
+          flex: 1;
+        }
+
+        .search-box svg {
+          position: absolute;
+          left: 16px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #9CA3AF;
+        }
+
+        .search-box input {
+          width: 100%;
+          padding: 12px 16px 12px 48px;
+          border: 2px solid rgba(229, 220, 194, 0.6);
+          border-radius: 12px;
+          background: white;
+          font-size: 14px;
+          transition: all 0.2s ease;
+        }
+
+        .search-box input:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+
+        .filter-group {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          background: white;
+          border: 2px solid rgba(229, 220, 194, 0.6);
+          border-radius: 12px;
+        }
+
+        .role-filter {
+          border: none;
+          background: transparent;
+          font-size: 14px;
+          cursor: pointer;
+          outline: none;
+        }
+
+        /* User Stats */
+        .users-stats {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+          gap: 16px;
+          margin-bottom: 32px;
+        }
+
+        .stat-card {
+          background: white;
+          padding: 20px;
+          border-radius: 12px;
+          border: 2px solid rgba(229, 220, 194, 0.3);
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+          border-color: rgba(62, 92, 73, 0.3);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card svg {
+          color: #3E5C49;
+        }
+
+        .stat-number {
+          font-size: 20px;
+          font-weight: 700;
+          color: #2E2E2E;
+          line-height: 1;
+        }
+
+        .stat-label {
+          font-size: 12px;
+          color: #6E6E6E;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        /* Users List */
+        .users-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .user-card {
+          background: white;
+          border: 2px solid rgba(229, 220, 194, 0.3);
+          border-radius: 12px;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          transition: all 0.2s ease;
+        }
+
+        .user-card:hover {
+          border-color: rgba(62, 92, 73, 0.3);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .user-info {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          flex: 1;
+        }
+
+        .user-avatar {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #3E5C49, #C2571B);
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+          font-size: 16px;
+        }
+
+        .user-details {
+          flex: 1;
+        }
+
+        .user-name {
+          font-size: 16px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin-bottom: 4px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .inactive-badge {
+          background: #EF4444;
+          color: white;
+          font-size: 11px;
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-weight: 500;
+        }
+
+        .user-email {
+          font-size: 14px;
+          color: #6E6E6E;
+          margin-bottom: 8px;
+        }
+
+        .user-meta {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+
+        .role-badge {
+          color: white;
+          font-size: 11px;
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .join-date {
+          font-size: 12px;
+          color: #9CA3AF;
+        }
+
+        .user-actions {
+          display: flex;
+          gap: 8px;
+        }
+
+        /* Empty State */
+        .empty-state {
+          text-align: center;
+          padding: 60px 20px;
+          color: #6E6E6E;
+        }
+
+        .empty-state svg {
+          color: #D1D5DB;
+          margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+          font-size: 18px;
+          font-weight: 600;
+          margin: 0 0 8px 0;
+          color: #4B5563;
+        }
+
+        .empty-state p {
+          font-size: 14px;
+          margin: 0;
+          max-width: 300px;
+          margin: 0 auto;
+          line-height: 1.5;
+        }
+
+        /* Add User Form */
+        .add-user-form {
+          max-width: 600px;
+          margin: 0 auto;
+        }
+
+        .form-section {
+          margin-bottom: 32px;
+        }
+
+        .form-section h3 {
+          font-size: 18px;
+          font-weight: 600;
+          color: #2E2E2E;
+          margin: 0 0 20px 0;
+          padding-bottom: 8px;
+          border-bottom: 2px solid rgba(229, 220, 194, 0.4);
+        }
+
+        .form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+        }
+
+        .form-group {
+          margin-bottom: 20px;
+        }
+
+        .form-group label {
+          display: block;
+          font-size: 14px;
+          font-weight: 600;
+          color: #374151;
+          margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select {
+          width: 100%;
+          padding: 12px 16px;
+          border: 2px solid rgba(229, 220, 194, 0.6);
+          border-radius: 8px;
+          font-size: 14px;
+          transition: all 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+          outline: none;
+          border-color: #3E5C49;
+          box-shadow: 0 0 0 3px rgba(62, 92, 73, 0.1);
+        }
+
+        .form-group input.error {
+          border-color: #EF4444;
+        }
+
+        .input-with-icon {
+          position: relative;
+        }
+
+        .input-with-icon svg {
+          position: absolute;
+          left: 16px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #9CA3AF;
+          z-index: 1;
+        }
+
+        .input-with-icon input,
+        .input-with-icon select {
+          padding-left: 48px;
+        }
+
+        .password-toggle {
+          position: absolute;
+          right: 16px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          color: #9CA3AF;
+          cursor: pointer;
+          transition: color 0.2s ease;
+        }
+
+        .password-toggle:hover {
+          color: #6B7280;
+        }
+
+        .error-text {
+          display: block;
+          color: #EF4444;
+          font-size: 12px;
+          margin-top: 4px;
+        }
+
+        /* Loading State */
+        .loading-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 60px 20px;
+        }
+
+        .loading-spinner {
+          width: 40px;
+          height: 40px;
+          border: 3px solid rgba(62, 92, 73, 0.2);
+          border-top: 3px solid #3E5C49;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+          .modal-overlay {
+            padding: 16px;
+          }
+
+          .user-management-modal {
+            height: 90vh;
+          }
+
+          .modal-header {
+            padding: 20px 24px;
+          }
+
+          .modal-title {
+            font-size: 20px;
+          }
+
+          .modal-content {
+            padding: 24px;
+          }
+
+          .modal-actions {
+            padding: 20px 24px;
+          }
+
+          .search-filters {
+            flex-direction: column;
+            align-items: stretch;
+          }
+
+          .users-stats {
+            grid-template-columns: 1fr;
+          }
+
+          .user-card {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+          }
+
+          .user-info {
+            width: 100%;
+          }
+
+          .user-actions {
+            align-self: flex-end;
+          }
+
+          .form-row {
+            grid-template-columns: 1fr;
+          }
+
+          .add-user-form {
+            max-width: none;
+          }
+        }
+      ` })] }));
 };
 
 
@@ -23740,7 +24137,10 @@ const TitleBar = ({ onRefresh, isAuthenticated = false }) => {
           background: linear-gradient(135deg, #3E5C49 0%, #2E453A 100%);
           border-bottom: 1px solid rgba(46, 69, 58, 0.2);
           -webkit-app-region: drag;
-          position: relative;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
           z-index: 1000;
         }
         
@@ -25315,6 +25715,8 @@ class LocalAuthService {
         const newUser = {
             ...user,
             id: Date.now().toString(),
+            isActive: user.isActive !== undefined ? user.isActive : true,
+            createdAt: new Date().toISOString(),
             lastLogin: new Date().toISOString()
         };
         // Vérifier si l'utilisateur existe déjà

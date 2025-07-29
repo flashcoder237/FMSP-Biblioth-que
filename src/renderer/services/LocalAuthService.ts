@@ -9,7 +9,9 @@ interface LocalUser {
   role: string;
   institutionCode: string;
   password: string; // Hashé en production
+  isActive?: boolean; // Statut actif/inactif de l'utilisateur
   lastLogin?: string;
+  createdAt?: string;
   preferences?: {
     rememberMe: boolean;
     autoLogin: boolean;
@@ -98,6 +100,8 @@ export class LocalAuthService {
     const newUser: LocalUser = {
       ...user,
       id: Date.now().toString(),
+      isActive: user.isActive !== undefined ? user.isActive : true,
+      createdAt: new Date().toISOString(),
       lastLogin: new Date().toISOString()
     };
     
