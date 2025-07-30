@@ -25,13 +25,15 @@ interface ReportsManagerProps {
   borrowers: Borrower[];
   borrowHistory: BorrowHistory[];
   onClose: () => void;
+  currentInstitution?: any;
 }
 
 export const ReportsManager: React.FC<ReportsManagerProps> = ({
   documents,
   borrowers,
   borrowHistory,
-  onClose
+  onClose,
+  currentInstitution
 }) => {
   const [selectedReportType, setSelectedReportType] = useState<'documents' | 'borrowers' | 'history'>('documents');
   const [exportFormat, setExportFormat] = useState<'csv' | 'excel' | 'pdf'>('pdf');
@@ -69,13 +71,13 @@ export const ReportsManager: React.FC<ReportsManagerProps> = ({
 
       switch (selectedReportType) {
         case 'documents':
-          reportData = ReportService.generateDocumentReport(documents, options);
+          reportData = ReportService.generateDocumentReport(documents, options, currentInstitution);
           break;
         case 'borrowers':
-          reportData = ReportService.generateBorrowerReport(borrowers, borrowHistory, options);
+          reportData = ReportService.generateBorrowerReport(borrowers, borrowHistory, options, currentInstitution);
           break;
         case 'history':
-          reportData = ReportService.generateBorrowHistoryReport(borrowHistory, options);
+          reportData = ReportService.generateBorrowHistoryReport(borrowHistory, options, currentInstitution);
           break;
         default:
           throw new Error('Type de rapport non reconnu');

@@ -23,6 +23,7 @@ interface AppSettingsProps {
   onClose: () => void;
   currentUser?: any;
   currentInstitution?: any;
+  onInstitutionUpdate?: (institutionData: any) => void;
 }
 
 interface AppConfig {
@@ -34,7 +35,7 @@ interface AppConfig {
   theme: 'light' | 'dark';
 }
 
-export const AppSettings: React.FC<AppSettingsProps> = ({ onClose, currentUser, currentInstitution }) => {
+export const AppSettings: React.FC<AppSettingsProps> = ({ onClose, currentUser, currentInstitution, onInstitutionUpdate }) => {
   const { success, error } = useQuickToast();
   const [activeTab, setActiveTab] = useState<'general' | 'database' | 'security' | 'institution' | 'about'>('general');
   const [isLoading, setIsLoading] = useState(false);
@@ -66,6 +67,23 @@ export const AppSettings: React.FC<AppSettingsProps> = ({ onClose, currentUser, 
     checkAdminStatus();
     loadAppPasswordSettings();
   }, []);
+
+  // Mettre à jour les paramètres d'institution quand les props changent
+  useEffect(() => {
+    if (currentInstitution) {
+      setInstitutionSettings({
+        name: currentInstitution.name || 'Bibliothèque Numérique',
+        address: currentInstitution.address || '',
+        city: currentInstitution.city || '',
+        country: currentInstitution.country || '',
+        phone: currentInstitution.phone || '',
+        email: currentInstitution.email || '',
+        website: currentInstitution.website || '',
+        logo: currentInstitution.logo || '',
+        description: currentInstitution.description || 'Système de gestion de bibliothèque moderne'
+      });
+    }
+  }, [currentInstitution]);
 
   const loadConfig = () => {
     // Charger la configuration depuis localStorage
@@ -146,6 +164,10 @@ export const AppSettings: React.FC<AppSettingsProps> = ({ onClose, currentUser, 
       // Sauvegarder les paramètres d'institution si admin
       if (isAdmin) {
         localStorage.setItem('institutionSettings', JSON.stringify(institutionSettings));
+        // Notifier le parent pour mettre à jour l'état global
+        if (onInstitutionUpdate) {
+          onInstitutionUpdate(institutionSettings);
+        }
       }
 
       success('Configuration sauvegardée', 'Les paramètres ont été enregistrés avec succès');

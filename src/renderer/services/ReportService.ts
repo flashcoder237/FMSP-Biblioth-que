@@ -77,7 +77,7 @@ export class ReportService {
   }
 
   // Génération de rapport sur les emprunteurs
-  static generateBorrowerReport(borrowers: Borrower[], borrowHistory?: BorrowHistory[], options?: ExportOptions): ReportData {
+  static generateBorrowerReport(borrowers: Borrower[], borrowHistory?: BorrowHistory[], options?: ExportOptions, institutionInfo?: any): ReportData {
     const now = new Date();
     
     // Filtrage par date si spécifié
@@ -123,11 +123,17 @@ export class ReportService {
       }
     };
 
+    // Ajouter les informations d'institution si disponibles
+    if (institutionInfo) {
+      reportData.institutionName = institutionInfo.name;
+      reportData.subtitle = `${institutionInfo.name} - ${now.toLocaleDateString('fr-FR')}`;
+    }
+
     return reportData;
   }
 
   // Génération de rapport d'historique des emprunts
-  static generateBorrowHistoryReport(borrowHistory: BorrowHistory[], options?: ExportOptions): ReportData {
+  static generateBorrowHistoryReport(borrowHistory: BorrowHistory[], options?: ExportOptions, institutionInfo?: any): ReportData {
     const now = new Date();
     
     // Filtrage par date si spécifié
@@ -213,6 +219,12 @@ export class ReportService {
         dureeMovenneEmprunt: this.calculateAverageBorrowDuration(filteredHistory)
       }
     };
+
+    // Ajouter les informations d'institution si disponibles
+    if (institutionInfo) {
+      reportData.institutionName = institutionInfo.name;
+      reportData.subtitle = `${institutionInfo.name} - ${now.toLocaleDateString('fr-FR')}`;
+    }
 
     return reportData;
   }

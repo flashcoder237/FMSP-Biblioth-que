@@ -856,6 +856,28 @@ export const App: React.FC = () => {
     }
   };
 
+  // Gérer la mise à jour des informations d'institution
+  const handleInstitutionUpdate = (institutionData: any) => {
+    console.log('🏛️ Mise à jour des informations d\'institution:', institutionData);
+    
+    // Mettre à jour l'état local
+    if (currentInstitution) {
+      setCurrentInstitution({
+        ...currentInstitution,
+        ...institutionData
+      });
+    }
+    
+    // Si en mode offline, mettre à jour également via electronAPI
+    if (appMode === 'offline') {
+      try {
+        window.electronAPI?.saveInstitutionInfo?.(institutionData);
+      } catch (error) {
+        console.error('Erreur lors de la sauvegarde des informations d\'institution:', error);
+      }
+    }
+  };
+
   // Gérer l'affichage avec TitleBar toujours visible
   const renderAuthenticatedContent = () => {
     // Écran de configuration initiale - sans TitleBar
@@ -992,6 +1014,7 @@ export const App: React.FC = () => {
             onClose={() => setCurrentView('dashboard')} 
             currentUser={currentUser}
             currentInstitution={currentInstitution}
+            onInstitutionUpdate={handleInstitutionUpdate}
           />
         );
       case 'user-profile':
@@ -1016,6 +1039,16 @@ export const App: React.FC = () => {
       case 'backup-manager':
         return (
           <BackupManager 
+            onClose={() => setCurrentView('dashboard')}
+          />
+        );
+      case 'reports':
+        return (
+          <ReportsManager
+            documents={documents}
+            borrowers={borrowers}
+            borrowHistory={borrowedDocuments}
+            currentInstitution={currentInstitution}
             onClose={() => setCurrentView('dashboard')}
           />
         );
