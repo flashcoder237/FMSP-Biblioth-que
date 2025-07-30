@@ -193,6 +193,9 @@ const electronAPI = {
     borrowBook: (documentId, borrowerId, expectedReturnDate, institutionCode) => electron_1.ipcRenderer?.invoke('db:borrowDocument', documentId, borrowerId, expectedReturnDate, institutionCode) || Promise.resolve(0),
     returnBook: (borrowHistoryId, notes, institutionCode) => electron_1.ipcRenderer?.invoke('db:returnBook', borrowHistoryId, notes, institutionCode) || Promise.resolve(false),
     getBorrowHistory: (filter, institutionCode) => electron_1.ipcRenderer?.invoke('db:getBorrowHistory', filter, institutionCode) || Promise.resolve([]),
+    // Institution info
+    saveInstitutionInfo: (info) => electron_1.ipcRenderer?.invoke('db:saveInstitutionInfo', info) || Promise.resolve({ success: false }),
+    getInstitutionInfo: (institutionCode) => electron_1.ipcRenderer?.invoke('db:getInstitutionInfo', institutionCode) || Promise.resolve(null),
     // Statistics
     getStats: (institutionCode) => electron_1.ipcRenderer?.invoke('db:getStats', institutionCode) || Promise.resolve({
         totalDocuments: 0,

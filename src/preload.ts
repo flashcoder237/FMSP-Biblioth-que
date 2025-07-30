@@ -461,6 +461,12 @@ const electronAPI = {
   getBorrowHistory: (filter?: HistoryFilter, institutionCode?: string): Promise<BorrowHistory[]> => 
     ipcRenderer?.invoke('db:getBorrowHistory', filter, institutionCode) || Promise.resolve([]),
   
+  // Institution info
+  saveInstitutionInfo: (info: any): Promise<{ success: boolean }> => 
+    ipcRenderer?.invoke('db:saveInstitutionInfo', info) || Promise.resolve({ success: false }),
+  getInstitutionInfo: (institutionCode: string): Promise<any> => 
+    ipcRenderer?.invoke('db:getInstitutionInfo', institutionCode) || Promise.resolve(null),
+  
   // Statistics
   getStats: (institutionCode?: string): Promise<Stats> => ipcRenderer?.invoke('db:getStats', institutionCode) || Promise.resolve({
     totalDocuments: 0,

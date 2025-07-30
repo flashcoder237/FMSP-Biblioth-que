@@ -191,6 +191,37 @@ export interface HistoryFilter {
   documentId?: number;
 }
 
+export interface InstitutionInfo {
+  name: string;
+  shortName?: string;
+  address: string;
+  city: string;
+  postalCode?: string;
+  country: string;
+  phone: string;
+  email: string;
+  website?: string;
+  logo?: string; // URL ou base64
+  description?: string;
+  type: 'university' | 'school' | 'library' | 'research' | 'other';
+  
+  // Informations pour les rapports
+  director?: string;
+  librarian?: string;
+  establishedYear?: number;
+  
+  // Paramètres de rapport
+  reportHeader?: string;
+  reportFooter?: string;
+  primaryColor?: string;
+  secondaryColor?: string;
+  
+  // Métadonnées
+  institutionCode: string;
+  lastModified?: string;
+  version?: number;
+}
+
 export interface AuthCredentials {
   username: string;
   password: string;

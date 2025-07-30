@@ -16,7 +16,8 @@
       "Bash(git add:*)",
       "Bash(npm install:*)",
       "Bash(npm run:*)",
-      "Bash(awk:*)"
+      "Bash(awk:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": []
   }

@@ -900,6 +900,7 @@ export const App: React.FC = () => {
             documents={documents}
             categories={categories}
             recentActivity={recentActivity}
+            supabaseService={supabaseService}
           />
         );
       case 'documents':
@@ -987,7 +988,11 @@ export const App: React.FC = () => {
         );
       case 'app-settings':
         return (
-          <AppSettings onClose={() => setCurrentView('dashboard')} />
+          <AppSettings 
+            onClose={() => setCurrentView('dashboard')} 
+            currentUser={currentUser}
+            currentInstitution={currentInstitution}
+          />
         );
       case 'user-profile':
         return (
@@ -1022,6 +1027,7 @@ export const App: React.FC = () => {
             documents={documents}
             categories={categories}
             recentActivity={recentActivity}
+            supabaseService={supabaseService}
           />
         );
     }

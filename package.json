@@ -1,7 +1,7 @@
 {
-  "name": "bibliotheque-app",
+  "name": "bibliosilio",
   "version": "1.0.0",
-  "description": "Application de gestion de bibliothèque",
+  "description": "Bibliosilio - Application de gestion de bibliothèque moderne",
   "main": "dist/main.js",
   "scripts": {
     "start": "electron dist/main.js",
@@ -67,8 +67,8 @@
     "xlsx": "^0.18.5"
   },
   "build": {
-    "appId": "com.bibliotheque.app",
-    "productName": "Bibliothèque",
+    "appId": "com.bibliosilio.app",
+    "productName": "Bibliosilio",
     "directories": {
       "output": "release"
     },
@@ -76,9 +76,29 @@
       "dist/**/*",
       "node_modules/**/*"
     ],
+    "icon": "icons/icon",
+    "win": {
+      "icon": "icons/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "mac": {
+      "icon": "icons/icon.icns",
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "icon": "icons/icon.png",
+      "category": "Office"
+    },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "icons/icon.ico",
+      "uninstallerIcon": "icons/icon.ico"
     }
   }
 }

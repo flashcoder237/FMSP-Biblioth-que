@@ -29,6 +29,8 @@ import {
 
 import { SupabaseRendererService as SupabaseService, User as SupabaseUser, Institution as SupabaseInstitution } from '../services/SupabaseClient';
 import { ConfigService } from '../services/ConfigService';
+import { InstitutionSettings } from './InstitutionSettings';
+import { InstitutionInfo } from '../../types';
 
 interface SettingsProps {
   onClose: () => void;
@@ -68,10 +70,13 @@ interface SecuritySettings {
   };
 }
 
-export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
+export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout, currentUser, currentInstitution, supabaseService }) => {
   const [activeTab, setActiveTab] = useState<'institution' | 'backup' | 'security' | 'config' | 'about'>('institution');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Debug: Vérifier les props reçus
+  console.log('Settings component props:', { currentUser, currentInstitution, hasSupabaseService: !!supabaseService });
 
   const [institutionSettings, setInstitutionSettings] = useState<InstitutionSettings>({
     name: 'Lycée Moderne de Douala',
@@ -104,6 +109,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
   });
 
   const [showConfirmLogout, setShowConfirmLogout] = useState(false);
+  const [showInstitutionSettings, setShowInstitutionSettings] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -120,6 +126,16 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
       }
     } catch (error) {
       console.error('Error loading settings:', error);
+    }
+  };
+
+  const handleSaveInstitutionInfo = async (info: InstitutionInfo) => {
+    try {
+      await window.electronAPI.saveInstitutionInfo(info);
+      showMessage('success', 'Informations de l\'institution sauvegardées avec succès');
+    } catch (error) {
+      console.error('Error saving institution info:', error);
+      showMessage('error', 'Erreur lors de la sauvegarde des informations');
     }
   };
 
@@ -279,6 +295,31 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
 
           {/* Main Content */}
           <div className="settings-main">
+            {/* BOUTON TEST VISIBLE - doit être visible en permanence */}
+            <div style={{ padding: '20px', background: '#ff0000', color: 'white', margin: '10px 0' }}>
+              <h2>🔍 TEST DEBUG</h2>
+              <button 
+                onClick={() => {
+                  console.log("BOUTON TEST CLIQUÉ!");
+                  setShowInstitutionSettings(true);
+                }}
+                style={{
+                  padding: '15px 30px',
+                  background: '#00ff00',
+                  color: '#000000',
+                  border: 'none',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  borderRadius: '5px'
+                }}
+              >
+                🏛️ OUVRIR PARAMÈTRES INSTITUTION
+              </button>
+              <p>showInstitutionSettings: {showInstitutionSettings ? 'TRUE' : 'FALSE'}</p>
+              <p>activeTab: {activeTab}</p>
+            </div>
+
             {activeTab === 'institution' && (
               <div className="settings-section">
                 <div className="section-header">
@@ -287,6 +328,30 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
                     <h3>Informations de l'établissement</h3>
                     <p>Configurez les détails de votre institution</p>
                   </div>
+                  <button 
+                    className="edit-institution-btn primary-btn"
+                    onClick={() => {
+                      console.log("Bouton Gérer l'Institution cliqué !");
+                      setShowInstitutionSettings(true);
+                    }}
+                    title="Ouvrir la gestion complète des informations d'institution"
+                    style={{ 
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '12px 20px',
+                      background: 'linear-gradient(135deg, #C2571B, #A0461A)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '600'
+                    }}
+                  >
+                    <SettingsIcon size={16} />
+                    🏛️ Gérer l'Institution
+                  </button>
                 </div>
 
                 <div className="form-section">
@@ -873,6 +938,15 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
         </div>
       )}
 
+      {/* Institution Settings Modal */}
+      {showInstitutionSettings && (
+        <InstitutionSettings
+          currentInstitution={currentInstitution}
+          onClose={() => setShowInstitutionSettings(false)}
+          onSave={handleSaveInstitutionInfo}
+        />
+      )}
+
       <style>{`
         .settings-overlay {
           position: fixed;
@@ -1069,6 +1143,48 @@ export const Settings: React.FC<SettingsProps> = ({ onClose, onLogout }) => {
           margin-bottom: 32px;
           padding-bottom: 16px;
           border-bottom: 2px solid #E5DCC2;
+        }
+
+        .edit-institution-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 16px;
+          background: #3E5C49;
+          color: #F3EED9;
+          border: none;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          margin-left: auto;
+        }
+
+        .edit-institution-btn:hover {
+          background: #2E453A;
+          transform: translateY(-1px);
+        }
+
+        .edit-institution-btn.primary-btn {
+          background: linear-gradient(135deg, #C2571B, #A0461A);
+          color: white;
+          font-weight: 600;
+          box-shadow: 0 2px 8px rgba(194, 87, 27, 0.3);
+          border: 2px solid transparent;
+          animation: pulse 2s infinite;
+        }
+
+        .edit-institution-btn.primary-btn:hover {
+          background: linear-gradient(135deg, #A0461A, #8B3A15);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(194, 87, 27, 0.4);
+        }
+
+        @keyframes pulse {
+          0% { box-shadow: 0 2px 8px rgba(194, 87, 27, 0.3); }
+          50% { box-shadow: 0 2px 8px rgba(194, 87, 27, 0.6); }
+          100% { box-shadow: 0 2px 8px rgba(194, 87, 27, 0.3); }
         }
         
         .section-header h3 {

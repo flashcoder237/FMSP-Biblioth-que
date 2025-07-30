@@ -64,7 +64,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onRefresh, isAuthenticated =
           <div className="app-logo">
             <BookOpen size={18} />
           </div>
-          <span className="app-title">Bibliothèque</span>
+          <span className="app-title">Bibliosilio</span>
           <div className="title-separator"></div>
           <span className="app-subtitle">Gestion moderne de collection</span>
         </div>

@@ -250,39 +250,8 @@ export const BorrowedDocuments: React.FC<BorrowedDocumentsProps> = ({ documents,
     setFilterStatus('all');
   };
 
-  // Mock data for demonstration
-  const mockDocuments = documents.length > 0 ? documents : [
-    {
-      id: 1,
-      titre: "Le Petit Prince",
-      auteur: "Antoine de Saint-Exupéry",
-      editeur: "Gallimard",
-      annee: "1943",
-      nomEmprunteur: "Marie Dubois",
-      dateEmprunt: "2025-07-15",
-      dateRetourPrevu: "2025-07-30"
-    },
-    {
-      id: 2,
-      titre: "1984",
-      auteur: "George Orwell",
-      editeur: "Secker & Warburg",
-      annee: "1949",
-      nomEmprunteur: "Jean Martin",
-      dateEmprunt: "2025-07-20",
-      dateRetourPrevu: "2025-07-22"
-    },
-    {
-      id: 3,
-      titre: "L'Étranger",
-      auteur: "Albert Camus",
-      editeur: "Gallimard",
-      annee: "1942",
-      nomEmprunteur: "Sophie Leroy",
-      dateEmprunt: "2025-07-10",
-      dateRetourPrevu: "2025-07-20"
-    }
-  ];
+  // Use only real documents - no mock data to ensure institution isolation
+  const mockDocuments = documents;
 
   // Processed documents with memoization for performance
   const processedDocuments = useMemo(() => {

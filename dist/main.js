@@ -24695,7 +24695,7 @@ function createWindow() {
         titleBarStyle: 'hiddenInset',
         frame: false,
         show: false,
-        icon: path.join(__dirname, '../assets/icon.png'),
+        icon: path.join(__dirname, '../icons/icon.png'),
     });
     // Vérifier que le fichier preload existe
     const preloadPath = path.join(__dirname, 'preload.js');
@@ -25237,6 +25237,26 @@ electron_1.ipcMain.handle('db:getStats', async (_, institutionCode) => {
             totalStaff: 0,
             overdueDocuments: 0
         };
+    }
+});
+// Institution info management
+electron_1.ipcMain.handle('db:saveInstitutionInfo', async (_, info) => {
+    try {
+        await dbService.saveInstitutionInfo(info);
+        return { success: true };
+    }
+    catch (error) {
+        console.error('Erreur saveInstitutionInfo:', error);
+        throw error;
+    }
+});
+electron_1.ipcMain.handle('db:getInstitutionInfo', async (_, institutionCode) => {
+    try {
+        return await dbService.getInstitutionInfo(institutionCode);
+    }
+    catch (error) {
+        console.error('Erreur getInstitutionInfo:', error);
+        return null;
     }
 });
 // Recent Activity handler
@@ -27012,6 +27032,9 @@ const electronAPI = {
     borrowBook: (documentId, borrowerId, expectedReturnDate, institutionCode) => electron_1.ipcRenderer?.invoke('db:borrowDocument', documentId, borrowerId, expectedReturnDate, institutionCode) || Promise.resolve(0),
     returnBook: (borrowHistoryId, notes, institutionCode) => electron_1.ipcRenderer?.invoke('db:returnBook', borrowHistoryId, notes, institutionCode) || Promise.resolve(false),
     getBorrowHistory: (filter, institutionCode) => electron_1.ipcRenderer?.invoke('db:getBorrowHistory', filter, institutionCode) || Promise.resolve([]),
+    // Institution info
+    saveInstitutionInfo: (info) => electron_1.ipcRenderer?.invoke('db:saveInstitutionInfo', info) || Promise.resolve({ success: false }),
+    getInstitutionInfo: (institutionCode) => electron_1.ipcRenderer?.invoke('db:getInstitutionInfo', institutionCode) || Promise.resolve(null),
     // Statistics
     getStats: (institutionCode) => electron_1.ipcRenderer?.invoke('db:getStats', institutionCode) || Promise.resolve({
         totalDocuments: 0,
@@ -29597,6 +29620,11 @@ class DatabaseService {
                 const stats = {};
                 let whereClause = institutionCode ? 'WHERE deletedAt IS NULL AND institution_code = ?' : 'WHERE deletedAt IS NULL';
                 let params = institutionCode ? [institutionCode] : [];
+                console.log('🔍 DEBUG getStats - Institution filtering:', {
+                    institutionCode,
+                    whereClause,
+                    params
+                });
                 // Utiliser documents au lieu de books
                 this.db.get(`SELECT COUNT(*) as count FROM documents ${whereClause}`, params, (err, row) => {
                     if (err) {
@@ -30424,6 +30452,100 @@ class DatabaseService {
         else {
             return date.toLocaleDateString('fr-FR');
         }
+    }
+    // ===============================
+    // GESTION DES INFORMATIONS D'INSTITUTION
+    // ===============================
+    async saveInstitutionInfo(info) {
+        return new Promise((resolve, reject) => {
+            this.db.serialize(() => {
+                // Créer la table si elle n'existe pas
+                this.db.run(`
+          CREATE TABLE IF NOT EXISTS institution_info (
+            institutionCode TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            shortName TEXT,
+            address TEXT,
+            city TEXT,
+            postalCode TEXT,
+            country TEXT,
+            phone TEXT,
+            email TEXT,
+            website TEXT,
+            logo TEXT,
+            description TEXT,
+            type TEXT,
+            director TEXT,
+            librarian TEXT,
+            establishedYear INTEGER,
+            reportHeader TEXT,
+            reportFooter TEXT,
+            primaryColor TEXT,
+            secondaryColor TEXT,
+            lastModified TEXT,
+            version INTEGER DEFAULT 1
+          )
+        `, (err) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    // Insérer ou mettre à jour
+                    const stmt = this.db.prepare(`
+            INSERT OR REPLACE INTO institution_info (
+              institutionCode, name, shortName, address, city, postalCode, country,
+              phone, email, website, logo, description, type, director, librarian,
+              establishedYear, reportHeader, reportFooter, primaryColor, secondaryColor,
+              lastModified, version
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `);
+                    stmt.run([
+                        info.institutionCode,
+                        info.name,
+                        info.shortName || null,
+                        info.address,
+                        info.city,
+                        info.postalCode || null,
+                        info.country,
+                        info.phone || null,
+                        info.email || null,
+                        info.website || null,
+                        info.logo || null,
+                        info.description || null,
+                        info.type,
+                        info.director || null,
+                        info.librarian || null,
+                        info.establishedYear || null,
+                        info.reportHeader || null,
+                        info.reportFooter || null,
+                        info.primaryColor || '#3E5C49',
+                        info.secondaryColor || '#C2571B',
+                        info.lastModified,
+                        info.version || 1
+                    ], function (err) {
+                        if (err) {
+                            reject(err);
+                        }
+                        else {
+                            console.log('✅ Institution info saved for:', info.institutionCode);
+                            resolve();
+                        }
+                    });
+                });
+            });
+        });
+    }
+    async getInstitutionInfo(institutionCode) {
+        return new Promise((resolve, reject) => {
+            this.db.get('SELECT * FROM institution_info WHERE institutionCode = ?', [institutionCode], (err, row) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(row || null);
+                }
+            });
+        });
     }
 }
 exports.DatabaseService = DatabaseService;

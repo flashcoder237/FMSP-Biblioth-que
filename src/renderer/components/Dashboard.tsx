@@ -20,6 +20,7 @@ import { EnhancedStats } from './EnhancedStats';
 import { SmartSearch } from './SmartSearch';
 import { AnimatedBackground } from './AnimatedBackground';
 import { MicroButton, MicroCard, FloatingButton } from './MicroInteractions';
+import { SupabaseRendererService } from '../services/SupabaseClient';
 
 interface DashboardProps {
   stats: Stats;
@@ -27,6 +28,7 @@ interface DashboardProps {
   documents?: any[];
   categories?: any[];
   recentActivity?: any[];
+  supabaseService: SupabaseRendererService;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ 
@@ -34,7 +36,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onNavigate, 
   documents = [], 
   categories = [],
-  recentActivity = []
+  recentActivity = [],
+  supabaseService
 }) => {
   const [showPrintManager, setShowPrintManager] = useState(false);
 
@@ -300,6 +303,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           documents={documents}
           stats={stats}
           onClose={() => setShowPrintManager(false)}
+          supabaseService={supabaseService}
         />
       )}
 

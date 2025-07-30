@@ -21,6 +21,8 @@ import { InstitutionSettings } from '../../preload';
 
 interface AppSettingsProps {
   onClose: () => void;
+  currentUser?: any;
+  currentInstitution?: any;
 }
 
 interface AppConfig {
@@ -32,7 +34,7 @@ interface AppConfig {
   theme: 'light' | 'dark';
 }
 
-export const AppSettings: React.FC<AppSettingsProps> = ({ onClose }) => {
+export const AppSettings: React.FC<AppSettingsProps> = ({ onClose, currentUser, currentInstitution }) => {
   const { success, error } = useQuickToast();
   const [activeTab, setActiveTab] = useState<'general' | 'database' | 'security' | 'institution' | 'about'>('general');
   const [isLoading, setIsLoading] = useState(false);
@@ -48,15 +50,15 @@ export const AppSettings: React.FC<AppSettingsProps> = ({ onClose }) => {
   const [appPassword, setAppPassword] = useState<string>('');
   const [showPasswordSection, setShowPasswordSection] = useState<boolean>(false);
   const [institutionSettings, setInstitutionSettings] = useState<InstitutionSettings>({
-    name: 'Bibliothèque Numérique',
-    address: '',
-    city: '',
-    country: '',
-    phone: '',
-    email: '',
-    website: '',
-    logo: '',
-    description: 'Système de gestion de bibliothèque moderne'
+    name: currentInstitution?.name || 'Bibliothèque Numérique',
+    address: currentInstitution?.address || '',
+    city: currentInstitution?.city || '',
+    country: currentInstitution?.country || '',
+    phone: currentInstitution?.phone || '',
+    email: currentInstitution?.email || '',
+    website: currentInstitution?.website || '',
+    logo: currentInstitution?.logo || '',
+    description: currentInstitution?.description || 'Système de gestion de bibliothèque moderne'
   });
 
   useEffect(() => {
@@ -110,39 +112,9 @@ export const AppSettings: React.FC<AppSettingsProps> = ({ onClose }) => {
   };
 
   const checkAdminStatus = () => {
-    // Vérifier si l'utilisateur connecté est un admin
-    const currentUser = localStorage.getItem('currentUser');
-    const appMode = localStorage.getItem('appMode');
-    
-    // En mode offline, permettre l'accès admin par défaut si aucun utilisateur spécifique n'est défini
-    if (appMode === 'offline') {
-      if (currentUser) {
-        try {
-          const user = JSON.parse(currentUser);
-          setIsAdmin(user.role === 'admin' || user.isAdmin === true);
-        } catch (e) {
-          console.warn('Could not parse current user:', e);
-          // En mode offline, donner accès admin par défaut
-          setIsAdmin(true);
-        }
-      } else {
-        // Pas d'utilisateur défini en mode offline, donner accès admin
-        setIsAdmin(true);
-      }
-    } else {
-      // Mode online, vérification stricte
-      if (currentUser) {
-        try {
-          const user = JSON.parse(currentUser);
-          setIsAdmin(user.role === 'admin' || user.isAdmin === true);
-        } catch (e) {
-          console.warn('Could not parse current user:', e);
-          setIsAdmin(false);
-        }
-      } else {
-        setIsAdmin(false);
-      }
-    }
+    // Utiliser les props passées plutôt que localStorage
+    const isAdminUser = currentUser?.role === 'admin' || currentUser?.isAdmin === true;
+    setIsAdmin(isAdminUser);
   };
 
   const saveConfig = async () => {

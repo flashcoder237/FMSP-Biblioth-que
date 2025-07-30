@@ -41,7 +41,7 @@ function createWindow(): void {
     titleBarStyle: 'hiddenInset',
     frame: false,
     show: false,
-    icon: path.join(__dirname, '../assets/icon.png'),
+    icon: path.join(__dirname, '../icons/icon.png'),
   });
 
   // Vérifier que le fichier preload existe
@@ -612,6 +612,26 @@ ipcMain.handle('db:getStats', async (_, institutionCode?: string) => {
       totalStaff: 0,
       overdueDocuments: 0
     };
+  }
+});
+
+// Institution info management
+ipcMain.handle('db:saveInstitutionInfo', async (_, info) => {
+  try {
+    await dbService.saveInstitutionInfo(info);
+    return { success: true };
+  } catch (error) {
+    console.error('Erreur saveInstitutionInfo:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('db:getInstitutionInfo', async (_, institutionCode: string) => {
+  try {
+    return await dbService.getInstitutionInfo(institutionCode);
+  } catch (error) {
+    console.error('Erreur getInstitutionInfo:', error);
+    return null;
   }
 });
 

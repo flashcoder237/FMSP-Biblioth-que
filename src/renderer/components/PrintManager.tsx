@@ -15,11 +15,13 @@ import {
 import { Document, Stats } from '../../preload';
 import { InstitutionSettings } from '../../preload';
 import { ExportDialog, ExportConfig } from './ExportDialog';
+import { SupabaseRendererService } from '../services/SupabaseClient';
 
 interface PrintManagerProps {
   documents: Document[];
   stats: Stats;
   onClose: () => void;
+  supabaseService: SupabaseRendererService;
 }
 
 type PrintType = 'inventory' | 'available' | 'borrowed';
@@ -27,7 +29,8 @@ type PrintType = 'inventory' | 'available' | 'borrowed';
 export const PrintManager: React.FC<PrintManagerProps> = ({ 
   documents, 
   stats, 
-  onClose 
+  onClose,
+  supabaseService
 }) => {
   const [selectedType, setSelectedType] = useState<PrintType>('inventory');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -165,7 +168,11 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
   const handleExport = async (config: ExportConfig) => {
     setIsProcessing(true);
     try {
-      const result = await window.electronAPI.exportAdvanced(config);
+      // CRITICAL: Get current institution code for proper data isolation
+      const institutionCode = supabaseService.getCurrentInstitution()?.code;
+      console.log('🔍 DEBUG PrintManager EXPORT - Using institutionCode:', institutionCode);
+      
+      const result = await window.electronAPI.exportAdvanced(config, institutionCode);
       if (result.success && result.path) {
         const fileName = result.path.split(/[/\\]/).pop();
         showMessage('success', `Fichier exporté avec succès : ${fileName}`);

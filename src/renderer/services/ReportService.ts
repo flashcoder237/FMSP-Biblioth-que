@@ -24,8 +24,8 @@ export interface ExportOptions {
 }
 
 export class ReportService {
-  // Génération de rapport sur les documents
-  static generateDocumentReport(documents: Document[], options?: ExportOptions): ReportData {
+  // Génération de rapport sur les documents avec informations d'institution
+  static generateDocumentReport(documents: Document[], options?: ExportOptions, institutionInfo?: any): ReportData {
     const now = new Date();
     
     // Filtrage par date si spécifié
@@ -42,7 +42,7 @@ export class ReportService {
 
     const reportData: ReportData = {
       title: 'Rapport des Documents',
-      subtitle: `Bibliothèque - ${now.toLocaleDateString('fr-FR')}`,
+      subtitle: `Bibliosilio - ${now.toLocaleDateString('fr-FR')}`,
       generatedAt: now.toISOString(),
       data: filteredDocuments.map(doc => ({
         id: doc.id,
@@ -66,6 +66,12 @@ export class ReportService {
         parAnnee: this.groupByYear(filteredDocuments)
       }
     };
+
+    // Ajouter les informations d'institution si disponibles
+    if (institutionInfo) {
+      reportData.institutionName = institutionInfo.name;
+      reportData.subtitle = `${institutionInfo.name} - ${now.toLocaleDateString('fr-FR')}`;
+    }
 
     return reportData;
   }
@@ -91,7 +97,7 @@ export class ReportService {
 
     const reportData: ReportData = {
       title: 'Rapport des Emprunteurs',
-      subtitle: `Bibliothèque - ${now.toLocaleDateString('fr-FR')}`,
+      subtitle: `Bibliosilio - ${now.toLocaleDateString('fr-FR')}`,
       generatedAt: now.toISOString(),
       data: filteredBorrowers.map(borrower => ({
         id: borrower.id,
@@ -136,7 +142,7 @@ export class ReportService {
 
     const reportData: ReportData = {
       title: 'Rapport d\'Historique des Emprunts',
-      subtitle: `Bibliothèque - ${now.toLocaleDateString('fr-FR')}`,
+      subtitle: `Bibliosilio - ${now.toLocaleDateString('fr-FR')}`,
       generatedAt: now.toISOString(),
       data: filteredHistory.map(history => {
         const borrowDate = new Date(history.borrowDate);
@@ -230,83 +236,6 @@ export class ReportService {
     return '\ufeff' + csvContent;
   }
 
-  // Export en PDF (génère le contenu HTML à convertir)
-  static generatePDFContent(reportData: ReportData): string {
-    const styles = `
-      <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { color: #3E5C49; margin-bottom: 5px; }
-        .header p { color: #666; margin: 0; }
-        .summary { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        .summary h3 { margin-top: 0; color: #3E5C49; }
-        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
-        .summary-item { background: white; padding: 10px; border-radius: 4px; }
-        .summary-item strong { color: #C2571B; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background-color: #3E5C49; color: white; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        .footer { margin-top: 30px; text-align: center; color: #666; font-size: 12px; }
-      </style>
-    `;
-
-    const summaryHtml = reportData.summary ? `
-      <div class="summary">
-        <h3>Résumé</h3>
-        <div class="summary-grid">
-          ${Object.entries(reportData.summary).map(([key, value]) => `
-            <div class="summary-item">
-              <strong>${this.formatSummaryKey(key)}:</strong> ${this.formatSummaryValue(value)}
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    ` : '';
-
-    const tableHeaders = reportData.data.length > 0 ? Object.keys(reportData.data[0]) : [];
-    const tableHtml = `
-      <table>
-        <thead>
-          <tr>
-            ${tableHeaders.map(header => `<th>${this.formatColumnHeader(header)}</th>`).join('')}
-          </tr>
-        </thead>
-        <tbody>
-          ${reportData.data.map(row => `
-            <tr>
-              ${tableHeaders.map(header => `<td>${row[header] || ''}</td>`).join('')}
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    `;
-
-    return `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <title>${reportData.title}</title>
-          ${styles}
-        </head>
-        <body>
-          <div class="header">
-            <h1>${reportData.title}</h1>
-            <p>${reportData.subtitle}</p>
-            <p>Généré le ${new Date(reportData.generatedAt).toLocaleString('fr-FR')}</p>
-          </div>
-          
-          ${summaryHtml}
-          ${tableHtml}
-          
-          <div class="footer">
-            <p>Ce rapport a été généré automatiquement par l'application Bibliothèque</p>
-          </div>
-        </body>
-      </html>
-    `;
-  }
 
   // Téléchargement du fichier
   static downloadFile(content: string, filename: string, mimeType: string) {
@@ -503,5 +432,392 @@ export class ReportService {
     } else {
       return `${year - 1}-${year}`;
     }
+  }
+
+  // Génération de contenu PDF avec design amélioré
+  static generatePDFContent(reportData: ReportData, institutionInfo?: any): string {
+    const primaryColor = institutionInfo?.primaryColor || '#3E5C49';
+    const secondaryColor = institutionInfo?.secondaryColor || '#C2571B';
+    const logoSection = institutionInfo?.logo ? 
+      `<img src="${institutionInfo.logo}" alt="Logo" style="height: 60px; margin-right: 20px;">` : '';
+
+    return `
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${reportData.title}</title>
+    <style>
+        @page {
+            margin: 2cm;
+            size: A4;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-bottom: 3px solid ${primaryColor};
+            margin-bottom: 30px;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .header-info h1 {
+            color: ${primaryColor};
+            font-size: 28px;
+            margin: 0;
+            font-weight: 700;
+        }
+        
+        .header-info h2 {
+            color: ${secondaryColor};
+            font-size: 18px;
+            margin: 5px 0 0 0;
+            font-weight: 400;
+        }
+        
+        .header-right {
+            text-align: right;
+            color: #666;
+        }
+        
+        .institution-info {
+            background: linear-gradient(135deg, ${primaryColor}15, ${secondaryColor}10);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid ${primaryColor};
+        }
+        
+        .institution-info h3 {
+            color: ${primaryColor};
+            margin: 0 0 10px 0;
+            font-size: 20px;
+        }
+        
+        .institution-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            font-size: 14px;
+        }
+        
+        .institution-details div {
+            display: flex;
+            align-items: center;
+        }
+        
+        .institution-details strong {
+            color: ${primaryColor};
+            margin-right: 8px;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-top: 4px solid ${primaryColor};
+        }
+        
+        .summary-card h3 {
+            color: ${primaryColor};
+            font-size: 32px;
+            margin: 0;
+            font-weight: 700;
+        }
+        
+        .summary-card p {
+            color: #666;
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .data-table thead {
+            background: linear-gradient(135deg, ${primaryColor}, ${secondaryColor});
+            color: white;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .data-table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 12px;
+        }
+        
+        .data-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .data-table tbody tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-disponible {
+            background: #e8f5e8;
+            color: #2d5a2d;
+        }
+        
+        .status-emprunte {
+            background: #fff3e0;
+            color: #cc5500;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .footer p {
+            margin: 5px 0;
+        }
+        
+        .generated-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .bibliosilio-branding {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding: 10px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            font-size: 11px;
+            color: #495057;
+        }
+
+        .bibliosilio-branding strong {
+            color: #3E5C49;
+            font-weight: 600;
+        }
+        
+        .chart-placeholder {
+            height: 200px;
+            background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            margin: 20px 0;
+        }
+        
+        @media print {
+            .header-right {
+                font-size: 12px;
+            }
+            .summary-cards {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .data-table {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            ${logoSection}
+            <div class="header-info">
+                <h1>${reportData.title}</h1>
+                <h2>${reportData.subtitle || ''}</h2>
+            </div>
+        </div>
+        <div class="header-right">
+            <div><strong>Généré le :</strong> ${new Date(reportData.generatedAt).toLocaleDateString('fr-FR')}</div>
+            <div><strong>Heure :</strong> ${new Date(reportData.generatedAt).toLocaleTimeString('fr-FR')}</div>
+        </div>
+    </div>
+
+    ${institutionInfo ? `
+    <div class="institution-info">
+        <h3>${institutionInfo.name}</h3>
+        <div class="institution-details">
+            ${institutionInfo.address ? `<div><strong>📍</strong> ${institutionInfo.address}, ${institutionInfo.city}</div>` : ''}
+            ${institutionInfo.phone ? `<div><strong>📞</strong> ${institutionInfo.phone}</div>` : ''}
+            ${institutionInfo.email ? `<div><strong>📧</strong> ${institutionInfo.email}</div>` : ''}
+            ${institutionInfo.website ? `<div><strong>🌐</strong> ${institutionInfo.website}</div>` : ''}
+            ${institutionInfo.director ? `<div><strong>👤</strong> Directeur: ${institutionInfo.director}</div>` : ''}
+            ${institutionInfo.librarian ? `<div><strong>📚</strong> Bibliothécaire: ${institutionInfo.librarian}</div>` : ''}
+        </div>
+    </div>
+    ` : ''}
+
+    ${reportData.summary ? `
+    <div class="summary-cards">
+        <div class="summary-card">
+            <h3>${reportData.summary.totalItems || 0}</h3>
+            <p>Total éléments</p>
+        </div>
+        ${reportData.summary.totalDisponibles !== undefined ? `
+        <div class="summary-card">
+            <h3>${reportData.summary.totalDisponibles}</h3>
+            <p>Disponibles</p>
+        </div>
+        ` : ''}
+        ${reportData.summary.totalEmpruntes !== undefined ? `
+        <div class="summary-card">
+            <h3>${reportData.summary.totalEmpruntes}</h3>
+            <p>Empruntés</p>
+        </div>
+        ` : ''}
+        ${reportData.summary.totalActifs !== undefined ? `
+        <div class="summary-card">
+            <h3>${reportData.summary.totalActifs}</h3>
+            <p>Actifs</p>
+        </div>
+        ` : ''}
+    </div>
+    ` : ''}
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                ${this.generateTableHeaders(reportData.data[0] || {})}
+            </tr>
+        </thead>
+        <tbody>
+            ${reportData.data.map(item => `
+                <tr>
+                    ${this.generateTableRow(item)}
+                </tr>
+            `).join('')}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p>${institutionInfo?.reportFooter || `© ${new Date().getFullYear()} - Rapport généré par Bibliosilio`}</p>
+        <div class="generated-info">
+            <p><strong>Informations de génération :</strong></p>
+            <p>Rapport généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
+            <p>Nombre total d'enregistrements : ${reportData.data.length}</p>
+        </div>
+        <div class="bibliosilio-branding">
+            <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="11" fill="#3E5C49" opacity="0.1"/>
+                <rect x="6" y="14" width="10" height="6" rx="1" fill="#3E5C49" opacity="0.3"/>
+                <rect x="7" y="12" width="8" height="5" rx="1" fill="#C2571B" opacity="0.5"/>
+                <rect x="8" y="10" width="6" height="4" rx="1" fill="#3E5C49"/>
+                <path d="M10 6 Q10 5, 11 5 L13 5 Q14 5, 14 6 L14 9 L10 9 Z" fill="#F3EED9" opacity="0.8"/>
+                <line x1="12" y1="5" x2="12" y2="9" stroke="#3E5C49" stroke-width="0.5"/>
+            </svg>
+            <span>Généré via <strong>Bibliosilio</strong></span>
+        </div>
+    </div>
+</body>
+</html>`;
+  }
+
+  private static generateTableHeaders(sampleItem: any): string {
+    if (!sampleItem) return '';
+    
+    return Object.keys(sampleItem)
+      .filter(key => !['id'].includes(key))
+      .map(key => `<th>${this.formatHeaderName(key)}</th>`)
+      .join('');
+  }
+
+  private static generateTableRow(item: any): string {
+    return Object.keys(item)
+      .filter(key => !['id'].includes(key))
+      .map(key => {
+        let value = item[key];
+        
+        // Format special values
+        if (key === 'statut') {
+          const statusClass = value === 'Disponible' ? 'status-disponible' : 'status-emprunte';
+          return `<td><span class="status-badge ${statusClass}">${value}</span></td>`;
+        }
+        
+        return `<td>${value || '-'}</td>`;
+      })
+      .join('');
+  }
+
+  private static formatHeaderName(key: string): string {
+    const headers: Record<string, string> = {
+      titre: 'Titre',
+      auteur: 'Auteur',
+      editeur: 'Éditeur',
+      annee: 'Année',
+      type: 'Type',
+      cote: 'Cote',
+      statut: 'Statut',  
+      emprunteur: 'Emprunteur',
+      dateEmprunt: 'Date d\'emprunt',
+      dateRetourPrevu: 'Retour prévu',
+      descripteurs: 'Mots-clés',
+      nom: 'Nom',
+      matricule: 'Matricule',
+      classe: 'Classe',
+      email: 'Email',
+      phone: 'Téléphone'
+    };
+    
+    return headers[key] || key.charAt(0).toUpperCase() + key.slice(1);
   }
 }

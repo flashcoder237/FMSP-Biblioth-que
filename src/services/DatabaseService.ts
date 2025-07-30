@@ -1209,6 +1209,12 @@ export class DatabaseService {
       let whereClause = institutionCode ? 'WHERE deletedAt IS NULL AND institution_code = ?' : 'WHERE deletedAt IS NULL';
       let params = institutionCode ? [institutionCode] : [];
       
+      console.log('🔍 DEBUG getStats - Institution filtering:', {
+        institutionCode,
+        whereClause,
+        params
+      });
+      
       // Utiliser documents au lieu de books
       this.db.get(`SELECT COUNT(*) as count FROM documents ${whereClause}`, params, (err: Error | null, row: any) => {
         if (err) {
@@ -2161,5 +2167,106 @@ export class DatabaseService {
     } else {
       return date.toLocaleDateString('fr-FR');
     }
+  }
+
+  // ===============================
+  // GESTION DES INFORMATIONS D'INSTITUTION
+  // ===============================
+
+  async saveInstitutionInfo(info: any): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.db.serialize(() => {
+        // Créer la table si elle n'existe pas
+        this.db.run(`
+          CREATE TABLE IF NOT EXISTS institution_info (
+            institutionCode TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            shortName TEXT,
+            address TEXT,
+            city TEXT,
+            postalCode TEXT,
+            country TEXT,
+            phone TEXT,
+            email TEXT,
+            website TEXT,
+            logo TEXT,
+            description TEXT,
+            type TEXT,
+            director TEXT,
+            librarian TEXT,
+            establishedYear INTEGER,
+            reportHeader TEXT,
+            reportFooter TEXT,
+            primaryColor TEXT,
+            secondaryColor TEXT,
+            lastModified TEXT,
+            version INTEGER DEFAULT 1
+          )
+        `, (err) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          
+          // Insérer ou mettre à jour
+          const stmt = this.db.prepare(`
+            INSERT OR REPLACE INTO institution_info (
+              institutionCode, name, shortName, address, city, postalCode, country,
+              phone, email, website, logo, description, type, director, librarian,
+              establishedYear, reportHeader, reportFooter, primaryColor, secondaryColor,
+              lastModified, version
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `);
+          
+          stmt.run([
+            info.institutionCode,
+            info.name,
+            info.shortName || null,
+            info.address,
+            info.city,
+            info.postalCode || null,
+            info.country,
+            info.phone || null,
+            info.email || null,
+            info.website || null,
+            info.logo || null,
+            info.description || null,
+            info.type,
+            info.director || null,
+            info.librarian || null,
+            info.establishedYear || null,
+            info.reportHeader || null,
+            info.reportFooter || null,
+            info.primaryColor || '#3E5C49',
+            info.secondaryColor || '#C2571B',
+            info.lastModified,
+            info.version || 1
+          ], function(this: sqlite3.RunResult, err: Error | null) {
+            if (err) {
+              reject(err);
+            } else {
+              console.log('✅ Institution info saved for:', info.institutionCode);
+              resolve();
+            }
+          });
+        });
+      });
+    });
+  }
+
+  async getInstitutionInfo(institutionCode: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.db.get(
+        'SELECT * FROM institution_info WHERE institutionCode = ?',
+        [institutionCode],
+        (err, row) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(row || null);
+          }
+        }
+      );
+    });
   }
 }
