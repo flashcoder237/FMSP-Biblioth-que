@@ -17,7 +17,8 @@
       "Bash(npm install:*)",
       "Bash(npm run:*)",
       "Bash(awk:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(npx electron-builder:*)"
     ],
     "deny": []
   }

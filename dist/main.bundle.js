@@ -26442,6 +26442,31 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   ReportService: () => (/* binding */ ReportService)
 /* harmony export */ });
 class ReportService {
+    // Fonction utilitaire pour enrichir les données de rapport
+    static enrichReportData(reportData, institutionInfo) {
+        if (institutionInfo) {
+            reportData.institutionName = institutionInfo.name;
+            reportData.institutionInfo = {
+                name: institutionInfo.name || '',
+                address: institutionInfo.address || '',
+                city: institutionInfo.city || '',
+                country: institutionInfo.country || '',
+                phone: institutionInfo.phone || '',
+                email: institutionInfo.email || '',
+                website: institutionInfo.website || '',
+                logo: institutionInfo.logo || '',
+                description: institutionInfo.description || '',
+                primaryColor: institutionInfo.primaryColor || '#3E5C49',
+                secondaryColor: institutionInfo.secondaryColor || '#C2571B',
+                reportHeader: institutionInfo.reportHeader || '',
+                reportFooter: institutionInfo.reportFooter || ''
+            };
+            reportData.subtitle = `${institutionInfo.name} - ${new Date().toLocaleDateString('fr-FR')}`;
+        }
+        // Ajouter le logo de l'application
+        reportData.appLogo = this.APP_LOGO;
+        return reportData;
+    }
     // Génération de rapport sur les documents avec informations d'institution
     static generateDocumentReport(documents, options, institutionInfo) {
         const now = new Date();
@@ -26483,12 +26508,8 @@ class ReportService {
                 parAnnee: this.groupByYear(filteredDocuments)
             }
         };
-        // Ajouter les informations d'institution si disponibles
-        if (institutionInfo) {
-            reportData.institutionName = institutionInfo.name;
-            reportData.subtitle = `${institutionInfo.name} - ${now.toLocaleDateString('fr-FR')}`;
-        }
-        return reportData;
+        // Enrichir avec les informations complètes d'institution et logos
+        return this.enrichReportData(reportData, institutionInfo);
     }
     // Génération de rapport sur les emprunteurs
     static generateBorrowerReport(borrowers, borrowHistory, options, institutionInfo) {
@@ -26534,12 +26555,8 @@ class ReportService {
                 totalEmprunts: Object.values(borrowStats).reduce((sum, stats) => sum + stats.totalBorrows, 0)
             }
         };
-        // Ajouter les informations d'institution si disponibles
-        if (institutionInfo) {
-            reportData.institutionName = institutionInfo.name;
-            reportData.subtitle = `${institutionInfo.name} - ${now.toLocaleDateString('fr-FR')}`;
-        }
-        return reportData;
+        // Enrichir avec les informations complètes d'institution et logos
+        return this.enrichReportData(reportData, institutionInfo);
     }
     // Génération de rapport d'historique des emprunts
     static generateBorrowHistoryReport(borrowHistory, options, institutionInfo) {
@@ -26619,12 +26636,8 @@ class ReportService {
                 dureeMovenneEmprunt: this.calculateAverageBorrowDuration(filteredHistory)
             }
         };
-        // Ajouter les informations d'institution si disponibles
-        if (institutionInfo) {
-            reportData.institutionName = institutionInfo.name;
-            reportData.subtitle = `${institutionInfo.name} - ${now.toLocaleDateString('fr-FR')}`;
-        }
-        return reportData;
+        // Enrichir avec les informations complètes d'institution et logos
+        return this.enrichReportData(reportData, institutionInfo);
     }
     // Export en CSV
     static exportToCSV(reportData) {
@@ -26822,11 +26835,24 @@ class ReportService {
         }
     }
     // Génération de contenu PDF avec design amélioré
-    static generatePDFContent(reportData, institutionInfo) {
+    static generatePDFContent(reportData) {
+        const institutionInfo = reportData.institutionInfo;
         const primaryColor = institutionInfo?.primaryColor || '#3E5C49';
         const secondaryColor = institutionInfo?.secondaryColor || '#C2571B';
-        const logoSection = institutionInfo?.logo ?
-            `<img src="${institutionInfo.logo}" alt="Logo" style="height: 60px; margin-right: 20px;">` : '';
+        // Création de la section logos avec logo d'app et logo d'institution
+        let logoSection = '';
+        if (reportData.appLogo || institutionInfo?.logo) {
+            logoSection = '<div class="logos-container">';
+            // Logo de l'application (toujours présent)
+            if (reportData.appLogo) {
+                logoSection += `<img src="${reportData.appLogo}" alt="Bibliosilio" class="app-logo">`;
+            }
+            // Logo de l'institution (si disponible)
+            if (institutionInfo?.logo) {
+                logoSection += `<img src="${institutionInfo.logo}" alt="Logo ${institutionInfo.name}" class="institution-logo">`;
+            }
+            logoSection += '</div>';
+        }
         return `
 <!DOCTYPE html>
 <html lang="fr">
@@ -26881,30 +26907,94 @@ class ReportService {
             color: #666;
         }
         
+        .logos-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-right: 20px;
+        }
+        
+        .app-logo {
+            height: 50px;
+            width: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .institution-logo {
+            height: 60px;
+            width: auto;
+            max-width: 120px;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
         .institution-info {
             background: linear-gradient(135deg, ${primaryColor}15, ${secondaryColor}10);
-            padding: 20px;
+            padding: 25px;
             border-radius: 12px;
             margin-bottom: 30px;
             border-left: 4px solid ${primaryColor};
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
-        .institution-info h3 {
+        .institution-header h3 {
             color: ${primaryColor};
-            margin: 0 0 10px 0;
-            font-size: 20px;
+            margin: 0 0 8px 0;
+            font-size: 22px;
+            font-weight: 700;
         }
         
-        .institution-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+        .institution-description {
+            color: #666;
+            font-style: italic;
+            margin: 0 0 20px 0;
             font-size: 14px;
+            line-height: 1.5;
         }
         
-        .institution-details div {
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .detail-item {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+        
+        .detail-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .detail-content {
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .detail-content strong {
+            color: ${primaryColor};
+            font-weight: 600;
+            display: block;
+            margin-bottom: 2px;
+        }
+        
+        .detail-content a {
+            color: ${secondaryColor};
+            text-decoration: none;
+        }
+        
+        .detail-content a:hover {
+            text-decoration: underline;
         }
         
         .institution-details strong {
@@ -27081,14 +27171,50 @@ class ReportService {
 
     ${institutionInfo ? `
     <div class="institution-info">
-        <h3>${institutionInfo.name}</h3>
+        <div class="institution-header">
+            <h3>📚 ${institutionInfo.name}</h3>
+            ${institutionInfo.description ? `<p class="institution-description">${institutionInfo.description}</p>` : ''}
+        </div>
         <div class="institution-details">
-            ${institutionInfo.address ? `<div><strong>📍</strong> ${institutionInfo.address}, ${institutionInfo.city}</div>` : ''}
-            ${institutionInfo.phone ? `<div><strong>📞</strong> ${institutionInfo.phone}</div>` : ''}
-            ${institutionInfo.email ? `<div><strong>📧</strong> ${institutionInfo.email}</div>` : ''}
-            ${institutionInfo.website ? `<div><strong>🌐</strong> ${institutionInfo.website}</div>` : ''}
-            ${institutionInfo.director ? `<div><strong>👤</strong> Directeur: ${institutionInfo.director}</div>` : ''}
-            ${institutionInfo.librarian ? `<div><strong>📚</strong> Bibliothécaire: ${institutionInfo.librarian}</div>` : ''}
+            <div class="details-grid">
+                ${institutionInfo.address || institutionInfo.city ? `
+                    <div class="detail-item">
+                        <span class="detail-icon">📍</span>
+                        <span class="detail-content">
+                            <strong>Adresse</strong><br>
+                            ${institutionInfo.address || ''}${institutionInfo.address && institutionInfo.city ? ', ' : ''}${institutionInfo.city || ''}
+                            ${institutionInfo.country ? `<br>${institutionInfo.country}` : ''}
+                        </span>
+                    </div>
+                ` : ''}
+                ${institutionInfo.phone ? `
+                    <div class="detail-item">
+                        <span class="detail-icon">📞</span>
+                        <span class="detail-content">
+                            <strong>Téléphone</strong><br>
+                            ${institutionInfo.phone}
+                        </span>
+                    </div>
+                ` : ''}
+                ${institutionInfo.email ? `
+                    <div class="detail-item">
+                        <span class="detail-icon">📧</span>
+                        <span class="detail-content">
+                            <strong>Email</strong><br>
+                            <a href="mailto:${institutionInfo.email}">${institutionInfo.email}</a>
+                        </span>
+                    </div>
+                ` : ''}
+                ${institutionInfo.website ? `
+                    <div class="detail-item">
+                        <span class="detail-icon">🌐</span>
+                        <span class="detail-content">
+                            <strong>Site web</strong><br>
+                            <a href="${institutionInfo.website}" target="_blank">${institutionInfo.website}</a>
+                        </span>
+                    </div>
+                ` : ''}
+            </div>
         </div>
     </div>
     ` : ''}
@@ -27201,6 +27327,8 @@ class ReportService {
         return headers[key] || key.charAt(0).toUpperCase() + key.slice(1);
     }
 }
+// Logo de l'application (base64 ou chemin)
+ReportService.APP_LOGO = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iIzNFNUM0OSIvPgo8cGF0aCBkPSJNMTIgMTBIMjhWMTJIMTJWMTBaIiBmaWxsPSIjRjNFRUQ5Ii8+CjxwYXRoIGQ9Ik0xMiAxNEgyOFYxNkgxMlYxNFoiIGZpbGw9IiNGM0VFRDkiLz4KPHA+dGggZD0iTTEyIDE4SDI0VjIwSDEyVjE4WiIgZmlsbD0iI0YzRUVEOSIvPgo8cGF0aCBkPSJNMTIgMjJIMjhWMjRIMTJWMjJaIiBmaWxsPSIjRjNFRUQ5Ii8+CjxwYXRoIGQ9Ik0xMiAyNkgyNFYyOEgxMlYyNloiIGZpbGw9IiNGM0VFRDkiLz4KPHA+dGggZD0iTTEyIDMwSDI4VjMySDEyVjMwWiIgZmlsbD0iI0YzRUVEOSIvPgo8L3N2Zz4K';
 
 
 /***/ }),
