@@ -1190,11 +1190,6 @@ export class DatabaseService {
     });
   }
 
-  // Alias pour compatibilité
-  async clearDatabase(): Promise<void> {
-    await this.clearAllData();
-  }
-
   // Utilitaires
   async clearAllData(): Promise<boolean> {
     return new Promise(async (resolve, reject) => {

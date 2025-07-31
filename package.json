@@ -7,16 +7,17 @@
     "start": "electron dist/main.js",
     "dev": "npm run build && electron dist/main.js",
     "build": "npm run build:main && npm run build:preload && npm run build:renderer",
-    "build:main": "webpack --config-name=main",
-    "build:preload": "webpack --config-name=preload",
-    "build:renderer": "webpack --config-name=renderer",
-    "build:all": "webpack",
+    "build:main": "npx webpack --config-name=main",
+    "build:preload": "npx webpack --config-name=preload", 
+    "build:renderer": "npx webpack --config-name=renderer",
+    "build:all": "npx webpack",
     "clean": "rimraf dist",
     "watch": "webpack --watch",
     "watch:main": "webpack --config-name=main --watch",
     "watch:preload": "webpack --config-name=preload --watch",
     "watch:renderer": "webpack --config-name=renderer --watch",
     "package": "npm run build && electron-builder",
+    "build:win": "npm run build && electron-builder --config electron-builder.json5 --win",
     "rebuild": "electron-rebuild -f -w sqlite3",
     "postinstall": "electron-builder install-app-deps"
   },
@@ -61,44 +62,9 @@
     "dotenv": "^17.2.0",
     "extract-zip": "^2.0.1",
     "lucide-react": "^0.263.1",
+    "nedb": "^1.8.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sqlite3": "^5.1.7",
     "xlsx": "^0.18.5"
-  },
-  "build": {
-    "appId": "com.bibliosilio.app",
-    "productName": "Bibliosilio",
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "dist/**/*",
-      "node_modules/**/*"
-    ],
-    "icon": "icons/icon",
-    "win": {
-      "icon": "icons/icon.ico",
-      "target": [
-        {
-          "target": "nsis",
-          "arch": ["x64"]
-        }
-      ]
-    },
-    "mac": {
-      "icon": "icons/icon.icns",
-      "category": "public.app-category.productivity"
-    },
-    "linux": {
-      "icon": "icons/icon.png",
-      "category": "Office"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "installerIcon": "icons/icon.ico",
-      "uninstallerIcon": "icons/icon.ico"
-    }
   }
 }

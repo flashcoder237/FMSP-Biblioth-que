@@ -1,0 +1,62 @@
+{
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+  "appId": "com.bibliosilio.app",
+  "asar": true,
+  "productName": "Bibliosilio",
+  "directories": {
+    "output": "release/${version}"
+  },
+  "files": [
+    "dist/**/*",
+    "!dist/**/*.map",
+    "node_modules/nedb/**/*",
+    "node_modules/archiver/**/*", 
+    "node_modules/extract-zip/**/*",
+    "node_modules/xlsx/**/*",
+    "node_modules/dotenv/**/*",
+    "node_modules/lucide-react/**/*",
+    "node_modules/react/**/*",
+    "node_modules/react-dom/**/*",
+    "!node_modules/@types/**/*",
+    "!node_modules/typescript/**/*",
+    "!node_modules/**/test/**/*",
+    "!node_modules/**/tests/**/*",
+    "!node_modules/**/*.md",
+    "!node_modules/**/.git*"
+  ],
+  "icon": "icons/icon",
+  "mac": {
+    "target": [
+      "dmg"
+    ],
+    "artifactName": "${productName}-Mac-${version}-Installer.${ext}",
+    "icon": "icons/icon.icns"
+  },
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      }
+    ],
+    "artifactName": "${productName}-Windows-${version}-Setup.${ext}",
+    "icon": "icons/icon.ico"
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": true,
+    "deleteAppDataOnUninstall": false,
+    "installerIcon": "icons/icon.ico",
+    "uninstallerIcon": "icons/icon.ico"
+  },
+  "linux": {
+    "target": [
+      "AppImage"
+    ],
+    "artifactName": "${productName}-Linux-${version}.${ext}",
+    "icon": "icons/icon.png"
+  }
+}
